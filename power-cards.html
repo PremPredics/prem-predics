@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🃏 DEMO - Power Cards 🃏</title>
+<style>
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+  padding: 20px;
+}
+
+h1 { 
+  text-align: center; 
+  color: #e9d5ff;
+  text-shadow: 0 0 6px #c084fc;
+}
+
+button { 
+  padding: 10px 14px; 
+  margin: 4px; 
+  font-size: 14px; 
+  cursor: pointer; 
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+  color: #fff;
+  font-weight: bold;
+  transition: 0.3s;
+}
+button:hover:not(:disabled){ 
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  transform: scale(1.05);
+}
+button:disabled { 
+  opacity: 0.5; 
+  cursor: not-allowed; 
+}
+
+.container { max-width: 1200px; margin: auto; }
+.row { display: flex; justify-content: space-between; margin-top: 20px; gap: 20px; }
+
+.box { 
+  background: #2e1066; 
+  padding: 20px; 
+  border-radius: 12px; 
+  width: 48%; 
+  box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
+}
+
+.card-tile {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  border: 2px solid #d8b4fe;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 6px;
+  min-width: 120px;
+  text-align: center;
+  cursor: pointer;
+  display: inline-block;
+  user-select: none;
+  font-weight: bold;
+  color: #fff;
+  transition: transform 0.4s, box-shadow 0.3s, border-color 0.2s, background 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.card-tile.fly { animation: flyToHand 0.6s ease-out forwards; }
+.card-tile:hover { transform: scale(1.12); box-shadow: 0 0 18px #d8b4fe; }
+.card-tile.selected { border: 2px solid #f87171; }
+.card-tile.keep { border: 2px solid #34d399; }
+.card-tile.swap-select { border: 3px solid orange; }
+
+.hand { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; min-height: 60px; }
+.discard-pile { margin-top: 10px; background: #3b0764; padding: 10px; border-radius: 8px; max-height: 120px; overflow-y: auto; font-size: 14px; box-shadow: inset 0 0 8px rgba(255,255,255,0.1);}
+.pending-swap { margin-top: 10px; background: #5b21b6; padding: 12px; border-radius: 8px; }
+
+#lastCard { display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; margin-top: 6px; color: #f0abfc; text-shadow: 0 0 4px #c084fc; }
+#assignButtons, #confirmSwapBtn, #confirmPickBtn, #confirmStealBtn { margin-top: 10px; display: none; }
+
+@keyframes flyToHand {
+  0% { transform: translateY(-50px) scale(1.3); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Back button style */
+.back-home-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.back-home-btn:hover {
+  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+  transform: scale(1.03);
+}
+</style>
+</head>
+<body>
+
+<h1>🃏 Premier League Prediction League Cards 🃏</h1>
+
+<div class="container">
+  <div>
+    <button id="startBtn">Start Season</button>
+    <button id="drawRegularBtn" disabled>Draw Regular Card</button>
+    <button id="drawPremiumBtn" disabled>Draw Premium Card</button>
+    <button onclick="resetSeason()">Reset Season</button>
+  </div>
+
+  <div class="row">
+    <div class="box">
+      <h2>Vas</h2>
+      <div><strong>Hand:</strong></div>
+      <div id="p1Hand" class="hand"></div>
+    </div>
+    <div class="box">
+      <h2>Tom</h2>
+      <div><strong>Hand:</strong></div>
+      <div id="p2Hand" class="hand"></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Last Card Drawn</h2>
+    <div id="lastCard" class="card-tile">None</div>
+    <div id="assignButtons">
+      <button onclick="assignCard('p1')">Give to Vas</button>
+      <button onclick="assignCard('p2')">Give to Tom</button>
+      <button onclick="discardLastCard()">Discard</button>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Pending Swap / Steal</h2>
+    <div id="pendingSwap" class="pending-swap"></div>
+    <button id="confirmSwapBtn" onclick="confirmSwap()">Confirm Discard</button>
+    <button id="confirmPickBtn" onclick="confirmPick()">Confirm Picks</button>
+    <button id="confirmStealBtn" onclick="confirmSteal()">Confirm Steal</button>
+  </div>
+
+  <div class="box">
+    <h2>Discard / Used Pile</h2>
+    <div id="discardPile" class="discard-pile">Empty</div>
+  </div>
+
+  <div class="deck-info" style="margin-top:15px;">
+    Regular Deck: <span id="regularCount">0</span> cards |
+    Premium Deck: <span id="premiumCount">0</span> cards
+  </div>
+
+  <!-- Back to homepage button -->
+  <button class="back-home-btn" onclick="window.location.href='index.html'">← Back to Homepage</button>
+</div>
+
+<script>
+const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Laundrette","Power of the Laundrette","Power of the Rocket Man","Power of the Rocket Man","Power of the Rocket Man","Power of the Pessimist","Power of the Immigrants","Power of the Immigrants","Power of the Lanky Crouch","Power of the Lanky Crouch","Power of the Small and Mighty","Power of the Small and Mighty","Power of God","Power of God","Power of the Hedge","Power of the Hedge","Power of the Assist King","Power of the Late Scout","Power of the Late Scout","Power of the Late Scout","Power of the Snow","Power of the Snow"];
+const curseDeckBase = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Alphabet (20+)","Curse of the Scoring Drought (3)","Curse of the Scoring Drought (5)","Curse of the Random Roulette","Curse of the Random Roulette","Curse of the Glasses","Curse of the Glasses","Curse of the Deleted Match","Curse of the Deleted Match","Curse of the Tiny Club","Curse of the Tiny Club","Curse of the Thief","Curse of the Thief","Curse of the Even Number","Curse of the Odd Number"];
+const premiumDeckBase = ["Super Star Man","Super Golden Gameweek","Super Sub","Super Fantasy Boost","Super Draw","Super Duo","Super Pen"];
+
+let gameState = {
+  seasonStarted:false,
+  players:{p1:{hand:[]}, p2:{hand:[]}},
+  regularDeck:[], premiumDeck:[], discardPile:[],
+  lastCard:null, pendingSwap:null,
+  stealMode:null, selectedSteal:null
+};
+
+let lastHandSizes = { p1: 0, p2: 0 };
+
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
+function save(){ localStorage.setItem("ucGameState",JSON.stringify(gameState)); }
+function load(){ const saved=localStorage.getItem("ucGameState"); if(saved) gameState=JSON.parse(saved); }
+
+function startSeason(){
+  if(gameState.seasonStarted) return;
+  let powerDeck=[...powerDeckBase], curseDeck=[...curseDeckBase], premiumDeck=[...premiumDeckBase];
+  shuffle(powerDeck); shuffle(curseDeck); shuffle(premiumDeck);
+  ['p1','p2'].forEach(p=> gameState.players[p].hand.push(powerDeck.pop(), curseDeck.pop()));
+  gameState.regularDeck=[...powerDeck,...curseDeck]; shuffle(gameState.regularDeck);
+  gameState.premiumDeck=premiumDeck; gameState.seasonStarted=true;
+  save(); render();
+}
+
+function drawCard(deckType){
+  if(gameState.lastCard || gameState.pendingSwap || gameState.stealMode){ alert("Finish current action first!"); return; }
+  let deck = deckType==='regular'?gameState.regularDeck:gameState.premiumDeck;
+  if(deck.length===0){ alert("Deck empty!"); return; }
+  const card=deck.pop();
+  gameState.lastCard={name:card,type:deckType};
+  save(); render();
+}
+
+function assignCard(player){
+  if(!gameState.lastCard) return;
+  gameState.players[player].hand.push(gameState.lastCard.name);
+  gameState.lastCard=null; save(); render();
+}
+function discardLastCard(){ if(!gameState.lastCard) return; gameState.discardPile.push(gameState.lastCard.name); gameState.lastCard=null; save(); render(); }
+
+function useCard(player,index){
+  if(gameState.pendingSwap || gameState.stealMode) return;
+  const card = gameState.players[player].hand[index];
+
+  if(!confirm(`Are you sure you would like to play '${card}'?`)) return;
+
+  if(!card.includes("Power of the Swap")) gameState.discardPile.push(card);
+
+  gameState.players[player].hand.splice(index,1);
+
+  if(card === "Super Draw"){
+    for(let i=0;i<3;i++){
+      if(gameState.regularDeck.length>0) gameState.players[player].hand.push(gameState.regularDeck.pop());
+    }
+  }
+  else if(card.includes("Power of the Swap")) startSwap(player, card);
+  else if(card.includes("Curse of the Thief")) startStealMode(player);
+
+  save(); render();
+}
+
+function startSwap(player, card){
+  gameState.pendingSwap = { player, card, discardChoice:null, drawn:[], selectedIndices:[] };
+  document.getElementById("confirmSwapBtn").style.display="block";
+  render();
+}
+
+function pickSwapDiscard(index){
+  if(!gameState.pendingSwap) return;
+  gameState.pendingSwap.discardChoice = index;
+  render();
+}
+
+function confirmSwap(){
+  const swap = gameState.pendingSwap;
+  if(swap.discardChoice === null){ alert("Select one card to discard"); return; }
+
+  const hand = gameState.players[swap.player].hand;
+  gameState.discardPile.push(hand.splice(swap.discardChoice,1)[0]);
+  gameState.discardPile.push(swap.card);
+
+  swap.drawn = [];
+  for(let i=0;i<3;i++) if(gameState.regularDeck.length>0) swap.drawn.push(gameState.regularDeck.pop());
+
+  document.getElementById("confirmSwapBtn").style.display="none";
+  document.getElementById("confirmPickBtn").style.display="block";
+  render();
+}
+
+function pickSwapKeep(index){
+  const swap=gameState.pendingSwap;
+  if(swap.selectedIndices.includes(index))
+    swap.selectedIndices = swap.selectedIndices.filter(i=>i!==index);
+  else if(swap.selectedIndices.length<2)
+    swap.selectedIndices.push(index);
+  render();
+}
+
+function confirmPick(){
+  const swap=gameState.pendingSwap;
+  if(swap.selectedIndices.length!==2){ alert("Select exactly 2 cards to keep"); return; }
+
+  swap.selectedIndices.sort((a,b)=>b-a)
+    .forEach(i=>gameState.players[swap.player].hand.push(swap.drawn.splice(i,1)[0]));
+  swap.drawn.forEach(c=>gameState.discardPile.push(c));
+
+  gameState.pendingSwap=null;
+  document.getElementById("confirmPickBtn").style.display="none";
+  render();
+}
+
+function startStealMode(player){ gameState.stealMode=player; gameState.selectedSteal=null; render(); }
+function selectSteal(opponent,index){ gameState.selectedSteal={opponent,index}; render(); }
+
+function confirmSteal(){
+  if(!gameState.selectedSteal){ alert("Select a card"); return; }
+  const {opponent,index}=gameState.selectedSteal;
+  const player=gameState.stealMode;
+  gameState.players[player].hand.push(gameState.players[opponent].hand.splice(index,1)[0]);
+  gameState.stealMode=null;
+  gameState.selectedSteal=null;
+  document.getElementById("confirmStealBtn").style.display="none";
+  save(); render();
+}
+
+function render(){
+  ['p1','p2'].forEach(p=>{
+    const container=document.getElementById(p+'Hand');
+    container.innerHTML="";
+    gameState.players[p].hand.forEach((c,i)=>{
+      const div=document.createElement('div');
+      div.className='card-tile';
+      div.innerText=c;
+
+      if(i >= lastHandSizes[p]) div.classList.add('fly');
+
+      if(gameState.pendingSwap && gameState.pendingSwap.player===p && gameState.pendingSwap.drawn.length===0){
+        div.onclick = ()=>pickSwapDiscard(i);
+        if(gameState.pendingSwap.discardChoice===i) div.classList.add('swap-select');
+      } else if(!gameState.pendingSwap && !gameState.stealMode){
+        div.onclick = ()=>useCard(p,i);
+      } else if(gameState.stealMode && gameState.stealMode!==p){
+        div.onclick = ()=>{
+          selectSteal(p,i);
+          document.getElementById("confirmStealBtn").style.display="block";
+        };
+        if(gameState.selectedSteal && gameState.selectedSteal.opponent===p && gameState.selectedSteal.index===i)
+          div.classList.add('selected');
+      }
+
+      container.appendChild(div);
+    });
+    lastHandSizes[p] = gameState.players[p].hand.length;
+  });
+
+  const swapDiv=document.getElementById("pendingSwap");
+  if(gameState.pendingSwap){
+    let html = `<strong>Power of the Swap Active!</strong><br>`;
+    if(gameState.pendingSwap.drawn.length===0){
+      html += "Choose 1 card from your hand to discard.";
+    } else {
+      html += "Choose 2 cards from the 3 drawn to keep:<br>";
+      gameState.pendingSwap.drawn.forEach((c,i)=>{
+        const selected = gameState.pendingSwap.selectedIndices.includes(i) ? 'swap-select' : '';
+        html += `<div class="card-tile ${selected}" onclick="pickSwapKeep(${i})">${c}</div>`;
+      });
+    }
+    swapDiv.style.display="block";
+    swapDiv.innerHTML = html;
+  } else if(gameState.stealMode){
+    const opp = gameState.stealMode==='p1'?'Tom':'Vas';
+    swapDiv.style.display="block";
+    swapDiv.innerHTML=`<strong>${gameState.stealMode==='p1'?'Vas':'Tom'} stealing from ${opp}</strong><br>Select a card and press Confirm Steal`;
+    document.getElementById("confirmStealBtn").style.display="block";
+  } else swapDiv.style.display="none";
+
+  document.getElementById("regularCount").innerText=gameState.regularDeck.length;
+  document.getElementById("premiumCount").innerText=gameState.premiumDeck.length;
+  document.getElementById("lastCard").innerText=gameState.lastCard?gameState.lastCard.name:"None";
+  document.getElementById("assignButtons").style.display=gameState.lastCard?"block":"none";
+  document.getElementById("discardPile").innerText=gameState.discardPile.length?gameState.discardPile.join(", "):"Empty";
+
+  document.getElementById("startBtn").disabled=gameState.seasonStarted;
+  document.getElementById("drawRegularBtn").disabled=!gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
+  document.getElementById("drawPremiumBtn").disabled=!gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
+}
+
+function resetSeason(){
+  if(confirm("Reset entire season?")){
+    localStorage.removeItem("ucGameState");
+    location.reload();
+  }
+}
+
+load();
+render();
+document.getElementById("startBtn").onclick=startSeason;
+document.getElementById("drawRegularBtn").onclick=()=>drawCard('regular');
+document.getElementById("drawPremiumBtn").onclick=()=>drawCard('premium');
+</script>
+</body>
+</html>

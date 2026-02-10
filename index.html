@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Premier League Prediction League - 2026/27</title>
+<style>
+/* ===== BODY & BACKGROUND ===== */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== HEADER ===== */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+  flex-wrap: wrap;
+}
+
+header img {
+  height: 50px;
+  width: auto;
+}
+
+header h1 {
+  flex-grow: 1;
+  text-align: center;
+  font-size: 26px;
+  margin: 10px;
+  color: #f3e8ff;
+  text-shadow: 0 0 6px #d8b4fe;
+}
+
+/* ===== MENU BUTTONS ===== */
+.menu {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 40px 20px;
+}
+
+.menu button {
+  padding: 18px 28px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #8b5cf6;
+  color: #fff;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  transition: all 0.3s ease;
+  width: 220px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* space between icons and text */
+}
+
+.menu button:hover {
+  background: #a78bfa;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+.menu button:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* ===== ICON STYLING ===== */
+.menu svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #d8b4fe;
+  font-size: 14px;
+  border-top: 1px solid #a78bfa;
+  margin-top: 50px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  header h1 {
+    font-size: 22px;
+  }
+
+  .menu {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .menu button {
+    width: 80%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 20px;
+  }
+
+  .menu button {
+    font-size: 16px;
+    padding: 14px 20px;
+  }
+
+  .menu svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER WITH LOGOS ===== -->
+<header>
+  <img src="logo-left.png" alt="Left Logo">
+  <h1>Premier League Prediction League - 2026/27</h1>
+  <img src="logo-right.png" alt="Right Logo">
+</header>
+
+<!-- ===== MENU BUTTONS WITH ICONS ===== -->
+<div class="menu">
+  <!-- Power Cards -->
+  <button onclick="location.href='power-cards.html'">
+    <!-- Left Icon: Card -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12z"/>
+    </svg>
+    Power Cards
+    <!-- Right Icon: Card -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12z"/>
+    </svg>
+  </button>
+
+  <!-- Leaderboard -->
+  <button onclick="location.href='leaderboard.html'">
+    <!-- Left Icon: Trophy -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M17 3H7v2H4v4c0 2.21 1.79 4 4 4h1v4h6v-4h1c2.21 0 4-1.79 4-4V5h-3V3z"/>
+    </svg>
+    Leaderboard
+    <!-- Right Icon: Trophy -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M17 3H7v2H4v4c0 2.21 1.79 4 4 4h1v4h6v-4h1c2.21 0 4-1.79 4-4V5h-3V3z"/>
+    </svg>
+  </button>
+
+  <!-- Statistics -->
+  <button onclick="location.href='statistics.html'">
+    <!-- Left Icon: Chart -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M3 17h2v-7H3v7zm4 0h2V7H7v10zm4 0h2v-4h-2v4zm4 0h2V3h-2v14zm4 0h2v-9h-2v9z"/>
+    </svg>
+    Statistics
+    <!-- Right Icon: Chart -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M3 17h2v-7H3v7zm4 0h2V7H7v10zm4 0h2v-4h-2v4zm4 0h2V3h-2v14zm4 0h2v-9h-2v9z"/>
+    </svg>
+  </button>
+
+  <!-- Correct Scores -->
+  <button onclick="location.href='correct-scores.html'">
+    <!-- Left Icon: Check -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/>
+    </svg>
+    Correct Scores
+    <!-- Right Icon: Check -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/>
+    </svg>
+  </button>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  &copy; 2026 Premier League Prediction League | Designed with intent.
+</footer>
+
+</body>
+</html>
