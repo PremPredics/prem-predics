@@ -162,7 +162,7 @@ button:disabled {
 </div>
 
 <script>
-const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Launderette"];
+const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Lau"];
 const curseDeckBase = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Thief"];
 const premiumDeckBase = ["Super Star Man","Super Golden Gameweek","Super Sub","Super Fantasy Boost","Super Draw","Super Duo","Super Pen"];
 
@@ -215,6 +215,14 @@ function useCard(player,index){
     const opponent = player === 'p1' ? 'p2' : 'p1';
     if(gameState.players[opponent].hand.length === 0) {
       alert("You cannot play Curse of the Thief when your opponent has no cards!");
+      return;
+    }
+  }
+
+  // Check if Power of the Swap is being played and player has only 1 card
+  if(card.includes("Power of the Swap")) {
+    if(gameState.players[player].hand.length < 2) {
+      alert("You need at least 2 cards in your hand to play Power of the Swap!");
       return;
     }
   }
