@@ -61,9 +61,9 @@ header h1 {
 /* ===== MENU BUTTONS ===== */
 .menu {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 25px;
-  max-width: 1400px;
+  max-width: 900px;
   width: 100%;
 }
 
@@ -149,7 +149,7 @@ footer {
 /* ===== RESPONSIVE - TABLET ===== */
 @media (max-width: 1024px) {
   .menu {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     padding: 0 10px;
   }
@@ -358,6 +358,15 @@ footer {
 <footer>
   &copy; 2026 Premier League Prediction League | Designed with intent.
 </footer>
+
+<script>
+  // Clear any active states when page loads (prevents button highlighting from persisting)
+  window.addEventListener('pageshow', function() {
+    document.querySelectorAll('.menu button').forEach(button => {
+      button.blur();
+    });
+  });
+</script>
 
 </body>
 </html>
