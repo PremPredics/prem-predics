@@ -67,7 +67,7 @@ button:disabled {
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   padding: 20px;
   background: rgba(46, 16, 102, 0.6);
   border-radius: 12px;
@@ -76,6 +76,75 @@ button:disabled {
 
 .controls button {
   margin: 5px;
+}
+
+/* Drawn Card Section - NEW */
+#drawnCardSection {
+  display: none;
+  background: linear-gradient(135deg, #2e1066, #3b0764);
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#drawnCardSection h2 {
+  text-align: center;
+  color: #f0abfc;
+  text-shadow: 0 0 4px #c084fc;
+  margin-top: 0;
+}
+
+#drawnCardDisplay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: bold;
+  padding: 30px;
+  color: #fff;
+  text-shadow: 0 0 6px #c084fc;
+  min-height: 100px;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  border-radius: 8px;
+  border: 3px solid #d8b4fe;
+  margin: 15px 0;
+  box-shadow: 0 0 20px rgba(212, 212, 16, 0.4);
+}
+
+#drawnCardAssignButtons {
+  display: none;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+#drawnCardAssignButtons button {
+  flex: 1;
+  min-width: 140px;
+  padding: 15px;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  #drawnCardAssignButtons button {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 120px;
+  }
 }
 
 .players-row {
@@ -194,64 +263,6 @@ button:disabled {
   margin-top: 0;
 }
 
-#lastCard {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: clamp(1rem, 3vw, 1.5rem);
-  font-weight: bold;
-  padding: 25px;
-  color: #f0abfc;
-  text-shadow: 0 0 4px #c084fc;
-  min-height: 80px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  border: 2px dashed rgba(196, 132, 252, 0.4);
-  margin: 15px 0;
-}
-
-#assignButtons {
-  display: none;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-#assignButtons button {
-  flex: 1;
-  min-width: 140px;
-  padding: 15px;
-  font-size: 1rem;
-}
-
-@media (max-width: 768px) {
-  #assignButtons button {
-    flex: 1 1 calc(50% - 5px);
-    min-width: 120px;
-  }
-}
-
-.action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.action-buttons button {
-  flex: 1;
-  min-width: 140px;
-}
-
-@media (max-width: 768px) {
-  .action-buttons button {
-    flex: 1 1 calc(50% - 5px);
-    min-width: 120px;
-  }
-}
-
 .pending-swap { 
   margin-top: 15px;
   background: rgba(91, 33, 182, 0.4);
@@ -350,6 +361,16 @@ button:disabled {
   .player-box {
     padding: 15px;
   }
+
+  #drawnCardSection {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  #drawnCardDisplay {
+    padding: 25px;
+    min-height: 80px;
+  }
 }
 </style>
 </head>
@@ -366,6 +387,17 @@ button:disabled {
     <button onclick="resetSeason()">Reset Season</button>
   </div>
 
+  <!-- Drawn Card Section - NEW AND REPOSITIONED -->
+  <div id="drawnCardSection">
+    <h2>🎯 Drawn Card</h2>
+    <div id="drawnCardDisplay"></div>
+    <div id="drawnCardAssignButtons">
+      <button onclick="assignCard('p1')">✓ Give to Vas</button>
+      <button onclick="assignCard('p2')">✓ Give to Tom</button>
+      <button onclick="discardLastCard()">✗ Discard</button>
+    </div>
+  </div>
+
   <!-- Player Hands -->
   <div class="players-row">
     <div class="player-box">
@@ -377,17 +409,6 @@ button:disabled {
       <h2>Tom</h2>
       <div class="hand-label">Hand (Click card to use):</div>
       <div id="p2Hand" class="hand"></div>
-    </div>
-  </div>
-
-  <!-- Last Card Drawn -->
-  <div class="card-section">
-    <h2>Last Card Drawn</h2>
-    <div id="lastCard">None</div>
-    <div id="assignButtons">
-      <button onclick="assignCard('p1')">✓ Give to Vas</button>
-      <button onclick="assignCard('p2')">✓ Give to Tom</button>
-      <button onclick="discardLastCard()">✗ Discard</button>
     </div>
   </div>
 
@@ -419,8 +440,8 @@ button:disabled {
 </div>
 
 <script>
-const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Steal","Power of the Steal"];
-const curseDeckBase = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Alphabet (15+)","Curse of the Thief","Curse of the Thief"];
+const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Penalty","Power of the Penalty","Power of the Penalty","Power of the Golden Gameweek","Power of the Golden Gameweek","Power of the Golden Gameweek","Power of the Bench Boost","Power of the Bench Boost","Power of the Bench Boost"];
+const curseDeckBase = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Alphabet (15+)","Curse of the Red Card","Curse of the Red Card","Curse of the Injury","Curse of the Injury","Curse of the Thief","Curse of the Thief","Curse of the Missing Bonus","Curse of the Missing Bonus"];
 const premiumDeckBase = ["Super Star Man","Super Golden Gameweek","Super Sub","Super Fantasy Boost","Super Draw","Super Duo","Super Pen"];
 
 let gameState = {
@@ -630,8 +651,9 @@ function render(){
 
   document.getElementById("regularCount").innerText=gameState.regularDeck.length;
   document.getElementById("premiumCount").innerText=gameState.premiumDeck.length;
-  document.getElementById("lastCard").innerText=gameState.lastCard?gameState.lastCard.name:"None";
-  document.getElementById("assignButtons").style.display=gameState.lastCard?"flex":"none";
+  document.getElementById("drawnCardDisplay").innerText=gameState.lastCard?gameState.lastCard.name:"";
+  document.getElementById("drawnCardSection").style.display=gameState.lastCard?"block":"none";
+  document.getElementById("drawnCardAssignButtons").style.display=gameState.lastCard?"flex":"none";
   document.getElementById("discardPile").innerText=gameState.discardPile.length?gameState.discardPile.join(", "):"Empty";
 
   document.getElementById("startBtn").disabled=gameState.seasonStarted;
