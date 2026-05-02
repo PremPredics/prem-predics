@@ -2,25 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🃏 DEMO - Power Cards 🃏</title>
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
   background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
   color: #f3f4f6;
-  padding: 20px;
+  padding: 15px;
+  margin: 0;
+  min-height: 100vh;
 }
 
 h1 { 
   text-align: center; 
   color: #e9d5ff;
   text-shadow: 0 0 6px #c084fc;
+  margin: 15px 0 25px 0;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+}
+
+h2 {
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  margin: 10px 0;
+  color: #e9d5ff;
 }
 
 button { 
-  padding: 10px 14px; 
-  margin: 4px; 
-  font-size: 14px; 
+  padding: 12px 16px; 
+  margin: 6px; 
+  font-size: clamp(0.85rem, 2vw, 1rem); 
   cursor: pointer; 
   border: none;
   border-radius: 6px;
@@ -28,68 +43,269 @@ button {
   color: #fff;
   font-weight: bold;
   transition: 0.3s;
+  white-space: nowrap;
 }
+
 button:hover:not(:disabled){ 
   background: linear-gradient(90deg, #8b5cf6, #a78bfa);
   transform: scale(1.05);
 }
+
 button:disabled { 
   opacity: 0.5; 
   cursor: not-allowed; 
 }
 
-.container { max-width: 1200px; margin: auto; }
-.row { display: flex; justify-content: space-between; margin-top: 20px; gap: 20px; }
+.container { 
+  max-width: 1400px; 
+  margin: 0 auto;
+  width: 100%;
+}
 
-.box { 
-  background: #2e1066; 
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(46, 16, 102, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(123, 63, 248, 0.3);
+}
+
+.controls button {
+  margin: 5px;
+}
+
+.players-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+  .players-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.player-box { 
+  background: linear-gradient(135deg, #2e1066, #3b0764);
   padding: 20px; 
   border-radius: 12px; 
-  width: 48%; 
   box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.player-box h2 {
+  text-align: center;
+  margin-top: 0;
+  color: #f0abfc;
+  text-shadow: 0 0 4px #c084fc;
+}
+
+.hand-label {
+  font-weight: bold;
+  color: #d8b4fe;
+  margin: 15px 0 10px 0;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+}
+
+.hand { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 10px; 
+  min-height: 100px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+@media (max-width: 768px) {
+  .hand {
+    min-height: 80px;
+    max-height: 400px;
+  }
 }
 
 .card-tile {
   background: linear-gradient(135deg, #7c3aed, #a78bfa);
   border: 2px solid #d8b4fe;
-  border-radius: 12px;
-  padding: 14px;
-  margin: 6px;
-  min-width: 120px;
+  border-radius: 10px;
+  padding: 12px 10px;
+  min-width: 90px;
   text-align: center;
   cursor: pointer;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   user-select: none;
   font-weight: bold;
   color: #fff;
-  transition: transform 0.4s, box-shadow 0.3s, border-color 0.2s, background 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.2s, background 0.3s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+  flex: 0 0 auto;
+}
+
+@media (max-width: 768px) {
+  .card-tile {
+    min-width: 80px;
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
 }
 
 .card-tile.fly { animation: flyToHand 0.6s ease-out forwards; }
-.card-tile:hover { transform: scale(1.12); box-shadow: 0 0 18px #d8b4fe; }
-.card-tile.selected { border: 2px solid #f87171; }
-.card-tile.keep { border: 2px solid #34d399; }
-.card-tile.swap-select { border: 3px solid orange; }
+.card-tile:hover { 
+  transform: scale(1.15);
+  box-shadow: 0 0 18px #d8b4fe;
+}
+.card-tile.selected { 
+  border: 3px solid #f87171;
+  background: linear-gradient(135deg, #be123c, #e11d48);
+}
+.card-tile.keep { border: 3px solid #34d399; }
+.card-tile.swap-select { 
+  border: 3px solid #fbbf24;
+  background: linear-gradient(135deg, #ca8a04, #f59e0b);
+}
 
-.hand { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; min-height: 60px; }
-.discard-pile { margin-top: 10px; background: #3b0764; padding: 10px; border-radius: 8px; max-height: 120px; overflow-y: auto; font-size: 14px; box-shadow: inset 0 0 8px rgba(255,255,255,0.1);}
-.pending-swap { margin-top: 10px; background: #5b21b6; padding: 12px; border-radius: 8px; }
+.card-section {
+  background: linear-gradient(135deg, #2e1066, #3b0764);
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
+  border: 2px solid rgba(196, 132, 252, 0.3);
+}
 
-#lastCard { display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; margin-top: 6px; color: #f0abfc; text-shadow: 0 0 4px #c084fc; }
-#assignButtons, #confirmSwapBtn, #confirmPickBtn, #confirmStealBtn { margin-top: 10px; display: none; }
+.card-section h2 {
+  text-align: center;
+  color: #f0abfc;
+  text-shadow: 0 0 4px #c084fc;
+  margin-top: 0;
+}
+
+#lastCard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-weight: bold;
+  padding: 25px;
+  color: #f0abfc;
+  text-shadow: 0 0 4px #c084fc;
+  min-height: 80px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 2px dashed rgba(196, 132, 252, 0.4);
+  margin: 15px 0;
+}
+
+#assignButtons {
+  display: none;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+#assignButtons button {
+  flex: 1;
+  min-width: 140px;
+  padding: 15px;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  #assignButtons button {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 120px;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+  min-width: 140px;
+}
+
+@media (max-width: 768px) {
+  .action-buttons button {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 120px;
+  }
+}
+
+.pending-swap { 
+  margin-top: 15px;
+  background: rgba(91, 33, 182, 0.4);
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+}
+
+.pending-swap strong {
+  color: #fbbf24;
+  display: block;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.drawn-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.discard-pile {
+  background: rgba(59, 7, 100, 0.5);
+  padding: 20px;
+  border-radius: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+  border: 1px solid rgba(196, 132, 252, 0.2);
+  min-height: 60px;
+}
+
+.deck-info {
+  margin-top: 20px;
+  text-align: center;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  padding: 15px;
+  background: rgba(46, 16, 102, 0.6);
+  border-radius: 8px;
+}
 
 @keyframes flyToHand {
   0% { transform: translateY(-50px) scale(1.3); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-/* Back button style */
 .back-home-btn {
-  margin-top: 20px;
+  margin-top: 30px;
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
+  padding: 15px;
+  font-size: 1rem;
   font-weight: bold;
   border-radius: 8px;
   background: linear-gradient(90deg, #8b5cf6, #a78bfa);
@@ -98,9 +314,42 @@ button:disabled {
   cursor: pointer;
   transition: 0.3s;
 }
+
 .back-home-btn:hover {
   background: linear-gradient(90deg, #a78bfa, #8b5cf6);
-  transform: scale(1.03);
+  transform: scale(1.02);
+}
+
+.back-home-btn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  h1 {
+    margin: 10px 0 20px 0;
+  }
+
+  .controls {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .card-section {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .players-row {
+    gap: 15px;
+  }
+
+  .player-box {
+    padding: 15px;
+  }
 }
 </style>
 </head>
@@ -109,61 +358,69 @@ button:disabled {
 <h1>🃏 Premier League Prediction League Cards 🃏</h1>
 
 <div class="container">
-  <div>
+  <!-- Control Buttons -->
+  <div class="controls">
     <button id="startBtn">Start Season</button>
     <button id="drawRegularBtn" disabled>Draw Regular Card</button>
     <button id="drawPremiumBtn" disabled>Draw Premium Card</button>
     <button onclick="resetSeason()">Reset Season</button>
   </div>
 
-  <div class="row">
-    <div class="box">
+  <!-- Player Hands -->
+  <div class="players-row">
+    <div class="player-box">
       <h2>Vas</h2>
-      <div><strong>Hand:</strong></div>
+      <div class="hand-label">Hand (Click card to use):</div>
       <div id="p1Hand" class="hand"></div>
     </div>
-    <div class="box">
+    <div class="player-box">
       <h2>Tom</h2>
-      <div><strong>Hand:</strong></div>
+      <div class="hand-label">Hand (Click card to use):</div>
       <div id="p2Hand" class="hand"></div>
     </div>
   </div>
 
-  <div class="box">
+  <!-- Last Card Drawn -->
+  <div class="card-section">
     <h2>Last Card Drawn</h2>
-    <div id="lastCard" class="card-tile">None</div>
+    <div id="lastCard">None</div>
     <div id="assignButtons">
-      <button onclick="assignCard('p1')">Give to Vas</button>
-      <button onclick="assignCard('p2')">Give to Tom</button>
-      <button onclick="discardLastCard()">Discard</button>
+      <button onclick="assignCard('p1')">✓ Give to Vas</button>
+      <button onclick="assignCard('p2')">✓ Give to Tom</button>
+      <button onclick="discardLastCard()">✗ Discard</button>
     </div>
   </div>
 
-  <div class="box">
+  <!-- Pending Swap / Steal -->
+  <div class="card-section">
     <h2>Pending Swap / Steal</h2>
     <div id="pendingSwap" class="pending-swap"></div>
-    <button id="confirmSwapBtn" onclick="confirmSwap()">Confirm Discard</button>
-    <button id="confirmPickBtn" onclick="confirmPick()">Confirm Picks</button>
-    <button id="confirmStealBtn" onclick="confirmSteal()">Confirm Steal</button>
+    <div class="action-buttons">
+      <button id="confirmSwapBtn" onclick="confirmSwap()" style="display:none;">Confirm Discard</button>
+      <button id="confirmPickBtn" onclick="confirmPick()" style="display:none;">Confirm Picks</button>
+      <button id="confirmStealBtn" onclick="confirmSteal()" style="display:none;">Confirm Steal</button>
+    </div>
   </div>
 
-  <div class="box">
+  <!-- Discard Pile -->
+  <div class="card-section">
     <h2>Discard / Used Pile</h2>
     <div id="discardPile" class="discard-pile">Empty</div>
   </div>
 
-  <div class="deck-info" style="margin-top:15px;">
-    Regular Deck: <span id="regularCount">0</span> cards |
-    Premium Deck: <span id="premiumCount">0</span> cards
+  <!-- Deck Info -->
+  <div class="deck-info">
+    <strong>Remaining Cards:</strong><br>
+    Regular Deck: <span id="regularCount">0</span> cards | Premium Deck: <span id="premiumCount">0</span> cards
   </div>
 
-  <!-- Back to homepage button -->
+  <!-- Back Button -->
   <button class="back-home-btn" onclick="window.location.href='index.html'">← Back to Homepage</button>
 </div>
 
 <script>
-const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Lau"];
-const curseDeckBase = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Thief"];
+const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Steal","Power of the Steal"];
+const curseDeckBase = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Alphabet (15+)","Curse of the Thief","Curse of the Thief"];
 const premiumDeckBase = ["Super Star Man","Super Golden Gameweek","Super Sub","Super Fantasy Boost","Super Draw","Super Duo","Super Pen"];
 
 let gameState = {
@@ -204,13 +461,19 @@ function assignCard(player){
   gameState.players[player].hand.push(gameState.lastCard.name);
   gameState.lastCard=null; save(); render();
 }
-function discardLastCard(){ if(!gameState.lastCard) return; gameState.discardPile.push(gameState.lastCard.name); gameState.lastCard=null; save(); render(); }
+
+function discardLastCard(){ 
+  if(!gameState.lastCard) return; 
+  gameState.discardPile.push(gameState.lastCard.name); 
+  gameState.lastCard=null; 
+  save(); 
+  render(); 
+}
 
 function useCard(player,index){
   if(gameState.pendingSwap || gameState.stealMode) return;
   const card = gameState.players[player].hand[index];
 
-  // Check if Curse of the Thief is being played and opponent has no cards
   if(card.includes("Curse of the Thief")) {
     const opponent = player === 'p1' ? 'p2' : 'p1';
     if(gameState.players[opponent].hand.length === 0) {
@@ -219,7 +482,6 @@ function useCard(player,index){
     }
   }
 
-  // Check if Power of the Swap is being played and player has only 1 card
   if(card.includes("Power of the Swap")) {
     if(gameState.players[player].hand.length < 2) {
       alert("You need at least 2 cards in your hand to play Power of the Swap!");
@@ -295,7 +557,11 @@ function confirmPick(){
 }
 
 function startStealMode(player){ gameState.stealMode=player; gameState.selectedSteal=null; render(); }
-function selectSteal(opponent,index){ gameState.selectedSteal={opponent,index}; render(); }
+
+function selectSteal(opponent,index){ 
+  gameState.selectedSteal={opponent,index}; 
+  render(); 
+}
 
 function confirmSteal(){
   if(!gameState.selectedSteal){ alert("Select a card"); return; }
@@ -340,29 +606,32 @@ function render(){
 
   const swapDiv=document.getElementById("pendingSwap");
   if(gameState.pendingSwap){
-    let html = `<strong>Power of the Swap Active!</strong><br>`;
+    let html = `<strong>⚡ Power of the Swap Active!</strong>`;
     if(gameState.pendingSwap.drawn.length===0){
-      html += "Choose 1 card from your hand to discard.";
+      html += `<p>Choose 1 card from your hand to discard.</p>`;
     } else {
-      html += "Choose 2 cards from the 3 drawn to keep:<br>";
+      html += `<p>Choose 2 cards from the 3 drawn to keep:</p>`;
+      html += `<div class="drawn-cards">`;
       gameState.pendingSwap.drawn.forEach((c,i)=>{
         const selected = gameState.pendingSwap.selectedIndices.includes(i) ? 'swap-select' : '';
         html += `<div class="card-tile ${selected}" onclick="pickSwapKeep(${i})">${c}</div>`;
       });
+      html += `</div>`;
     }
     swapDiv.style.display="block";
     swapDiv.innerHTML = html;
   } else if(gameState.stealMode){
     const opp = gameState.stealMode==='p1'?'Tom':'Vas';
+    const player = gameState.stealMode==='p1'?'Vas':'Tom';
     swapDiv.style.display="block";
-    swapDiv.innerHTML=`<strong>${gameState.stealMode==='p1'?'Vas':'Tom'} stealing from ${opp}</strong><br>Select a card and press Confirm Steal`;
+    swapDiv.innerHTML=`<strong>🎯 ${player} stealing from ${opp}</strong><p>Select a card from ${opp}'s hand below and press Confirm Steal</p>`;
     document.getElementById("confirmStealBtn").style.display="block";
   } else swapDiv.style.display="none";
 
   document.getElementById("regularCount").innerText=gameState.regularDeck.length;
   document.getElementById("premiumCount").innerText=gameState.premiumDeck.length;
   document.getElementById("lastCard").innerText=gameState.lastCard?gameState.lastCard.name:"None";
-  document.getElementById("assignButtons").style.display=gameState.lastCard?"block":"none";
+  document.getElementById("assignButtons").style.display=gameState.lastCard?"flex":"none";
   document.getElementById("discardPile").innerText=gameState.discardPile.length?gameState.discardPile.join(", "):"Empty";
 
   document.getElementById("startBtn").disabled=gameState.seasonStarted;
