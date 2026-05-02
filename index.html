@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Premier League Prediction League - 2026/27</title>
 <style>
 /* ===== BODY & BACKGROUND ===== */
@@ -11,124 +12,269 @@ body {
   color: #f3f4f6;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===== HEADER ===== */
 header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 15px 20px;
+  justify-content: center;
+  gap: 20px;
+  padding: 25px 20px;
   background: linear-gradient(90deg, #7c3aed, #a78bfa);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
   flex-wrap: wrap;
+  position: relative;
 }
 
 header img {
-  height: 50px;
+  height: 60px;
   width: auto;
+  transition: transform 0.3s ease;
+}
+
+header img:hover {
+  transform: scale(1.1);
 }
 
 header h1 {
-  flex-grow: 1;
-  text-align: center;
-  font-size: 26px;
-  margin: 10px;
+  font-size: 28px;
+  margin: 0;
   color: #f3e8ff;
-  text-shadow: 0 0 6px #d8b4fe;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
 }
 
 /* ===== MENU BUTTONS ===== */
 .menu {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin: 40px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  max-width: 1400px;
+  width: 100%;
 }
 
 .menu button {
-  padding: 18px 28px;
+  padding: 30px 25px;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
-  background: #8b5cf6;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
   color: #fff;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-  transition: all 0.3s ease;
-  width: 220px;
-  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px; /* space between icons and text */
+  gap: 15px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.1);
+}
+
+.menu button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.menu button:hover::before {
+  left: 100%;
 }
 
 .menu button:hover {
-  background: #a78bfa;
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+  background: linear-gradient(135deg, #a78bfa, #c4b5fd);
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(139, 92, 246, 0.5);
 }
 
 .menu button:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transform: translateY(-2px) scale(0.98);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);
 }
 
 /* ===== ICON STYLING ===== */
 .menu svg {
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   fill: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  transition: transform 0.3s ease;
+}
+
+.menu button:hover svg {
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* ===== ICON CONTAINER ===== */
+.icon-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
 }
 
 /* ===== FOOTER ===== */
 footer {
   text-align: center;
-  padding: 20px;
+  padding: 25px 20px;
   color: #d8b4fe;
   font-size: 14px;
-  border-top: 1px solid #a78bfa;
-  margin-top: 50px;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+  background: rgba(0,0,0,0.1);
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE - TABLET ===== */
+@media (max-width: 1024px) {
+  .menu {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 0 10px;
+  }
+
+  header h1 {
+    font-size: 24px;
+  }
+
+  .menu button {
+    padding: 25px 20px;
+    font-size: 16px;
+  }
+
+  .menu svg {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* ===== RESPONSIVE - MOBILE ===== */
 @media (max-width: 768px) {
   header {
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    padding: 20px 15px;
+  }
+
+  header img {
+    height: 50px;
   }
 
   header h1 {
     font-size: 22px;
+    margin: 0;
+  }
+
+  .container {
+    padding: 30px 15px;
   }
 
   .menu {
-    flex-direction: column;
-    align-items: center;
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
 
   .menu button {
-    width: 80%;
-    max-width: 300px;
+    padding: 25px 20px;
+    font-size: 16px;
+    gap: 12px;
+  }
+
+  .menu svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  footer {
+    font-size: 12px;
+    padding: 20px 15px;
   }
 }
 
+/* ===== RESPONSIVE - SMALL MOBILE ===== */
 @media (max-width: 480px) {
+  header h1 {
+    font-size: 18px;
+  }
+
+  header img {
+    height: 45px;
+  }
+
+  .container {
+    padding: 20px 10px;
+  }
+
+  .menu {
+    gap: 15px;
+  }
+
+  .menu button {
+    padding: 20px 15px;
+    font-size: 15px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
+  .menu svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  footer {
+    font-size: 11px;
+    padding: 15px 10px;
+  }
+}
+
+/* ===== LANDSCAPE MODE ===== */
+@media (max-height: 500px) and (orientation: landscape) {
+  header {
+    padding: 12px 20px;
+  }
+
   header h1 {
     font-size: 20px;
   }
 
+  .container {
+    padding: 15px 20px;
+  }
+
   .menu button {
-    font-size: 16px;
-    padding: 14px 20px;
+    padding: 15px 20px;
+    font-size: 14px;
   }
 
   .menu svg {
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
+  }
+
+  footer {
+    padding: 10px 20px;
+    font-size: 11px;
   }
 }
 </style>
@@ -142,59 +288,70 @@ footer {
   <img src="logo-right.png" alt="Right Logo">
 </header>
 
-<!-- ===== MENU BUTTONS WITH ICONS ===== -->
-<div class="menu">
-  <!-- Power Cards -->
-  <button onclick="location.href='power-cards.html'">
-    <!-- Left Icon: Card -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12z"/>
-    </svg>
-    Power Cards
-    <!-- Right Icon: Card -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12z"/>
-    </svg>
-  </button>
+<!-- ===== CONTAINER FOR CENTERED CONTENT ===== -->
+<div class="container">
+  <!-- ===== MENU BUTTONS WITH ICONS ===== -->
+  <div class="menu">
+    <!-- Power Cards -->
+    <button onclick="location.href='power-cards.html'">
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12z"/>
+        </svg>
+      </div>
+      Power Cards
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12z"/>
+        </svg>
+      </div>
+    </button>
 
-  <!-- Leaderboard -->
-  <button onclick="location.href='leaderboard.html'">
-    <!-- Left Icon: Trophy -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M17 3H7v2H4v4c0 2.21 1.79 4 4 4h1v4h6v-4h1c2.21 0 4-1.79 4-4V5h-3V3z"/>
-    </svg>
-    Leaderboard
-    <!-- Right Icon: Trophy -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M17 3H7v2H4v4c0 2.21 1.79 4 4 4h1v4h6v-4h1c2.21 0 4-1.79 4-4V5h-3V3z"/>
-    </svg>
-  </button>
+    <!-- Leaderboard -->
+    <button onclick="location.href='leaderboard.html'">
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M17 3H7v2H4v4c0 2.21 1.79 4 4 4h1v4h6v-4h1c2.21 0 4-1.79 4-4V5h-3V3z"/>
+        </svg>
+      </div>
+      Leaderboard
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M17 3H7v2H4v4c0 2.21 1.79 4 4 4h1v4h6v-4h1c2.21 0 4-1.79 4-4V5h-3V3z"/>
+        </svg>
+      </div>
+    </button>
 
-  <!-- Statistics -->
-  <button onclick="location.href='statistics.html'">
-    <!-- Left Icon: Chart -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M3 17h2v-7H3v7zm4 0h2V7H7v10zm4 0h2v-4h-2v4zm4 0h2V3h-2v14zm4 0h2v-9h-2v9z"/>
-    </svg>
-    Statistics
-    <!-- Right Icon: Chart -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M3 17h2v-7H3v7zm4 0h2V7H7v10zm4 0h2v-4h-2v4zm4 0h2V3h-2v14zm4 0h2v-9h-2v9z"/>
-    </svg>
-  </button>
+    <!-- Statistics -->
+    <button onclick="location.href='statistics.html'">
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 17h2v-7H3v7zm4 0h2V7H7v10zm4 0h2v-4h-2v4zm4 0h2V3h-2v14zm4 0h2v-9h-2v9z"/>
+        </svg>
+      </div>
+      Statistics
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 17h2v-7H3v7zm4 0h2V7H7v10zm4 0h2v-4h-2v4zm4 0h2V3h-2v14zm4 0h2v-9h-2v9z"/>
+        </svg>
+      </div>
+    </button>
 
-  <!-- Correct Scores -->
-  <button onclick="location.href='correct-scores.html'">
-    <!-- Left Icon: Check -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/>
-    </svg>
-    Correct Scores
-    <!-- Right Icon: Check -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/>
-    </svg>
-  </button>
+    <!-- Correct Scores -->
+    <button onclick="location.href='correct-scores.html'">
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/>
+        </svg>
+      </div>
+      Correct Scores
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/>
+        </svg>
+      </div>
+    </button>
+  </div>
 </div>
 
 <!-- ===== FOOTER ===== -->
