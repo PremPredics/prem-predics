@@ -61,9 +61,9 @@ header h1 {
 /* ===== MENU BUTTONS ===== */
 .menu {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 25px;
-  max-width: 900px;
+  max-width: 1200px;
   width: 100%;
 }
 
@@ -292,6 +292,21 @@ footer {
 <div class="container">
   <!-- ===== MENU BUTTONS WITH ICONS ===== -->
   <div class="menu">
+    <!-- How to Play -->
+    <button onclick="location.href='how-to-play.html'">
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+      </div>
+      How to Play
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+      </div>
+    </button>
+
     <!-- Power Cards -->
     <button onclick="location.href='power-cards.html'">
       <div class="icon-container">
