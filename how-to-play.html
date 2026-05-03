@@ -147,12 +147,27 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: relative;
         }
         
         .card-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(123, 63, 248, 0.5);
             border-color: #c4b5fd;
+        }
+        
+        .card-count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 10;
         }
         
         .card-header {
@@ -165,14 +180,15 @@
             justify-content: space-between;
             align-items: center;
             font-size: 13px;
+            padding-right: 35px;
         }
         
         .card-header::after {
             content: '▼';
             font-size: 12px;
             transition: transform 0.3s ease;
-            margin-left: 10px;
-            flex-shrink: 0;
+            position: absolute;
+            right: 12px;
         }
         
         .card-item.expanded .card-header::after {
@@ -185,10 +201,26 @@
             font-size: 13px;
             line-height: 1.6;
             color: #e9d5ff;
+            border-top: 1px solid rgba(196, 132, 252, 0.2);
         }
         
         .card-content.expanded {
             display: block;
+        }
+        
+        .card-content p {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+        
+        .card-content ul {
+            margin: 8px 0;
+            padding-left: 18px;
+            font-size: 12px;
+        }
+        
+        .card-content li {
+            margin: 4px 0;
         }
         
         /* ===== CATEGORY LABEL ===== */
@@ -199,6 +231,8 @@
             font-weight: 600;
             color: #f0abfc;
             text-shadow: 0 0 4px #c084fc;
+            padding: 10px 0;
+            border-bottom: 2px solid rgba(196, 132, 252, 0.3);
         }
         
         /* ===== EXAMPLE BOX ===== */
@@ -481,48 +515,46 @@
     </footer>
     
     <script>
-        // Complete cards data - ALL 14 Power, ALL 14 Curse, ALL 7 Premium
+        // Complete cards data with accurate descriptions and counts
         const cardsData = {
             power: [
-                { name: "Power of the Goal", description: "Earn +1 additional UC pt for each goal scored by any player this week." },
-                { name: "Power of the Assist", description: "Your Star Man's assists count as +2 pts instead of +1 pt this gameweek." },
-                { name: "Power of the Swap", description: "Draw 3 cards from the deck, keep 2, and discard 1. Activate strategically!" },
-                { name: "Power of the Veto", description: "Cancel one opponent's card effect this gameweek." },
-                { name: "Power of the Multiplier", description: "Double your UC pts earned from match predictions this week (+6 or +2)." },
-                { name: "Power of the Comeback", description: "If you're losing this gameweek, earn +10 bonus UC pts at end of week." },
-                { name: "Power of the Shield", description: "Protect your Star Man from -1 yellow card penalty this gameweek." },
-                { name: "Power of Redemption", description: "Re-predict one match this gameweek; use your best prediction." },
-                { name: "Power of the Lucky Draw", description: "Draw 5 cards from the deck and choose 1 to keep." },
-                { name: "Power of Momentum", description: "If you win this gameweek, earn +5 UC pts and carry forward to next week." },
-                { name: "Power of the Steal", description: "Take 1 random card from your opponent's hand." },
-                { name: "Power of Reflection", description: "Review your predictions before finalizing them." },
-                { name: "Power of Synchronicity", description: "If both players pick the same prediction outcome, you get +2 bonus pts." },
-                { name: "Power of the Fortress", description: "Your Star Man cannot be cursed this gameweek." }
+                { name: "Power of the Goal", count: 2, description: "Valid for 1 Gameweek. +1 Goal for Star Man this week. Must be played before the start of a Gameweek." },
+                { name: "Power of the Swap", count: 3, description: "Discard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand." },
+                { name: "Power of the Veto", count: 3, description: "Veto a Curse played by your opponent." },
+                { name: "Power of the Laundrette", count: 2, description: "Valid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet." },
+                { name: "Power of the Rocket Man", count: 3, description: "Valid for 1 Gameweek. Outside the Box Goals and Assists for Star Man are DOUBLE. Must be played before the start of a Gameweek." },
+                { name: "Power of the Pessimist", count: 1, description: "Valid for 1 Gameweek. DOUBLE points for all Predictions if no team scores 3+ goals." },
+                { name: "Power of the Immigrants", count: 2, description: "Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Must be played before the start of a Gameweek." },
+                { name: "Power of the Lanky Crouch", count: 2, description: "Valid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Must be played before the start of a Gameweek." },
+                { name: "Power of the Small and Mighty", count: 2, description: "Valid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Must be played before the start of a Gameweek." },
+                { name: "Power of God", count: 2, description: "Valid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half." },
+                { name: "Power of the Hedge", count: 2, description: "Valid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played before the start of a Gameweek." },
+                { name: "Power of the Assist King", count: 1, description: "Valid for 1 Gameweek. Star Man assists score DOUBLE points." },
+                { name: "Power of the Late Scout", count: 3, description: "Valid for 1 Gameweek. Choose your Star Man AFTER line-ups are announced for one match. Must be played before Star Man's Kick-Off." },
+                { name: "Power of the Snow", count: 2, description: "Valid for 1 Gameweek. Any Predicted match played in heavy snow scores DOUBLE points. Must be played before the start of a Gameweek." }
             ],
             curse: [
-                { name: "Curse of the Hated", description: "Your opponent earns +2 additional UC pts this gameweek." },
-                { name: "Curse of the Gambler", description: "Your opponent's Star Man's goals are worth +1 pt instead of +3 pts this week." },
-                { name: "Curse of the Bench Warmer", description: "Your opponent's Star Man must sit out this gameweek (0 pts)." },
-                { name: "Curse of the Thief", description: "Steal one of your opponent's Power cards to add to your hand." },
-                { name: "Curse of the Red Card", description: "Your opponent's Star Man gets -3 pts penalty this gameweek." },
-                { name: "Curse of Misfortune", description: "Your opponent's highest scoring prediction this week is halved." },
-                { name: "Curse of Confusion", description: "Your opponent must change their Star Man mid-gameweek." },
-                { name: "Curse of the Decoy", description: "Your opponent's prediction for one match is reversed (if they predict 2-1, it counts as 1-2)." },
-                { name: "Curse of Repetition", description: "Your opponent can only use Power cards, no Curse cards this gameweek." },
-                { name: "Curse of the Mirror", description: "Your opponent's UC pts this gameweek are swapped with their penalty count." },
-                { name: "Curse of the Void", description: "All of your opponent's assists this week count as 0 pts." },
-                { name: "Curse of the Lockdown", description: "Your opponent cannot play any cards next gameweek." },
-                { name: "Curse of the Countdown", description: "Your opponent loses 5 UC pts for each incorrect prediction this week." },
-                { name: "Curse of the Jinx", description: "Your opponent's Star Man will perform opposite to expectations (low scorers get boosted instead)." }
+                { name: "Curse of the Hated", count: 2, description: "Valid for 1 Gameweek. Opponent must predict 8–2 in at least one game this Gameweek. Must be played before the start of a Gameweek." },
+                { name: "Curse of the Gambler", count: 2, description: "Valid for 1 Gameweek. For 3 games, opponent rolls a die for each team, dice roll = goals prediction. Dice roll of Six counts as 0 goals. Must be played before the start of a Gameweek." },
+                { name: "Curse of the Bench Warmer", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man must have been benched in the previous Gameweek. Must be played before the start of a Gameweek." },
+                { name: "Curse of the Alphabet", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man surname must have a Scrabble score of 15+ (or 20+ for second copy). Must be played before the start of a Gameweek." },
+                { name: "Curse of the Scoring Drought", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man must have 0 goals in their last 3 (or 5 for second copy) PL games. Must be played before the start of a Gameweek." },
+                { name: "Curse of the Random Roulette", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man's squad number is chosen by a roulette spin. If it lands on 0, Squad Number must be 37+. Must be played before the start of a Gameweek." },
+                { name: "Curse of the Glasses", count: 2, description: "Valid for 1 Gameweek. Any 0–0 prediction that the Opponent makes scores NOTHING. Must be played before the start of the next Gameweek." },
+                { name: "Curse of the Deleted Match", count: 2, description: "Valid for 1 Gameweek. Choose ONE of the Opponent's Predictions, Opponent cannot earn points from this game. Must be played before the start of the next Gameweek." },
+                { name: "Curse of the Tiny Club", count: 2, description: "Valid for 1 Gameweek. Opponent may NOT pick a Star Man from a Top 10 club. Must be played before the start of a Gameweek." },
+                { name: "Curse of the Thief", count: 2, description: "Steal a card from your Opponent. Cannot steal Super Cards." },
+                { name: "Curse of the Even Number", count: 1, description: "Valid for 1 Gameweek. Opponent can only Predict an Even number of goals for all teams. Must be played before the start of the Gameweek. Cannot be picked whilst Curse of The Gambler is active." },
+                { name: "Curse of the Odd Number", count: 1, description: "Valid for 1 Gameweek. Opponent can only Predict an Odd number of goals for all teams. Must be played before the start of the Gameweek. Cannot be picked whilst Curse of The Gambler is active." }
             ],
             premium: [
-                { name: "Super Star Man", description: "Your Star Man earns +2x points for all actions this gameweek." },
-                { name: "Super Golden Gameweek", description: "Double ALL UC pts you earn this gameweek from predictions and Star Man." },
-                { name: "Super Sub", description: "If your first Star Man performs poorly, substitute them with another player mid-week." },
-                { name: "Super Fantasy Boost", description: "Add +5 UC pts to your weekly total for the next 3 gameweeks." },
-                { name: "Super Draw", description: "Draw 3 additional cards from the regular deck this gameweek." },
-                { name: "Super Duo", description: "Select 2 Star Men instead of 1 this week; earn points from both!" },
-                { name: "Super Pen", description: "Guaranteed +10 UC pts if your predictions contain any penalty goals this gameweek." }
+                { name: "Super Star Man", count: 1, description: "Valid for 1 Gameweek. Star Man points are TRIPLED. Yellow and Red cards are 0pts." },
+                { name: "Super Golden Gameweek", count: 1, description: "Valid for 1 Gameweek. Prediction League points for all games are DOUBLED." },
+                { name: "Super Sub", count: 1, description: "Valid for 1 Gameweek. Star Man can be swapped at any time for any other Star Man. New Star Man's match must have NOT kicked off within the same Gameweek." },
+                { name: "Super Fantasy Boost", count: 1, description: "Valid for 1 Gameweek. FPL points for Gameweek DOUBLED." },
+                { name: "Super Draw", count: 1, description: "Draw 3 cards from the Regular Deck." },
+                { name: "Super Duo", count: 1, description: "Valid for 1 Gameweek. Two Star Men can be chosen this Gameweek. Must choose both players before Gameweek starts." },
+                { name: "Super Pen", count: 1, description: "Valid for 3 Gameweeks. Draw a card from the Regular Deck any time a penalty is scored in this Gameweek." }
             ]
         };
         
@@ -543,7 +575,7 @@
             // Power Cards
             const powerTitle = document.createElement('div');
             powerTitle.className = 'card-category';
-            powerTitle.textContent = '💪 Power Cards (14)';
+            powerTitle.textContent = '💪 Power Cards (14 Types)';
             cardsList.appendChild(powerTitle);
             
             const powerGrid = document.createElement('div');
@@ -556,7 +588,7 @@
             // Curse Cards
             const curseTitle = document.createElement('div');
             curseTitle.className = 'card-category';
-            curseTitle.textContent = '🖤 Curse Cards (14)';
+            curseTitle.textContent = '🖤 Curse Cards (14 Types)';
             cardsList.appendChild(curseTitle);
             
             const curseGrid = document.createElement('div');
@@ -569,7 +601,7 @@
             // Premium Cards
             const premiumTitle = document.createElement('div');
             premiumTitle.className = 'card-category';
-            premiumTitle.textContent = '✨ Premium Cards (7)';
+            premiumTitle.textContent = '✨ Premium Cards (7 Types)';
             cardsList.appendChild(premiumTitle);
             
             const premiumGrid = document.createElement('div');
@@ -584,8 +616,9 @@
             const cardItem = document.createElement('div');
             cardItem.className = 'card-item';
             cardItem.innerHTML = `
+                <div class="card-count">x${card.count}</div>
                 <div class="card-header">${card.name}</div>
-                <div class="card-content">${card.description}</div>
+                <div class="card-content"><p>${card.description}</p></div>
             `;
             
             const header = cardItem.querySelector('.card-header');
