@@ -440,8 +440,8 @@ button:disabled {
 </div>
 
 <script>
-const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Laundrette","Power of the Laundrette","Power of the Rocket Man","Power of the Rocket Man","Power of the Rocket Man","Power of the Pessimist","Power of the Immigrants","Power of the Immigrants","Power of the Lanky Crouch","Power of the Lanky Crouch","Power of the Small and Mighty","Power of the Small and Mighty","Power of God","Power of God","Power of the Hedge","Power of the Hedge","Power of the Assist King","Power of the Late Scout","Power of the Late Scout","Power of the Late Scout","Power of the Snow","Power of the Snow"];
-const curseDeckBase = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Alphabet (20+)","Curse of the Scoring Drought (3)","Curse of the Scoring Drought (5)","Curse of the Random Roulette","Curse of the Random Roulette","Curse of the Glasses","Curse of the Glasses","Curse of the Deleted Match","Curse of the Deleted Match","Curse of the Tiny Club","Curse of the Tiny Club","Curse of the Thief","Curse of the Thief","Curse of the Even Number","Curse of the Odd Number"];
+const powerDeckBase = ["Power of the Goal","Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Match Fixer","Power of the Match Fixer","Curse of the Hated One","Curse of the Injured","Curse of the Suspended","Curse of the Thief"];
+const curseDeckBase = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Alphabet (15+)","Curse of the Double Agent","Curse of the Double Agent"];
 const premiumDeckBase = ["Super Star Man","Super Golden Gameweek","Super Sub","Super Fantasy Boost","Super Draw","Super Duo","Super Pen"];
 
 let gameState = {
@@ -504,8 +504,19 @@ function useCard(player,index){
   }
 
   if(card.includes("Power of the Swap")) {
+    if(gameState.regularDeck.length < 3) {
+      alert("You need at least 3 cards in the regular deck to play Power of the Swap!");
+      return;
+    }
     if(gameState.players[player].hand.length < 2) {
       alert("You need at least 2 cards in your hand to play Power of the Swap!");
+      return;
+    }
+  }
+
+  if(card === "Super Draw") {
+    if(gameState.regularDeck.length < 3) {
+      alert("You need at least 3 cards in the regular deck to play Super Draw!");
       return;
     }
   }
