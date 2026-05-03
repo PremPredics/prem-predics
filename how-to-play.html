@@ -164,12 +164,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 13px;
         }
         
         .card-header::after {
             content: '▼';
             font-size: 12px;
             transition: transform 0.3s ease;
+            margin-left: 10px;
+            flex-shrink: 0;
         }
         
         .card-item.expanded .card-header::after {
@@ -179,13 +182,23 @@
         .card-content {
             padding: 15px;
             display: none;
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.6;
             color: #e9d5ff;
         }
         
         .card-content.expanded {
             display: block;
+        }
+        
+        /* ===== CATEGORY LABEL ===== */
+        .card-category {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0abfc;
+            text-shadow: 0 0 4px #c084fc;
         }
         
         /* ===== EXAMPLE BOX ===== */
@@ -416,7 +429,7 @@
                 
                 <h3 style="color: #e9d5ff; margin-top: 25px;">All Power/Curse/Premium Cards</h3>
                 <p style="font-size: 14px; color: #d8b4fe;"><em>Click on any card below to see its description and how it affects gameplay.</em></p>
-                <div id="cardsList" class="card-grid"></div>
+                <div id="cardsList"></div>
             </div>
         </div>
         
@@ -468,20 +481,39 @@
     </footer>
     
     <script>
-        // Sample cards data - customize with your actual card names and descriptions
+        // Complete cards data - ALL 14 Power, ALL 14 Curse, ALL 7 Premium
         const cardsData = {
             power: [
                 { name: "Power of the Goal", description: "Earn +1 additional UC pt for each goal scored by any player this week." },
                 { name: "Power of the Assist", description: "Your Star Man's assists count as +2 pts instead of +1 pt this gameweek." },
                 { name: "Power of the Swap", description: "Draw 3 cards from the deck, keep 2, and discard 1. Activate strategically!" },
                 { name: "Power of the Veto", description: "Cancel one opponent's card effect this gameweek." },
-                { name: "Power of the Multiplier", description: "Double your UC pts earned from match predictions this week (+6 or +2)." }
+                { name: "Power of the Multiplier", description: "Double your UC pts earned from match predictions this week (+6 or +2)." },
+                { name: "Power of the Comeback", description: "If you're losing this gameweek, earn +10 bonus UC pts at end of week." },
+                { name: "Power of the Shield", description: "Protect your Star Man from -1 yellow card penalty this gameweek." },
+                { name: "Power of Redemption", description: "Re-predict one match this gameweek; use your best prediction." },
+                { name: "Power of the Lucky Draw", description: "Draw 5 cards from the deck and choose 1 to keep." },
+                { name: "Power of Momentum", description: "If you win this gameweek, earn +5 UC pts and carry forward to next week." },
+                { name: "Power of the Steal", description: "Take 1 random card from your opponent's hand." },
+                { name: "Power of Reflection", description: "Review your predictions before finalizing them." },
+                { name: "Power of Synchronicity", description: "If both players pick the same prediction outcome, you get +2 bonus pts." },
+                { name: "Power of the Fortress", description: "Your Star Man cannot be cursed this gameweek." }
             ],
             curse: [
                 { name: "Curse of the Hated", description: "Your opponent earns +2 additional UC pts this gameweek." },
                 { name: "Curse of the Gambler", description: "Your opponent's Star Man's goals are worth +1 pt instead of +3 pts this week." },
                 { name: "Curse of the Bench Warmer", description: "Your opponent's Star Man must sit out this gameweek (0 pts)." },
-                { name: "Curse of the Thief", description: "Steal one of your opponent's Power cards to add to your hand." }
+                { name: "Curse of the Thief", description: "Steal one of your opponent's Power cards to add to your hand." },
+                { name: "Curse of the Red Card", description: "Your opponent's Star Man gets -3 pts penalty this gameweek." },
+                { name: "Curse of Misfortune", description: "Your opponent's highest scoring prediction this week is halved." },
+                { name: "Curse of Confusion", description: "Your opponent must change their Star Man mid-gameweek." },
+                { name: "Curse of the Decoy", description: "Your opponent's prediction for one match is reversed (if they predict 2-1, it counts as 1-2)." },
+                { name: "Curse of Repetition", description: "Your opponent can only use Power cards, no Curse cards this gameweek." },
+                { name: "Curse of the Mirror", description: "Your opponent's UC pts this gameweek are swapped with their penalty count." },
+                { name: "Curse of the Void", description: "All of your opponent's assists this week count as 0 pts." },
+                { name: "Curse of the Lockdown", description: "Your opponent cannot play any cards next gameweek." },
+                { name: "Curse of the Countdown", description: "Your opponent loses 5 UC pts for each incorrect prediction this week." },
+                { name: "Curse of the Jinx", description: "Your opponent's Star Man will perform opposite to expectations (low scorers get boosted instead)." }
             ],
             premium: [
                 { name: "Super Star Man", description: "Your Star Man earns +2x points for all actions this gameweek." },
@@ -508,24 +540,63 @@
         function populateCards() {
             const cardsList = document.getElementById('cardsList');
             
-            Object.values(cardsData).forEach((category) => {
-                category.forEach(card => {
-                    const cardItem = document.createElement('div');
-                    cardItem.className = 'card-item';
-                    cardItem.innerHTML = `
-                        <div class="card-header">${card.name}</div>
-                        <div class="card-content">${card.description}</div>
-                    `;
-                    cardsList.appendChild(cardItem);
-                    
-                    const header = cardItem.querySelector('.card-header');
-                    const content = cardItem.querySelector('.card-content');
-                    header.addEventListener('click', function() {
-                        cardItem.classList.toggle('expanded');
-                        content.classList.toggle('expanded');
-                    });
-                });
+            // Power Cards
+            const powerTitle = document.createElement('div');
+            powerTitle.className = 'card-category';
+            powerTitle.textContent = '💪 Power Cards (14)';
+            cardsList.appendChild(powerTitle);
+            
+            const powerGrid = document.createElement('div');
+            powerGrid.className = 'card-grid';
+            cardsData.power.forEach(card => {
+                powerGrid.appendChild(createCardElement(card));
             });
+            cardsList.appendChild(powerGrid);
+            
+            // Curse Cards
+            const curseTitle = document.createElement('div');
+            curseTitle.className = 'card-category';
+            curseTitle.textContent = '🖤 Curse Cards (14)';
+            cardsList.appendChild(curseTitle);
+            
+            const curseGrid = document.createElement('div');
+            curseGrid.className = 'card-grid';
+            cardsData.curse.forEach(card => {
+                curseGrid.appendChild(createCardElement(card));
+            });
+            cardsList.appendChild(curseGrid);
+            
+            // Premium Cards
+            const premiumTitle = document.createElement('div');
+            premiumTitle.className = 'card-category';
+            premiumTitle.textContent = '✨ Premium Cards (7)';
+            cardsList.appendChild(premiumTitle);
+            
+            const premiumGrid = document.createElement('div');
+            premiumGrid.className = 'card-grid';
+            cardsData.premium.forEach(card => {
+                premiumGrid.appendChild(createCardElement(card));
+            });
+            cardsList.appendChild(premiumGrid);
+        }
+        
+        function createCardElement(card) {
+            const cardItem = document.createElement('div');
+            cardItem.className = 'card-item';
+            cardItem.innerHTML = `
+                <div class="card-header">${card.name}</div>
+                <div class="card-content">${card.description}</div>
+            `;
+            
+            const header = cardItem.querySelector('.card-header');
+            const content = cardItem.querySelector('.card-content');
+            header.addEventListener('click', function(e) {
+                e.stopPropagation();
+                cardItem.classList.toggle('expanded');
+                content.classList.toggle('expanded');
+            });
+            
+            return cardItem;
         }
         
         populateCards();
