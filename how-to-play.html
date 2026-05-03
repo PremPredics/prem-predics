@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Play - Premier League Prediction League</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+            color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        /* ===== HEADER ===== */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 25px 20px;
+            background: linear-gradient(90deg, #7c3aed, #a78bfa);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin: 0;
+            color: #f3e8ff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        /* ===== MAIN CONTAINER ===== */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* ===== COLLAPSIBLE SECTION ===== */
+        .section {
+            margin-bottom: 20px;
+            background: rgba(46, 16, 102, 0.6);
+            border-radius: 12px;
+            border: 2px solid rgba(196, 132, 252, 0.3);
+            overflow: hidden;
+            box-shadow: 0 0 12px rgba(123, 63, 248, 0.3);
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            color: white;
+            padding: 18px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .section-header:hover {
+            background: linear-gradient(135deg, #a78bfa, #c4b5fd);
+            transform: translateX(5px);
+        }
+        
+        .section-header::after {
+            content: '+';
+            font-size: 24px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        
+        .section-header.active::after {
+            transform: rotate(45deg);
+        }
+        
+        .section-content {
+            padding: 25px;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .section-content.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* ===== POINT BADGES ===== */
+        .point-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin: 5px 5px 5px 0;
+            font-weight: 600;
+            border: 2px solid #d8b4fe;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+        
+        .point-badge.positive {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            border-color: #6ee7b7;
+        }
+        
+        .point-badge.negative {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            border-color: #fca5a5;
+        }
+        
+        /* ===== CARD GRID ===== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .card-item {
+            background: linear-gradient(135deg, #2e1066, #3b0764);
+            border: 2px solid rgba(196, 132, 252, 0.5);
+            border-radius: 10px;
+            padding: 0;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .card-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(123, 63, 248, 0.5);
+            border-color: #c4b5fd;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            padding: 15px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header::after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card-item.expanded .card-header::after {
+            transform: rotate(180deg);
+        }
+        
+        .card-content {
+            padding: 15px;
+            display: none;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e9d5ff;
+        }
+        
+        .card-content.expanded {
+            display: block;
+        }
+        
+        /* ===== EXAMPLE BOX ===== */
+        .example-box {
+            background: rgba(91, 33, 182, 0.3);
+            border-left: 4px solid #a78bfa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .example-box strong {
+            color: #f0abfc;
+        }
+        
+        /* ===== DIAGRAM ===== */
+        .diagram {
+            background: rgba(91, 33, 182, 0.2);
+            border: 2px solid rgba(196, 132, 252, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .flow-item {
+            display: inline-block;
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 6px;
+            margin: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .flow-arrow {
+            display: inline-block;
+            margin: 0 5px;
+            color: #a78bfa;
+            font-size: 18px;
+        }
+        
+        /* ===== SECTION LIST ===== */
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 25px;
+            line-height: 1.8;
+        }
+        
+        li {
+            margin: 10px 0;
+        }
+        
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 25px 20px;
+            color: #d8b4fe;
+            font-size: 14px;
+            border-top: 1px solid rgba(167, 139, 250, 0.3);
+            background: rgba(0,0,0,0.1);
+            margin-top: 40px;
+        }
+        
+        .back-btn, .faq-btn {
+            padding: 12px 24px;
+            margin-top: 20px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .back-btn:hover, .faq-btn:hover {
+            background: linear-gradient(135deg, #a78bfa, #c4b5fd);
+            transform: translateY(-2px);
+        }
+        
+        .back-btn:active, .faq-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 22px;
+            }
+            
+            .container {
+                padding: 25px 15px;
+            }
+            
+            .section-header {
+                font-size: 16px;
+                padding: 15px 20px;
+            }
+            
+            .section-content {
+                padding: 20px;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header>
+        <h1>How to Play - Premier League Prediction League</h1>
+    </header>
+    
+    <!-- ===== MAIN CONTAINER ===== -->
+    <div class="container">
+        
+        <!-- OVERVIEW SECTION -->
+        <div class="section">
+            <button class="section-header">📋 Overview</button>
+            <div class="section-content">
+                <p>The Premier League Prediction League is a <strong>1v1 competitive game</strong> where two players face off throughout an entire Premier League season (380 matches).</p>
+                
+                <h3 style="color: #e9d5ff; margin-top: 20px;">The Goal</h3>
+                <p>Earn more <strong>Ultimate Champion Points (UC pts)</strong> than your opponent by:</p>
+                <ul>
+                    <li>Predicting match outcomes correctly</li>
+                    <li>Selecting a "Star Man" each week to earn bonus points</li>
+                    <li>Playing Power & Curse cards strategically</li>
+                </ul>
+                
+                <h3 style="color: #e9d5ff;">Key Rules</h3>
+                <ul>
+                    <li>✅ All predictions must be made <strong>at least 1.5 hours before kickoff</strong></li>
+                    <li>⭐ Each player selects a <strong>different Star Man each week</strong> (no duplicates)</li>
+                    <li>🎴 Start with <strong>1 Power Card + 1 Curse Card</strong> from a 52-card regular deck</li>
+                    <li>🏆 Win "Game Card" mini-tournaments (every 5 gameweeks) to draw from the premium deck (7 premium cards)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- SCORING SYSTEM SECTION -->
+        <div class="section">
+            <button class="section-header">⚡ Scoring System</button>
+            <div class="section-content">
+                <p>UC pts are earned through match predictions and Star Man performance. Here's the breakdown:</p>
+                
+                <h3 style="color: #e9d5ff; margin-top: 20px;">Match Predictions</h3>
+                <span class="point-badge positive">+3 pts</span> Correct Score (exact prediction)<br>
+                <span class="point-badge positive">+1 pt</span> Correct Result (right outcome, wrong score)<br><br>
+                
+                <h3 style="color: #e9d5ff;">Star Man Performance (Weekly)</h3>
+                <span class="point-badge positive">+3 pts</span> Per Goal<br>
+                <span class="point-badge positive">+1 pt</span> Per Assist<br>
+                <span class="point-badge negative">-1 pt</span> Per Yellow Card<br>
+                <span class="point-badge negative">-3 pts</span> Per Red Card<br><br>
+                
+                <h3 style="color: #e9d5ff;">Example Scoring Scenario</h3>
+                <div class="example-box">
+                    <strong>Gameweek 5 - Your Star Man is Erling Haaland:</strong><br>
+                    • You predicted 7 correct scores (+21 pts)<br>
+                    • You predicted 4 correct results (+4 pts)<br>
+                    • Haaland scores 2 goals (+6 pts)<br>
+                    • Haaland gets 1 yellow card (-1 pt)<br>
+                    <strong style="color: #34d399;">Total: +30 UC pts</strong>
+                </div>
+                
+                <p style="margin-top: 20px; font-size: 14px; color: #d8b4fe;"><em>Note: Power & Curse cards can modify these points (multipliers, bonuses, penalties).</em></p>
+            </div>
+        </div>
+        
+        <!-- STAR MAN SYSTEM SECTION -->
+        <div class="section">
+            <button class="section-header">⭐ Star Man System</button>
+            <div class="section-content">
+                <p>Each week, you select one player from the Premier League to be your <strong>"Star Man"</strong> — a special player who earns you bonus/penalty points based on their performance.</p>
+                
+                <h3 style="color: #e9d5ff; margin-top: 20px;">How It Works</h3>
+                <ol>
+                    <li>Each gameweek, you pick <strong>1 player</strong> as your Star Man</li>
+                    <li>Their goals, assists, and cards are tracked for that week</li>
+                    <li>You earn/lose points based on their performance</li>
+                    <li>The next week, you can pick a <strong>different player</strong></li>
+                </ol>
+                
+                <h3 style="color: #e9d5ff;">The Exclusivity Rule (IMPORTANT!)</h3>
+                <div class="example-box" style="background: rgba(239, 68, 68, 0.2); border-left-color: #f87171;">
+                    <strong style="color: #fca5a5;">Once ANY player in the league has been chosen as a Star Man by ANY participant, NO OTHER PLAYER can ever select that same player as their Star Man for the rest of the season.</strong><br><br>
+                    For example:<br>
+                    • Gameweek 1: You pick Harry Kane as your Star Man<br>
+                    • From that point on: Your opponent can NEVER pick Harry Kane<br>
+                    • You can pick him again in future weeks (before he's used up)<br>
+                    • This creates strategic depth — choose wisely!
+                </div>
+                
+                <h3 style="color: #e9d5ff;">Strategy Tip</h3>
+                <p>Choose high-performing players who consistently get goals and assists, while blocking your opponent from selecting them in future weeks!</p>
+            </div>
+        </div>
+        
+        <!-- CARD SYSTEM SECTION -->
+        <div class="section">
+            <button class="section-header">🎴 Card System</button>
+            <div class="section-content">
+                <p>Cards are special abilities that can help you or hinder your opponent. They add strategy and excitement to the game!</p>
+                
+                <h3 style="color: #e9d5ff; margin-top: 20px;">Card Overview</h3>
+                <ul>
+                    <li><strong>Regular Deck:</strong> 52 cards (30 Power + 22 Curse) — Start with 1 of each</li>
+                    <li><strong>Premium Deck:</strong> 7 exclusive Super Cards — Won via "Game Card" mini-tournaments</li>
+                    <li><strong>Game Card:</strong> A mini best-of-5 tournament every 5 gameweeks; winner draws a premium card</li>
+                </ul>
+                
+                <h3 style="color: #e9d5ff;">How to Earn Cards</h3>
+                <ul>
+                    <li>🎯 Start with 1 Power + 1 Curse card</li>
+                    <li>🏆 Reach milestones & earn medals to acquire more cards</li>
+                    <li>🥇 Win "Game Card" tournaments (every 5 gameweeks) to draw Premium cards</li>
+                </ul>
+                
+                <h3 style="color: #e9d5ff; margin-top: 25px;">All Power/Curse/Premium Cards</h3>
+                <p style="font-size: 14px; color: #d8b4fe;"><em>Click on any card below to see its description and how it affects gameplay.</em></p>
+                <div id="cardsList" class="card-grid"></div>
+            </div>
+        </div>
+        
+        <!-- POINTS ACCUMULATION DIAGRAM -->
+        <div class="section">
+            <button class="section-header">📊 How UC Points are Calculated</button>
+            <div class="section-content">
+                <p>Here's how all your UC points combine into your weekly total:</p>
+                
+                <div class="diagram">
+                    <div style="margin: 15px 0;">
+                        <div class="flow-item">Match Predictions<br>(+3 or +1)</div>
+                        <div class="flow-arrow">+</div>
+                        <div class="flow-item">Star Man Points<br>(+3/-1 or +1/-3)</div>
+                        <div class="flow-arrow">± </div>
+                        <div class="flow-item">Card Effects<br>(Multipliers/Penalties)</div>
+                    </div>
+                    <div style="margin: 15px 0; border-top: 2px solid rgba(196, 132, 252, 0.3); padding-top: 15px;">
+                        <div style="font-size: 20px; color: #34d399; font-weight: bold;">= Weekly UC pts</div>
+                    </div>
+                    <div style="margin: 15px 0; border-top: 2px solid rgba(196, 132, 252, 0.3); padding-top: 15px;">
+                        <div style="font-size: 18px; color: #a78bfa;">All Weekly Totals</div>
+                        <div style="margin: 10px 0; color: #d8b4fe;">↓</div>
+                        <div style="font-size: 22px; color: #f0abfc; font-weight: bold;">Season Total = UC pts Champion! 🏆</div>
+                    </div>
+                </div>
+                
+                <div class="example-box" style="margin-top: 20px;">
+                    <strong>Season Summary Example:</strong><br>
+                    • Gameweeks 1-10 combined: +280 UC pts<br>
+                    • Gameweeks 11-20 combined: +320 UC pts<br>
+                    • Gameweeks 21-30 combined: +295 UC pts<br>
+                    • ... (and so on through all 38 gameweeks)<br>
+                    <strong style="color: #34d399;">Final Season Total: Whoever has the MOST UC pts wins! 🏆</strong>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQS AND LINKS -->
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="faq-btn" onclick="window.location.href='faq.html'">❓ Frequently Asked Questions</button>
+            <button class="back-btn" onclick="window.location.href='index.html'">← Back to Homepage</button>
+        </div>
+    </div>
+    
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        &copy; 2026 Premier League Prediction League | How to Play Guide
+    </footer>
+    
+    <script>
+        // Sample cards data - customize with your actual card names and descriptions
+        const cardsData = {
+            power: [
+                { name: "Power of the Goal", description: "Earn +1 additional UC pt for each goal scored by any player this week." },
+                { name: "Power of the Assist", description: "Your Star Man's assists count as +2 pts instead of +1 pt this gameweek." },
+                { name: "Power of the Swap", description: "Draw 3 cards from the deck, keep 2, and discard 1. Activate strategically!" },
+                { name: "Power of the Veto", description: "Cancel one opponent's card effect this gameweek." },
+                { name: "Power of the Multiplier", description: "Double your UC pts earned from match predictions this week (+6 or +2)." }
+            ],
+            curse: [
+                { name: "Curse of the Hated", description: "Your opponent earns +2 additional UC pts this gameweek." },
+                { name: "Curse of the Gambler", description: "Your opponent's Star Man's goals are worth +1 pt instead of +3 pts this week." },
+                { name: "Curse of the Bench Warmer", description: "Your opponent's Star Man must sit out this gameweek (0 pts)." },
+                { name: "Curse of the Thief", description: "Steal one of your opponent's Power cards to add to your hand." }
+            ],
+            premium: [
+                { name: "Super Star Man", description: "Your Star Man earns +2x points for all actions this gameweek." },
+                { name: "Super Golden Gameweek", description: "Double ALL UC pts you earn this gameweek from predictions and Star Man." },
+                { name: "Super Sub", description: "If your first Star Man performs poorly, substitute them with another player mid-week." },
+                { name: "Super Fantasy Boost", description: "Add +5 UC pts to your weekly total for the next 3 gameweeks." },
+                { name: "Super Draw", description: "Draw 3 additional cards from the regular deck this gameweek." },
+                { name: "Super Duo", description: "Select 2 Star Men instead of 1 this week; earn points from both!" },
+                { name: "Super Pen", description: "Guaranteed +10 UC pts if your predictions contain any penalty goals this gameweek." }
+            ]
+        };
+        
+        // Collapsible section headers
+        const headers = document.querySelectorAll('.section-header');
+        headers.forEach(header => {
+            header.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                content.classList.toggle('active');
+            });
+        });
+        
+        // Populate cards in the display
+        function populateCards() {
+            const cardsList = document.getElementById('cardsList');
+            
+            Object.values(cardsData).forEach((category) => {
+                category.forEach(card => {
+                    const cardItem = document.createElement('div');
+                    cardItem.className = 'card-item';
+                    cardItem.innerHTML = `
+                        <div class="card-header">${card.name}</div>
+                        <div class="card-content">${card.description}</div>
+                    `;
+                    cardsList.appendChild(cardItem);
+                    
+                    const header = cardItem.querySelector('.card-header');
+                    const content = cardItem.querySelector('.card-content');
+                    header.addEventListener('click', function() {
+                        cardItem.classList.toggle('expanded');
+                        content.classList.toggle('expanded');
+                    });
+                });
+            });
+        }
+        
+        populateCards();
+    </script>
+</body>
+</html>
