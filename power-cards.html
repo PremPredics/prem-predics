@@ -98,10 +98,12 @@ button:disabled {
 
 @media (max-width: 768px) {
   .back-home-btn {
+    position: fixed;
     top: 12px;
     right: 12px;
     padding: 8px 12px;
     font-size: 0.8rem;
+    z-index: 999;
   }
 }
 
@@ -133,7 +135,7 @@ button:disabled {
 
 .main-game-layout.show {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr 0.8fr;
 }
 
 @media (max-width: 1200px) {
@@ -156,8 +158,8 @@ button:disabled {
   }
 }
 
-/* ===== RIGHT PANEL - PLAYERS ===== */
-.right-panel {
+/* ===== CENTER PANEL - PLAYERS ===== */
+.center-panel {
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -165,8 +167,22 @@ button:disabled {
 }
 
 @media (max-width: 1200px) {
-  .right-panel {
+  .center-panel {
     order: 2;
+  }
+}
+
+/* ===== RIGHT PANEL - PENDING/DISCARD ===== */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  order: 3;
+}
+
+@media (max-width: 1200px) {
+  .right-panel {
+    order: 3;
   }
 }
 
@@ -293,50 +309,51 @@ button:disabled {
 
 .card-preview-buttons {
   display: flex;
-  gap: 12px;
+  gap: 15px;
   margin-top: 18px;
   justify-content: center;
   flex-shrink: 0;
 }
 
 .card-preview-btn {
-  padding: 12px 28px;
-  font-size: 0.95rem;
+  padding: clamp(12px, 2vw, 16px) clamp(24px, 4vw, 40px);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s;
   flex: 1;
-  min-width: 100px;
+  min-width: 110px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .card-preview-btn.play {
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(135deg, #10b981, #059669);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
 }
 
 .card-preview-btn.play:hover {
-  background: linear-gradient(90deg, #059669, #10b981);
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+  background: linear-gradient(135deg, #059669, #10b981);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.7);
 }
 
 .card-preview-btn.back {
-  background: linear-gradient(90deg, #6b7280, #4b5563);
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+  box-shadow: 0 6px 20px rgba(123, 63, 248, 0.5);
 }
 
 .card-preview-btn.back:hover {
-  background: linear-gradient(90deg, #4b5563, #6b7280);
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.6);
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(123, 63, 248, 0.7);
 }
 
 .card-preview-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 .card-preview-content.power {
@@ -1086,7 +1103,7 @@ button:disabled {
 .card-section {
   display: none;
   background: linear-gradient(135deg, #2e1066, #3b0764);
-  padding: 20px;
+  padding: 18px;
   border-radius: 16px;
   box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
   border: 2px solid rgba(196, 132, 252, 0.3);
@@ -1102,7 +1119,7 @@ button:disabled {
   color: #f0abfc;
   text-shadow: 0 0 4px #c084fc;
   margin-top: 0;
-  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
 }
 
 .pending-swap { 
@@ -1591,10 +1608,11 @@ button:disabled {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .back-home-btn {
-    top: 12px;
-    right: 12px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
+    position: fixed;
+  }
+
+  .fixed-footer {
+    position: fixed;
   }
 
   h1 {
@@ -1793,7 +1811,7 @@ button:disabled {
 
   <!-- Main Game Layout -->
   <div class="main-game-layout" id="mainGameLayout">
-    <!-- LEFT PANEL - CONTROLS -->
+    <!-- LEFT PANEL - PENDING/DISCARD (THIN) -->
     <div class="left-panel">
       <!-- Pending Swap / Steal -->
       <div class="card-section" id="swapSection">
@@ -1813,8 +1831,8 @@ button:disabled {
       </div>
     </div>
 
-    <!-- RIGHT PANEL - PLAYERS -->
-    <div class="right-panel">
+    <!-- CENTER PANEL - PLAYERS (WIDE) -->
+    <div class="center-panel">
       <!-- Drawn Card Section -->
       <div id="drawnCardSection">
         <h2>🎯 Drawn Card</h2>
@@ -1848,6 +1866,9 @@ button:disabled {
         </div>
       </div>
     </div>
+
+    <!-- RIGHT PANEL - EMPTY (for spacing) -->
+    <div class="right-panel"></div>
   </div>
 
   <!-- How It Works Content (for footer) -->
@@ -2237,8 +2258,14 @@ function openDeckChoice() {
 
 function startCardReveal(deckType) {
   document.getElementById('deckChoiceModal').classList.remove('show');
-  document.getElementById('playerSelectionModal').classList.add('show');
-  gameState.pendingCardDraw = { type: 'regular', deckType: deckType };
+  
+  // Check if it's a game card
+  if (deckType === 'game') {
+    drawGameCard();
+  } else {
+    document.getElementById('playerSelectionModal').classList.add('show');
+    gameState.pendingCardDraw = { type: 'regular', deckType: deckType };
+  }
 }
 
 function selectPlayerForCard(player) {
@@ -2286,6 +2313,45 @@ function drawAndRevealCard(deckType, player) {
     reveal.classList.remove('show');
     setTimeout(() => {
       gameState.players[player].hand.push(card);
+      updateDecksDisplay();
+      render();
+      save();
+    }, 300);
+  }, 4000);
+}
+
+function drawGameCard() {
+  if (gameState.gameCardDeck.length === 0) {
+    alert("Game Deck empty!");
+    return;
+  }
+  
+  const card = gameState.gameCardDeck.pop();
+  const cardType = getCardType(card);
+  
+  // Discard previous active game card if exists
+  if (gameState.activeGameCard) {
+    gameState.discardPile.push(gameState.activeGameCard);
+  }
+  
+  gameState.activeGameCard = card;
+  
+  // Show fullscreen reveal for game card
+  const reveal = document.getElementById('fullscreenCardReveal');
+  const content = document.getElementById('fullscreenCardContent');
+  const nameEl = document.getElementById('fullscreenCardName');
+  const descEl = document.getElementById('fullscreenCardDescription');
+  
+  content.className = `fullscreen-card-content ${cardType}`;
+  nameEl.textContent = card;
+  descEl.textContent = cardDescriptions[card] || 'No description available.';
+  
+  reveal.classList.add('show');
+  
+  // Auto-close after 4 seconds
+  setTimeout(() => {
+    reveal.classList.remove('show');
+    setTimeout(() => {
       updateDecksDisplay();
       render();
       save();
