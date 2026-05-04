@@ -100,6 +100,165 @@ button:disabled {
   }
 }
 
+/* ===== PLAYER SELECTION MODAL ===== */
+.player-selection-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 2500;
+  justify-content: center;
+  align-items: center;
+}
+
+.player-selection-modal.show {
+  display: flex;
+}
+
+.player-selection-content {
+  background: linear-gradient(135deg, #2e1066, #3b0764);
+  padding: 40px;
+  border-radius: 16px;
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  box-shadow: 0 0 30px rgba(123, 63, 248, 0.6);
+  text-align: center;
+  animation: slideInScale 0.3s ease-out;
+}
+
+@keyframes slideInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.player-selection-title {
+  color: #f0abfc;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  text-shadow: 0 0 4px #c084fc;
+}
+
+.player-buttons-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.player-select-btn {
+  padding: 16px 35px;
+  font-size: 1.2rem;
+  background: linear-gradient(90deg, #06b6d4, #0891b2);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid #06d6d4;
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+  transition: all 0.3s;
+}
+
+.player-select-btn:hover {
+  background: linear-gradient(90deg, #0891b2, #06b6d4);
+  transform: scale(1.08);
+  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.6);
+}
+
+.player-select-btn:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 768px) {
+  .player-selection-content {
+    padding: 30px;
+  }
+
+  .player-selection-title {
+    font-size: 1.4rem;
+  }
+
+  .player-select-btn {
+    padding: 14px 25px;
+    font-size: 1rem;
+  }
+}
+
+/* ===== ACTIVE GAME CARD DISPLAY ===== */
+.active-game-card-section {
+  display: none;
+  background: rgba(46, 16, 102, 0.8);
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
+  margin-bottom: 20px;
+  animation: slideInDown 0.6s ease-out;
+  align-items: center;
+  gap: 20px;
+}
+
+.active-game-card-section.show {
+  display: flex;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.active-game-card-label {
+  font-size: 1.1rem;
+  color: #fbbf24;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.active-game-card-display {
+  width: 80px;
+  height: 110px;
+  background: linear-gradient(135deg, #059669, #10b981);
+  border: 2px solid #34d399;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  padding: 8px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  animation: cardDealAnimation 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes cardDealAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(-100px) rotateX(90deg) rotateZ(-45deg) scale(0.5);
+  }
+  50% {
+    transform: translateY(-30px) rotateX(45deg) rotateZ(-20deg) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg) rotateZ(0deg) scale(1);
+  }
+}
+
 /* ===== INTRO SECTION WRAPPER ===== */
 .intro-wrapper {
   display: flex;
@@ -495,17 +654,6 @@ button:disabled {
   display: block;
 }
 
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .decks-container {
   display: flex;
   gap: 30px;
@@ -649,17 +797,6 @@ button:disabled {
   animation: slideDown 0.4s ease-out;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 #drawnCardSection h2 {
   text-align: center;
   color: #f0abfc;
@@ -747,6 +884,7 @@ button:disabled {
   border: 2px solid rgba(196, 132, 252, 0.3);
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .player-box h2 {
@@ -754,6 +892,10 @@ button:disabled {
   margin-top: 0;
   color: #f0abfc;
   text-shadow: 0 0 4px #c084fc;
+}
+
+.player-hand-container {
+  position: relative;
 }
 
 .hand-label {
@@ -773,6 +915,16 @@ button:disabled {
   border-radius: 12px;
   overflow-y: auto;
   max-height: 300px;
+  position: relative;
+}
+
+.dealt-card-target {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -877,6 +1029,39 @@ button:disabled {
   background: linear-gradient(135deg, #ca8a04, #f59e0b);
 }
 
+.dealt-card-animation {
+  position: fixed;
+  width: 110px;
+  height: 140px;
+  border: 2px solid;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 8px;
+  z-index: 2000;
+  pointer-events: none;
+  animation: cardDealToHand 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes cardDealToHand {
+  0% {
+    opacity: 0;
+    transform: translateY(-200px) rotateX(90deg) rotateZ(-45deg) scale(0.6);
+  }
+  50% {
+    transform: translateY(-80px) rotateX(45deg) rotateZ(-20deg) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg) rotateZ(0deg) scale(1);
+  }
+}
+
 .card-section {
   display: none;
   background: linear-gradient(135deg, #2e1066, #3b0764);
@@ -975,6 +1160,11 @@ button:disabled {
     padding: 25px;
     height: 140px;
   }
+
+  .active-game-card-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>
 </head>
@@ -985,6 +1175,23 @@ button:disabled {
 <h1>🃏 Premier League Prediction League Cards 🃏</h1>
 
 <div class="container">
+  <!-- Player Selection Modal -->
+  <div class="player-selection-modal" id="playerSelectionModal">
+    <div class="player-selection-content">
+      <h3 class="player-selection-title">Pick Player To Receive Card</h3>
+      <div class="player-buttons-container">
+        <button class="player-select-btn" onclick="selectPlayerForCard('p1')">👤 Vas</button>
+        <button class="player-select-btn" onclick="selectPlayerForCard('p2')">👤 Tom</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Game Card Display -->
+  <div class="active-game-card-section" id="activeGameCardSection">
+    <div class="active-game-card-label">Active Game Card:</div>
+    <div class="active-game-card-display" id="activeGameCardDisplay"></div>
+  </div>
+
   <!-- Intro Section and Start Button Wrapper -->
   <div class="intro-wrapper" id="introWrapper">
     <div class="intro-section">
@@ -1046,9 +1253,9 @@ button:disabled {
 
   <!-- Control Buttons (Hidden Initially) -->
   <div class="controls" id="controlsSection">
-    <button id="drawRegularBtn" disabled>Draw Regular Card</button>
-    <button id="drawPremiumBtn" disabled>Draw Premium Card</button>
-    <button id="drawGameBtn" disabled>Draw Game Card</button>
+    <button id="drawRegularBtn" onclick="initiateDrawCard('regular')" disabled>Draw Regular Card</button>
+    <button id="drawPremiumBtn" onclick="initiateDrawCard('premium')" disabled>Draw Premium Card</button>
+    <button id="drawGameBtn" onclick="drawGameCard()" disabled>Draw Game Card</button>
     <button id="endSeasonBtn" onclick="endSeason()">End Season</button>
   </div>
 
@@ -1067,13 +1274,21 @@ button:disabled {
   <div class="players-row" id="playersRow">
     <div class="player-box">
       <h2>Vas</h2>
-      <div class="hand-label">Hand (Click card to use):</div>
-      <div id="p1Hand" class="hand"></div>
+      <div class="player-hand-container">
+        <div class="hand-label">Hand (Click card to use):</div>
+        <div id="p1Hand" class="hand">
+          <div class="dealt-card-target" id="p1CardTarget"></div>
+        </div>
+      </div>
     </div>
     <div class="player-box">
       <h2>Tom</h2>
-      <div class="hand-label">Hand (Click card to use):</div>
-      <div id="p2Hand" class="hand"></div>
+      <div class="player-hand-container">
+        <div class="hand-label">Hand (Click card to use):</div>
+        <div id="p2Hand" class="hand">
+          <div class="dealt-card-target" id="p2CardTarget"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1222,7 +1437,9 @@ let gameState = {
   lastCard: null,
   pendingSwap: null,
   stealMode: null,
-  selectedSteal: null
+  selectedSteal: null,
+  activeGameCard: null,
+  pendingCardDraw: { type: null, deckType: null }
 };
 
 let lastHandSizes = { p1: 0, p2: 0 };
@@ -1478,8 +1695,23 @@ function drawFirstCards() {
   render();
 }
 
-function drawCard(deckType) {
-  if (gameState.lastCard || gameState.pendingSwap || gameState.stealMode) {
+function initiateDrawCard(deckType) {
+  gameState.pendingCardDraw = { type: 'regular', deckType: deckType };
+  document.getElementById('playerSelectionModal').classList.add('show');
+}
+
+function selectPlayerForCard(player) {
+  const deckType = gameState.pendingCardDraw.deckType;
+  document.getElementById('playerSelectionModal').classList.remove('show');
+  
+  // Close modal and perform draw animation
+  setTimeout(() => {
+    drawCardWithAnimation(deckType, player);
+  }, 300);
+}
+
+function drawCardWithAnimation(deckType, player) {
+  if (gameState.pendingCardDraw.type === 'regular' && (gameState.lastCard || gameState.pendingSwap || gameState.stealMode)) {
     alert("Finish current action first!");
     return;
   }
@@ -1499,7 +1731,78 @@ function drawCard(deckType) {
   }
   
   const card = deck.pop();
-  gameState.lastCard = { name: card, type: deckType };
+  const cardType = cardTypeMap[card];
+  
+  // Get target position
+  const targetEl = document.getElementById(player + 'CardTarget');
+  const targetRect = targetEl.getBoundingClientRect();
+  
+  // Create animated card element
+  const animatedCard = document.createElement('div');
+  animatedCard.className = `dealt-card-animation ${cardType}`;
+  animatedCard.innerText = card;
+  
+  // Set starting position (top of deck area)
+  const deckX = window.innerWidth / 2;
+  const deckY = 150;
+  
+  // Set target position
+  const targetX = targetRect.left + targetRect.width / 2;
+  const targetY = targetRect.top + window.scrollY + targetRect.height / 2;
+  
+  animatedCard.style.left = deckX + 'px';
+  animatedCard.style.top = deckY + 'px';
+  
+  document.body.appendChild(animatedCard);
+  
+  // Trigger animation
+  setTimeout(() => {
+    animatedCard.style.setProperty('--target-x', (targetX - deckX) + 'px');
+    animatedCard.style.setProperty('--target-y', (targetY - deckY) + 'px');
+  }, 10);
+  
+  // Remove animation element and add card to hand after animation
+  setTimeout(() => {
+    animatedCard.remove();
+    gameState.players[player].hand.push(card);
+    updateDecksDisplay();
+    render();
+    save();
+  }, 800);
+}
+
+function drawGameCard() {
+  if (gameState.lastCard || gameState.pendingSwap || gameState.stealMode) {
+    alert("Finish current action first!");
+    return;
+  }
+  
+  const deck = gameState.gameCardDeck;
+  
+  if (deck.length === 0) {
+    alert("Game Deck empty!");
+    return;
+  }
+  
+  const card = deck.pop();
+  const cardType = cardTypeMap[card];
+  
+  // Discard previous active game card if exists
+  if (gameState.activeGameCard) {
+    gameState.discardPile.push(gameState.activeGameCard);
+  }
+  
+  gameState.activeGameCard = card;
+  
+  // Animate the card into the active game card display
+  const display = document.getElementById('activeGameCardDisplay');
+  display.innerText = card;
+  display.className = `active-game-card-display ${cardType}`;
+  
+  // Show active game card section
+  document.getElementById('activeGameCardSection').classList.add('show');
+  
+  updateDecksDisplay();
   save();
   render();
 }
@@ -1668,7 +1971,11 @@ function getCardType(cardName) {
 function render() {
   ['p1', 'p2'].forEach(p => {
     const container = document.getElementById(p + 'Hand');
+    // Preserve the target element
+    const targetEl = container.querySelector('.dealt-card-target');
     container.innerHTML = "";
+    if (targetEl) container.appendChild(targetEl);
+    
     gameState.players[p].hand.forEach((c, i) => {
       const div = document.createElement('div');
       const cardType = getCardType(c);
@@ -1753,12 +2060,13 @@ if (!gameState.seasonStarted) {
   document.getElementById('swapSection').classList.add('show');
   document.getElementById('discardSection').classList.add('show');
   document.getElementById('howItWorksSection').classList.add('show');
+  if (gameState.activeGameCard) {
+    document.getElementById('activeGameCardSection').classList.add('show');
+    document.getElementById('activeGameCardDisplay').innerText = gameState.activeGameCard;
+    document.getElementById('activeGameCardDisplay').className = `active-game-card-display ${getCardType(gameState.activeGameCard)}`;
+  }
   render();
 }
-
-document.getElementById("drawRegularBtn").onclick = () => drawCard('regular');
-document.getElementById("drawPremiumBtn").onclick = () => drawCard('premium');
-document.getElementById("drawGameBtn").onclick = () => drawCard('game');
 </script>
 </body>
 </html>
