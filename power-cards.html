@@ -156,20 +156,38 @@ button:disabled {
 .player-select-btn {
   padding: 16px 35px;
   font-size: 1.2rem;
-  background: linear-gradient(90deg, #06b6d4, #0891b2);
-  color: #fff;
   font-weight: bold;
   border-radius: 10px;
   cursor: pointer;
-  border: 2px solid #06d6d4;
-  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+  border: 2px solid;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   transition: all 0.3s;
 }
 
-.player-select-btn:hover {
-  background: linear-gradient(90deg, #0891b2, #06b6d4);
+.player-select-btn.vas-btn {
+  background: linear-gradient(90deg, #dc2626, #991b1b);
+  color: #fff;
+  border-color: #ef4444;
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+}
+
+.player-select-btn.vas-btn:hover {
+  background: linear-gradient(90deg, #991b1b, #dc2626);
   transform: scale(1.08);
-  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.6);
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.6);
+}
+
+.player-select-btn.tom-btn {
+  background: linear-gradient(90deg, #0369a1, #0284c7);
+  color: #fff;
+  border-color: #0ea5e9;
+  box-shadow: 0 6px 20px rgba(3, 105, 161, 0.4);
+}
+
+.player-select-btn.tom-btn:hover {
+  background: linear-gradient(90deg, #0284c7, #0369a1);
+  transform: scale(1.08);
+  box-shadow: 0 8px 25px rgba(3, 105, 161, 0.6);
 }
 
 .player-select-btn:active {
@@ -191,52 +209,130 @@ button:disabled {
   }
 }
 
-/* ===== ACTIVE GAME CARD DISPLAY ===== */
-.active-game-card-section {
+/* ===== DECKS AND ACTIVE GAME CARD WRAPPER ===== */
+.decks-and-game-card-wrapper {
   display: none;
+  animation: slideInDown 0.6s ease-out;
+  margin-bottom: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.decks-and-game-card-wrapper.show {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* ===== DECKS DISPLAY ===== */
+.decks-display {
+  flex: 1;
+  min-width: 300px;
   background: rgba(46, 16, 102, 0.8);
   padding: 20px;
   border-radius: 12px;
   border: 2px solid rgba(196, 132, 252, 0.3);
   box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
-  margin-bottom: 20px;
-  animation: slideInDown 0.6s ease-out;
-  align-items: center;
-  gap: 20px;
+  backdrop-filter: blur(10px);
 }
 
-.active-game-card-section.show {
+.decks-container {
   display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.deck-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.deck-card-visual {
+  width: 70px;
+  height: 100px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  flex-shrink: 0;
+}
+
+.deck-card-visual.regular {
+  background: linear-gradient(90deg, #06b6d4 50%, #b91c1c 50%);
+  border: 2px solid #a78bfa;
+}
+
+.deck-card-visual.premium {
+  background: linear-gradient(135deg, #d4a52e, #fbbf24);
+  border: 2px solid #fcd34d;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.deck-card-visual.game {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border: 2px solid #34d399;
+}
+
+.deck-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.deck-label {
+  font-size: 0.85rem;
+  color: #d8b4fe;
+  font-weight: bold;
+}
+
+.deck-count {
+  font-size: 1.5rem;
+  color: #fbbf24;
+  font-weight: bold;
+}
+
+/* ===== ACTIVE GAME CARD DISPLAY ===== */
+.active-game-card-section {
+  flex: 0 0 auto;
+  background: rgba(46, 16, 102, 0.8);
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  min-width: 220px;
+  animation: slideInDown 0.6s ease-out;
 }
 
 .active-game-card-label {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #fbbf24;
   font-weight: bold;
+  text-align: center;
   white-space: nowrap;
 }
 
 .active-game-card-display {
-  width: 80px;
-  height: 110px;
+  width: 100px;
+  height: 140px;
   background: linear-gradient(135deg, #059669, #10b981);
   border: 2px solid #34d399;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: bold;
   color: #fff;
   text-align: center;
@@ -256,6 +352,50 @@ button:disabled {
   100% {
     opacity: 1;
     transform: translateY(0) rotateX(0deg) rotateZ(0deg) scale(1);
+  }
+}
+
+@media (max-width: 1024px) {
+  .decks-and-game-card-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .active-game-card-section {
+    min-width: 100%;
+  }
+
+  .decks-display {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .decks-container {
+    gap: 15px;
+  }
+
+  .deck-card-visual {
+    width: 60px;
+    height: 85px;
+    font-size: 0.65rem;
+  }
+
+  .deck-count {
+    font-size: 1.2rem;
+  }
+
+  .active-game-card-section {
+    min-width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .active-game-card-display {
+    width: 85px;
+    height: 120px;
+    font-size: 0.65rem;
   }
 }
 
@@ -635,102 +775,6 @@ button:disabled {
 .shuffle-card.game {
   background: linear-gradient(135deg, #059669, #10b981);
   border-color: #34d399;
-}
-
-/* ===== DECK POSITIONS - ABOVE CONTROLS ===== */
-.decks-display {
-  display: none;
-  background: rgba(46, 16, 102, 0.8);
-  padding: 20px;
-  border-radius: 12px;
-  border: 2px solid rgba(196, 132, 252, 0.3);
-  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
-  backdrop-filter: blur(10px);
-  margin-bottom: 20px;
-  animation: slideInDown 0.6s ease-out;
-}
-
-.decks-display.show {
-  display: block;
-}
-
-.decks-container {
-  display: flex;
-  gap: 30px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.deck-item {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.deck-card-visual {
-  width: 70px;
-  height: 100px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: #fff;
-  font-size: 0.7rem;
-  text-align: center;
-  padding: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-  flex-shrink: 0;
-}
-
-.deck-card-visual.regular {
-  background: linear-gradient(90deg, #06b6d4 50%, #b91c1c 50%);
-  border: 2px solid #a78bfa;
-}
-
-.deck-card-visual.premium {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border: 2px solid #fcd34d;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), 0 4px 12px rgba(0,0,0,0.6);
-}
-
-.deck-card-visual.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border: 2px solid #34d399;
-}
-
-.deck-info-text {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.deck-label {
-  font-size: 0.85rem;
-  color: #d8b4fe;
-  font-weight: bold;
-}
-
-.deck-count {
-  font-size: 1.5rem;
-  color: #fbbf24;
-  font-weight: bold;
-}
-
-@media (max-width: 768px) {
-  .decks-container {
-    gap: 15px;
-  }
-
-  .deck-card-visual {
-    width: 60px;
-    height: 85px;
-    font-size: 0.65rem;
-  }
-
-  .deck-count {
-    font-size: 1.2rem;
-  }
 }
 
 /* ===== DRAW FIRST CARDS BUTTON ===== */
@@ -1160,11 +1204,6 @@ button:disabled {
     padding: 25px;
     height: 140px;
   }
-
-  .active-game-card-section {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 </style>
 </head>
@@ -1180,16 +1219,10 @@ button:disabled {
     <div class="player-selection-content">
       <h3 class="player-selection-title">Pick Player To Receive Card</h3>
       <div class="player-buttons-container">
-        <button class="player-select-btn" onclick="selectPlayerForCard('p1')">👤 Vas</button>
-        <button class="player-select-btn" onclick="selectPlayerForCard('p2')">👤 Tom</button>
+        <button class="player-select-btn vas-btn" onclick="selectPlayerForCard('p1')">👤 Vas</button>
+        <button class="player-select-btn tom-btn" onclick="selectPlayerForCard('p2')">👤 Tom</button>
       </div>
     </div>
-  </div>
-
-  <!-- Active Game Card Display -->
-  <div class="active-game-card-section" id="activeGameCardSection">
-    <div class="active-game-card-label">Active Game Card:</div>
-    <div class="active-game-card-display" id="activeGameCardDisplay"></div>
   </div>
 
   <!-- Intro Section and Start Button Wrapper -->
@@ -1241,9 +1274,15 @@ button:disabled {
     </div>
   </div>
 
-  <!-- Decks Display (Above Controls) -->
-  <div class="decks-display" id="decksDisplay">
-    <div class="decks-container" id="decksContainer"></div>
+  <!-- Decks and Active Game Card Wrapper -->
+  <div class="decks-and-game-card-wrapper" id="decksAndGameCardWrapper">
+    <div class="decks-display" id="decksDisplay">
+      <div class="decks-container" id="decksContainer"></div>
+    </div>
+    <div class="active-game-card-section" id="activeGameCardSection">
+      <div class="active-game-card-label">Active Game Card:</div>
+      <div class="active-game-card-display" id="activeGameCardDisplay"></div>
+    </div>
   </div>
 
   <!-- Draw First Cards Button -->
@@ -1264,8 +1303,8 @@ button:disabled {
     <h2>🎯 Drawn Card</h2>
     <div id="drawnCardDisplay"></div>
     <div id="drawnCardAssignButtons">
-      <button onclick="assignCard('p1')">✓ Give to Vas</button>
-      <button onclick="assignCard('p2')">✓ Give to Tom</button>
+      <button class="player-select-btn vas-btn" onclick="assignCard('p1')">✓ Give to Vas</button>
+      <button class="player-select-btn tom-btn" onclick="assignCard('p2')">✓ Give to Tom</button>
       <button onclick="discardLastCard()">✗ Discard</button>
     </div>
   </div>
@@ -1499,7 +1538,7 @@ async function startGameSequence() {
   // Show decks and draw first cards button
   document.getElementById('drawFirstCardsWrapper').classList.add('show');
   updateDecksDisplay();
-  document.getElementById('decksDisplay').classList.add('show');
+  document.getElementById('decksAndGameCardWrapper').classList.add('show');
   
   save();
 }
@@ -1695,6 +1734,26 @@ function drawFirstCards() {
   render();
 }
 
+function getDeckPosition(deckType) {
+  if (deckType === 'regular') {
+    // First deck item position
+    const deckItems = document.querySelectorAll('.deck-item');
+    if (deckItems.length > 0) {
+      const rect = deckItems[0].getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + window.scrollY + rect.height / 2 };
+    }
+  } else if (deckType === 'premium') {
+    // Second deck item position
+    const deckItems = document.querySelectorAll('.deck-item');
+    if (deckItems.length > 1) {
+      const rect = deckItems[1].getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + window.scrollY + rect.height / 2 };
+    }
+  }
+  // Fallback to center of screen
+  return { x: window.innerWidth / 2, y: 150 };
+}
+
 function initiateDrawCard(deckType) {
   gameState.pendingCardDraw = { type: 'regular', deckType: deckType };
   document.getElementById('playerSelectionModal').classList.add('show');
@@ -1733,32 +1792,29 @@ function drawCardWithAnimation(deckType, player) {
   const card = deck.pop();
   const cardType = cardTypeMap[card];
   
+  // Get deck starting position
+  const deckPos = getDeckPosition(deckType);
+  
   // Get target position
   const targetEl = document.getElementById(player + 'CardTarget');
   const targetRect = targetEl.getBoundingClientRect();
+  const targetX = targetRect.left + targetRect.width / 2;
+  const targetY = targetRect.top + window.scrollY + targetRect.height / 2;
   
   // Create animated card element
   const animatedCard = document.createElement('div');
   animatedCard.className = `dealt-card-animation ${cardType}`;
   animatedCard.innerText = card;
   
-  // Set starting position (top of deck area)
-  const deckX = window.innerWidth / 2;
-  const deckY = 150;
-  
-  // Set target position
-  const targetX = targetRect.left + targetRect.width / 2;
-  const targetY = targetRect.top + window.scrollY + targetRect.height / 2;
-  
-  animatedCard.style.left = deckX + 'px';
-  animatedCard.style.top = deckY + 'px';
+  animatedCard.style.left = deckPos.x + 'px';
+  animatedCard.style.top = deckPos.y + 'px';
   
   document.body.appendChild(animatedCard);
   
   // Trigger animation
   setTimeout(() => {
-    animatedCard.style.setProperty('--target-x', (targetX - deckX) + 'px');
-    animatedCard.style.setProperty('--target-y', (targetY - deckY) + 'px');
+    animatedCard.style.setProperty('--target-x', (targetX - deckPos.x) + 'px');
+    animatedCard.style.setProperty('--target-y', (targetY - deckPos.y) + 'px');
   }, 10);
   
   // Remove animation element and add card to hand after animation
@@ -1798,9 +1854,6 @@ function drawGameCard() {
   const display = document.getElementById('activeGameCardDisplay');
   display.innerText = card;
   display.className = `active-game-card-display ${cardType}`;
-  
-  // Show active game card section
-  document.getElementById('activeGameCardSection').classList.add('show');
   
   updateDecksDisplay();
   save();
@@ -2054,14 +2107,14 @@ if (!gameState.seasonStarted) {
   render();
 } else {
   document.getElementById('introWrapper').classList.add('hidden');
-  document.getElementById('decksDisplay').classList.add('show');
+  document.getElementById('decksAndGameCardWrapper').classList.add('show');
   document.getElementById('controlsSection').classList.add('show');
   document.getElementById('playersRow').classList.add('show');
   document.getElementById('swapSection').classList.add('show');
   document.getElementById('discardSection').classList.add('show');
   document.getElementById('howItWorksSection').classList.add('show');
   if (gameState.activeGameCard) {
-    document.getElementById('activeGameCardSection').classList.add('show');
+    document.getElementById('activeGameCardSection').style.display = 'flex';
     document.getElementById('activeGameCardDisplay').innerText = gameState.activeGameCard;
     document.getElementById('activeGameCardDisplay').className = `active-game-card-display ${getCardType(gameState.activeGameCard)}`;
   }
