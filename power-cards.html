@@ -100,6 +100,346 @@ button:disabled {
   }
 }
 
+/* ===== INTRO SECTION ===== */
+.intro-section {
+  background: rgba(46, 16, 102, 0.6);
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  line-height: 1.8;
+  font-size: 16px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.intro-section p {
+  margin: 10px 0;
+}
+
+.intro-section strong {
+  color: #f0abfc;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Start Season Button */
+.start-season-wrapper {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.start-season-btn {
+  padding: 18px 40px;
+  font-size: 1.2rem;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  color: #000;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+  transition: all 0.3s;
+}
+
+.start-season-btn:hover {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  transform: scale(1.08);
+  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.6);
+}
+
+.start-season-btn:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 768px) {
+  .start-season-btn {
+    padding: 14px 30px;
+    font-size: 1rem;
+  }
+}
+
+/* ===== COUNTDOWN OVERLAY ===== */
+.countdown-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+
+.countdown-overlay.show {
+  display: flex;
+}
+
+.countdown-container {
+  text-align: center;
+}
+
+.countdown-number {
+  font-size: clamp(4rem, 20vw, 12rem);
+  font-weight: 900;
+  color: #fbbf24;
+  text-shadow: 0 0 20px #fbbf24, 0 0 40px #f59e0b;
+  animation: countdownFade 1s ease-in-out;
+  margin: 0;
+}
+
+@keyframes countdownFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.kickoff-text {
+  font-size: clamp(2rem, 10vw, 5rem);
+  font-weight: 900;
+  color: #fbbf24;
+  text-shadow: 0 0 20px #fbbf24;
+  animation: kickoffPulse 1.5s ease-out;
+  margin: 0;
+}
+
+@keyframes kickoffPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===== CARDS DISPLAY DURING INTRO ===== */
+.cards-intro-display {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 1999;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 20px;
+  gap: 15px;
+  overflow: auto;
+}
+
+.cards-intro-display.show {
+  display: flex;
+}
+
+.intro-card-display {
+  width: 100px;
+  height: 130px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  animation: cardIntroFlip 0.6s ease-out;
+}
+
+@keyframes cardIntroFlip {
+  0% {
+    opacity: 0;
+    transform: rotateY(-90deg) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateY(0) scale(1);
+  }
+}
+
+.intro-card-display.power {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  border: 2px solid #06d6d4;
+}
+
+.intro-card-display.curse {
+  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+  border: 2px solid #dc2626;
+}
+
+.intro-card-display.super {
+  background: linear-gradient(135deg, #d4a52e, #fbbf24);
+  border: 2px solid #fcd34d;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+}
+
+.intro-card-display.game {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border: 2px solid #34d399;
+}
+
+/* ===== DECK POSITIONS - TOP LEFT ===== */
+.deck-display {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  z-index: 1500;
+  background: rgba(46, 16, 102, 0.8);
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.deck-display.show {
+  display: block;
+  animation: slideInLeft 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.deck-item {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.deck-item:last-child {
+  margin-bottom: 0;
+}
+
+.deck-card-visual {
+  width: 70px;
+  height: 100px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.deck-card-visual.regular {
+  background: linear-gradient(135deg, #06b6d4, #b91c1c);
+  border: 2px solid #a78bfa;
+}
+
+.deck-card-visual.premium {
+  background: linear-gradient(135deg, #d4a52e, #fbbf24);
+  border: 2px solid #fcd34d;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+}
+
+.deck-info-text {
+  flex: 1;
+}
+
+.deck-label {
+  font-size: 0.9rem;
+  color: #d8b4fe;
+  font-weight: bold;
+}
+
+.deck-count {
+  font-size: 1.3rem;
+  color: #fbbf24;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .deck-display {
+    top: 70px;
+    left: 10px;
+    padding: 15px;
+  }
+
+  .deck-card-visual {
+    width: 60px;
+    height: 85px;
+    font-size: 0.7rem;
+  }
+
+  .deck-count {
+    font-size: 1.1rem;
+  }
+}
+
+/* ===== DRAW FIRST CARDS BUTTON ===== */
+.draw-first-cards-wrapper {
+  display: none;
+  text-align: center;
+  margin-bottom: 30px;
+  margin-top: 150px;
+}
+
+.draw-first-cards-wrapper.show {
+  display: block;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.draw-first-cards-btn {
+  padding: 16px 35px;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  transition: all 0.3s;
+}
+
+.draw-first-cards-btn:hover {
+  background: linear-gradient(90deg, #059669, #10b981);
+  transform: scale(1.08);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -114,6 +454,10 @@ button:disabled {
 
 .controls button {
   margin: 5px;
+}
+
+.controls.hidden {
+  display: none;
 }
 
 /* Drawn Card Section */
@@ -156,14 +500,25 @@ button:disabled {
   color: #fff;
   text-shadow: 0 0 6px #c084fc;
   height: 160px;
-  background: linear-gradient(135deg, #7c3aed, #a78bfa);
   border-radius: 12px;
   border: 3px solid #d8b4fe;
   margin: 15px 0;
   box-shadow: 0 0 20px rgba(212, 212, 16, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  animation: cardSwoosh 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cardSwoosh {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px) translateY(-50px) scale(0.5);
+  }
+  70% {
+    transform: translateX(10px) translateY(-5px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
 }
 
 #drawnCardAssignButtons {
@@ -456,8 +811,52 @@ button:disabled {
 <h1>🃏 Premier League Prediction League Cards 🃏</h1>
 
 <div class="container">
-  <!-- Control Buttons -->
-  <div class="controls">
+  <!-- Intro Section -->
+  <div class="intro-section">
+    <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
+    
+    <p><strong>The Goal</strong></p>
+    <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
+    
+    <p><strong>🎴 Playing Power, Curse & Super Cards</strong></p>
+    <p>There are 4 types of Card:</p>
+    <ul>
+      <li>💪 <strong>Power Cards (Regular Deck)</strong> - Help you or hinder your opponent</li>
+      <li>🖤 <strong>Curse Cards (Regular Deck)</strong> - Negative effects for your opponent</li>
+      <li>✨ <strong>Super Cards (Premium Deck)</strong> - Powerful premium abilities</li>
+      <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
+    </ul>
+    
+    <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck (30 Power Cards & 22 Curse Cards)</p>
+    <p><strong>✨ Premium Deck:</strong> 7 Super Cards (1 of each type)</p>
+    <p><strong>🏆 Reach milestones</strong> to earn medals, each medal can be spent to draw 1 card from the Regular Deck</p>
+  </div>
+
+  <!-- Start Season Button -->
+  <div class="start-season-wrapper">
+    <button class="start-season-btn" id="startSeasonBtn" onclick="startGameSequence()">🚀 Start Season</button>
+  </div>
+
+  <!-- Countdown Overlay -->
+  <div class="countdown-overlay" id="countdownOverlay">
+    <div class="countdown-container">
+      <p class="countdown-number" id="countdownNumber"></p>
+    </div>
+  </div>
+
+  <!-- Cards Display During Intro -->
+  <div class="cards-intro-display" id="cardsIntroDisplay"></div>
+
+  <!-- Deck Display (Top Left) -->
+  <div class="deck-display" id="deckDisplay"></div>
+
+  <!-- Draw First Cards Button -->
+  <div class="draw-first-cards-wrapper" id="drawFirstCardsWrapper">
+    <button class="draw-first-cards-btn" id="drawFirstCardsBtn" onclick="drawFirstCards()">🎯 Draw Your First Power and Curse Cards!</button>
+  </div>
+
+  <!-- Control Buttons (Hidden Initially) -->
+  <div class="controls hidden" id="controlsSection">
     <button id="startBtn">Start Season</button>
     <button id="drawRegularBtn" disabled>Draw Regular Card</button>
     <button id="drawPremiumBtn" disabled>Draw Premium Card</button>
@@ -547,6 +946,7 @@ let gameState = {
 };
 
 let lastHandSizes = { p1: 0, p2: 0 };
+let sequenceInProgress = false;
 
 function shuffle(arr) { 
   for (let i = arr.length - 1; i > 0; i--) { 
@@ -564,8 +964,11 @@ function load() {
   if (saved) gameState = JSON.parse(saved); 
 }
 
-function startSeason() {
-  if (gameState.seasonStarted) return;
+async function startGameSequence() {
+  if (sequenceInProgress) return;
+  sequenceInProgress = true;
+
+  // Initialize decks
   let powerDeck = [...powerCards];
   let curseDeck = [...curseCards];
   let premiumDeck = [...premiumCards];
@@ -576,18 +979,168 @@ function startSeason() {
   shuffle(premiumDeck);
   shuffle(gameCardDeck);
   
-  ['p1', 'p2'].forEach(p => {
-    gameState.players[p].hand.push(powerDeck.pop(), curseDeck.pop());
-  });
-  
   gameState.regularDeck = [...powerDeck, ...curseDeck];
   shuffle(gameState.regularDeck);
   gameState.premiumDeck = premiumDeck;
   gameState.gameCardDeck = gameCardDeck;
   gameState.seasonStarted = true;
+
+  // Show countdown
+  await showCountdown();
+  
+  // Show all cards
+  await showAllCards();
+  
+  // Show deck arrangement
+  await showDeckArrangement();
+  
+  // Show draw first cards button
+  document.getElementById('drawFirstCardsWrapper').classList.add('show');
+  document.getElementById('deckDisplay').classList.add('show');
   
   save();
+}
+
+function showCountdown() {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('countdownOverlay');
+    const numberEl = document.getElementById('countdownNumber');
+    overlay.classList.add('show');
+    
+    let count = 3;
+    const interval = setInterval(() => {
+      if (count > 0) {
+        numberEl.textContent = count;
+        count--;
+      } else {
+        numberEl.textContent = '🏆';
+        numberEl.style.animation = 'none';
+        numberEl.style.fontSize = 'clamp(3rem, 15vw, 8rem)';
+        clearInterval(interval);
+        
+        // Play whistle sound effect (optional - you can remove if no audio needed)
+        playWhistleSound();
+        
+        setTimeout(() => {
+          numberEl.innerHTML = '<span style="display: block;">Kick-Off!</span> ⚽';
+          numberEl.style.fontSize = 'clamp(2rem, 10vw, 5rem)';
+          numberEl.style.animation = 'kickoffPulse 1.5s ease-out';
+          
+          setTimeout(() => {
+            overlay.classList.remove('show');
+            resolve();
+          }, 1500);
+        }, 600);
+      }
+    }, 1000);
+  });
+}
+
+function showAllCards() {
+  return new Promise(resolve => {
+    const display = document.getElementById('cardsIntroDisplay');
+    display.innerHTML = '';
+    
+    // Create all cards array
+    const allCards = [
+      ...powerCards,
+      ...curseCards,
+      ...premiumCards,
+      ...gameCards
+    ];
+    
+    // Add cards to display with staggered animation
+    allCards.forEach((card, index) => {
+      const cardEl = document.createElement('div');
+      const type = cardTypeMap[card];
+      cardEl.className = `intro-card-display ${type}`;
+      cardEl.textContent = card;
+      cardEl.style.animationDelay = `${index * 0.05}s`;
+      display.appendChild(cardEl);
+    });
+    
+    display.classList.add('show');
+    
+    // Show for 4 seconds
+    setTimeout(() => {
+      display.classList.remove('show');
+      setTimeout(resolve, 500);
+    }, 4000);
+  });
+}
+
+function showDeckArrangement() {
+  return new Promise(resolve => {
+    setTimeout(resolve, 500);
+  });
+}
+
+function playWhistleSound() {
+  // Create a simple beep sound using Web Audio API
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  oscillator.frequency.value = 800;
+  oscillator.type = 'sine';
+  
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+  
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+function drawFirstCards() {
+  // Draw 1 power and 1 curse for each player
+  const powerDeck = [];
+  const curseDeck = [];
+  
+  gameState.regularDeck.forEach(card => {
+    if (cardTypeMap[card] === 'power') {
+      powerDeck.push(card);
+    } else if (cardTypeMap[card] === 'curse') {
+      curseDeck.push(card);
+    }
+  });
+  
+  // Draw for player 1
+  const p1Power = powerDeck.pop();
+  const p1Curse = curseDeck.pop();
+  gameState.players.p1.hand.push(p1Power, p1Curse);
+  
+  // Draw for player 2
+  const p2Power = powerDeck.pop();
+  const p2Curse = curseDeck.pop();
+  gameState.players.p2.hand.push(p2Power, p2Curse);
+  
+  // Rebuild deck
+  gameState.regularDeck = [];
+  powerDeck.forEach(card => gameState.regularDeck.push(card));
+  curseDeck.forEach(card => gameState.regularDeck.push(card));
+  shuffle(gameState.regularDeck);
+  
+  // Hide intro elements
+  document.getElementById('drawFirstCardsWrapper').classList.remove('show');
+  document.getElementById('deckDisplay').classList.remove('show');
+  document.getElementById('controlsSection').classList.remove('hidden');
+  
+  // Show game controls
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('drawRegularBtn').disabled = false;
+  document.getElementById('drawPremiumBtn').disabled = false;
+  
+  sequenceInProgress = false;
+  save();
   render();
+}
+
+function startSeason() {
+  if (gameState.seasonStarted) return;
+  startGameSequence();
 }
 
 function drawCard(deckType) {
@@ -829,6 +1382,11 @@ function render() {
   document.getElementById("regularCount").innerText = gameState.regularDeck.length;
   document.getElementById("premiumCount").innerText = gameState.premiumDeck.length;
   
+  // Update deck display if visible
+  if (document.getElementById('deckDisplay').classList.contains('show')) {
+    updateDeckDisplay();
+  }
+  
   if (gameState.lastCard) {
     const cardType = getCardType(gameState.lastCard.name);
     const display = document.getElementById("drawnCardDisplay");
@@ -842,9 +1400,31 @@ function render() {
   document.getElementById("drawnCardAssignButtons").style.display = gameState.lastCard ? "flex" : "none";
   document.getElementById("discardPile").innerText = gameState.discardPile.length ? gameState.discardPile.join(", ") : "Empty";
 
-  document.getElementById("startBtn").disabled = gameState.seasonStarted;
-  document.getElementById("drawRegularBtn").disabled = !gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
-  document.getElementById("drawPremiumBtn").disabled = !gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
+  if (document.getElementById('startBtn')) {
+    document.getElementById("startBtn").disabled = gameState.seasonStarted;
+    document.getElementById("drawRegularBtn").disabled = !gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
+    document.getElementById("drawPremiumBtn").disabled = !gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
+  }
+}
+
+function updateDeckDisplay() {
+  const display = document.getElementById('deckDisplay');
+  display.innerHTML = `
+    <div class="deck-item">
+      <div class="deck-card-visual regular">Regular</div>
+      <div class="deck-info-text">
+        <div class="deck-label">Regular Deck</div>
+        <div class="deck-count">${gameState.regularDeck.length}</div>
+      </div>
+    </div>
+    <div class="deck-item">
+      <div class="deck-card-visual premium">Premium</div>
+      <div class="deck-info-text">
+        <div class="deck-label">Premium Deck</div>
+        <div class="deck-count">${gameState.premiumDeck.length}</div>
+      </div>
+    </div>
+  `;
 }
 
 function resetSeason() {
@@ -856,9 +1436,7 @@ function resetSeason() {
 
 load();
 render();
-document.getElementById("startBtn").onclick = startSeason;
-document.getElementById("drawRegularBtn").onclick = () => drawCard('regular');
-document.getElementById("drawPremiumBtn").onclick = () => drawCard('premium');
+document.getElementById("startSeasonBtn").onclick = startGameSequence;
 </script>
 </body>
 </html>
