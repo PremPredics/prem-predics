@@ -217,12 +217,13 @@ button:disabled {
 
 /* ===== HOW IT WORKS COLLAPSIBLE ===== */
 .how-it-works-section {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 800;
-  max-width: 90%;
+  margin-top: 20px;
+  display: none;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.how-it-works-section.show {
+  display: block;
 }
 
 .how-it-works-btn {
@@ -236,7 +237,8 @@ button:disabled {
   border: none;
   box-shadow: 0 4px 15px rgba(123, 63, 248, 0.5);
   transition: all 0.3s;
-  width: auto;
+  width: 100%;
+  margin: 0;
 }
 
 .how-it-works-btn:hover {
@@ -249,22 +251,22 @@ button:disabled {
   display: none;
   background: rgba(46, 16, 102, 0.95);
   border: 2px solid rgba(196, 132, 252, 0.3);
-  border-radius: 12px;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
   padding: 25px;
-  margin-top: 10px;
   max-height: 400px;
   overflow-y: auto;
-  animation: slideUp 0.4s ease-out;
+  animation: slideDown 0.4s ease-out;
 }
 
 .how-it-works-content.show {
   display: block;
 }
 
-@keyframes slideUp {
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
@@ -476,46 +478,45 @@ button:disabled {
   border-color: #34d399;
 }
 
-/* ===== DECK POSITIONS - TOP LEFT ===== */
+/* ===== DECK POSITIONS - ABOVE CONTROLS ===== */
 .decks-display {
   display: none;
-  position: fixed;
-  top: 80px;
-  left: 20px;
-  z-index: 1500;
   background: rgba(46, 16, 102, 0.8);
   padding: 20px;
   border-radius: 12px;
   border: 2px solid rgba(196, 132, 252, 0.3);
   box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
   backdrop-filter: blur(10px);
-  animation: slideInLeft 0.6s ease-out;
+  margin-bottom: 20px;
+  animation: slideInDown 0.6s ease-out;
 }
 
 .decks-display.show {
   display: block;
 }
 
-@keyframes slideInLeft {
+@keyframes slideInDown {
   from {
     opacity: 0;
-    transform: translateX(-100px);
+    transform: translateY(-50px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
+.decks-container {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .deck-item {
-  margin-bottom: 20px;
   display: flex;
   align-items: center;
   gap: 15px;
-}
-
-.deck-item:last-child {
-  margin-bottom: 0;
 }
 
 .deck-card-visual {
@@ -531,17 +532,18 @@ button:disabled {
   text-align: center;
   padding: 6px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  flex-shrink: 0;
 }
 
 .deck-card-visual.regular {
-  background: linear-gradient(135deg, #06b6d4, #b91c1c);
+  background: linear-gradient(90deg, #06b6d4 50%, #b91c1c 50%);
   border: 2px solid #a78bfa;
 }
 
 .deck-card-visual.premium {
   background: linear-gradient(135deg, #d4a52e, #fbbf24);
   border: 2px solid #fcd34d;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), 0 4px 12px rgba(0,0,0,0.6);
 }
 
 .deck-card-visual.game {
@@ -550,7 +552,9 @@ button:disabled {
 }
 
 .deck-info-text {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .deck-label {
@@ -566,10 +570,8 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
-  .decks-display {
-    top: 70px;
-    left: 10px;
-    padding: 15px;
+  .decks-container {
+    gap: 15px;
   }
 
   .deck-card-visual {
@@ -588,7 +590,6 @@ button:disabled {
   display: none;
   text-align: center;
   margin-bottom: 30px;
-  margin-top: 150px;
   animation: fadeInUp 0.6s ease-out;
 }
 
@@ -998,7 +999,7 @@ button:disabled {
         <li>💪 <strong>Power Cards (Regular Deck)</strong> - Help you or hinder your opponent</li>
         <li>🖤 <strong>Curse Cards (Regular Deck)</strong> - Negative effects for your opponent</li>
         <li>✨ <strong>Super Cards (Premium Deck)</strong> - Powerful premium abilities</li>
-        <li>���� <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
+        <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
       </ul>
       
       <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck (30 Power Cards & 22 Curse Cards)</p>
@@ -1033,8 +1034,10 @@ button:disabled {
     </div>
   </div>
 
-  <!-- Decks Display (Top Left) -->
-  <div class="decks-display" id="decksDisplay"></div>
+  <!-- Decks Display (Above Controls) -->
+  <div class="decks-display" id="decksDisplay">
+    <div class="decks-container" id="decksContainer"></div>
+  </div>
 
   <!-- Draw First Cards Button -->
   <div class="draw-first-cards-wrapper" id="drawFirstCardsWrapper">
@@ -1089,29 +1092,29 @@ button:disabled {
   <div class="card-section" id="discardSection">
     <h2>Discard / Used Pile</h2>
     <div id="discardPile" class="discard-pile">Empty</div>
-  </div>
-
-  <!-- How It Works Collapsible -->
-  <div class="how-it-works-section">
-    <button class="how-it-works-btn" onclick="toggleHowItWorks()">📖 How It Works</button>
-    <div class="how-it-works-content" id="howItWorksContent">
-      <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
-      
-      <p><strong>The Goal</strong></p>
-      <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
-      
-      <p><strong>🎴 Playing Power, Curse & Super Cards</strong></p>
-      <p>There are 4 types of Card:</p>
-      <ul>
-        <li>💪 <strong>Power Cards (Regular Deck)</strong> - Help you or hinder your opponent</li>
-        <li>🖤 <strong>Curse Cards (Regular Deck)</strong> - Negative effects for your opponent</li>
-        <li>✨ <strong>Super Cards (Premium Deck)</strong> - Powerful premium abilities</li>
-        <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
-      </ul>
-      
-      <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck (30 Power Cards & 22 Curse Cards)</p>
-      <p><strong>✨ Premium Deck:</strong> 7 Super Cards (1 of each type)</p>
-      <p><strong>🎮 Game Deck:</strong> 7 Game Cards (1 of each type)</p>
+    
+    <!-- How It Works Collapsible (Under Discard Pile) -->
+    <div class="how-it-works-section" id="howItWorksSection">
+      <button class="how-it-works-btn" onclick="toggleHowItWorks()">📖 How It Works</button>
+      <div class="how-it-works-content" id="howItWorksContent">
+        <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
+        
+        <p><strong>The Goal</strong></p>
+        <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
+        
+        <p><strong>🎴 Playing Power, Curse & Super Cards</strong></p>
+        <p>There are 4 types of Card:</p>
+        <ul>
+          <li>💪 <strong>Power Cards (Regular Deck)</strong> - Help you or hinder your opponent</li>
+          <li>🖤 <strong>Curse Cards (Regular Deck)</strong> - Negative effects for your opponent</li>
+          <li>✨ <strong>Super Cards (Premium Deck)</strong> - Powerful premium abilities</li>
+          <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
+        </ul>
+        
+        <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck (30 Power Cards & 22 Curse Cards)</p>
+        <p><strong>✨ Premium Deck:</strong> 7 Super Cards (1 of each type)</p>
+        <p><strong>🎮 Game Deck:</strong> 7 Game Cards (1 of each type)</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1327,8 +1330,8 @@ function playWhistleSound() {
 }
 
 function updateDecksDisplay() {
-  const display = document.getElementById('decksDisplay');
-  display.innerHTML = `
+  const container = document.getElementById('decksContainer');
+  container.innerHTML = `
     <div class="deck-item">
       <div class="deck-card-visual regular">Regular</div>
       <div class="deck-info-text">
@@ -1390,6 +1393,7 @@ function drawFirstCards() {
   document.getElementById('playersRow').classList.add('show');
   document.getElementById('swapSection').classList.add('show');
   document.getElementById('discardSection').classList.add('show');
+  document.getElementById('howItWorksSection').classList.add('show');
   
   // Enable draw buttons
   document.getElementById('drawRegularBtn').disabled = false;
@@ -1670,11 +1674,12 @@ if (!gameState.seasonStarted) {
   render();
 } else {
   document.getElementById('introWrapper').classList.add('hidden');
+  document.getElementById('decksDisplay').classList.add('show');
   document.getElementById('controlsSection').classList.add('show');
   document.getElementById('playersRow').classList.add('show');
   document.getElementById('swapSection').classList.add('show');
   document.getElementById('discardSection').classList.add('show');
-  document.getElementById('decksDisplay').classList.add('show');
+  document.getElementById('howItWorksSection').classList.add('show');
   render();
 }
 
