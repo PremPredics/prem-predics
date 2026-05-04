@@ -16,6 +16,7 @@ body {
   padding: 15px;
   margin: 0;
   min-height: 100vh;
+  position: relative;
 }
 
 h1 { 
@@ -62,6 +63,43 @@ button:disabled {
   width: 100%;
 }
 
+/* Back to Home Button - Top Right */
+.back-home-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(123, 63, 248, 0.4);
+}
+
+.back-home-btn:hover {
+  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(123, 63, 248, 0.6);
+}
+
+.back-home-btn:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 768px) {
+  .back-home-btn {
+    top: 10px;
+    right: 10px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -78,14 +116,14 @@ button:disabled {
   margin: 5px;
 }
 
-/* Drawn Card Section - NEW */
+/* Drawn Card Section */
 #drawnCardSection {
   display: none;
   background: linear-gradient(135deg, #2e1066, #3b0764);
   padding: 25px;
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 30px;
-  box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
+  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
   border: 2px solid rgba(196, 132, 252, 0.3);
   animation: slideDown 0.4s ease-out;
 }
@@ -117,12 +155,15 @@ button:disabled {
   padding: 30px;
   color: #fff;
   text-shadow: 0 0 6px #c084fc;
-  min-height: 100px;
+  height: 160px;
   background: linear-gradient(135deg, #7c3aed, #a78bfa);
-  border-radius: 8px;
+  border-radius: 12px;
   border: 3px solid #d8b4fe;
   margin: 15px 0;
   box-shadow: 0 0 20px rgba(212, 212, 16, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #drawnCardAssignButtons {
@@ -164,7 +205,7 @@ button:disabled {
 .player-box { 
   background: linear-gradient(135deg, #2e1066, #3b0764);
   padding: 20px; 
-  border-radius: 12px; 
+  border-radius: 16px; 
   box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
   border: 2px solid rgba(196, 132, 252, 0.3);
   display: flex;
@@ -189,38 +230,44 @@ button:disabled {
   display: flex; 
   flex-wrap: wrap; 
   gap: 10px; 
-  min-height: 100px;
+  min-height: 120px;
   padding: 15px;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  border-radius: 12px;
   overflow-y: auto;
   max-height: 300px;
 }
 
 @media (max-width: 768px) {
   .hand {
-    min-height: 80px;
+    min-height: 100px;
     max-height: 400px;
   }
 }
 
 .card-tile {
   border: 2px solid #fff;
-  border-radius: 10px;
-  padding: 12px 10px;
-  min-width: 90px;
+  border-radius: 12px;
+  padding: 14px 10px;
+  width: 110px;
+  height: 140px;
   text-align: center;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
   font-weight: bold;
   color: #fff;
   transition: transform 0.3s, box-shadow 0.3s, border-color 0.2s, background 0.3s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  font-size: clamp(0.65rem, 1.5vw, 0.85rem);
   flex: 0 0 auto;
+  flex-direction: column;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  position: relative;
 }
 
 /* Card type colors */
@@ -235,8 +282,22 @@ button:disabled {
 }
 
 .card-tile.super {
-  background: linear-gradient(135deg, #b45309, #f59e0b);
-  border-color: #fbbf24;
+  background: linear-gradient(135deg, #d4a52e, #fbbf24);
+  border-color: #fcd34d;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 4px 12px rgba(0,0,0,0.4);
+  position: relative;
+}
+
+.card-tile.super::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 12px;
+  pointer-events: none;
 }
 
 .card-tile.game {
@@ -246,17 +307,23 @@ button:disabled {
 
 @media (max-width: 768px) {
   .card-tile {
-    min-width: 80px;
-    padding: 10px 8px;
-    font-size: 0.8rem;
+    width: 95px;
+    height: 125px;
+    padding: 12px 8px;
+    font-size: 0.75rem;
   }
 }
 
 .card-tile.fly { animation: flyToHand 0.6s ease-out forwards; }
 
 .card-tile:hover { 
-  transform: scale(1.15);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.8);
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.8);
+}
+
+.card-tile.super:hover {
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.8), 0 8px 20px rgba(0,0,0,0.4);
+  transform: scale(1.1) translateY(-5px);
 }
 
 .card-tile.selected { 
@@ -276,7 +343,7 @@ button:disabled {
 .card-section {
   background: linear-gradient(135deg, #2e1066, #3b0764);
   padding: 25px;
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 30px;
   box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
   border: 2px solid rgba(196, 132, 252, 0.3);
@@ -293,7 +360,7 @@ button:disabled {
   margin-top: 15px;
   background: rgba(91, 33, 182, 0.4);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 2px solid rgba(196, 132, 252, 0.3);
   font-size: clamp(0.9rem, 2vw, 1.1rem);
 }
@@ -316,7 +383,7 @@ button:disabled {
 .discard-pile {
   background: rgba(59, 7, 100, 0.5);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   max-height: 150px;
   overflow-y: auto;
   font-size: clamp(0.85rem, 1.5vw, 0.95rem);
@@ -326,39 +393,17 @@ button:disabled {
 
 .deck-info {
   margin-top: 20px;
+  margin-bottom: 80px;
   text-align: center;
   font-size: clamp(0.9rem, 2vw, 1.1rem);
   padding: 15px;
   background: rgba(46, 16, 102, 0.6);
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 @keyframes flyToHand {
   0% { transform: translateY(-50px) scale(1.3); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-.back-home-btn {
-  margin-top: 30px;
-  width: 100%;
-  padding: 15px;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 8px;
-  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.back-home-btn:hover {
-  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
-  transform: scale(1.02);
-}
-
-.back-home-btn:active {
-  transform: scale(0.98);
 }
 
 @media (max-width: 768px) {
@@ -395,12 +440,18 @@ button:disabled {
 
   #drawnCardDisplay {
     padding: 25px;
-    min-height: 80px;
+    height: 140px;
+  }
+
+  .deck-info {
+    margin-bottom: 70px;
   }
 }
 </style>
 </head>
 <body>
+
+<button class="back-home-btn" onclick="window.location.href='index.html'">← Home</button>
 
 <h1>🃏 Premier League Prediction League Cards 🃏</h1>
 
@@ -413,7 +464,7 @@ button:disabled {
     <button onclick="resetSeason()">Reset Season</button>
   </div>
 
-  <!-- Drawn Card Section - NEW AND REPOSITIONED -->
+  <!-- Drawn Card Section -->
   <div id="drawnCardSection">
     <h2>🎯 Drawn Card</h2>
     <div id="drawnCardDisplay"></div>
@@ -460,16 +511,13 @@ button:disabled {
     <strong>Remaining Cards:</strong><br>
     Regular Deck: <span id="regularCount">0</span> cards | Premium Deck: <span id="premiumCount">0</span> cards
   </div>
-
-  <!-- Back Button -->
-  <button class="back-home-btn" onclick="window.location.href='index.html'">← Back to Homepage</button>
 </div>
 
 <script>
 // Card definitions with their types
-const powerCards = ["Power of the Goal","Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Laundrette","Power of the Laundrette","Power of the Rocket Man","Power of the Rocket Man","Power of the Rocket Man","Power of the Pessimist","Power of the Immigrants","Power of the Immigrants","Power of the Lanky Crouch","Power of the Lanky Crouch","Power of the Small and Mighty","Power of the Small and Mighty","Power of God","Power of God","Power of the Hedge","Power of the Hedge","Power of the Assist King","Power of the Late Scout","Power of the Late Scout","Power of the Late Scout","Power of the Snow","Power of the Snow"];
+const powerCards = ["Power of the Goal","Power of the Goal","Power of the Goal","Power of the Swap","Power of the Swap","Power of the Swap","Power of the Veto","Power of the Veto","Power of the Veto","Power of the Punisher","Power of the Punisher","Power of the Punisher","Power of the Tactician","Power of the Tactician","Power of the Thief"];
 
-const curseCards = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Alphabet (20+)","Curse of the Scoring Drought (3 games)","Curse of the Scoring Drought (5 games)","Curse of the Random Roulette","Curse of the Random Roulette","Curse of the Glasses","Curse of the Glasses","Curse of the Deleted Match","Curse of the Deleted Match","Curse of the Tiny Club","Curse of the Tiny Club","Curse of the Thief","Curse of the Thief","Curse of the Even Number","Curse of the Odd Number"];
+const curseCards = ["Curse of the Hated","Curse of the Hated","Curse of the Gambler","Curse of the Gambler","Curse of the Bench Warmer","Curse of the Bench Warmer","Curse of the Alphabet (15+)","Curse of the Alphabet (15+)","Curse of the Thief","Curse of the Thief","Curse of the Double Gameweek","Curse of the Double Gameweek","Curse of the Wildcard","Curse of the Wildcard","Curse of the Rival"];
 
 const premiumCards = ["Super Star Man","Super Golden Gameweek","Super Sub","Super Fantasy Boost","Super Draw","Super Duo","Super Pen"];
 
