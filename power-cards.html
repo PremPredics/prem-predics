@@ -112,6 +112,7 @@ button:disabled {
   z-index: 2500;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
 .player-selection-modal.show {
@@ -126,6 +127,8 @@ button:disabled {
   box-shadow: 0 0 30px rgba(123, 63, 248, 0.6);
   text-align: center;
   animation: slideInScale 0.3s ease-out;
+  max-width: 500px;
+  width: 100%;
 }
 
 @keyframes slideInScale {
@@ -196,16 +199,23 @@ button:disabled {
 
 @media (max-width: 768px) {
   .player-selection-content {
-    padding: 30px;
+    padding: 25px 20px;
   }
 
   .player-selection-title {
     font-size: 1.4rem;
+    margin-bottom: 20px;
   }
 
   .player-select-btn {
-    padding: 14px 25px;
+    padding: 14px 28px;
     font-size: 1rem;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .player-buttons-container {
+    gap: 12px;
   }
 }
 
@@ -215,13 +225,13 @@ button:disabled {
   animation: slideInDown 0.6s ease-out;
   margin-bottom: 20px;
   gap: 20px;
-  flex-wrap: wrap;
 }
 
 .decks-and-game-card-wrapper.show {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 /* ===== DECKS DISPLAY ===== */
@@ -358,11 +368,11 @@ button:disabled {
 @media (max-width: 1024px) {
   .decks-and-game-card-wrapper {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
 
   .active-game-card-section {
-    min-width: 100%;
+    min-width: auto;
   }
 
   .decks-display {
@@ -371,31 +381,54 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
+  .decks-display {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
   .decks-container {
     gap: 15px;
+  }
+
+  .deck-item {
+    gap: 10px;
   }
 
   .deck-card-visual {
     width: 60px;
     height: 85px;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
+    padding: 5px;
+  }
+
+  .deck-label {
+    font-size: 0.75rem;
   }
 
   .deck-count {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .active-game-card-section {
-    min-width: 100%;
     flex-direction: row;
     justify-content: center;
-    gap: 15px;
+    gap: 12px;
+    min-width: auto;
+    padding: 15px;
+    width: 100%;
+  }
+
+  .active-game-card-label {
+    font-size: 0.9rem;
+    white-space: normal;
+    flex: 0 1 auto;
   }
 
   .active-game-card-display {
     width: 85px;
     height: 120px;
     font-size: 0.65rem;
+    flex-shrink: 0;
   }
 }
 
@@ -508,8 +541,33 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
+  .intro-wrapper {
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .intro-section {
+    padding: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .intro-section p {
+    margin: 8px 0;
+  }
+
+  .intro-section ul {
+    margin: 12px 0;
+    padding-left: 20px;
+  }
+
+  .intro-section li {
+    margin: 6px 0;
+    font-size: 13px;
+  }
+
   .start-season-btn {
-    padding: 14px 30px;
+    padding: 14px 24px;
     font-size: 1rem;
   }
 }
@@ -589,6 +647,27 @@ button:disabled {
 
 .how-it-works-content li {
   margin: 8px 0;
+}
+
+@media (max-width: 768px) {
+  .how-it-works-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .how-it-works-content {
+    padding: 18px;
+    font-size: 0.9rem;
+  }
+
+  .how-it-works-content p {
+    margin: 8px 0;
+    font-size: 13px;
+  }
+
+  .how-it-works-content li {
+    font-size: 13px;
+  }
 }
 
 /* ===== COUNTDOWN OVERLAY ===== */
@@ -715,6 +794,14 @@ button:disabled {
     width: 180px;
     height: 130px;
   }
+
+  .shuffle-section-label {
+    font-size: 1rem;
+  }
+
+  .cards-shuffle-wrapper {
+    gap: 20px;
+  }
 }
 
 .shuffle-card {
@@ -808,6 +895,14 @@ button:disabled {
   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
 }
 
+@media (max-width: 768px) {
+  .draw-first-cards-btn {
+    padding: 14px 28px;
+    font-size: 1rem;
+    width: 100%;
+  }
+}
+
 .controls {
   display: none;
   flex-wrap: wrap;
@@ -827,6 +922,21 @@ button:disabled {
 
 .controls button {
   margin: 5px;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px;
+  }
+
+  .controls button {
+    margin: 0;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
 }
 
 /* Drawn Card Section */
@@ -895,9 +1005,28 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
+  #drawnCardSection {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  #drawnCardDisplay {
+    padding: 20px;
+    height: 140px;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+  }
+
+  #drawnCardAssignButtons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
   #drawnCardAssignButtons button {
-    flex: 1 1 calc(50% - 5px);
-    min-width: 120px;
+    width: 100%;
+    min-width: auto;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    margin: 0;
   }
 }
 
@@ -916,7 +1045,8 @@ button:disabled {
 @media (max-width: 768px) {
   .players-row {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 15px;
+    margin-bottom: 20px;
   }
 }
 
@@ -934,6 +1064,7 @@ button:disabled {
 .player-box h2 {
   text-align: center;
   margin-top: 0;
+  margin-bottom: 15px;
   color: #f0abfc;
   text-shadow: 0 0 4px #c084fc;
 }
@@ -945,7 +1076,7 @@ button:disabled {
 .hand-label {
   font-weight: bold;
   color: #d8b4fe;
-  margin: 15px 0 10px 0;
+  margin: 0 0 10px 0;
   font-size: clamp(0.9rem, 2vw, 1.1rem);
 }
 
@@ -972,9 +1103,25 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
+  .player-box {
+    padding: 15px;
+  }
+
+  .player-box h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .hand-label {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
   .hand {
     min-height: 100px;
-    max-height: 400px;
+    max-height: 350px;
+    gap: 8px;
+    padding: 12px;
   }
 }
 
@@ -1040,8 +1187,8 @@ button:disabled {
 
 @media (max-width: 768px) {
   .card-tile {
-    width: 95px;
-    height: 125px;
+    width: 100px;
+    height: 130px;
     padding: 12px 8px;
     font-size: 0.75rem;
   }
@@ -1163,6 +1310,38 @@ button:disabled {
   min-height: 60px;
 }
 
+@media (max-width: 768px) {
+  .card-section {
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+
+  .card-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .pending-swap {
+    padding: 15px;
+    margin-top: 12px;
+    font-size: 0.95rem;
+  }
+
+  .pending-swap strong {
+    margin-bottom: 12px;
+    font-size: 1rem;
+  }
+
+  .drawn-cards {
+    gap: 8px;
+  }
+
+  .discard-pile {
+    padding: 15px;
+    font-size: 0.85rem;
+  }
+}
+
 @keyframes flyToHand {
   0% { transform: translateY(-50px) scale(1.3); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
@@ -1174,35 +1353,16 @@ button:disabled {
   }
 
   h1 {
-    margin: 10px 0 20px 0;
+    margin: 10px 0 18px 0;
+    font-size: clamp(1.3rem, 4vw, 2rem);
   }
 
-  .controls {
-    padding: 15px;
-    margin-bottom: 20px;
+  h2 {
+    font-size: clamp(1rem, 3vw, 1.3rem);
   }
 
-  .card-section {
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-
-  .players-row {
-    gap: 15px;
-  }
-
-  .player-box {
-    padding: 15px;
-  }
-
-  #drawnCardSection {
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-
-  #drawnCardDisplay {
-    padding: 25px;
-    height: 140px;
+  .container {
+    width: 100%;
   }
 }
 </style>
