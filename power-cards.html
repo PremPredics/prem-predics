@@ -1205,6 +1205,23 @@ button:disabled {
   display: none;
 }
 
+body.mobile-controls-fixed .mobile-fixed-actions {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  padding: 6px;
+  border-radius: 10px;
+  position: fixed !important;
+  top: 48px !important;
+  left: 6px !important;
+  right: 6px !important;
+  z-index: 5000 !important;
+  transform: none !important;
+  background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
+}
+
 .side-action-btn {
   width: 100%;
   min-height: 46px;
@@ -1287,10 +1304,11 @@ button:disabled {
 }
 
 .discard-btn {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr;
   align-items: center;
+  justify-items: center;
   justify-content: center;
-  gap: 8px;
   position: relative;
   text-align: center;
   padding-left: 48px;
@@ -1302,13 +1320,13 @@ button:disabled {
 }
 
 .discard-btn > span:first-child {
-  position: absolute;
-  inset: 0;
+  grid-area: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  padding: 0 52px;
+  width: 100%;
+  min-height: 100%;
+  padding: 0;
   text-align: center;
   pointer-events: none;
 }
@@ -1326,10 +1344,12 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+  grid-area: 1 / 1;
+  justify-self: end;
+  position: relative;
+  right: -34px;
+  top: auto;
+  transform: none;
   background: rgba(167, 139, 250, 0.82);
   color: #2e1066;
   border: 1px solid rgba(233, 213, 255, 0.72);
@@ -1680,6 +1700,16 @@ button:disabled {
   line-height: 1.55;
   color: #fff;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.discard-pile.has-cards {
+  align-items: flex-start;
 }
 
 /* ===== DRAWN CARD SECTION ===== */
@@ -2379,20 +2409,21 @@ button:disabled {
   }
 
   .left-panel > .side-actions {
-    display: none;
+    display: none !important;
   }
 
   body.season-started .mobile-fixed-actions {
-    display: grid;
+    display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
     padding: 6px;
     border-radius: 10px;
-    position: fixed;
-    top: 48px;
-    left: 6px;
-    right: 6px;
-    z-index: 1150;
+    position: fixed !important;
+    top: 48px !important;
+    left: 6px !important;
+    right: 6px !important;
+    z-index: 5000 !important;
+    transform: none !important;
     background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
     border: 2px solid rgba(196, 132, 252, 0.3);
     box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
@@ -2454,7 +2485,7 @@ button:disabled {
   }
 
   .discard-btn > span:first-child {
-    padding: 0 38px;
+    padding: 0;
   }
 
   .discard-count-badge {
@@ -2462,7 +2493,7 @@ button:disabled {
     height: 20px;
     padding: 0 6px;
     font-size: 0.66rem;
-    right: 8px;
+    right: -26px;
   }
 
   .intro-wrapper {
@@ -2729,7 +2760,7 @@ button:disabled {
   }
 
   body.season-started .mobile-fixed-actions {
-    top: 46px;
+    top: 46px !important;
     gap: 4px;
     padding: 5px;
   }
@@ -2813,7 +2844,7 @@ button:disabled {
   <!-- Discard Pile Modal -->
   <div class="card-preview-modal" id="discardPileModal">
     <div class="discard-modal-wrapper">
-      <div class="discard-modal-title">Discard Pile</div>
+      <div class="discard-modal-title">Discard/Used Pile</div>
       <div class="discard-modal-panel">
         <div id="discardPile" class="discard-pile">Empty</div>
       </div>
@@ -3197,7 +3228,39 @@ function fitHowItWorksText() {
 window.addEventListener('resize', () => {
   const modal = document.getElementById('howItWorksModal');
   if (modal && modal.classList.contains('show')) fitHowItWorksText();
+  syncMobileFixedActions();
 });
+
+function shouldUseMobileFixedActions() {
+  return window.matchMedia('(max-width: 900px), (pointer: coarse) and (max-width: 1200px)').matches;
+}
+
+function syncMobileFixedActions() {
+  const bar = document.getElementById('mobileFixedActions');
+  const inPanelActions = document.querySelector('.left-panel > .side-actions');
+  if (!bar) return;
+
+  const shouldFix = Boolean(gameState.seasonStarted && shouldUseMobileFixedActions());
+  document.body.classList.toggle('mobile-controls-fixed', shouldFix);
+
+  if (shouldFix) {
+    if (bar.parentElement !== document.body) document.body.appendChild(bar);
+    bar.style.display = 'grid';
+    bar.style.position = 'fixed';
+    bar.style.top = window.innerWidth <= 480 ? '46px' : '48px';
+    bar.style.left = '6px';
+    bar.style.right = '6px';
+    bar.style.zIndex = '5000';
+    bar.style.transform = 'none';
+    if (inPanelActions) inPanelActions.style.display = 'none';
+  } else {
+    bar.removeAttribute('style');
+    if (inPanelActions) inPanelActions.style.display = '';
+  }
+}
+
+window.addEventListener('scroll', syncMobileFixedActions, { passive: true });
+window.addEventListener('orientationchange', syncMobileFixedActions);
 
 async function startGameSequence() {
   if (sequenceInProgress) return;
@@ -3219,6 +3282,7 @@ async function startGameSequence() {
   gameState.gameCardDeck = gameCardDeck;
   gameState.seasonStarted = true;
   document.body.classList.add('season-started');
+  syncMobileFixedActions();
 
   document.getElementById('introWrapper').classList.add('hidden');
 
@@ -3226,6 +3290,7 @@ async function startGameSequence() {
   await showCardShuffle();
   
   document.getElementById('mainGameLayout').classList.add('show');
+  syncMobileFixedActions();
   updateDecksDisplay();
   drawFirstCards();
   
@@ -3828,6 +3893,9 @@ function fitTileText(tile) {
 }
 
 function render() {
+  document.body.classList.toggle('season-started', Boolean(gameState.seasonStarted));
+  syncMobileFixedActions();
+
   ['p1', 'p2'].forEach(p => {
     const container = document.getElementById(p + 'Hand');
     const targetEl = container.querySelector('.dealt-card-target');
@@ -3933,7 +4001,9 @@ function render() {
   
   document.getElementById("drawnCardSection").style.display = gameState.lastCard ? "block" : "none";
   document.getElementById("drawnCardAssignButtons").style.display = gameState.lastCard ? "flex" : "none";
-  document.getElementById("discardPile").innerText = gameState.discardPile.length ? gameState.discardPile.join(", ") : "Empty";
+  const discardPileEl = document.getElementById("discardPile");
+  discardPileEl.innerText = gameState.discardPile.length ? gameState.discardPile.join(", ") : "Empty";
+  discardPileEl.classList.toggle("has-cards", gameState.discardPile.length > 0);
   document.getElementById("discardCountBadge").innerText = gameState.discardPile.length;
 
 }
@@ -3941,6 +4011,7 @@ function render() {
 load();
 if (!gameState.seasonStarted) {
   document.body.classList.remove('season-started');
+  syncMobileFixedActions();
   render();
 } else {
   document.body.classList.add('season-started');
@@ -3949,6 +4020,7 @@ if (!gameState.seasonStarted) {
   document.getElementById('playersRow').classList.add('show');
   document.getElementById('swapSection').classList.add('show');
   document.getElementById('discardSection').classList.add('show');
+  syncMobileFixedActions();
   render();
 }
 </script>
