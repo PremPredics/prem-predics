@@ -1201,6 +1201,10 @@ button:disabled {
   box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
 }
 
+.mobile-fixed-actions {
+  display: none;
+}
+
 .side-action-btn {
   width: 100%;
   min-height: 46px;
@@ -1288,6 +1292,7 @@ button:disabled {
   justify-content: center;
   gap: 8px;
   position: relative;
+  text-align: center;
   padding-left: 48px;
   padding-right: 48px;
   min-height: 44px;
@@ -1297,9 +1302,15 @@ button:disabled {
 }
 
 .discard-btn > span:first-child {
-  display: block;
-  width: 100%;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  padding: 0 52px;
   text-align: center;
+  pointer-events: none;
 }
 
 .discard-btn:hover:not(:disabled) {
@@ -1317,6 +1328,8 @@ button:disabled {
   justify-content: center;
   position: absolute;
   right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   background: rgba(167, 139, 250, 0.82);
   color: #2e1066;
   border: 1px solid rgba(233, 213, 255, 0.72);
@@ -2342,6 +2355,8 @@ button:disabled {
     gap: 8px;
     align-items: start;
     padding-top: 46px;
+    animation: none;
+    transform: none;
   }
 
   .left-panel,
@@ -2361,6 +2376,26 @@ button:disabled {
     left: 6px;
     right: 6px;
     z-index: 1150;
+  }
+
+  .left-panel > .side-actions {
+    display: none;
+  }
+
+  body.season-started .mobile-fixed-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    padding: 6px;
+    border-radius: 10px;
+    position: fixed;
+    top: 48px;
+    left: 6px;
+    right: 6px;
+    z-index: 1150;
+    background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
+    border: 2px solid rgba(196, 132, 252, 0.3);
+    box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
   }
 
   .side-action-btn {
@@ -2416,6 +2451,10 @@ button:disabled {
     padding: 6px 34px;
     font-size: 0.68rem;
     border-radius: 8px;
+  }
+
+  .discard-btn > span:first-child {
+    padding: 0 38px;
   }
 
   .discard-count-badge {
@@ -2689,6 +2728,12 @@ button:disabled {
     padding: 5px;
   }
 
+  body.season-started .mobile-fixed-actions {
+    top: 46px;
+    gap: 4px;
+    padding: 5px;
+  }
+
   .side-action-btn {
     min-height: 30px;
     padding: 4px 3px;
@@ -2706,6 +2751,12 @@ button:disabled {
 <button class="back-home-btn" onclick="window.location.href='index.html'">← Home</button>
 
 <h1>🃏 Prem Predics - Cards 🃏</h1>
+
+<div class="mobile-fixed-actions" id="mobileFixedActions">
+  <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()">View All Decks</button>
+  <button class="side-action-btn active-game-btn" onclick="showGameCardPreview()">View Active Game Card</button>
+  <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()">Draw Cards</button>
+</div>
 
 <div class="container">
   <!-- Card Preview Modal -->
@@ -3167,6 +3218,7 @@ async function startGameSequence() {
   gameState.premiumDeck = premiumDeck;
   gameState.gameCardDeck = gameCardDeck;
   gameState.seasonStarted = true;
+  document.body.classList.add('season-started');
 
   document.getElementById('introWrapper').classList.add('hidden');
 
@@ -3888,8 +3940,10 @@ function render() {
 
 load();
 if (!gameState.seasonStarted) {
+  document.body.classList.remove('season-started');
   render();
 } else {
+  document.body.classList.add('season-started');
   document.getElementById('introWrapper').classList.add('hidden');
   document.getElementById('mainGameLayout').classList.add('show');
   document.getElementById('playersRow').classList.add('show');
