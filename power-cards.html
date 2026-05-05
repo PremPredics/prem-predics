@@ -1211,12 +1211,14 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   gap: 5px;
   padding: 6px;
   border-radius: 10px;
-  position: fixed !important;
-  top: 48px !important;
+  position: absolute !important;
+  top: var(--mobile-actions-top, 48px) !important;
   left: 6px !important;
-  right: 6px !important;
+  right: auto !important;
+  width: calc(100vw - 12px) !important;
   z-index: 5000 !important;
   transform: none !important;
+  will-change: top;
   background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
   border: 2px solid rgba(196, 132, 252, 0.3);
   box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
@@ -2418,12 +2420,14 @@ body.mobile-controls-fixed .mobile-fixed-actions {
     gap: 5px;
     padding: 6px;
     border-radius: 10px;
-    position: fixed !important;
-    top: 48px !important;
+    position: absolute !important;
+    top: var(--mobile-actions-top, 48px) !important;
     left: 6px !important;
-    right: 6px !important;
+    right: auto !important;
+    width: calc(100vw - 12px) !important;
     z-index: 5000 !important;
     transform: none !important;
+    will-change: top;
     background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
     border: 2px solid rgba(196, 132, 252, 0.3);
     box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
@@ -2493,7 +2497,7 @@ body.mobile-controls-fixed .mobile-fixed-actions {
     height: 20px;
     padding: 0 6px;
     font-size: 0.66rem;
-    right: -26px;
+    right: 0;
   }
 
   .intro-wrapper {
@@ -2760,7 +2764,7 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   }
 
   body.season-started .mobile-fixed-actions {
-    top: 46px !important;
+    top: var(--mobile-actions-top, 46px) !important;
     gap: 4px;
     padding: 5px;
   }
@@ -3235,6 +3239,24 @@ function shouldUseMobileFixedActions() {
   return window.matchMedia('(max-width: 900px), (pointer: coarse) and (max-width: 1200px)').matches;
 }
 
+function getMobileActionsOffset() {
+  return window.innerWidth <= 480 ? 46 : 48;
+}
+
+function positionMobileActionsBar(bar) {
+  const viewportOffset = window.visualViewport ? window.visualViewport.offsetTop : 0;
+  const top = Math.round(window.scrollY + viewportOffset + getMobileActionsOffset());
+  bar.style.setProperty('--mobile-actions-top', `${top}px`);
+  bar.style.display = 'grid';
+  bar.style.position = 'absolute';
+  bar.style.top = `${top}px`;
+  bar.style.left = '6px';
+  bar.style.right = 'auto';
+  bar.style.width = 'calc(100vw - 12px)';
+  bar.style.zIndex = '5000';
+  bar.style.transform = 'none';
+}
+
 function syncMobileFixedActions() {
   const bar = document.getElementById('mobileFixedActions');
   const inPanelActions = document.querySelector('.left-panel > .side-actions');
@@ -3245,13 +3267,7 @@ function syncMobileFixedActions() {
 
   if (shouldFix) {
     if (bar.parentElement !== document.body) document.body.appendChild(bar);
-    bar.style.display = 'grid';
-    bar.style.position = 'fixed';
-    bar.style.top = window.innerWidth <= 480 ? '46px' : '48px';
-    bar.style.left = '6px';
-    bar.style.right = '6px';
-    bar.style.zIndex = '5000';
-    bar.style.transform = 'none';
+    positionMobileActionsBar(bar);
     if (inPanelActions) inPanelActions.style.display = 'none';
   } else {
     bar.removeAttribute('style');
@@ -3261,6 +3277,10 @@ function syncMobileFixedActions() {
 
 window.addEventListener('scroll', syncMobileFixedActions, { passive: true });
 window.addEventListener('orientationchange', syncMobileFixedActions);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('scroll', syncMobileFixedActions, { passive: true });
+  window.visualViewport.addEventListener('resize', syncMobileFixedActions);
+}
 
 async function startGameSequence() {
   if (sequenceInProgress) return;
