@@ -82,7 +82,7 @@ button:disabled {
   border: none;
   cursor: pointer;
   transition: 0.3s;
-  z-index: 999;
+  z-index: 1200;
   box-shadow: 0 4px 15px rgba(123, 63, 248, 0.4);
 }
 
@@ -103,7 +103,7 @@ button:disabled {
     right: 12px;
     padding: 8px 12px;
     font-size: 0.8rem;
-    z-index: 999;
+    z-index: 1200;
   }
 }
 
@@ -136,12 +136,13 @@ button:disabled {
 .main-game-layout.show {
   display: grid;
   grid-template-columns: minmax(230px, 1fr) minmax(0, 3fr);
-  align-items: start;
+  align-items: stretch;
 }
 
 @media (max-width: 1200px) {
   .main-game-layout.show {
     grid-template-columns: 1fr;
+    align-items: start;
   }
 }
 
@@ -167,11 +168,13 @@ button:disabled {
   gap: 15px;
   order: 2;
   min-width: 0;
+  height: 100%;
 }
 
 @media (max-width: 1200px) {
   .center-panel {
     order: 2;
+    height: auto;
   }
 }
 
@@ -226,7 +229,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 450px;
+  max-width: 350px;
   width: 100%;
   animation: cardZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   margin: auto;
@@ -255,26 +258,26 @@ button:disabled {
 .card-preview-content {
   background: linear-gradient(135deg, #2e1066, #3b0764);
   border: 3px solid rgba(196, 132, 252, 0.5);
-  border-radius: 20px;
+  border-radius: 18px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 380px;
-  height: 480px;
-  padding: 30px 25px;
+  max-width: 330px;
+  height: 430px;
+  padding: 24px 20px;
   overflow: hidden;
   position: relative;
 }
 
 .card-preview-name {
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  font-weight: bold;
+  font-size: clamp(1.08rem, 2.4vw, 1.3rem);
+  font-weight: 900;
   color: #fbbf24;
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.28;
   min-height: 40px;
   display: flex;
   align-items: center;
@@ -282,8 +285,9 @@ button:disabled {
 }
 
 .card-preview-description {
-  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
-  line-height: 1.7;
+  font-size: clamp(0.92rem, 1.7vw, 1.04rem);
+  line-height: 1.55;
+  font-weight: 800;
   color: #e9d5ff;
   flex: 1;
   overflow-y: auto;
@@ -312,50 +316,54 @@ button:disabled {
 
 .card-preview-buttons {
   display: flex;
-  gap: 15px;
-  margin-top: 18px;
+  gap: 10px;
+  margin-top: 14px;
+  margin-left: auto;
+  margin-right: auto;
   justify-content: center;
   flex-shrink: 0;
+  width: 100%;
+  max-width: 330px;
 }
 
 .card-preview-btn {
-  padding: clamp(12px, 2vw, 16px) clamp(24px, 4vw, 40px);
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  border: 2px solid rgba(233, 213, 255, 0.28);
-  border-radius: 10px;
+  padding: clamp(11px, 1.8vw, 14px) clamp(18px, 3vw, 30px);
+  font-size: clamp(0.88rem, 1.7vw, 1rem);
+  border: 3px solid rgba(216, 180, 254, 0.82);
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 900;
   transition: all 0.3s;
   flex: 1;
-  min-width: 110px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  min-width: 0;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   letter-spacing: 0;
 }
 
 .card-preview-btn.play {
-  background: linear-gradient(135deg, #fbbf24, #c084fc);
-  color: #2e1066;
-  border-color: rgba(251, 191, 36, 0.65);
-  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.32), 0 0 18px rgba(192, 132, 252, 0.22);
+  background: linear-gradient(135deg, #047857 0%, #10b981 58%, #6ee7b7 100%);
+  color: #fff;
+  border-color: rgba(216, 180, 254, 0.9);
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.34), 0 0 20px rgba(196, 132, 252, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.26);
 }
 
 .card-preview-btn.play:hover {
-  background: linear-gradient(135deg, #f59e0b, #a78bfa);
+  background: linear-gradient(135deg, #059669 0%, #34d399 58%, #a7f3d0 100%);
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(251, 191, 36, 0.42), 0 0 22px rgba(192, 132, 252, 0.35);
+  box-shadow: 0 14px 34px rgba(16, 185, 129, 0.46), 0 0 26px rgba(216, 180, 254, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
 .card-preview-btn.back {
-  background: linear-gradient(135deg, #3b0764, #6d28d9);
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 62%, #d8b4fe 100%);
   color: #fff;
-  border-color: rgba(196, 132, 252, 0.48);
-  box-shadow: 0 6px 20px rgba(123, 63, 248, 0.36);
+  border-color: rgba(216, 180, 254, 0.95);
+  box-shadow: 0 10px 26px rgba(123, 63, 248, 0.48), 0 0 20px rgba(192, 132, 252, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.26);
 }
 
 .card-preview-btn.back:hover {
-  background: linear-gradient(135deg, #4c1d95, #8b5cf6);
+  background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 62%, #f3e8ff 100%);
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(123, 63, 248, 0.52);
+  box-shadow: 0 14px 34px rgba(123, 63, 248, 0.62), 0 0 28px rgba(216, 180, 254, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
 .card-preview-btn:active {
@@ -373,9 +381,9 @@ button:disabled {
 }
 
 .card-preview-content.super {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border-color: #fcd34d;
-  box-shadow: 0 0 30px rgba(251, 191, 36, 0.8), 0 20px 60px rgba(0, 0, 0, 0.8);
+  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  border-color: #f8d568;
+  box-shadow: 0 0 34px rgba(248, 213, 104, 0.85), 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 22px rgba(255, 255, 255, 0.18);
   position: relative;
 }
 
@@ -457,12 +465,12 @@ button:disabled {
 }
 
 .fullscreen-card-name {
-  font-size: clamp(1.3rem, 4vw, 1.8rem);
-  font-weight: bold;
+  font-size: clamp(1.45rem, 4vw, 2rem);
+  font-weight: 900;
   color: #fbbf24;
   text-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 22px;
   animation: fadeInText 0.5s ease-out;
   min-height: 50px;
   display: flex;
@@ -482,8 +490,9 @@ button:disabled {
 }
 
 .fullscreen-card-description {
-  font-size: clamp(0.9rem, 1.8vw, 1rem);
-  line-height: 1.6;
+  font-size: clamp(1rem, 1.9vw, 1.12rem);
+  line-height: 1.55;
+  font-weight: 800;
   color: #e9d5ff;
   text-align: center;
   white-space: pre-wrap;
@@ -518,9 +527,9 @@ button:disabled {
 }
 
 .fullscreen-card-content.super {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border-color: #fcd34d;
-  box-shadow: 0 0 40px rgba(251, 191, 36, 1);
+  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  border-color: #f8d568;
+  box-shadow: 0 0 44px rgba(248, 213, 104, 1), inset 0 0 24px rgba(255, 255, 255, 0.2);
 }
 
 .fullscreen-card-content.super::before {
@@ -630,9 +639,10 @@ button:disabled {
 }
 
 .deck-choice-card.premium {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border-color: #fcd34d;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), 0 6px 20px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  border-color: #f8d568;
+  box-shadow: 0 0 18px rgba(248, 213, 104, 0.68), 0 6px 20px rgba(0, 0, 0, 0.6), inset 0 0 16px rgba(255, 255, 255, 0.18);
+  text-shadow: 0 1px 5px rgba(46, 16, 102, 0.8);
 }
 
 .deck-choice-card.game {
@@ -690,6 +700,28 @@ button:disabled {
 
 .deck-overview-panel .deck-count {
   font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.discard-modal-wrapper {
+  width: min(720px, 94vw);
+  animation: cardZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.discard-modal-title {
+  text-align: center;
+  color: #f0abfc;
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  font-weight: bold;
+  margin-bottom: 18px;
+  text-shadow: 0 0 6px #c084fc;
+}
+
+.discard-modal-panel {
+  background: linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(59, 7, 100, 0.96));
+  border: 3px solid rgba(196, 132, 252, 0.5);
+  border-radius: 18px;
+  padding: clamp(18px, 3vw, 28px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
 }
 
 .empty-game-card {
@@ -883,9 +915,10 @@ button:disabled {
 }
 
 .deck-card-visual.premium {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border: 2px solid #fcd34d;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), 0 4px 12px rgba(0,0,0,0.6);
+  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  border: 2px solid #f8d568;
+  box-shadow: 0 0 18px rgba(248, 213, 104, 0.68), 0 4px 12px rgba(0,0,0,0.6), inset 0 0 14px rgba(255, 255, 255, 0.18);
+  text-shadow: 0 1px 5px rgba(46, 16, 102, 0.8);
 }
 
 .deck-card-visual.game {
@@ -1005,15 +1038,84 @@ button:disabled {
   box-shadow: 0 8px 22px rgba(123, 63, 248, 0.55);
 }
 
+.deck-action-btn {
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 62%, #d8b4fe 100%);
+  border: 3px solid rgba(216, 180, 254, 0.95);
+  text-shadow: 0 1px 4px rgba(46, 16, 102, 0.55);
+  box-shadow: 0 6px 20px rgba(123, 63, 248, 0.42), 0 0 18px rgba(196, 132, 252, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.deck-action-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 62%, #f3e8ff 100%);
+  box-shadow: 0 9px 26px rgba(123, 63, 248, 0.56), 0 0 24px rgba(216, 180, 254, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.active-game-btn {
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 62%, #d8b4fe 100%);
+  border: 3px solid rgba(216, 180, 254, 0.95);
+  box-shadow: 0 6px 20px rgba(123, 63, 248, 0.42), 0 0 18px rgba(196, 132, 252, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.active-game-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 62%, #f3e8ff 100%);
+  box-shadow: 0 9px 26px rgba(123, 63, 248, 0.56), 0 0 24px rgba(216, 180, 254, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
 .side-action-btn.draw-card-btn {
-  background: linear-gradient(135deg, #0f766e, #10b981);
-  box-shadow: 0 5px 16px rgba(16, 185, 129, 0.34);
+  background: linear-gradient(135deg, #047857 0%, #10b981 58%, #6ee7b7 100%);
+  color: #fff;
+  border: 3px solid rgba(216, 180, 254, 0.82);
+  box-shadow: 0 5px 16px rgba(16, 185, 129, 0.36), 0 0 18px rgba(196, 132, 252, 0.2);
   white-space: normal;
 }
 
 .side-action-btn.draw-card-btn:hover {
-  background: linear-gradient(135deg, #0d9488, #34d399);
-  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.52);
+  background: linear-gradient(135deg, #059669 0%, #34d399 58%, #a7f3d0 100%);
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.52), 0 0 22px rgba(216, 180, 254, 0.28);
+}
+
+.mobile-label {
+  display: none;
+}
+
+.discard-action {
+  display: none;
+}
+
+.discard-action.show {
+  display: block;
+}
+
+.discard-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  background: rgba(91, 33, 182, 0.4);
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  box-shadow: 0 0 12px rgba(123, 63, 248, 0.36);
+}
+
+.discard-btn:hover:not(:disabled) {
+  background: rgba(109, 40, 217, 0.54);
+  border-color: rgba(216, 180, 254, 0.48);
+}
+
+.discard-count-badge {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(46, 16, 102, 0.72);
+  color: #e9d5ff;
+  border: 1px solid rgba(216, 180, 254, 0.44);
+  font-size: 0.78rem;
+  line-height: 1;
+  box-shadow: inset 0 0 8px rgba(123, 63, 248, 0.32);
 }
 
 .action-buttons {
@@ -1034,6 +1136,8 @@ button:disabled {
   grid-template-columns: 1fr 1fr;
   gap: 18px;
   animation: fadeInUp 0.6s ease-out;
+  flex: 1;
+  align-items: stretch;
 }
 
 .players-row.show {
@@ -1055,19 +1159,34 @@ button:disabled {
   display: flex;
   flex-direction: column;
   position: relative;
+  min-height: 100%;
 }
 
 .player-box h2 {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   color: #f0abfc;
   text-shadow: 0 0 4px #c084fc;
-  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  font-weight: 900;
+}
+
+.player-box.vas-player h2 {
+  color: #ef2f3c;
+  text-shadow: 0 0 9px rgba(239, 47, 60, 0.72), 0 0 16px rgba(185, 28, 28, 0.36);
+}
+
+.player-box.tom-player h2 {
+  color: #7dd3fc;
+  text-shadow: 0 0 9px rgba(125, 211, 252, 0.76), 0 0 16px rgba(14, 165, 233, 0.38);
 }
 
 .player-hand-container {
   position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 .hand-label {
@@ -1081,9 +1200,10 @@ button:disabled {
   display: flex; 
   flex-wrap: wrap; 
   gap: 7px; 
+  flex: 1;
   min-height: 120px;
   padding: 10px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(91, 33, 182, 0.4);
   border-radius: 12px;
   overflow-y: auto;
   max-height: 500px;
@@ -1136,9 +1256,9 @@ button:disabled {
 }
 
 .card-tile.super {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border-color: #fcd34d;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 4px 12px rgba(0,0,0,0.4);
+  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  border-color: #f8d568;
+  box-shadow: 0 0 20px rgba(248, 213, 104, 0.72), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 255, 255, 0.16);
   position: relative;
 }
 
@@ -1178,7 +1298,7 @@ button:disabled {
 }
 
 .card-tile.super:hover {
-  box-shadow: 0 0 25px rgba(251, 191, 36, 0.8), 0 8px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 0 26px rgba(248, 213, 104, 0.9), 0 8px 20px rgba(0,0,0,0.4), inset 0 0 14px rgba(255, 255, 255, 0.18);
   transform: scale(1.08) translateY(-4px);
 }
 
@@ -1249,9 +1369,9 @@ button:disabled {
 }
 
 .dealt-card-animation.super {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border-color: #fcd34d;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), 0 12px 30px rgba(0, 0, 0, 0.55);
+  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  border-color: #f8d568;
+  box-shadow: 0 0 22px rgba(248, 213, 104, 0.68), 0 12px 30px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(255, 255, 255, 0.16);
 }
 
 .dealt-card-animation.game {
@@ -1271,6 +1391,20 @@ button:disabled {
 
 .card-section.show {
   display: block;
+}
+
+.card-section.pending-active {
+  border-color: rgba(216, 180, 254, 0.95);
+  animation: pendingBorderPulse 1.9s ease-in-out infinite;
+}
+
+@keyframes pendingBorderPulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(123, 63, 248, 0.45), 0 0 0 rgba(216, 180, 254, 0);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(216, 180, 254, 0.95), 0 0 34px rgba(216, 180, 254, 0.44);
+  }
 }
 
 .card-section h2 {
@@ -1305,14 +1439,17 @@ button:disabled {
 }
 
 .discard-pile {
-  background: rgba(59, 7, 100, 0.5);
+  background: rgba(91, 33, 182, 0.4);
   padding: 15px;
   border-radius: 12px;
-  max-height: 150px;
+  max-height: min(54vh, 420px);
   overflow-y: auto;
   font-size: clamp(0.8rem, 1.4vw, 0.9rem);
   border: 1px solid rgba(196, 132, 252, 0.2);
-  min-height: 60px;
+  min-height: 140px;
+  line-height: 1.55;
+  color: #fff;
+  font-weight: 700;
 }
 
 /* ===== DRAWN CARD SECTION ===== */
@@ -1349,6 +1486,27 @@ button:disabled {
   margin: 12px 0;
   box-shadow: 0 0 20px rgba(212, 212, 16, 0.4);
   animation: cardSwoosh 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#drawnCardDisplay.power {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  border-color: #06d6d4;
+}
+
+#drawnCardDisplay.curse {
+  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+  border-color: #dc2626;
+}
+
+#drawnCardDisplay.super {
+  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  border-color: #f8d568;
+  box-shadow: 0 0 24px rgba(248, 213, 104, 0.72), inset 0 0 16px rgba(255, 255, 255, 0.16);
+}
+
+#drawnCardDisplay.game {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border-color: #34d399;
 }
 
 @keyframes cardSwoosh {
@@ -1494,7 +1652,7 @@ button:disabled {
   background: linear-gradient(180deg, rgba(76, 29, 149, 0.9), rgba(124, 58, 237, 0.95));
   border-top: 2px solid rgba(196, 132, 252, 0.3);
   padding: 12px 15px;
-  z-index: 98;
+  z-index: 1200;
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -1543,7 +1701,7 @@ button:disabled {
   transform: translateX(-50%);
   width: 90%;
   max-width: 600px;
-  z-index: 97;
+  z-index: 1199;
 }
 
 .how-it-works-content.show {
@@ -1754,9 +1912,9 @@ button:disabled {
 }
 
 .shuffle-card.super {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border-color: #fcd34d;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 6px 20px rgba(0,0,0,0.6);
+  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  border-color: #f8d568;
+  box-shadow: 0 0 22px rgba(248, 213, 104, 0.72), 0 6px 20px rgba(0,0,0,0.6), inset 0 0 14px rgba(255, 255, 255, 0.16);
 }
 
 .shuffle-card.game {
@@ -1768,6 +1926,11 @@ button:disabled {
 @media (max-width: 768px) {
   .back-home-btn {
     position: fixed;
+    top: 8px;
+    right: 8px;
+    padding: 7px 10px;
+    font-size: 0.72rem;
+    border-radius: 7px;
   }
 
   .fixed-footer {
@@ -1775,19 +1938,98 @@ button:disabled {
   }
 
   h1 {
-    margin: 8px 0 16px 0;
-    font-size: clamp(1.2rem, 3.5vw, 1.8rem);
-    padding-right: 80px;
+    margin: 6px 0 8px 0;
+    font-size: 1.15rem;
+    padding-right: 68px;
   }
 
   .container {
-    padding: 0 10px;
-    padding-bottom: 100px;
+    padding: 0 5px 86px;
   }
 
   .main-game-layout.show {
     grid-template-columns: 1fr;
-    gap: 15px;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .left-panel,
+  .center-panel {
+    gap: 8px;
+    height: auto;
+  }
+
+  .side-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    padding: 6px;
+    border-radius: 10px;
+    position: sticky;
+    top: 46px;
+    z-index: 90;
+  }
+
+  .side-action-btn {
+    min-height: 32px;
+    padding: 5px 4px;
+    border-radius: 7px;
+    font-size: 0.62rem;
+    line-height: 1.05;
+    box-shadow: 0 3px 10px rgba(76, 29, 149, 0.32);
+  }
+
+  .desktop-label {
+    display: none;
+  }
+
+  .mobile-label {
+    display: inline;
+  }
+
+  .card-section {
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .card-section h2 {
+    font-size: 0.78rem;
+    margin-bottom: 6px;
+  }
+
+  .pending-swap {
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    line-height: 1.25;
+  }
+
+  .pending-swap strong {
+    margin-bottom: 5px;
+  }
+
+  .pending-swap p {
+    margin: 4px 0;
+  }
+
+  .action-buttons {
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .action-buttons button,
+  .discard-btn {
+    min-height: 32px;
+    padding: 6px 8px;
+    font-size: 0.68rem;
+    border-radius: 8px;
+  }
+
+  .discard-count-badge {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 0.66rem;
   }
 
   .intro-wrapper {
@@ -1796,7 +2038,12 @@ button:disabled {
     margin-bottom: 20px;
   }
 
+  .start-season-wrapper {
+    order: -1;
+  }
+
   .intro-section {
+    order: 1;
     padding: 18px;
     font-size: 14px;
     line-height: 1.6;
@@ -1804,6 +2051,143 @@ button:disabled {
 
   .players-row.show {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .player-box {
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .player-box h2 {
+    font-size: 1.05rem;
+    margin-bottom: 5px;
+  }
+
+  .hand-label {
+    font-size: 0.68rem;
+    margin-bottom: 4px;
+  }
+
+  .hand {
+    min-height: 74px;
+    max-height: 168px;
+    gap: 4px;
+    padding: 6px;
+    border-radius: 8px;
+  }
+
+  .card-tile {
+    width: 52px;
+    height: 68px;
+    padding: 5px 3px;
+    border-radius: 7px;
+    border-width: 1px;
+    font-size: 0.43rem;
+    line-height: 1.05;
+  }
+
+  .card-tile:hover,
+  .card-tile.super:hover {
+    transform: none;
+  }
+
+  #drawnCardSection {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  #drawnCardDisplay {
+    height: 90px;
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  .deck-choice-wrapper {
+    max-width: 100%;
+  }
+
+  .deck-choice-question {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+  }
+
+  .deck-choice-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 14px;
+  }
+
+  .deck-choice-card {
+    width: 100%;
+    height: 118px;
+    padding: 7px;
+    border-radius: 9px;
+    font-size: 0.62rem;
+  }
+
+  .deck-overview-wrapper {
+    width: calc(100vw - 14px);
+  }
+
+  .deck-overview-title,
+  .discard-modal-title {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .deck-overview-panel {
+    padding: 8px;
+    border-radius: 12px;
+    border-width: 2px;
+  }
+
+  .deck-overview-panel .decks-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .deck-overview-panel .deck-item {
+    min-width: 0;
+    padding: 8px 4px;
+    border-radius: 10px;
+    gap: 6px;
+  }
+
+  .deck-overview-panel .deck-card-visual {
+    width: min(78px, 24vw);
+    height: min(110px, 34vw);
+    border-radius: 8px;
+    font-size: 0.58rem;
+    margin: 0 auto;
+  }
+
+  .deck-overview-panel .deck-label {
+    font-size: 0.65rem;
+  }
+
+  .deck-overview-panel .deck-count {
+    font-size: 1.35rem;
+  }
+
+  .discard-modal-wrapper {
+    width: calc(100vw - 18px);
+  }
+
+  .discard-modal-panel {
+    padding: 10px;
+    border-radius: 12px;
+    border-width: 2px;
+  }
+
+  .discard-pile {
+    min-height: 170px;
+    max-height: 56vh;
+    padding: 10px;
+    font-size: 0.72rem;
   }
 
   .fixed-footer {
@@ -1891,6 +2275,19 @@ button:disabled {
     </div>
   </div>
 
+  <!-- Discard Pile Modal -->
+  <div class="card-preview-modal" id="discardPileModal">
+    <div class="discard-modal-wrapper">
+      <div class="discard-modal-title">Discard Pile</div>
+      <div class="discard-modal-panel">
+        <div id="discardPile" class="discard-pile">Empty</div>
+      </div>
+      <div class="card-preview-buttons">
+        <button class="card-preview-btn back" style="max-width: 220px;" onclick="closeDiscardPile()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Game Card Preview Modal -->
   <div class="card-preview-modal" id="gameCardPreviewModal">
     <div class="card-preview-wrapper">
@@ -1964,16 +2361,14 @@ button:disabled {
     </div>
   </div>
 
-  <div class="top-buttons-bar" id="topButtonsBar"></div>
-
   <!-- Main Game Layout -->
   <div class="main-game-layout" id="mainGameLayout">
     <!-- LEFT PANEL - CONTROLS / PENDING / DISCARD -->
     <div class="left-panel">
       <div class="side-actions">
-        <button class="side-action-btn" onclick="openDeckOverview()">View All Decks</button>
-        <button class="side-action-btn" onclick="showGameCardPreview()">View Active Game Card</button>
-        <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()">Draw Card</button>
+        <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">All Decks</span></button>
+        <button class="side-action-btn active-game-btn" onclick="showGameCardPreview()"><span class="desktop-label">View Active Game Card</span><span class="mobile-label">Active Card</span></button>
+        <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Card</span></button>
       </div>
 
       <!-- Pending Swap / Steal -->
@@ -1988,9 +2383,11 @@ button:disabled {
       </div>
 
       <!-- Discard Pile -->
-      <div class="card-section" id="discardSection">
-        <h2>Discard Pile</h2>
-        <div id="discardPile" class="discard-pile">Empty</div>
+      <div class="discard-action" id="discardSection">
+        <button class="side-action-btn discard-btn" onclick="openDiscardPile()">
+          <span>View Discarded/Played Hands</span>
+          <span class="discard-count-badge" id="discardCountBadge">0</span>
+        </button>
       </div>
     </div>
 
@@ -2009,7 +2406,7 @@ button:disabled {
 
       <!-- Player Hands -->
       <div class="players-row" id="playersRow">
-        <div class="player-box">
+        <div class="player-box vas-player">
           <h2>Vas</h2>
           <div class="player-hand-container">
             <div class="hand-label">Hand (Click to play):</div>
@@ -2018,7 +2415,7 @@ button:disabled {
             </div>
           </div>
         </div>
-        <div class="player-box">
+        <div class="player-box tom-player">
           <h2>Tom</h2>
           <div class="player-hand-container">
             <div class="hand-label">Hand (Click to play):</div>
@@ -2435,6 +2832,16 @@ function closeDeckOverview() {
   document.body.classList.remove('card-preview-open');
 }
 
+function openDiscardPile() {
+  document.body.classList.add('card-preview-open');
+  document.getElementById('discardPileModal').classList.add('show');
+}
+
+function closeDiscardPile() {
+  document.getElementById('discardPileModal').classList.remove('show');
+  document.body.classList.remove('card-preview-open');
+}
+
 function startCardReveal(deckType) {
   document.getElementById('deckChoiceModal').classList.remove('show');
   
@@ -2814,6 +3221,8 @@ function render() {
   });
 
   const swapDiv = document.getElementById("pendingSwap");
+  const swapSection = document.getElementById("swapSection");
+  swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.stealMode));
   if (gameState.pendingSwap) {
     let html = `<strong>⚡ Power of the Swap Active!</strong>`;
     if (gameState.pendingSwap.drawn.length === 0) {
@@ -2858,6 +3267,7 @@ function render() {
   document.getElementById("drawnCardSection").style.display = gameState.lastCard ? "block" : "none";
   document.getElementById("drawnCardAssignButtons").style.display = gameState.lastCard ? "flex" : "none";
   document.getElementById("discardPile").innerText = gameState.discardPile.length ? gameState.discardPile.join(", ") : "Empty";
+  document.getElementById("discardCountBadge").innerText = gameState.discardPile.length;
 
 }
 
