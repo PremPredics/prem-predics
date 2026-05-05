@@ -1287,10 +1287,19 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  position: relative;
+  padding-left: 48px;
+  padding-right: 48px;
   min-height: 44px;
   background: linear-gradient(135deg, #2e1066, #3b0764);
   border: 2px solid rgba(196, 132, 252, 0.3);
   box-shadow: 0 0 12px rgba(123, 63, 248, 0.42), inset 0 0 18px rgba(0, 0, 0, 0.18);
+}
+
+.discard-btn > span:first-child {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 .discard-btn:hover:not(:disabled) {
@@ -1306,6 +1315,8 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  right: 14px;
   background: rgba(167, 139, 250, 0.82);
   color: #2e1066;
   border: 1px solid rgba(233, 213, 255, 0.72);
@@ -2306,11 +2317,20 @@ button:disabled {
   }
 
   h1 {
-    margin: 8px 0 12px 0;
-    font-size: clamp(1.45rem, 7vw, 2.1rem);
-    padding-right: 68px;
-    -webkit-text-stroke: 1px #05010c;
-    line-height: 1.08;
+    margin: 8px 0 10px 0;
+    font-size: clamp(1rem, 4.8vw, 1.32rem);
+    padding-right: 72px;
+    -webkit-text-stroke: 0;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.65);
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .container {
@@ -2321,6 +2341,7 @@ button:disabled {
     grid-template-columns: 1fr;
     gap: 8px;
     align-items: start;
+    padding-top: 46px;
   }
 
   .left-panel,
@@ -2335,16 +2356,18 @@ button:disabled {
     gap: 5px;
     padding: 6px;
     border-radius: 10px;
-    position: sticky;
-    top: 46px;
-    z-index: 90;
+    position: fixed;
+    top: 48px;
+    left: 6px;
+    right: 6px;
+    z-index: 1150;
   }
 
   .side-action-btn {
     min-height: 32px;
     padding: 5px 4px;
     border-radius: 7px;
-    font-size: 0.62rem;
+    font-size: clamp(0.52rem, 2.3vw, 0.66rem);
     line-height: 1.05;
     box-shadow: 0 3px 10px rgba(76, 29, 149, 0.32);
   }
@@ -2390,7 +2413,7 @@ button:disabled {
   .action-buttons button,
   .discard-btn {
     min-height: 32px;
-    padding: 6px 8px;
+    padding: 6px 34px;
     font-size: 0.68rem;
     border-radius: 8px;
   }
@@ -2400,6 +2423,7 @@ button:disabled {
     height: 20px;
     padding: 0 6px;
     font-size: 0.66rem;
+    right: 8px;
   }
 
   .intro-wrapper {
@@ -2649,9 +2673,9 @@ button:disabled {
 
 @media (max-width: 480px) {
   h1 {
-    font-size: clamp(1.25rem, 7vw, 1.75rem);
-    margin: 8px 0 12px 0;
-    padding-right: 64px;
+    font-size: clamp(0.9rem, 4.45vw, 1.16rem);
+    margin: 8px 0 9px 0;
+    padding-right: 68px;
   }
 
   .collapsible-btn {
@@ -2659,8 +2683,20 @@ button:disabled {
     padding: 12px;
   }
 
+  .side-actions {
+    top: 46px;
+    gap: 4px;
+    padding: 5px;
+  }
+
+  .side-action-btn {
+    min-height: 30px;
+    padding: 4px 3px;
+    font-size: clamp(0.48rem, 2.2vw, 0.6rem);
+  }
+
   .draw-card-btn {
-    padding: 8px 12px;
+    padding: 4px 3px;
   }
 }
 </style>
@@ -2827,9 +2863,9 @@ button:disabled {
     <!-- LEFT PANEL - CONTROLS / PENDING / DISCARD -->
     <div class="left-panel">
       <div class="side-actions">
-        <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">All Decks</span></button>
-        <button class="side-action-btn active-game-btn" onclick="showGameCardPreview()"><span class="desktop-label">View Active Game Card</span><span class="mobile-label">Active Card</span></button>
-        <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Card</span></button>
+        <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">View All Decks</span></button>
+        <button class="side-action-btn active-game-btn" onclick="showGameCardPreview()"><span class="desktop-label">View Active Game Card</span><span class="mobile-label">View Active Game Card</span></button>
+        <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Cards</span></button>
       </div>
 
       <!-- Pending Swap / Steal -->
