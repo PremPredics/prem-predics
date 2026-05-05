@@ -79,7 +79,7 @@ button:disabled {
 
 /* Back to Home Button - Fixed */
 .back-home-btn {
-  position: fixed;
+  position: fixed !important;
   top: 15px;
   right: 15px;
   padding: 10px 16px;
@@ -92,6 +92,8 @@ button:disabled {
   cursor: pointer;
   transition: 0.3s;
   z-index: 1200;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
   box-shadow: 0 4px 15px rgba(123, 63, 248, 0.4);
 }
 
@@ -1211,14 +1213,14 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   gap: 5px;
   padding: 6px;
   border-radius: 10px;
-  position: absolute !important;
-  top: var(--mobile-actions-top, 48px) !important;
+  position: fixed !important;
+  top: 48px !important;
   left: 6px !important;
-  right: auto !important;
+  right: 6px !important;
   width: calc(100vw - 12px) !important;
   z-index: 5000 !important;
-  transform: none !important;
-  will-change: top;
+  transform: translate3d(0, 0, 0) !important;
+  will-change: transform;
   background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
   border: 2px solid rgba(196, 132, 252, 0.3);
   box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
@@ -1673,12 +1675,17 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   border-radius: 12px;
   border: 2px solid rgba(196, 132, 252, 0.3);
   font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+  text-align: center;
 }
 
 .pending-swap strong {
   color: #fbbf24;
   display: block;
   margin-bottom: 12px;
+  text-align: center;
+}
+
+.pending-swap p {
   text-align: center;
 }
 
@@ -1910,7 +1917,7 @@ body.mobile-controls-fixed .mobile-fixed-actions {
 
 /* ===== FIXED FOOTER ===== */
 .fixed-footer {
-  position: fixed;
+  position: fixed !important;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -1922,6 +1929,8 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
   box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -2349,7 +2358,7 @@ body.mobile-controls-fixed .mobile-fixed-actions {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .back-home-btn {
-    position: fixed;
+    position: fixed !important;
     top: 8px;
     right: 8px;
     padding: 7px 10px;
@@ -2358,7 +2367,9 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   }
 
   .fixed-footer {
-    position: fixed;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
   }
 
   h1 {
@@ -2414,20 +2425,20 @@ body.mobile-controls-fixed .mobile-fixed-actions {
     display: none !important;
   }
 
-  body.season-started .mobile-fixed-actions {
+  body.controls-ready .mobile-fixed-actions {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
     padding: 6px;
     border-radius: 10px;
-    position: absolute !important;
-    top: var(--mobile-actions-top, 48px) !important;
+    position: fixed !important;
+    top: 48px !important;
     left: 6px !important;
-    right: auto !important;
+    right: 6px !important;
     width: calc(100vw - 12px) !important;
     z-index: 5000 !important;
-    transform: none !important;
-    will-change: top;
+    transform: translate3d(0, 0, 0) !important;
+    will-change: transform;
     background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
     border: 2px solid rgba(196, 132, 252, 0.3);
     box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
@@ -2763,8 +2774,8 @@ body.mobile-controls-fixed .mobile-fixed-actions {
     padding: 5px;
   }
 
-  body.season-started .mobile-fixed-actions {
-    top: var(--mobile-actions-top, 46px) !important;
+  body.controls-ready .mobile-fixed-actions {
+    top: 46px !important;
     gap: 4px;
     padding: 5px;
   }
@@ -2790,7 +2801,7 @@ body.mobile-controls-fixed .mobile-fixed-actions {
 <div class="mobile-fixed-actions" id="mobileFixedActions">
   <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()">View All Decks</button>
   <button class="side-action-btn active-game-btn" onclick="showGameCardPreview()">View Active Game Card</button>
-  <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()">Draw Cards</button>
+  <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()">Draw Card</button>
 </div>
 
 <div class="container">
@@ -3239,35 +3250,48 @@ function shouldUseMobileFixedActions() {
   return window.matchMedia('(max-width: 900px), (pointer: coarse) and (max-width: 1200px)').matches;
 }
 
-function getMobileActionsOffset() {
-  return window.innerWidth <= 480 ? 46 : 48;
-}
+function syncFixedChrome() {
+  const isMobile = window.innerWidth <= 768;
+  const homeBtn = document.querySelector('.back-home-btn');
+  const footer = document.getElementById('fixedFooter');
 
-function positionMobileActionsBar(bar) {
-  const viewportOffset = window.visualViewport ? window.visualViewport.offsetTop : 0;
-  const top = Math.round(window.scrollY + viewportOffset + getMobileActionsOffset());
-  bar.style.setProperty('--mobile-actions-top', `${top}px`);
-  bar.style.display = 'grid';
-  bar.style.position = 'absolute';
-  bar.style.top = `${top}px`;
-  bar.style.left = '6px';
-  bar.style.right = 'auto';
-  bar.style.width = 'calc(100vw - 12px)';
-  bar.style.zIndex = '5000';
-  bar.style.transform = 'none';
+  if (homeBtn) {
+    homeBtn.style.position = 'fixed';
+    homeBtn.style.top = isMobile ? '8px' : '15px';
+    homeBtn.style.right = isMobile ? '8px' : '15px';
+    homeBtn.style.zIndex = '5200';
+    homeBtn.style.transform = 'translate3d(0, 0, 0)';
+  }
+
+  if (footer) {
+    footer.style.position = 'fixed';
+    footer.style.left = '0';
+    footer.style.bottom = '0';
+    footer.style.width = '100%';
+    footer.style.zIndex = '5100';
+    footer.style.transform = 'translate3d(0, 0, 0)';
+  }
 }
 
 function syncMobileFixedActions() {
+  syncFixedChrome();
   const bar = document.getElementById('mobileFixedActions');
   const inPanelActions = document.querySelector('.left-panel > .side-actions');
   if (!bar) return;
 
-  const shouldFix = Boolean(gameState.seasonStarted && shouldUseMobileFixedActions());
+  const shouldFix = Boolean(gameState.seasonStarted && document.body.classList.contains('controls-ready') && shouldUseMobileFixedActions());
   document.body.classList.toggle('mobile-controls-fixed', shouldFix);
 
   if (shouldFix) {
     if (bar.parentElement !== document.body) document.body.appendChild(bar);
-    positionMobileActionsBar(bar);
+    bar.style.display = 'grid';
+    bar.style.position = 'fixed';
+    bar.style.top = window.innerWidth <= 480 ? '46px' : '48px';
+    bar.style.left = '6px';
+    bar.style.right = '6px';
+    bar.style.width = 'calc(100vw - 12px)';
+    bar.style.zIndex = '5000';
+    bar.style.transform = 'translate3d(0, 0, 0)';
     if (inPanelActions) inPanelActions.style.display = 'none';
   } else {
     bar.removeAttribute('style');
@@ -3276,11 +3300,8 @@ function syncMobileFixedActions() {
 }
 
 window.addEventListener('scroll', syncMobileFixedActions, { passive: true });
+window.addEventListener('resize', syncMobileFixedActions);
 window.addEventListener('orientationchange', syncMobileFixedActions);
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('scroll', syncMobileFixedActions, { passive: true });
-  window.visualViewport.addEventListener('resize', syncMobileFixedActions);
-}
 
 async function startGameSequence() {
   if (sequenceInProgress) return;
@@ -3302,6 +3323,7 @@ async function startGameSequence() {
   gameState.gameCardDeck = gameCardDeck;
   gameState.seasonStarted = true;
   document.body.classList.add('season-started');
+  document.body.classList.remove('controls-ready');
   syncMobileFixedActions();
 
   document.getElementById('introWrapper').classList.add('hidden');
@@ -3309,6 +3331,7 @@ async function startGameSequence() {
   await showCountdown();
   await showCardShuffle();
   
+  document.body.classList.add('controls-ready');
   document.getElementById('mainGameLayout').classList.add('show');
   syncMobileFixedActions();
   updateDecksDisplay();
@@ -4001,7 +4024,7 @@ function render() {
     document.getElementById("confirmStealBtn").style.display = "block";
   } else {
     swapDiv.style.display = "block";
-    swapDiv.innerHTML = "<strong>No Pending Swap/Steal</strong><p>Played swap and steal effects will appear here.</p>";
+    swapDiv.innerHTML = "<strong>No Pending Swap/Steal</strong><p>Played Swap and Steal effects will appear here.</p>";
     document.getElementById("confirmSwapBtn").style.display = "none";
     document.getElementById("confirmPickBtn").style.display = "none";
     document.getElementById("confirmStealBtn").style.display = "none";
@@ -4031,10 +4054,12 @@ function render() {
 load();
 if (!gameState.seasonStarted) {
   document.body.classList.remove('season-started');
+  document.body.classList.remove('controls-ready');
   syncMobileFixedActions();
   render();
 } else {
   document.body.classList.add('season-started');
+  document.body.classList.add('controls-ready');
   document.getElementById('introWrapper').classList.add('hidden');
   document.getElementById('mainGameLayout').classList.add('show');
   document.getElementById('playersRow').classList.add('show');
