@@ -25,10 +25,19 @@ body.card-preview-open {
 
 h1 { 
   text-align: center; 
-  color: #e9d5ff;
-  text-shadow: 0 0 6px #c084fc;
-  margin: 15px 0 20px 0;
-  font-size: clamp(1.3rem, 4vw, 2rem);
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  margin: 18px 0 24px 0;
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
 }
 
 h2 {
@@ -271,33 +280,38 @@ button:disabled {
 }
 
 .card-preview-name {
-  font-size: clamp(1.08rem, 2.4vw, 1.3rem);
+  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
   font-weight: 900;
   color: #fbbf24;
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
-  margin-bottom: 14px;
+  margin: 0;
   text-align: center;
-  line-height: 1.28;
-  min-height: 40px;
+  line-height: 1.18;
+  flex: 0 0 20%;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  padding: 0 2px 8px;
 }
 
 .card-preview-description {
-  font-size: clamp(0.92rem, 1.7vw, 1.04rem);
-  line-height: 1.55;
+  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  line-height: 1.35;
   font-weight: 800;
   color: #e9d5ff;
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 8px;
+  flex: 1 1 80%;
+  overflow: hidden;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
+  width: 100%;
+  padding: 0 2px;
 }
 
 .card-preview-description::-webkit-scrollbar {
@@ -336,34 +350,88 @@ button:disabled {
   transition: all 0.3s;
   flex: 1;
   min-width: 0;
+  position: relative;
+  z-index: 2;
+  opacity: 1;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   letter-spacing: 0;
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.85),
+    1px -1px 0 rgba(0, 0, 0, 0.85),
+    -1px 1px 0 rgba(0, 0, 0, 0.85),
+    1px 1px 0 rgba(0, 0, 0, 0.85),
+    0 2px 5px rgba(0, 0, 0, 0.72);
 }
 
 .card-preview-btn.play {
-  background: linear-gradient(135deg, #047857 0%, #10b981 58%, #6ee7b7 100%);
-  color: #fff;
-  border-color: rgba(216, 180, 254, 0.9);
-  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.34), 0 0 20px rgba(196, 132, 252, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255, 255, 255, 0.95), transparent 20%),
+    radial-gradient(circle at 78% 72%, rgba(6, 78, 59, 0.68), transparent 32%),
+    linear-gradient(45deg, rgba(255,255,255,0.38) 0 11%, transparent 11% 26%, rgba(255,255,255,0.3) 26% 38%, transparent 38% 100%),
+    linear-gradient(135deg, #022c22 0%, #059669 20%, #10b981 44%, #34d399 64%, #a7f3d0 82%, #f0fdf4 100%);
+  color: #faffff;
+  border-color: rgba(167, 243, 208, 0.98);
+  box-shadow: 0 0 40px rgba(52, 211, 153, 0.96), 0 12px 30px rgba(6, 95, 70, 0.52), inset 0 2px 0 rgba(255, 255, 255, 0.44);
+  filter: brightness(1.14) saturate(1.18);
+  text-shadow:
+    -1.2px -1.2px 0 rgba(0, 0, 0, 0.98),
+    1.2px -1.2px 0 rgba(0, 0, 0, 0.98),
+    -1.2px 1.2px 0 rgba(0, 0, 0, 0.98),
+    1.2px 1.2px 0 rgba(0, 0, 0, 0.98),
+    0 0 12px rgba(236, 253, 245, 0.95);
 }
 
 .card-preview-btn.play:hover {
-  background: linear-gradient(135deg, #059669 0%, #34d399 58%, #a7f3d0 100%);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(236, 253, 245, 0.8), transparent 22%),
+    radial-gradient(circle at 78% 72%, rgba(6, 78, 59, 0.5), transparent 30%),
+    linear-gradient(45deg, rgba(255,255,255,0.26) 0 12%, transparent 12% 28%, rgba(255,255,255,0.22) 28% 40%, transparent 40% 100%),
+    linear-gradient(135deg, #064e3b 0%, #059669 25%, #34d399 58%, #6ee7b7 78%, #ecfdf5 100%);
   transform: translateY(-3px);
-  box-shadow: 0 14px 34px rgba(16, 185, 129, 0.46), 0 0 26px rgba(216, 180, 254, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  box-shadow: 0 0 34px rgba(52, 211, 153, 0.82), 0 14px 34px rgba(6, 95, 70, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
 .card-preview-btn.back {
-  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 62%, #d8b4fe 100%);
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255, 255, 255, 0.88), transparent 20%),
+    radial-gradient(circle at 78% 74%, rgba(76, 29, 149, 0.34), transparent 34%),
+    linear-gradient(45deg, rgba(255,255,255,0.3) 0 11%, transparent 11% 26%, rgba(255,255,255,0.24) 26% 38%, transparent 38% 100%),
+    linear-gradient(135deg, #6d28d9 0%, #8b5cf6 30%, #c084fc 64%, #f3e8ff 100%);
   color: #fff;
-  border-color: rgba(216, 180, 254, 0.95);
-  box-shadow: 0 10px 26px rgba(123, 63, 248, 0.48), 0 0 20px rgba(192, 132, 252, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  border-color: rgba(245, 208, 254, 0.98);
+  box-shadow: 0 12px 30px rgba(123, 63, 248, 0.64), 0 0 30px rgba(216, 180, 254, 0.62), inset 0 2px 0 rgba(255, 255, 255, 0.42);
+  filter: brightness(1.16) saturate(1.12);
+  text-shadow:
+    -1.2px -1.2px 0 rgba(0, 0, 0, 0.95),
+    1.2px -1.2px 0 rgba(0, 0, 0, 0.95),
+    -1.2px 1.2px 0 rgba(0, 0, 0, 0.95),
+    1.2px 1.2px 0 rgba(0, 0, 0, 0.95),
+    0 0 10px rgba(250, 245, 255, 0.82);
 }
 
 .card-preview-btn.back:hover {
-  background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 62%, #f3e8ff 100%);
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255, 255, 255, 0.95), transparent 20%),
+    radial-gradient(circle at 78% 74%, rgba(76, 29, 149, 0.28), transparent 34%),
+    linear-gradient(45deg, rgba(255,255,255,0.36) 0 11%, transparent 11% 26%, rgba(255,255,255,0.28) 26% 38%, transparent 38% 100%),
+    linear-gradient(135deg, #7c3aed 0%, #a78bfa 32%, #d8b4fe 66%, #fff 100%);
   transform: translateY(-3px);
-  box-shadow: 0 14px 34px rgba(123, 63, 248, 0.62), 0 0 28px rgba(216, 180, 254, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  box-shadow: 0 16px 38px rgba(123, 63, 248, 0.72), 0 0 32px rgba(216, 180, 254, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+#cardPreviewModal .card-preview-buttons .card-preview-btn,
+#gameCardPreviewModal .card-preview-buttons .card-preview-btn,
+#deckChoiceModal .card-preview-buttons .card-preview-btn,
+.deck-overview-modal .card-preview-buttons .card-preview-btn,
+#discardPileModal .card-preview-buttons .card-preview-btn,
+.how-it-works-modal .card-preview-buttons .card-preview-btn {
+  opacity: 1;
+  filter: brightness(1.18) saturate(1.14);
+}
+
+.card-preview-buttons .card-preview-btn.back[style*="220px"] {
+  flex: 0 1 220px;
+  width: 220px;
 }
 
 .card-preview-btn:active {
@@ -371,19 +439,21 @@ button:disabled {
 }
 
 .card-preview-content.power {
-  background: linear-gradient(135deg, #06b6d4, #0891b2);
-  border-color: #06d6d4;
+  background: linear-gradient(135deg, #082f49 0%, #075985 26%, #38bdf8 48%, #0ea5e9 66%, #e0f2fe 100%);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 28px rgba(125, 211, 252, 0.62), 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 22px rgba(255, 255, 255, 0.18);
 }
 
 .card-preview-content.curse {
-  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
-  border-color: #dc2626;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  border-color: #fb7185;
+  box-shadow: 0 0 28px rgba(251, 113, 133, 0.62), 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 22px rgba(255, 255, 255, 0.16);
 }
 
 .card-preview-content.super {
-  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
   border-color: #f8d568;
-  box-shadow: 0 0 34px rgba(248, 213, 104, 0.85), 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 22px rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 38px rgba(248, 213, 104, 0.95), 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 26px rgba(255, 255, 255, 0.22);
   position: relative;
 }
 
@@ -400,8 +470,9 @@ button:disabled {
 }
 
 .card-preview-content.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border-color: #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+  box-shadow: 0 0 28px rgba(110, 231, 183, 0.62), 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 22px rgba(255, 255, 255, 0.16);
 }
 
 .card-preview-content.power .card-preview-name,
@@ -416,6 +487,24 @@ button:disabled {
 .card-preview-content.super .card-preview-description,
 .card-preview-content.game .card-preview-description {
   color: #fff;
+}
+
+.card-preview-name,
+.card-preview-description,
+.fullscreen-card-name,
+.fullscreen-card-description,
+.card-tile,
+.deck-choice-card,
+.deck-card-visual,
+.active-game-card-display,
+#drawnCardDisplay,
+.dealt-card-animation {
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.92),
+    1px -1px 0 rgba(0, 0, 0, 0.92),
+    -1px 1px 0 rgba(0, 0, 0, 0.92),
+    1px 1px 0 rgba(0, 0, 0, 0.92),
+    0 2px 5px rgba(0, 0, 0, 0.78) !important;
 }
 
 /* ===== FULLSCREEN CARD REVEAL ===== */
@@ -440,15 +529,15 @@ button:disabled {
 .fullscreen-card-content {
   position: relative;
   width: 100%;
-  max-width: 400px;
-  height: clamp(300px, 60vh, 500px);
-  border-radius: 20px;
+  max-width: 330px;
+  height: 430px;
+  border-radius: 18px;
   border: 3px solid rgba(196, 132, 252, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 24px 20px;
   animation: revealCardZoom 0.8s ease-out;
   overflow: hidden;
 }
@@ -465,17 +554,20 @@ button:disabled {
 }
 
 .fullscreen-card-name {
-  font-size: clamp(1.45rem, 4vw, 2rem);
+  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
   font-weight: 900;
   color: #fbbf24;
   text-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
   text-align: center;
-  margin-bottom: 22px;
+  margin: 0;
   animation: fadeInText 0.5s ease-out;
-  min-height: 50px;
+  flex: 0 0 20%;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  padding: 0 2px 8px;
 }
 
 @keyframes fadeInText {
@@ -490,16 +582,23 @@ button:disabled {
 }
 
 .fullscreen-card-description {
-  font-size: clamp(1rem, 1.9vw, 1.12rem);
-  line-height: 1.55;
+  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  line-height: 1.35;
   font-weight: 800;
   color: #e9d5ff;
   text-align: center;
   white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
   animation: fadeInText 0.5s ease-out 0.8s both;
-  max-height: 70%;
-  overflow-y: auto;
+  flex: 1 1 80%;
+  max-height: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 2px;
 }
 
 .fullscreen-card-description::-webkit-scrollbar {
@@ -517,19 +616,21 @@ button:disabled {
 }
 
 .fullscreen-card-content.power {
-  background: linear-gradient(135deg, #06b6d4, #0891b2);
-  border-color: #06d6d4;
+  background: linear-gradient(135deg, #082f49 0%, #075985 26%, #38bdf8 48%, #0ea5e9 66%, #e0f2fe 100%);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 34px rgba(125, 211, 252, 0.78), inset 0 0 24px rgba(255, 255, 255, 0.18);
 }
 
 .fullscreen-card-content.curse {
-  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
-  border-color: #dc2626;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  border-color: #fb7185;
+  box-shadow: 0 0 34px rgba(251, 113, 133, 0.78), inset 0 0 24px rgba(255, 255, 255, 0.16);
 }
 
 .fullscreen-card-content.super {
-  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
   border-color: #f8d568;
-  box-shadow: 0 0 44px rgba(248, 213, 104, 1), inset 0 0 24px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 48px rgba(248, 213, 104, 1), inset 0 0 28px rgba(255, 255, 255, 0.24);
 }
 
 .fullscreen-card-content.super::before {
@@ -545,8 +646,9 @@ button:disabled {
 }
 
 .fullscreen-card-content.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border-color: #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+  box-shadow: 0 0 34px rgba(110, 231, 183, 0.78), inset 0 0 24px rgba(255, 255, 255, 0.16);
 }
 
 .fullscreen-card-content.power .fullscreen-card-name,
@@ -634,20 +736,28 @@ button:disabled {
 }
 
 .deck-choice-card.regular {
-  background: linear-gradient(90deg, #06b6d4 50%, #b91c1c 50%);
+  background:
+    radial-gradient(circle at 20% 18%, rgba(224, 242, 254, 0.58), transparent 19%),
+    radial-gradient(circle at 82% 18%, rgba(254, 202, 202, 0.54), transparent 19%),
+    radial-gradient(circle at 32% 78%, rgba(7, 89, 133, 0.42), transparent 30%),
+    radial-gradient(circle at 72% 76%, rgba(76, 5, 25, 0.46), transparent 31%),
+    linear-gradient(42deg, rgba(255,255,255,0.16) 0 12%, transparent 12% 27%, rgba(255,255,255,0.13) 27% 38%, transparent 38% 100%),
+    linear-gradient(90deg, #082f49 0%, #075985 24%, #38bdf8 46%, #5866d8 50%, #991b1b 55%, #be123c 76%, #ef4444 100%);
   border-color: #a78bfa;
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.34), 0 0 18px rgba(251, 113, 133, 0.3), 0 6px 20px rgba(0, 0, 0, 0.6), inset 0 0 16px rgba(255,255,255,0.16);
 }
 
 .deck-choice-card.premium {
-  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
   border-color: #f8d568;
-  box-shadow: 0 0 18px rgba(248, 213, 104, 0.68), 0 6px 20px rgba(0, 0, 0, 0.6), inset 0 0 16px rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 22px rgba(248, 213, 104, 0.82), 0 6px 20px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.22);
   text-shadow: 0 1px 5px rgba(46, 16, 102, 0.8);
 }
 
 .deck-choice-card.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border-color: #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+  box-shadow: 0 0 18px rgba(110, 231, 183, 0.62), 0 6px 20px rgba(0, 0, 0, 0.6), inset 0 0 16px rgba(255, 255, 255, 0.14);
 }
 
 /* ===== DECK OVERVIEW MODAL ===== */
@@ -722,6 +832,70 @@ button:disabled {
   border-radius: 18px;
   padding: clamp(18px, 3vw, 28px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.season-confirm-wrapper {
+  width: min(460px, 94vw);
+  animation: cardZoomIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.season-confirm-panel {
+  background: linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(59, 7, 100, 0.96));
+  border: 3px solid rgba(216, 180, 254, 0.74);
+  border-radius: 18px;
+  padding: clamp(22px, 4vw, 34px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.82), 0 0 28px rgba(196, 132, 252, 0.25);
+  text-align: center;
+}
+
+.season-confirm-title {
+  color: #fff;
+  font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+  font-weight: 900;
+  line-height: 1.35;
+  margin: 0;
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.9),
+    1px -1px 0 rgba(0, 0, 0, 0.9),
+    -1px 1px 0 rgba(0, 0, 0, 0.9),
+    1px 1px 0 rgba(0, 0, 0, 0.9),
+    0 2px 8px rgba(216, 180, 254, 0.4);
+}
+
+.season-confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.season-confirm-btn {
+  flex: 1;
+  max-width: 160px;
+  min-height: 44px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 900;
+  border: 3px solid;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.82),
+    1px -1px 0 rgba(0, 0, 0, 0.82),
+    -1px 1px 0 rgba(0, 0, 0, 0.82),
+    1px 1px 0 rgba(0, 0, 0, 0.82),
+    0 2px 5px rgba(0, 0, 0, 0.72);
+}
+
+.season-confirm-btn.yes {
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 62%, #d8b4fe 100%);
+  border-color: rgba(216, 180, 254, 0.95);
+  color: #fff;
+}
+
+.season-confirm-btn.no {
+  background: linear-gradient(135deg, #991b1b 0%, #dc2626 64%, #f87171 100%);
+  border-color: #7f1d1d;
+  color: #fff;
 }
 
 .empty-game-card {
@@ -910,20 +1084,28 @@ button:disabled {
 }
 
 .deck-card-visual.regular {
-  background: linear-gradient(90deg, #06b6d4 50%, #b91c1c 50%);
+  background:
+    radial-gradient(circle at 20% 18%, rgba(224, 242, 254, 0.58), transparent 19%),
+    radial-gradient(circle at 82% 18%, rgba(254, 202, 202, 0.54), transparent 19%),
+    radial-gradient(circle at 32% 78%, rgba(7, 89, 133, 0.42), transparent 30%),
+    radial-gradient(circle at 72% 76%, rgba(76, 5, 25, 0.46), transparent 31%),
+    linear-gradient(42deg, rgba(255,255,255,0.16) 0 12%, transparent 12% 27%, rgba(255,255,255,0.13) 27% 38%, transparent 38% 100%),
+    linear-gradient(90deg, #082f49 0%, #075985 24%, #38bdf8 46%, #5866d8 50%, #991b1b 55%, #be123c 76%, #ef4444 100%);
   border: 2px solid #a78bfa;
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.34), 0 0 18px rgba(251, 113, 133, 0.3), 0 4px 12px rgba(0,0,0,0.6), inset 0 0 14px rgba(255,255,255,0.16);
 }
 
 .deck-card-visual.premium {
-  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
   border: 2px solid #f8d568;
-  box-shadow: 0 0 18px rgba(248, 213, 104, 0.68), 0 4px 12px rgba(0,0,0,0.6), inset 0 0 14px rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 22px rgba(248, 213, 104, 0.82), 0 4px 12px rgba(0,0,0,0.6), inset 0 0 18px rgba(255, 255, 255, 0.22);
   text-shadow: 0 1px 5px rgba(46, 16, 102, 0.8);
 }
 
 .deck-card-visual.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border: 2px solid #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border: 2px solid #6ee7b7;
+  box-shadow: 0 0 18px rgba(110, 231, 183, 0.62), 0 4px 12px rgba(0,0,0,0.6), inset 0 0 14px rgba(255, 255, 255, 0.14);
 }
 
 .deck-info {
@@ -953,8 +1135,8 @@ button:disabled {
 .active-game-card-display {
   width: 100px;
   height: 140px;
-  background: linear-gradient(135deg, #059669, #10b981);
-  border: 2px solid #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border: 2px solid #6ee7b7;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -964,7 +1146,7 @@ button:disabled {
   color: #fff;
   text-align: center;
   padding: 8px;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 18px rgba(110, 231, 183, 0.58), 0 4px 15px rgba(16, 185, 129, 0.4), inset 0 0 12px rgba(255, 255, 255, 0.14);
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -985,7 +1167,7 @@ button:disabled {
 .draw-card-btn {
   padding: 8px 16px;
   font-size: clamp(0.8rem, 1.6vw, 0.9rem);
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
   color: #fff;
   font-weight: bold;
   border-radius: 10px;
@@ -998,7 +1180,7 @@ button:disabled {
 }
 
 .draw-card-btn:hover {
-  background: linear-gradient(90deg, #059669, #10b981);
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
   transform: scale(1.05);
   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
 }
@@ -1062,16 +1244,30 @@ button:disabled {
 }
 
 .side-action-btn.draw-card-btn {
-  background: linear-gradient(135deg, #047857 0%, #10b981 58%, #6ee7b7 100%);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(209, 250, 229, 0.58), transparent 22%),
+    radial-gradient(circle at 78% 72%, rgba(6, 78, 59, 0.58), transparent 30%),
+    linear-gradient(45deg, rgba(255,255,255,0.2) 0 12%, transparent 12% 28%, rgba(255,255,255,0.16) 28% 40%, transparent 40% 100%),
+    linear-gradient(135deg, #022c22 0%, #047857 25%, #10b981 52%, #34d399 70%, #a7f3d0 100%);
   color: #fff;
-  border: 3px solid rgba(216, 180, 254, 0.82);
-  box-shadow: 0 5px 16px rgba(16, 185, 129, 0.36), 0 0 18px rgba(196, 132, 252, 0.2);
+  border: 3px solid rgba(110, 231, 183, 0.92);
+  box-shadow: 0 0 22px rgba(52, 211, 153, 0.62), 0 9px 26px rgba(6, 95, 70, 0.45), inset 0 0 18px rgba(255, 255, 255, 0.18);
   white-space: normal;
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.9),
+    1px -1px 0 rgba(0, 0, 0, 0.9),
+    -1px 1px 0 rgba(0, 0, 0, 0.9),
+    1px 1px 0 rgba(0, 0, 0, 0.9),
+    0 2px 5px rgba(0, 0, 0, 0.82);
 }
 
 .side-action-btn.draw-card-btn:hover {
-  background: linear-gradient(135deg, #059669 0%, #34d399 58%, #a7f3d0 100%);
-  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.52), 0 0 22px rgba(216, 180, 254, 0.28);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(236, 253, 245, 0.72), transparent 22%),
+    radial-gradient(circle at 78% 72%, rgba(6, 78, 59, 0.5), transparent 30%),
+    linear-gradient(45deg, rgba(255,255,255,0.24) 0 12%, transparent 12% 28%, rgba(255,255,255,0.2) 28% 40%, transparent 40% 100%),
+    linear-gradient(135deg, #064e3b 0%, #059669 25%, #34d399 58%, #6ee7b7 78%, #d1fae5 100%);
+  box-shadow: 0 0 30px rgba(52, 211, 153, 0.78), 0 11px 30px rgba(6, 95, 70, 0.52), inset 0 0 22px rgba(255, 255, 255, 0.22);
 }
 
 .mobile-label {
@@ -1092,13 +1288,13 @@ button:disabled {
   justify-content: center;
   gap: 8px;
   min-height: 44px;
-  background: rgba(91, 33, 182, 0.4);
+  background: linear-gradient(135deg, #2e1066, #3b0764);
   border: 2px solid rgba(196, 132, 252, 0.3);
-  box-shadow: 0 0 12px rgba(123, 63, 248, 0.36);
+  box-shadow: 0 0 12px rgba(123, 63, 248, 0.42), inset 0 0 18px rgba(0, 0, 0, 0.18);
 }
 
 .discard-btn:hover:not(:disabled) {
-  background: rgba(109, 40, 217, 0.54);
+  background: linear-gradient(135deg, #3b0764, #4c1d95);
   border-color: rgba(216, 180, 254, 0.48);
 }
 
@@ -1110,12 +1306,12 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(46, 16, 102, 0.72);
-  color: #e9d5ff;
-  border: 1px solid rgba(216, 180, 254, 0.44);
+  background: rgba(167, 139, 250, 0.82);
+  color: #2e1066;
+  border: 1px solid rgba(233, 213, 255, 0.72);
   font-size: 0.78rem;
   line-height: 1;
-  box-shadow: inset 0 0 8px rgba(123, 63, 248, 0.32);
+  box-shadow: 0 0 12px rgba(216, 180, 254, 0.42), inset 0 0 8px rgba(255, 255, 255, 0.22);
 }
 
 .action-buttons {
@@ -1227,6 +1423,7 @@ button:disabled {
   height: 94px;
   text-align: center;
   cursor: pointer;
+  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1241,25 +1438,30 @@ button:disabled {
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
+  overflow: hidden;
+  line-height: 1.05;
   position: relative;
 }
 
 /* Card type colors */
 .card-tile.power {
-  background: linear-gradient(135deg, #06b6d4, #0891b2);
-  border-color: #06d6d4;
+  background: linear-gradient(135deg, #082f49 0%, #075985 26%, #38bdf8 48%, #0ea5e9 66%, #e0f2fe 100%);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.58), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 255, 255, 0.16);
 }
 
 .card-tile.curse {
-  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
-  border-color: #dc2626;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  border-color: #fb7185;
+  box-shadow: 0 0 18px rgba(251, 113, 133, 0.58), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 255, 255, 0.14);
 }
 
 .card-tile.super {
-  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
   border-color: #f8d568;
-  box-shadow: 0 0 20px rgba(248, 213, 104, 0.72), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 22px rgba(248, 213, 104, 0.82), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 16px rgba(255, 255, 255, 0.22);
   position: relative;
+  z-index: 1;
 }
 
 .card-tile.super::before {
@@ -1275,8 +1477,9 @@ button:disabled {
 }
 
 .card-tile.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border-color: #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+  box-shadow: 0 0 18px rgba(110, 231, 183, 0.58), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 255, 255, 0.14);
 }
 
 .card-tile.fly { animation: settleIntoHand 0.45s ease-out forwards; }
@@ -1359,24 +1562,27 @@ button:disabled {
 }
 
 .dealt-card-animation.power {
-  background: linear-gradient(135deg, #06b6d4, #0891b2);
-  border-color: #06d6d4;
+  background: linear-gradient(135deg, #082f49 0%, #075985 26%, #38bdf8 48%, #0ea5e9 66%, #e0f2fe 100%);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.58), 0 12px 30px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(255, 255, 255, 0.16);
 }
 
 .dealt-card-animation.curse {
-  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
-  border-color: #dc2626;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  border-color: #fb7185;
+  box-shadow: 0 0 18px rgba(251, 113, 133, 0.58), 0 12px 30px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(255, 255, 255, 0.14);
 }
 
 .dealt-card-animation.super {
-  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
   border-color: #f8d568;
-  box-shadow: 0 0 22px rgba(248, 213, 104, 0.68), 0 12px 30px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 24px rgba(248, 213, 104, 0.82), 0 12px 30px rgba(0, 0, 0, 0.55), inset 0 0 16px rgba(255, 255, 255, 0.22);
 }
 
 .dealt-card-animation.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border-color: #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+  box-shadow: 0 0 18px rgba(110, 231, 183, 0.58), 0 12px 30px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(255, 255, 255, 0.14);
 }
 
 .card-section {
@@ -1489,24 +1695,27 @@ button:disabled {
 }
 
 #drawnCardDisplay.power {
-  background: linear-gradient(135deg, #06b6d4, #0891b2);
-  border-color: #06d6d4;
+  background: linear-gradient(135deg, #082f49 0%, #075985 26%, #38bdf8 48%, #0ea5e9 66%, #e0f2fe 100%);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 24px rgba(125, 211, 252, 0.64), inset 0 0 16px rgba(255, 255, 255, 0.16);
 }
 
 #drawnCardDisplay.curse {
-  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
-  border-color: #dc2626;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  border-color: #fb7185;
+  box-shadow: 0 0 24px rgba(251, 113, 133, 0.64), inset 0 0 16px rgba(255, 255, 255, 0.14);
 }
 
 #drawnCardDisplay.super {
-  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
   border-color: #f8d568;
-  box-shadow: 0 0 24px rgba(248, 213, 104, 0.72), inset 0 0 16px rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 28px rgba(248, 213, 104, 0.86), inset 0 0 18px rgba(255, 255, 255, 0.22);
 }
 
 #drawnCardDisplay.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border-color: #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+  box-shadow: 0 0 24px rgba(110, 231, 183, 0.64), inset 0 0 16px rgba(255, 255, 255, 0.14);
 }
 
 @keyframes cardSwoosh {
@@ -1686,46 +1895,133 @@ button:disabled {
   background: linear-gradient(90deg, #991b1b, #dc2626);
 }
 
+.how-it-works-modal {
+  overflow: hidden;
+}
+
+.how-it-works-wrapper {
+  width: min(860px, 95vw);
+  max-height: calc(100dvh - 34px);
+  animation: cardZoomIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .how-it-works-content {
+  background: linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(59, 7, 100, 0.96));
+  border: 3px solid rgba(216, 180, 254, 0.74);
+  border-radius: 18px;
+  padding: clamp(12px, 2.2vw, 24px);
+  max-height: calc(100dvh - 34px);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.82), 0 0 28px rgba(196, 132, 252, 0.25);
+  font-size: clamp(0.68rem, 1.3vmin, 0.86rem);
+  text-align: center;
+}
+
+.how-it-works-content > p,
+.how-it-works-content > ul {
   display: none;
-  background: rgba(46, 16, 102, 0.95);
-  border: 2px solid rgba(196, 132, 252, 0.3);
-  border-radius: 0 0 12px 12px;
-  padding: 25px;
-  max-height: 300px;
-  overflow-y: auto;
-  animation: slideDown 0.4s ease-out;
-  position: fixed;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 600px;
-  z-index: 1199;
 }
 
-.how-it-works-content.show {
+.how-it-works-close-row {
+  margin-top: clamp(8px, 1.6vmin, 14px);
+  max-width: none;
+}
+
+.how-it-works-modal-title {
+  text-align: center;
+  color: #fff;
+  font-size: 1.58em;
+  font-weight: 900;
+  margin-bottom: 0.48em;
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.9),
+    1px -1px 0 rgba(0, 0, 0, 0.9),
+    -1px 1px 0 rgba(0, 0, 0, 0.9),
+    1px 1px 0 rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(216, 180, 254, 0.55);
+}
+
+.how-it-works-summary {
+  color: #fff;
+  font-size: 1em;
+  line-height: 1.25;
+  font-weight: 900;
+  margin: 0 0 0.62em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+
+.how-it-works-card-types,
+.how-it-works-rule-list,
+.how-it-works-deck-notes {
+  display: grid;
+  gap: 7px;
+}
+
+.how-it-works-card-types {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 0.62em;
+}
+
+.how-it-works-type-pill,
+.how-it-works-rule-item,
+.how-it-works-deck-note {
+  background: rgba(30, 15, 61, 0.72);
+  border: 2px solid rgba(216, 180, 254, 0.42);
+  border-radius: 12px;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.22);
+  min-height: 0;
+}
+
+.how-it-works-type-pill {
+  padding: 0.6em 0.5em;
+  color: #fff;
+  font-size: 0.92em;
+  font-weight: 900;
+  line-height: 1.18;
+  text-shadow: 0 2px 7px rgba(0, 0, 0, 0.72);
+}
+
+.how-it-works-rule-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 0.62em;
+}
+
+.how-it-works-rule-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.45em;
+  padding: 0.64em 0.72em;
+  text-align: left;
+  color: #fff;
+  font-weight: 800;
+  line-height: 1.22;
+  text-shadow: 0 2px 7px rgba(0, 0, 0, 0.72);
+}
+
+.how-it-works-rule-icon {
   display: block;
-}
-
-.how-it-works-content p {
-  margin: 10px 0;
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
-.how-it-works-content strong {
   color: #f0abfc;
+  font-size: 1.12em;
+  line-height: 1;
+  text-shadow: 0 0 9px rgba(216, 180, 254, 0.55);
 }
 
-.how-it-works-content ul {
-  margin: 15px 0;
-  padding-left: 25px;
+.how-it-works-deck-notes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.how-it-works-content li {
-  margin: 8px 0;
-  font-size: 0.95rem;
+.how-it-works-deck-note {
+  padding: 0.68em 0.72em;
+  color: #fff;
+  font-weight: 800;
+  line-height: 1.22;
+  text-shadow: 0 2px 7px rgba(0, 0, 0, 0.72);
+}
+
+.how-it-works-deck-note strong {
+  color: #f0abfc;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(216, 180, 254, 0.45);
 }
 
 /* ===== COUNTDOWN OVERLAY ===== */
@@ -1902,24 +2198,96 @@ button:disabled {
 }
 
 .shuffle-card.power {
-  background: linear-gradient(135deg, #06b6d4, #0891b2);
-  border-color: #06d6d4;
+  background: linear-gradient(135deg, #082f49 0%, #075985 26%, #38bdf8 48%, #0ea5e9 66%, #e0f2fe 100%);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.58), 0 6px 20px rgba(0,0,0,0.6), inset 0 0 12px rgba(255, 255, 255, 0.16);
 }
 
 .shuffle-card.curse {
-  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
-  border-color: #dc2626;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  border-color: #fb7185;
+  box-shadow: 0 0 18px rgba(251, 113, 133, 0.58), 0 6px 20px rgba(0,0,0,0.6), inset 0 0 12px rgba(255, 255, 255, 0.14);
 }
 
 .shuffle-card.super {
-  background: linear-gradient(135deg, #7a4d09 0%, #c89116 18%, #ffe08a 34%, #b7790e 50%, #f7c948 68%, #fff3b0 82%, #9a6508 100%);
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
   border-color: #f8d568;
-  box-shadow: 0 0 22px rgba(248, 213, 104, 0.72), 0 6px 20px rgba(0,0,0,0.6), inset 0 0 14px rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 24px rgba(248, 213, 104, 0.86), 0 6px 20px rgba(0,0,0,0.6), inset 0 0 18px rgba(255, 255, 255, 0.22);
 }
 
 .shuffle-card.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border-color: #34d399;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+  box-shadow: 0 0 18px rgba(110, 231, 183, 0.58), 0 6px 20px rgba(0,0,0,0.6), inset 0 0 12px rgba(255, 255, 255, 0.14);
+}
+
+/* ===== GEM MATERIAL FINISHES ===== */
+.card-preview-content.power,
+.fullscreen-card-content.power,
+.card-tile.power,
+.dealt-card-animation.power,
+#drawnCardDisplay.power,
+.shuffle-card.power {
+  background:
+    radial-gradient(circle at 22% 18%, rgba(224, 242, 254, 0.62), transparent 20%),
+    radial-gradient(circle at 75% 78%, rgba(7, 89, 133, 0.62), transparent 30%),
+    linear-gradient(45deg, rgba(255,255,255,0.22) 0 10%, transparent 10% 24%, rgba(255,255,255,0.16) 24% 34%, transparent 34% 100%),
+    linear-gradient(135deg, #082f49 0%, #075985 25%, #38bdf8 48%, #0ea5e9 68%, #e0f2fe 100%);
+}
+
+.card-preview-content.curse,
+.fullscreen-card-content.curse,
+.card-tile.curse,
+.dealt-card-animation.curse,
+#drawnCardDisplay.curse,
+.shuffle-card.curse {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(254, 202, 202, 0.58), transparent 20%),
+    radial-gradient(circle at 78% 75%, rgba(76, 5, 25, 0.6), transparent 32%),
+    linear-gradient(45deg, rgba(255,255,255,0.18) 0 11%, transparent 11% 25%, rgba(255,255,255,0.14) 25% 36%, transparent 36% 100%),
+    linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+}
+
+.card-preview-content.game,
+.fullscreen-card-content.game,
+.card-tile.game,
+.dealt-card-animation.game,
+#drawnCardDisplay.game,
+.shuffle-card.game,
+.active-game-card-display,
+.deck-choice-card.game,
+.deck-card-visual.game {
+  background:
+    radial-gradient(circle at 26% 18%, rgba(209, 250, 229, 0.56), transparent 22%),
+    radial-gradient(circle at 78% 75%, rgba(5, 46, 22, 0.62), transparent 32%),
+    linear-gradient(45deg, rgba(255,255,255,0.18) 0 12%, transparent 12% 28%, rgba(255,255,255,0.14) 28% 40%, transparent 40% 100%),
+    linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+}
+
+.card-preview-content.super,
+.fullscreen-card-content.super,
+.card-tile.super,
+.dealt-card-animation.super,
+#drawnCardDisplay.super,
+.shuffle-card.super,
+.deck-choice-card.premium,
+.deck-card-visual.premium {
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255, 248, 220, 0.72), transparent 22%),
+    radial-gradient(circle at 78% 76%, rgba(95, 57, 5, 0.58), transparent 32%),
+    linear-gradient(45deg, rgba(255,255,255,0.3) 0 10%, transparent 10% 24%, rgba(255,255,255,0.22) 24% 36%, transparent 36% 100%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
+}
+
+.deck-choice-card.regular,
+.deck-card-visual.regular {
+  background:
+    radial-gradient(circle at 20% 18%, rgba(224, 242, 254, 0.58), transparent 19%),
+    radial-gradient(circle at 82% 18%, rgba(254, 202, 202, 0.54), transparent 19%),
+    radial-gradient(circle at 32% 78%, rgba(7, 89, 133, 0.42), transparent 30%),
+    radial-gradient(circle at 72% 76%, rgba(76, 5, 25, 0.46), transparent 31%),
+    linear-gradient(42deg, rgba(255,255,255,0.16) 0 12%, transparent 12% 27%, rgba(255,255,255,0.13) 27% 38%, transparent 38% 100%),
+    linear-gradient(90deg, #082f49 0%, #075985 24%, #38bdf8 46%, #5866d8 50%, #991b1b 55%, #be123c 76%, #ef4444 100%);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -1938,9 +2306,11 @@ button:disabled {
   }
 
   h1 {
-    margin: 6px 0 8px 0;
-    font-size: 1.15rem;
+    margin: 8px 0 12px 0;
+    font-size: clamp(1.45rem, 7vw, 2.1rem);
     padding-right: 68px;
+    -webkit-text-stroke: 1px #05010c;
+    line-height: 1.08;
   }
 
   .container {
@@ -2070,11 +2440,12 @@ button:disabled {
   }
 
   .hand {
-    min-height: 74px;
-    max-height: 168px;
+    min-height: clamp(132px, 26vh, 220px);
+    max-height: none;
     gap: 4px;
     padding: 6px;
     border-radius: 8px;
+    overflow-y: visible;
   }
 
   .card-tile {
@@ -2098,9 +2469,10 @@ button:disabled {
   }
 
   #drawnCardDisplay {
-    height: 90px;
+    height: 112px;
     padding: 12px;
-    font-size: 0.9rem;
+    font-size: 0.86rem;
+    line-height: 1.2;
   }
 
   .deck-choice-wrapper {
@@ -2198,12 +2570,88 @@ button:disabled {
     padding: 8px 12px;
     font-size: 0.75rem;
   }
+
+  .how-it-works-modal {
+    padding: 10px;
+  }
+
+  .how-it-works-wrapper {
+    width: calc(100vw - 18px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  .how-it-works-content {
+    max-height: calc(100dvh - 20px);
+    padding: 9px;
+    border-radius: 14px;
+    font-size: clamp(0.52rem, 2.22vw, 0.68rem);
+  }
+
+  .how-it-works-modal-title {
+    font-size: 1.42em;
+    margin-bottom: 0.36em;
+  }
+
+  .how-it-works-summary {
+    line-height: 1.16;
+    margin-bottom: 0.42em;
+  }
+
+  .how-it-works-card-types {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    margin-bottom: 0.42em;
+  }
+
+  .how-it-works-rule-list {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    margin-bottom: 0.42em;
+  }
+
+  .how-it-works-deck-notes {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .how-it-works-type-pill,
+  .how-it-works-rule-item,
+  .how-it-works-deck-note {
+    border-radius: 9px;
+    border-width: 1px;
+  }
+
+  .how-it-works-type-pill {
+    padding: 0.4em 0.45em;
+    line-height: 1.08;
+  }
+
+  .how-it-works-rule-item {
+    padding: 0.42em 0.52em;
+    gap: 0.34em;
+    line-height: 1.08;
+  }
+
+  .how-it-works-deck-note {
+    padding: 0.42em 0.52em;
+    line-height: 1.08;
+  }
+
+  .how-it-works-close-row {
+    margin-top: 6px;
+  }
+
+  .how-it-works-close-row .card-preview-btn {
+    min-height: 34px;
+    padding: 7px 16px;
+  }
 }
 
 @media (max-width: 480px) {
   h1 {
-    font-size: clamp(1.1rem, 3vw, 1.6rem);
-    margin: 6px 0 12px 0;
+    font-size: clamp(1.25rem, 7vw, 1.75rem);
+    margin: 8px 0 12px 0;
+    padding-right: 64px;
   }
 
   .collapsible-btn {
@@ -2221,7 +2669,7 @@ button:disabled {
 
 <button class="back-home-btn" onclick="window.location.href='index.html'">← Home</button>
 
-<h1>🃏 Prem Predics Cards 🃏</h1>
+<h1>🃏 Prem Predics - Cards 🃏</h1>
 
 <div class="container">
   <!-- Card Preview Modal -->
@@ -2288,6 +2736,19 @@ button:disabled {
     </div>
   </div>
 
+  <!-- End Season Confirmation Modal -->
+  <div class="card-preview-modal" id="endSeasonConfirmModal">
+    <div class="season-confirm-wrapper">
+      <div class="season-confirm-panel">
+        <p class="season-confirm-title">Are you sure you would like to End the current Season?</p>
+        <div class="season-confirm-buttons">
+          <button class="season-confirm-btn yes" onclick="confirmEndSeason()">Yes</button>
+          <button class="season-confirm-btn no" onclick="closeEndSeasonConfirm()">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Game Card Preview Modal -->
   <div class="card-preview-modal" id="gameCardPreviewModal">
     <div class="card-preview-wrapper">
@@ -2297,7 +2758,7 @@ button:disabled {
         <div class="card-preview-description" id="gameCardPreviewDescription"></div>
       </div>
       <div class="card-preview-buttons">
-        <button class="card-preview-btn back" style="max-width: 100%;" onclick="closeGameCardPreview()">Close</button>
+        <button class="card-preview-btn back" style="max-width: 220px;" onclick="closeGameCardPreview()">Close</button>
       </div>
     </div>
   </div>
@@ -2385,7 +2846,7 @@ button:disabled {
       <!-- Discard Pile -->
       <div class="discard-action" id="discardSection">
         <button class="side-action-btn discard-btn" onclick="openDiscardPile()">
-          <span>View Discarded/Played Hands</span>
+          <span>View Discarded/Played Cards</span>
           <span class="discard-count-badge" id="discardCountBadge">0</span>
         </button>
       </div>
@@ -2431,9 +2892,29 @@ button:disabled {
     <div class="right-panel"></div>
   </div>
 
-  <!-- How It Works Content (for footer) -->
-  <div class="how-it-works-content" id="howItWorksContent">
-    <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
+  <!-- How It Works Modal -->
+  <div class="card-preview-modal how-it-works-modal" id="howItWorksModal">
+    <div class="how-it-works-wrapper">
+      <div class="how-it-works-content" id="howItWorksContent">
+        <div class="how-it-works-modal-title">How To Play</div>
+        <div class="how-it-works-summary">There are 4 types of Card:</div>
+        <div class="how-it-works-card-types">
+          <div class="how-it-works-type-pill">Power Cards<br>(Regular Deck)</div>
+          <div class="how-it-works-type-pill">Curse Cards<br>(Regular Deck)</div>
+          <div class="how-it-works-type-pill">Super Cards<br>(Premium Deck)</div>
+          <div class="how-it-works-type-pill">Game Cards<br>(Minigames)</div>
+        </div>
+        <div class="how-it-works-rule-list">
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Power, Curse and Super Cards can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Game Cards (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a Super Card from the Premium Deck.</span></div>
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 Power Card + 1 Curse Card from a 52-card Regular Deck.</span></div>
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127942;</span><span>Reach milestones to earn medals, each medal can be spent to draw 1 card from the Regular Deck.</span></div>
+        </div>
+        <div class="how-it-works-deck-notes">
+          <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 Power Cards &amp; 22 Curse Cards) &mdash; Start with 1 of each</div>
+          <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 Super Cards &mdash; Won by winning &quot;Game Card&quot; Minigames</div>
+        </div>
+        <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
     
     <p><strong>The Goal</strong></p>
     <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
@@ -2445,6 +2926,11 @@ button:disabled {
       <li>✨ <strong>Super Cards</strong> - Powerful premium abilities</li>
       <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
     </ul>
+        <div class="card-preview-buttons how-it-works-close-row">
+          <button class="card-preview-btn back" style="max-width: 220px;" onclick="closeHowItWorks()">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2603,9 +3089,28 @@ function toggleCollapsible(btn) {
 }
 
 function toggleHowItWorks() {
-  const content = document.getElementById('howItWorksContent');
-  content.classList.toggle('show');
+  document.body.classList.add('card-preview-open');
+  document.getElementById('howItWorksModal').classList.add('show');
+  fitHowItWorksText();
 }
+
+function closeHowItWorks() {
+  document.getElementById('howItWorksModal').classList.remove('show');
+  document.body.classList.remove('card-preview-open');
+}
+
+function fitHowItWorksText() {
+  requestAnimationFrame(() => {
+    const content = document.getElementById('howItWorksContent');
+    const minSize = window.innerWidth <= 480 ? 5.5 : 6.5;
+    fitTextWithin(content, minSize);
+  });
+}
+
+window.addEventListener('resize', () => {
+  const modal = document.getElementById('howItWorksModal');
+  if (modal && modal.classList.contains('show')) fitHowItWorksText();
+});
 
 async function startGameSequence() {
   if (sequenceInProgress) return;
@@ -2921,6 +3426,7 @@ function drawAndRevealCard(deckType, player) {
   descEl.textContent = cardDescriptions[card] || 'No description available.';
   
   reveal.classList.add('show');
+  fitPreviewText(nameEl, descEl);
   
   // Auto-close after 4 seconds and send to hand
   setTimeout(() => {
@@ -2963,6 +3469,7 @@ function drawGameCard() {
   descEl.textContent = cardDescriptions[card] || 'No description available.';
   
   reveal.classList.add('show');
+  fitPreviewText(nameEl, descEl);
   
   // Auto-close after 4 seconds
   setTimeout(() => {
@@ -3001,11 +3508,14 @@ function showCardPreview(cardName, player, index) {
   const cardType = getCardType(cardName);
   
   content.className = `card-preview-content ${cardType}`;
-  document.getElementById('cardPreviewName').textContent = cardName;
-  document.getElementById('cardPreviewDescription').textContent = cardDescriptions[cardName] || 'No description available.';
+  const nameEl = document.getElementById('cardPreviewName');
+  const descEl = document.getElementById('cardPreviewDescription');
+  nameEl.textContent = cardName;
+  descEl.textContent = cardDescriptions[cardName] || 'No description available.';
   
   document.body.classList.add('card-preview-open');
   modal.classList.add('show');
+  fitPreviewText(nameEl, descEl);
 }
 
 function closeCardPreview() {
@@ -3157,13 +3667,19 @@ function showGameCardPreview() {
     const cardType = getCardType(gameState.activeGameCard);
     question.textContent = 'Active Game Card';
     content.className = `card-preview-content ${cardType}`;
-    document.getElementById('gameCardPreviewName').textContent = gameState.activeGameCard;
-    document.getElementById('gameCardPreviewDescription').textContent = cardDescriptions[gameState.activeGameCard] || 'No description available.';
+    const nameEl = document.getElementById('gameCardPreviewName');
+    const descEl = document.getElementById('gameCardPreviewDescription');
+    nameEl.textContent = gameState.activeGameCard;
+    descEl.textContent = cardDescriptions[gameState.activeGameCard] || 'No description available.';
+    fitPreviewText(nameEl, descEl);
   } else {
     question.textContent = 'Active Game Card';
     content.className = 'card-preview-content empty-game-card';
-    document.getElementById('gameCardPreviewName').textContent = 'No Active Game Card';
-    document.getElementById('gameCardPreviewDescription').textContent = 'Draw from the Game Deck to reveal the current game card here.';
+    const nameEl = document.getElementById('gameCardPreviewName');
+    const descEl = document.getElementById('gameCardPreviewDescription');
+    nameEl.textContent = 'No Active Game Card';
+    descEl.textContent = 'Draw from the Game Deck to reveal the current game card here.';
+    fitPreviewText(nameEl, descEl);
   }
   
   document.body.classList.add('card-preview-open');
@@ -3176,14 +3692,51 @@ function closeGameCardPreview() {
 }
 
 function endSeason() {
-  if (confirm("Are you sure you want to end the season? This will clear the current season.")) {
-    localStorage.removeItem("ucGameState");
-    location.reload();
-  }
+  document.body.classList.add('card-preview-open');
+  document.getElementById('endSeasonConfirmModal').classList.add('show');
+}
+
+function closeEndSeasonConfirm() {
+  document.getElementById('endSeasonConfirmModal').classList.remove('show');
+  document.body.classList.remove('card-preview-open');
+}
+
+function confirmEndSeason() {
+  localStorage.removeItem("ucGameState");
+  location.reload();
 }
 
 function getCardType(cardName) {
   return cardTypeMap[cardName] || 'power';
+}
+
+function fitTextWithin(el, minPx = 7) {
+  if (!el) return;
+  el.style.fontSize = "";
+  const computed = window.getComputedStyle(el);
+  let size = parseFloat(computed.fontSize) || 12;
+  const min = minPx;
+
+  for (let i = 0; i < 32; i++) {
+    if (el.scrollHeight <= el.clientHeight + 1 && el.scrollWidth <= el.clientWidth + 1) break;
+    size -= 0.5;
+    if (size <= min) {
+      size = min;
+      break;
+    }
+    el.style.fontSize = `${size}px`;
+  }
+}
+
+function fitPreviewText(nameEl, descEl) {
+  requestAnimationFrame(() => {
+    fitTextWithin(nameEl, 8);
+    fitTextWithin(descEl, 4.8);
+  });
+}
+
+function fitTileText(tile) {
+  requestAnimationFrame(() => fitTextWithin(tile, 4.8));
 }
 
 function render() {
@@ -3198,24 +3751,48 @@ function render() {
       const cardType = getCardType(c);
       div.className = `card-tile ${cardType}`;
       div.innerText = c;
+      div.dataset.player = p;
+      div.dataset.index = i;
+      div.dataset.card = c;
+      div.setAttribute('role', 'button');
+      div.setAttribute('tabindex', '0');
 
       if (i >= lastHandSizes[p]) div.classList.add('fly');
 
-      if (gameState.pendingSwap && gameState.pendingSwap.player === p && gameState.pendingSwap.drawn.length === 0) {
-        div.onclick = () => pickSwapDiscard(i);
-        if (gameState.pendingSwap.discardChoice === i) div.classList.add('swap-select');
-      } else if (!gameState.pendingSwap && !gameState.stealMode) {
-        div.onclick = () => showCardPreview(c, p, i);
-      } else if (gameState.stealMode && gameState.stealMode !== p) {
-        div.onclick = () => {
+      const handleCardClick = () => {
+        if (gameState.pendingSwap && gameState.pendingSwap.player === p && gameState.pendingSwap.drawn.length === 0) {
+          pickSwapDiscard(i);
+          return;
+        }
+
+        if (gameState.stealMode && gameState.stealMode !== p) {
           selectSteal(p, i);
           document.getElementById("confirmStealBtn").style.display = "block";
-        };
+          return;
+        }
+
+        if (!gameState.pendingSwap && !gameState.stealMode) {
+          showCardPreview(c, p, i);
+        }
+      };
+
+      div.addEventListener('click', handleCardClick);
+      div.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleCardClick();
+        }
+      });
+
+      if (gameState.pendingSwap && gameState.pendingSwap.player === p && gameState.pendingSwap.drawn.length === 0) {
+        if (gameState.pendingSwap.discardChoice === i) div.classList.add('swap-select');
+      } else if (gameState.stealMode && gameState.stealMode !== p) {
         if (gameState.selectedSteal && gameState.selectedSteal.opponent === p && gameState.selectedSteal.index === i)
           div.classList.add('selected');
       }
 
       container.appendChild(div);
+      fitTileText(div);
     });
     lastHandSizes[p] = gameState.players[p].hand.length;
   });
@@ -3239,6 +3816,7 @@ function render() {
     }
     swapDiv.style.display = "block";
     swapDiv.innerHTML = html;
+    swapDiv.querySelectorAll('.card-tile').forEach(fitTileText);
   } else if (gameState.stealMode) {
     const opp = gameState.stealMode === 'p1' ? 'Tom' : 'Vas';
     const player = gameState.stealMode === 'p1' ? 'Vas' : 'Tom';
@@ -3260,6 +3838,7 @@ function render() {
     const display = document.getElementById("drawnCardDisplay");
     display.innerText = gameState.lastCard.name;
     display.className = cardType;
+    fitTileText(display);
   } else {
     document.getElementById("drawnCardDisplay").innerText = "";
   }
