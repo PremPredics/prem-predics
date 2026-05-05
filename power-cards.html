@@ -27,20 +27,20 @@ h1 {
   text-align: center; 
   color: #e9d5ff;
   text-shadow: 0 0 6px #c084fc;
-  margin: 15px 0 25px 0;
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  margin: 15px 0 20px 0;
+  font-size: clamp(1.3rem, 4vw, 2rem);
 }
 
 h2 {
-  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  font-size: clamp(1rem, 3vw, 1.3rem);
   margin: 10px 0;
   color: #e9d5ff;
 }
 
 button { 
-  padding: 12px 16px; 
-  margin: 6px; 
-  font-size: clamp(0.85rem, 2vw, 1rem); 
+  padding: 10px 14px; 
+  margin: 4px; 
+  font-size: clamp(0.75rem, 1.8vw, 0.9rem); 
   cursor: pointer; 
   border: none;
   border-radius: 6px;
@@ -48,7 +48,7 @@ button {
   color: #fff;
   font-weight: bold;
   transition: 0.3s;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 button:hover:not(:disabled){ 
@@ -62,18 +62,19 @@ button:disabled {
 }
 
 .container { 
-  max-width: 1400px; 
+  max-width: 1800px; 
   margin: 0 auto;
   width: 100%;
+  padding-bottom: 120px;
 }
 
-/* Back to Home Button - Top Right */
+/* Back to Home Button - Fixed */
 .back-home-btn {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 20px;
-  font-size: 1rem;
+  top: 15px;
+  right: 15px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
   font-weight: bold;
   border-radius: 8px;
   background: linear-gradient(90deg, #8b5cf6, #a78bfa);
@@ -81,7 +82,7 @@ button:disabled {
   border: none;
   cursor: pointer;
   transition: 0.3s;
-  z-index: 1000;
+  z-index: 999;
   box-shadow: 0 4px 15px rgba(123, 63, 248, 0.4);
 }
 
@@ -97,10 +98,94 @@ button:disabled {
 
 @media (max-width: 768px) {
   .back-home-btn {
-    top: 10px;
-    right: 10px;
-    padding: 10px 16px;
-    font-size: 0.9rem;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    z-index: 999;
+  }
+}
+
+/* ===== TOP BUTTONS BAR ===== */
+.top-buttons-bar {
+  display: none;
+  background: rgba(46, 16, 102, 0.8);
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
+  margin-bottom: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.top-buttons-bar.show {
+  display: flex;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.main-game-layout {
+  display: none;
+  gap: 20px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.main-game-layout.show {
+  display: grid;
+  grid-template-columns: minmax(230px, 1fr) minmax(0, 3fr);
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .main-game-layout.show {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== LEFT PANEL - CONTROLS ===== */
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  order: 1;
+  min-width: 0;
+}
+
+@media (max-width: 1200px) {
+  .left-panel {
+    order: 1;
+  }
+}
+
+/* ===== CENTER PANEL - PLAYERS ===== */
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  order: 2;
+  min-width: 0;
+}
+
+@media (max-width: 1200px) {
+  .center-panel {
+    order: 2;
+  }
+}
+
+/* ===== RIGHT PANEL - PENDING/DISCARD ===== */
+.right-panel {
+  display: none;
+  flex-direction: column;
+  gap: 15px;
+  order: 3;
+}
+
+@media (max-width: 1200px) {
+  .right-panel {
+    order: 3;
   }
 }
 
@@ -119,6 +204,7 @@ button:disabled {
   align-items: center;
   padding: 20px;
   animation: fadeIn 0.3s ease-out;
+  overflow-y: auto;
 }
 
 .card-preview-modal.show {
@@ -140,9 +226,10 @@ button:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 500px;
+  max-width: 450px;
   width: 100%;
   animation: cardZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin: auto;
 }
 
 @keyframes cardZoomIn {
@@ -159,7 +246,7 @@ button:disabled {
 .card-preview-question {
   text-align: center;
   color: #f0abfc;
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2vw, 1.2rem);
   font-weight: bold;
   margin-bottom: 20px;
   text-shadow: 0 0 4px #c084fc;
@@ -172,84 +259,107 @@ button:disabled {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
-  width: 280px;
-  height: 400px;
-  padding: 25px;
+  width: 100%;
+  max-width: 380px;
+  height: 480px;
+  padding: 30px 25px;
   overflow: hidden;
   position: relative;
 }
 
 .card-preview-name {
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
   font-weight: bold;
   color: #fbbf24;
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
-  margin-bottom: 15px;
+  margin-bottom: 18px;
   text-align: center;
-  line-height: 1.3;
+  line-height: 1.4;
   min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-preview-description {
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+  line-height: 1.7;
   color: #e9d5ff;
   flex: 1;
   overflow-y: auto;
-  padding-right: 5px;
-}
-
-.card-preview-description p {
-  margin: 8px 0;
+  padding-right: 8px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
+.card-preview-description::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-preview-description::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.card-preview-description::-webkit-scrollbar-thumb {
+  background: rgba(196, 132, 252, 0.4);
+  border-radius: 10px;
+}
+
 .card-preview-buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 15px;
+  gap: 15px;
+  margin-top: 18px;
   justify-content: center;
   flex-shrink: 0;
 }
 
 .card-preview-btn {
-  padding: 12px 28px;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 8px;
+  padding: clamp(12px, 2vw, 16px) clamp(24px, 4vw, 40px);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  border: 2px solid rgba(233, 213, 255, 0.28);
+  border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s;
   flex: 1;
+  min-width: 110px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0;
 }
 
 .card-preview-btn.play {
-  background: linear-gradient(90deg, #10b981, #059669);
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #fbbf24, #c084fc);
+  color: #2e1066;
+  border-color: rgba(251, 191, 36, 0.65);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.32), 0 0 18px rgba(192, 132, 252, 0.22);
 }
 
 .card-preview-btn.play:hover {
-  background: linear-gradient(90deg, #059669, #10b981);
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+  background: linear-gradient(135deg, #f59e0b, #a78bfa);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(251, 191, 36, 0.42), 0 0 22px rgba(192, 132, 252, 0.35);
 }
 
 .card-preview-btn.back {
-  background: linear-gradient(90deg, #6b7280, #4b5563);
+  background: linear-gradient(135deg, #3b0764, #6d28d9);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+  border-color: rgba(196, 132, 252, 0.48);
+  box-shadow: 0 6px 20px rgba(123, 63, 248, 0.36);
 }
 
 .card-preview-btn.back:hover {
-  background: linear-gradient(90deg, #4b5563, #6b7280);
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.6);
+  background: linear-gradient(135deg, #4c1d95, #8b5cf6);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(123, 63, 248, 0.52);
 }
 
 .card-preview-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 .card-preview-content.power {
@@ -300,38 +410,291 @@ button:disabled {
   color: #fff;
 }
 
-@media (max-width: 768px) {
-  .card-preview-question {
-    font-size: 1rem;
-    margin-bottom: 15px;
-  }
+/* ===== FULLSCREEN CARD REVEAL ===== */
+.fullscreen-card-reveal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 2400;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
 
-  .card-preview-content {
-    width: 280px;
-    height: 420px;
-    padding: 20px;
-  }
+.fullscreen-card-reveal.show {
+  display: flex;
+}
 
-  .card-preview-name {
-    font-size: 1rem;
-    margin-bottom: 12px;
-    min-height: 35px;
-  }
+.fullscreen-card-content {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: clamp(300px, 60vh, 500px);
+  border-radius: 20px;
+  border: 3px solid rgba(196, 132, 252, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  animation: revealCardZoom 0.8s ease-out;
+  overflow: hidden;
+}
 
-  .card-preview-description {
-    font-size: 0.85rem;
-    line-height: 1.5;
+@keyframes revealCardZoom {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
   }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
-  .card-preview-buttons {
-    gap: 10px;
-    margin-top: 12px;
-  }
+.fullscreen-card-name {
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  font-weight: bold;
+  color: #fbbf24;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
+  text-align: center;
+  margin-bottom: 25px;
+  animation: fadeInText 0.5s ease-out;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .card-preview-btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fullscreen-card-description {
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
+  line-height: 1.6;
+  color: #e9d5ff;
+  text-align: center;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  animation: fadeInText 0.5s ease-out 0.8s both;
+  max-height: 70%;
+  overflow-y: auto;
+}
+
+.fullscreen-card-description::-webkit-scrollbar {
+  width: 8px;
+}
+
+.fullscreen-card-description::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.fullscreen-card-description::-webkit-scrollbar-thumb {
+  background: rgba(196, 132, 252, 0.6);
+  border-radius: 10px;
+}
+
+.fullscreen-card-content.power {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  border-color: #06d6d4;
+}
+
+.fullscreen-card-content.curse {
+  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+  border-color: #dc2626;
+}
+
+.fullscreen-card-content.super {
+  background: linear-gradient(135deg, #d4a52e, #fbbf24);
+  border-color: #fcd34d;
+  box-shadow: 0 0 40px rgba(251, 191, 36, 1);
+}
+
+.fullscreen-card-content.super::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.fullscreen-card-content.game {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border-color: #34d399;
+}
+
+.fullscreen-card-content.power .fullscreen-card-name,
+.fullscreen-card-content.curse .fullscreen-card-name,
+.fullscreen-card-content.super .fullscreen-card-name,
+.fullscreen-card-content.game .fullscreen-card-name {
+  color: #fff;
+}
+
+.fullscreen-card-content.power .fullscreen-card-description,
+.fullscreen-card-content.curse .fullscreen-card-description,
+.fullscreen-card-content.super .fullscreen-card-description,
+.fullscreen-card-content.game .fullscreen-card-description {
+  color: #fff;
+}
+
+/* ===== DECK CHOICE MODAL ===== */
+.deck-choice-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 2500;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.deck-choice-modal.show {
+  display: flex;
+}
+
+.deck-choice-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
+  animation: cardZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.deck-choice-question {
+  text-align: center;
+  color: #f0abfc;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-shadow: 0 0 4px #c084fc;
+}
+
+.deck-choice-cards {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+.deck-choice-card {
+  width: 130px;
+  height: 170px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.3s;
+  animation: cardZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.deck-choice-card:hover {
+  transform: scale(1.08);
+}
+
+.deck-choice-card.regular {
+  background: linear-gradient(90deg, #06b6d4 50%, #b91c1c 50%);
+  border-color: #a78bfa;
+}
+
+.deck-choice-card.premium {
+  background: linear-gradient(135deg, #d4a52e, #fbbf24);
+  border-color: #fcd34d;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.deck-choice-card.game {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border-color: #34d399;
+}
+
+/* ===== DECK OVERVIEW MODAL ===== */
+.deck-overview-wrapper {
+  width: min(940px, 94vw);
+  animation: cardZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.deck-overview-title {
+  text-align: center;
+  color: #f0abfc;
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-shadow: 0 0 6px #c084fc;
+}
+
+.deck-overview-panel {
+  background: linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(59, 7, 100, 0.96));
+  border: 3px solid rgba(196, 132, 252, 0.5);
+  border-radius: 20px;
+  padding: clamp(22px, 4vw, 36px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.deck-overview-panel .decks-container {
+  gap: clamp(18px, 4vw, 42px);
+  align-items: stretch;
+}
+
+.deck-overview-panel .deck-item {
+  min-width: min(210px, 100%);
+  background: rgba(46, 16, 102, 0.68);
+  border: 2px solid rgba(196, 132, 252, 0.28);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.22), 0 10px 26px rgba(0, 0, 0, 0.3);
+}
+
+.deck-overview-panel .deck-card-visual {
+  width: clamp(118px, 18vw, 160px);
+  height: clamp(168px, 25vw, 220px);
+  border-radius: 14px;
+  font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+}
+
+.deck-overview-panel .deck-label {
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+}
+
+.deck-overview-panel .deck-count {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.empty-game-card {
+  background: linear-gradient(135deg, #2e1066, #4c1d95);
+  border-color: rgba(196, 132, 252, 0.55);
 }
 
 /* ===== PLAYER SELECTION MODAL ===== */
@@ -343,6 +706,7 @@ button:disabled {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   z-index: 2500;
   justify-content: center;
   align-items: center;
@@ -431,66 +795,70 @@ button:disabled {
   transform: scale(0.96);
 }
 
-@media (max-width: 768px) {
-  .player-selection-content {
-    padding: 25px 20px;
-  }
-
-  .player-selection-title {
-    font-size: 1.4rem;
-    margin-bottom: 20px;
-  }
-
-  .player-select-btn {
-    padding: 14px 28px;
-    font-size: 1rem;
-    flex: 1;
-    min-width: 120px;
-  }
-
-  .player-buttons-container {
-    gap: 12px;
-  }
-}
-
-/* ===== DECKS AND ACTIVE GAME CARD WRAPPER ===== */
-.decks-and-game-card-wrapper {
-  display: none;
-  animation: slideInDown 0.6s ease-out;
-  margin-bottom: 20px;
-  gap: 20px;
-}
-
-.decks-and-game-card-wrapper.show {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-/* ===== DECKS DISPLAY ===== */
-.decks-display {
-  flex: 1;
-  min-width: 300px;
+/* ===== COLLAPSIBLE SECTIONS ===== */
+.collapsible-section {
   background: rgba(46, 16, 102, 0.8);
-  padding: 20px;
+  padding: 0;
   border-radius: 12px;
   border: 2px solid rgba(196, 132, 252, 0.3);
   box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
-  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.collapsible-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+  transition: all 0.3s;
+  text-align: center;
+  margin: 0;
+}
+
+.collapsible-btn:hover {
+  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(123, 63, 248, 0.7);
+}
+
+.collapsible-content {
+  display: none;
+  padding: 20px;
+  animation: slideDown 0.4s ease-out;
+}
+
+.collapsible-content.show {
+  display: block;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .decks-container {
   display: flex;
-  gap: 30px;
+  gap: 20px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .deck-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .deck-card-visual {
@@ -525,10 +893,8 @@ button:disabled {
   border: 2px solid #34d399;
 }
 
-.deck-info-text {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.deck-info {
+  text-align: center;
 }
 
 .deck-label {
@@ -538,33 +904,17 @@ button:disabled {
 }
 
 .deck-count {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #fbbf24;
   font-weight: bold;
 }
 
-/* ===== ACTIVE GAME CARD DISPLAY ===== */
-.active-game-card-section {
-  flex: 0 0 auto;
-  background: rgba(46, 16, 102, 0.8);
-  padding: 20px;
-  border-radius: 12px;
-  border: 2px solid rgba(196, 132, 252, 0.3);
-  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
+/* ===== ACTIVE GAME CARD ===== */
+.active-game-card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  min-width: 220px;
-  animation: slideInDown 0.6s ease-out;
-}
-
-.active-game-card-label {
-  font-size: 1rem;
-  color: #fbbf24;
-  font-weight: bold;
-  text-align: center;
-  white-space: nowrap;
 }
 
 .active-game-card-display {
@@ -582,7 +932,6 @@ button:disabled {
   text-align: center;
   padding: 8px;
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-  animation: cardDealAnimation 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -592,95 +941,452 @@ button:disabled {
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
 }
 
-@keyframes cardDealAnimation {
+.active-game-card-label {
+  font-size: 0.9rem;
+  color: #fbbf24;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* ===== DRAW CARD BUTTON ===== */
+.draw-card-btn {
+  padding: 8px 16px;
+  font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  transition: all 0.3s;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.draw-card-btn:hover {
+  background: linear-gradient(90deg, #059669, #10b981);
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+}
+
+.draw-card-btn:active {
+  transform: scale(0.98);
+}
+
+/* ===== LEFT SIDE CONTROLS ===== */
+.side-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(46, 16, 102, 0.88), rgba(59, 7, 100, 0.84));
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
+}
+
+.side-action-btn {
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(233, 213, 255, 0.18);
+  background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+  color: #fff;
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
+  box-shadow: 0 5px 16px rgba(76, 29, 149, 0.38);
+}
+
+.side-action-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(123, 63, 248, 0.55);
+}
+
+.side-action-btn.draw-card-btn {
+  background: linear-gradient(135deg, #0f766e, #10b981);
+  box-shadow: 0 5px 16px rgba(16, 185, 129, 0.34);
+  white-space: normal;
+}
+
+.side-action-btn.draw-card-btn:hover {
+  background: linear-gradient(135deg, #0d9488, #34d399);
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.52);
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.action-buttons button {
+  width: 100%;
+  margin: 0;
+}
+
+/* ===== PLAYERS ROW ===== */
+.players-row {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.players-row.show {
+  display: grid;
+}
+
+@media (max-width: 1200px) {
+  .players-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.player-box { 
+  background: linear-gradient(135deg, #2e1066, #3b0764);
+  padding: 16px; 
+  border-radius: 16px; 
+  box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.player-box h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #f0abfc;
+  text-shadow: 0 0 4px #c084fc;
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+}
+
+.player-hand-container {
+  position: relative;
+}
+
+.hand-label {
+  font-weight: bold;
+  color: #d8b4fe;
+  margin: 0 0 8px 0;
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+}
+
+.hand { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 7px; 
+  min-height: 120px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow-y: auto;
+  max-height: 500px;
+  position: relative;
+}
+
+.dealt-card-target {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.card-tile {
+  border: 2px solid #fff;
+  border-radius: 10px;
+  padding: 8px 6px;
+  width: 72px;
+  height: 94px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  font-weight: bold;
+  color: #fff;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.2s, background 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  font-size: clamp(0.5rem, 0.85vw, 0.64rem);
+  flex: 0 0 auto;
+  flex-direction: column;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  position: relative;
+}
+
+/* Card type colors */
+.card-tile.power {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  border-color: #06d6d4;
+}
+
+.card-tile.curse {
+  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+  border-color: #dc2626;
+}
+
+.card-tile.super {
+  background: linear-gradient(135deg, #d4a52e, #fbbf24);
+  border-color: #fcd34d;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 4px 12px rgba(0,0,0,0.4);
+  position: relative;
+}
+
+.card-tile.super::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.card-tile.game {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border-color: #34d399;
+}
+
+.card-tile.fly { animation: settleIntoHand 0.45s ease-out forwards; }
+
+@keyframes settleIntoHand {
   0% {
     opacity: 0;
-    transform: translateY(-100px) rotateX(90deg) rotateZ(-45deg) scale(0.5);
-  }
-  50% {
-    transform: translateY(-30px) rotateX(45deg) rotateZ(-20deg) scale(1.05);
+    transform: scale(0.8) translateY(-12px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) rotateX(0deg) rotateZ(0deg) scale(1);
+    transform: scale(1) translateY(0);
   }
 }
 
-@media (max-width: 1024px) {
-  .decks-and-game-card-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.card-tile:hover { 
+  transform: scale(1.08) translateY(-4px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.8);
+}
 
-  .active-game-card-section {
-    min-width: auto;
-  }
+.card-tile.super:hover {
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.8), 0 8px 20px rgba(0,0,0,0.4);
+  transform: scale(1.08) translateY(-4px);
+}
 
-  .decks-display {
-    width: 100%;
+.card-tile.selected { 
+  border: 3px solid #f87171;
+  background: linear-gradient(135deg, #be123c, #e11d48);
+}
+
+.card-tile.keep { 
+  border: 3px solid #34d399;
+}
+
+.card-tile.swap-select { 
+  border: 3px solid #fbbf24;
+  background: linear-gradient(135deg, #ca8a04, #f59e0b);
+}
+
+.dealt-card-animation {
+  position: fixed;
+  width: 72px;
+  height: 94px;
+  border: 2px solid;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.58rem;
+  text-align: center;
+  padding: 7px;
+  z-index: 2000;
+  pointer-events: none;
+  word-break: break-word;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+  animation: cardDealToHand 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cardDealToHand {
+  0% {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translate(0, 0) rotateZ(-10deg) scale(0.55);
+  }
+  18% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, -24px) rotateZ(4deg) scale(1.12);
+  }
+  72% {
+    opacity: 1;
+    transform: translate(calc(var(--deal-x) * 0.82), calc(var(--deal-y) * 0.64 - 18px)) rotateZ(var(--deal-rotate)) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--deal-x), var(--deal-y)) rotateZ(0deg) scale(0.72);
   }
 }
 
-@media (max-width: 768px) {
-  .decks-display {
-    padding: 15px;
-    margin-bottom: 15px;
-  }
+.dealt-card-animation.power {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  border-color: #06d6d4;
+}
 
-  .decks-container {
-    gap: 15px;
-  }
+.dealt-card-animation.curse {
+  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+  border-color: #dc2626;
+}
 
-  .deck-item {
-    gap: 10px;
-  }
+.dealt-card-animation.super {
+  background: linear-gradient(135deg, #d4a52e, #fbbf24);
+  border-color: #fcd34d;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), 0 12px 30px rgba(0, 0, 0, 0.55);
+}
 
-  .deck-card-visual {
-    width: 60px;
-    height: 85px;
-    font-size: 0.6rem;
-    padding: 5px;
-  }
+.dealt-card-animation.game {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border-color: #34d399;
+}
 
-  .deck-label {
-    font-size: 0.75rem;
-  }
+.card-section {
+  display: none;
+  background: linear-gradient(135deg, #2e1066, #3b0764);
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  animation: fadeInUp 0.6s ease-out;
+}
 
-  .deck-count {
-    font-size: 1.1rem;
-  }
+.card-section.show {
+  display: block;
+}
 
-  .active-game-card-section {
-    flex-direction: row;
-    justify-content: center;
-    gap: 12px;
-    min-width: auto;
-    padding: 15px;
-    width: 100%;
-  }
+.card-section h2 {
+  text-align: center;
+  color: #f0abfc;
+  text-shadow: 0 0 4px #c084fc;
+  margin-top: 0;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+}
 
-  .active-game-card-label {
-    font-size: 0.9rem;
-    white-space: normal;
-    flex: 0 1 auto;
-  }
+.pending-swap { 
+  background: rgba(91, 33, 182, 0.4);
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+}
 
-  .active-game-card-display {
-    width: 85px;
-    height: 120px;
-    font-size: 0.65rem;
-    flex-shrink: 0;
+.pending-swap strong {
+  color: #fbbf24;
+  display: block;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.drawn-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.discard-pile {
+  background: rgba(59, 7, 100, 0.5);
+  padding: 15px;
+  border-radius: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: clamp(0.8rem, 1.4vw, 0.9rem);
+  border: 1px solid rgba(196, 132, 252, 0.2);
+  min-height: 60px;
+}
+
+/* ===== DRAWN CARD SECTION ===== */
+#drawnCardSection {
+  display: none;
+  background: linear-gradient(135deg, #2e1066, #3b0764);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
+  border: 2px solid rgba(196, 132, 252, 0.3);
+  animation: slideDown 0.4s ease-out;
+}
+
+#drawnCardSection h2 {
+  text-align: center;
+  color: #f0abfc;
+  text-shadow: 0 0 4px #c084fc;
+  margin-top: 0;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+}
+
+#drawnCardDisplay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: bold;
+  padding: 25px;
+  color: #fff;
+  text-shadow: 0 0 6px #c084fc;
+  height: 140px;
+  border-radius: 12px;
+  border: 3px solid #d8b4fe;
+  margin: 12px 0;
+  box-shadow: 0 0 20px rgba(212, 212, 16, 0.4);
+  animation: cardSwoosh 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cardSwoosh {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px) translateY(-50px) scale(0.5);
+  }
+  70% {
+    transform: translateX(10px) translateY(-5px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
   }
 }
 
-/* ===== INTRO SECTION WRAPPER ===== */
+#drawnCardAssignButtons {
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+#drawnCardAssignButtons button {
+  flex: 1;
+  min-width: 110px;
+  padding: 12px;
+  font-size: 0.9rem;
+}
+
+/* ===== INTRO SECTION ===== */
 .intro-wrapper {
   display: flex;
   gap: 40px;
   align-items: flex-start;
   margin-bottom: 30px;
   animation: fadeInUp 0.6s ease-out;
-  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
 }
 
 .intro-wrapper.hidden {
@@ -725,14 +1431,12 @@ button:disabled {
   }
 }
 
-/* Start Season Button */
 .start-season-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
   animation: fadeInUp 0.6s ease-out;
-  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
 }
 
 .start-season-wrapper.hidden {
@@ -781,100 +1485,75 @@ button:disabled {
   }
 }
 
-@media (max-width: 768px) {
-  .intro-wrapper {
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-
-  .intro-section {
-    padding: 18px;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .intro-section p {
-    margin: 8px 0;
-  }
-
-  .intro-section ul {
-    margin: 12px 0;
-    padding-left: 20px;
-  }
-
-  .intro-section li {
-    margin: 6px 0;
-    font-size: 13px;
-  }
-
-  .start-season-btn {
-    padding: 14px 24px;
-    font-size: 1rem;
-  }
+/* ===== FIXED FOOTER ===== */
+.fixed-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(76, 29, 149, 0.9), rgba(124, 58, 237, 0.95));
+  border-top: 2px solid rgba(196, 132, 252, 0.3);
+  padding: 12px 15px;
+  z-index: 98;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* ===== HOW IT WORKS COLLAPSIBLE ===== */
-.how-it-works-section {
-  margin-top: 20px;
-  display: none;
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.how-it-works-section.show {
-  display: block;
+.fixed-footer button {
+  padding: 8px 16px;
+  font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+  margin: 0;
 }
 
 .how-it-works-btn {
-  padding: 12px 24px;
-  font-size: 0.95rem;
   background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-  color: #fff;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 4px 15px rgba(123, 63, 248, 0.5);
-  transition: all 0.3s;
-  width: 100%;
-  margin: 0;
+  padding: 8px 16px;
+  font-size: clamp(0.75rem, 1.6vw, 0.85rem);
 }
 
 .how-it-works-btn:hover {
   background: linear-gradient(90deg, #a78bfa, #8b5cf6);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(123, 63, 248, 0.7);
+}
+
+.end-season-btn {
+  background: linear-gradient(90deg, #dc2626, #991b1b);
+  padding: 8px 16px;
+  font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+}
+
+.end-season-btn:hover {
+  background: linear-gradient(90deg, #991b1b, #dc2626);
 }
 
 .how-it-works-content {
   display: none;
   background: rgba(46, 16, 102, 0.95);
   border: 2px solid rgba(196, 132, 252, 0.3);
-  border-top: none;
   border-radius: 0 0 12px 12px;
   padding: 25px;
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
   animation: slideDown 0.4s ease-out;
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  z-index: 97;
 }
 
 .how-it-works-content.show {
   display: block;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .how-it-works-content p {
   margin: 10px 0;
   line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .how-it-works-content strong {
@@ -888,27 +1567,7 @@ button:disabled {
 
 .how-it-works-content li {
   margin: 8px 0;
-}
-
-@media (max-width: 768px) {
-  .how-it-works-btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-
-  .how-it-works-content {
-    padding: 18px;
-    font-size: 0.9rem;
-  }
-
-  .how-it-works-content p {
-    margin: 8px 0;
-    font-size: 13px;
-  }
-
-  .how-it-works-content li {
-    font-size: 13px;
-  }
+  font-size: 0.95rem;
 }
 
 /* ===== COUNTDOWN OVERLAY ===== */
@@ -1105,505 +1764,71 @@ button:disabled {
   border-color: #34d399;
 }
 
-/* ===== DRAW FIRST CARDS BUTTON ===== */
-.draw-first-cards-wrapper {
-  display: none;
-  text-align: center;
-  margin-bottom: 30px;
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.draw-first-cards-wrapper.show {
-  display: block;
-}
-
-.draw-first-cards-btn {
-  padding: 16px 35px;
-  font-size: 1.1rem;
-  background: linear-gradient(90deg, #10b981, #059669);
-  color: #fff;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-  transition: all 0.3s;
-}
-
-.draw-first-cards-btn:hover {
-  background: linear-gradient(90deg, #059669, #10b981);
-  transform: scale(1.08);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
-}
-
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .draw-first-cards-btn {
-    padding: 14px 28px;
-    font-size: 1rem;
-    width: 100%;
-  }
-}
-
-.controls {
-  display: none;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding: 20px;
-  background: rgba(46, 16, 102, 0.6);
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(123, 63, 248, 0.3);
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.controls.show {
-  display: flex;
-}
-
-.controls button {
-  margin: 5px;
-}
-
-@media (max-width: 768px) {
-  .controls {
-    flex-direction: column;
-    gap: 8px;
-    padding: 15px;
+  .back-home-btn {
+    position: fixed;
   }
 
-  .controls button {
-    margin: 0;
-    width: 100%;
-    padding: 12px 16px;
-    font-size: 0.95rem;
-  }
-}
-
-/* Drawn Card Section */
-#drawnCardSection {
-  display: none;
-  background: linear-gradient(135deg, #2e1066, #3b0764);
-  padding: 25px;
-  border-radius: 16px;
-  margin-bottom: 30px;
-  box-shadow: 0 0 20px rgba(123, 63, 248, 0.5);
-  border: 2px solid rgba(196, 132, 252, 0.3);
-  animation: slideDown 0.4s ease-out;
-}
-
-#drawnCardSection h2 {
-  text-align: center;
-  color: #f0abfc;
-  text-shadow: 0 0 4px #c084fc;
-  margin-top: 0;
-}
-
-#drawnCardDisplay {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
-  font-weight: bold;
-  padding: 30px;
-  color: #fff;
-  text-shadow: 0 0 6px #c084fc;
-  height: 160px;
-  border-radius: 12px;
-  border: 3px solid #d8b4fe;
-  margin: 15px 0;
-  box-shadow: 0 0 20px rgba(212, 212, 16, 0.4);
-  animation: cardSwoosh 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes cardSwoosh {
-  0% {
-    opacity: 0;
-    transform: translateX(-100px) translateY(-50px) scale(0.5);
-  }
-  70% {
-    transform: translateX(10px) translateY(-5px) scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) translateY(0) scale(1);
-  }
-}
-
-#drawnCardAssignButtons {
-  display: none;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-#drawnCardAssignButtons button {
-  flex: 1;
-  min-width: 140px;
-  padding: 15px;
-  font-size: 1rem;
-}
-
-@media (max-width: 768px) {
-  #drawnCardSection {
-    padding: 20px;
-    margin-bottom: 20px;
+  .fixed-footer {
+    position: fixed;
   }
 
-  #drawnCardDisplay {
-    padding: 20px;
-    height: 140px;
-    font-size: clamp(1rem, 2.5vw, 1.5rem);
+  h1 {
+    margin: 8px 0 16px 0;
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+    padding-right: 80px;
   }
 
-  #drawnCardAssignButtons {
-    flex-direction: column;
-    gap: 8px;
+  .container {
+    padding: 0 10px;
+    padding-bottom: 100px;
   }
 
-  #drawnCardAssignButtons button {
-    width: 100%;
-    min-width: auto;
-    padding: 12px 16px;
-    font-size: 0.95rem;
-    margin: 0;
-  }
-}
-
-.players-row {
-  display: none;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
-  margin-bottom: 30px;
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.players-row.show {
-  display: grid;
-}
-
-@media (max-width: 768px) {
-  .players-row {
+  .main-game-layout.show {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .intro-wrapper {
+    flex-direction: column;
     gap: 15px;
     margin-bottom: 20px;
   }
-}
 
-.player-box { 
-  background: linear-gradient(135deg, #2e1066, #3b0764);
-  padding: 20px; 
-  border-radius: 16px; 
-  box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
-  border: 2px solid rgba(196, 132, 252, 0.3);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.player-box h2 {
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #f0abfc;
-  text-shadow: 0 0 4px #c084fc;
-}
-
-.player-hand-container {
-  position: relative;
-}
-
-.hand-label {
-  font-weight: bold;
-  color: #d8b4fe;
-  margin: 0 0 10px 0;
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-}
-
-.hand { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 10px; 
-  min-height: 120px;
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  overflow-y: auto;
-  max-height: 300px;
-  position: relative;
-}
-
-.dealt-card-target {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-@media (max-width: 768px) {
-  .player-box {
-    padding: 15px;
+  .intro-section {
+    padding: 18px;
+    font-size: 14px;
+    line-height: 1.6;
   }
 
-  .player-box h2 {
-    font-size: 1.2rem;
-    margin-bottom: 12px;
+  .players-row.show {
+    grid-template-columns: 1fr;
   }
 
-  .hand-label {
-    font-size: 0.9rem;
-    margin-bottom: 8px;
+  .fixed-footer {
+    padding: 10px 12px;
   }
 
-  .hand {
-    min-height: 100px;
-    max-height: 350px;
-    gap: 8px;
-    padding: 12px;
-  }
-}
-
-.card-tile {
-  border: 2px solid #fff;
-  border-radius: 12px;
-  padding: 14px 10px;
-  width: 110px;
-  height: 140px;
-  text-align: center;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  font-weight: bold;
-  color: #fff;
-  transition: transform 0.3s, box-shadow 0.3s, border-color 0.2s, background 0.3s;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  font-size: clamp(0.65rem, 1.5vw, 0.85rem);
-  flex: 0 0 auto;
-  flex-direction: column;
-  word-wrap: break-word;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  position: relative;
-}
-
-/* Card type colors */
-.card-tile.power {
-  background: linear-gradient(135deg, #06b6d4, #0891b2);
-  border-color: #06d6d4;
-}
-
-.card-tile.curse {
-  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
-  border-color: #dc2626;
-}
-
-.card-tile.super {
-  background: linear-gradient(135deg, #d4a52e, #fbbf24);
-  border-color: #fcd34d;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 4px 12px rgba(0,0,0,0.4);
-  position: relative;
-}
-
-.card-tile.super::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
-  border-radius: 12px;
-  pointer-events: none;
-}
-
-.card-tile.game {
-  background: linear-gradient(135deg, #059669, #10b981);
-  border-color: #34d399;
-}
-
-@media (max-width: 768px) {
-  .card-tile {
-    width: 100px;
-    height: 130px;
-    padding: 12px 8px;
+  .fixed-footer button {
+    padding: 8px 12px;
     font-size: 0.75rem;
   }
 }
 
-.card-tile.fly { animation: flyToHand 0.6s ease-out forwards; }
-
-.card-tile:hover { 
-  transform: scale(1.1) translateY(-5px);
-  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.8);
-}
-
-.card-tile.super:hover {
-  box-shadow: 0 0 25px rgba(251, 191, 36, 0.8), 0 8px 20px rgba(0,0,0,0.4);
-  transform: scale(1.1) translateY(-5px);
-}
-
-.card-tile.selected { 
-  border: 3px solid #f87171;
-  background: linear-gradient(135deg, #be123c, #e11d48);
-}
-
-.card-tile.keep { 
-  border: 3px solid #34d399;
-}
-
-.card-tile.swap-select { 
-  border: 3px solid #fbbf24;
-  background: linear-gradient(135deg, #ca8a04, #f59e0b);
-}
-
-.dealt-card-animation {
-  position: fixed;
-  width: 110px;
-  height: 140px;
-  border: 2px solid;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: #fff;
-  font-size: 0.75rem;
-  text-align: center;
-  padding: 8px;
-  z-index: 2000;
-  pointer-events: none;
-  animation: cardDealToHand 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes cardDealToHand {
-  0% {
-    opacity: 0;
-    transform: translateY(-200px) rotateX(90deg) rotateZ(-45deg) scale(0.6);
-  }
-  50% {
-    transform: translateY(-80px) rotateX(45deg) rotateZ(-20deg) scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) rotateX(0deg) rotateZ(0deg) scale(1);
-  }
-}
-
-.card-section {
-  display: none;
-  background: linear-gradient(135deg, #2e1066, #3b0764);
-  padding: 25px;
-  border-radius: 16px;
-  margin-bottom: 30px;
-  box-shadow: 0 0 12px rgba(123, 63, 248, 0.5);
-  border: 2px solid rgba(196, 132, 252, 0.3);
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.card-section.show {
-  display: block;
-}
-
-.card-section h2 {
-  text-align: center;
-  color: #f0abfc;
-  text-shadow: 0 0 4px #c084fc;
-  margin-top: 0;
-}
-
-.pending-swap { 
-  margin-top: 15px;
-  background: rgba(91, 33, 182, 0.4);
-  padding: 20px;
-  border-radius: 12px;
-  border: 2px solid rgba(196, 132, 252, 0.3);
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-}
-
-.pending-swap strong {
-  color: #fbbf24;
-  display: block;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.drawn-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 15px;
-}
-
-.discard-pile {
-  background: rgba(59, 7, 100, 0.5);
-  padding: 20px;
-  border-radius: 12px;
-  max-height: 150px;
-  overflow-y: auto;
-  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
-  border: 1px solid rgba(196, 132, 252, 0.2);
-  min-height: 60px;
-}
-
-@media (max-width: 768px) {
-  .card-section {
-    padding: 18px;
-    margin-bottom: 20px;
-  }
-
-  .card-section h2 {
-    font-size: 1.1rem;
-    margin-bottom: 12px;
-  }
-
-  .pending-swap {
-    padding: 15px;
-    margin-top: 12px;
-    font-size: 0.95rem;
-  }
-
-  .pending-swap strong {
-    margin-bottom: 12px;
-    font-size: 1rem;
-  }
-
-  .drawn-cards {
-    gap: 8px;
-  }
-
-  .discard-pile {
-    padding: 15px;
-    font-size: 0.85rem;
-  }
-}
-
-@keyframes flyToHand {
-  0% { transform: translateY(-50px) scale(1.3); opacity: 0; }
-  100% { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-@media (max-width: 768px) {
-  body {
-    padding: 10px;
-  }
-
+@media (max-width: 480px) {
   h1 {
-    margin: 10px 0 18px 0;
-    font-size: clamp(1.3rem, 4vw, 2rem);
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    margin: 6px 0 12px 0;
   }
 
-  h2 {
-    font-size: clamp(1rem, 3vw, 1.3rem);
+  .collapsible-btn {
+    font-size: 0.85rem;
+    padding: 12px;
   }
 
-  .container {
-    width: 100%;
+  .draw-card-btn {
+    padding: 8px 12px;
   }
 }
 </style>
@@ -1612,7 +1837,7 @@ button:disabled {
 
 <button class="back-home-btn" onclick="window.location.href='index.html'">← Home</button>
 
-<h1>🃏 Premier League Prediction League Cards 🃏</h1>
+<h1>🃏 Prem Predics Cards 🃏</h1>
 
 <div class="container">
   <!-- Card Preview Modal -->
@@ -1630,10 +1855,46 @@ button:disabled {
     </div>
   </div>
 
+  <!-- Fullscreen Card Reveal -->
+  <div class="fullscreen-card-reveal" id="fullscreenCardReveal">
+    <div class="fullscreen-card-content" id="fullscreenCardContent">
+      <div class="fullscreen-card-name" id="fullscreenCardName"></div>
+      <div class="fullscreen-card-description" id="fullscreenCardDescription"></div>
+    </div>
+  </div>
+
+  <!-- Deck Choice Modal -->
+  <div class="deck-choice-modal" id="deckChoiceModal">
+    <div class="deck-choice-wrapper">
+      <div class="deck-choice-question">Click a deck to draw from</div>
+      <div class="deck-choice-cards">
+        <div class="deck-choice-card regular" onclick="startCardReveal('regular')">Regular Deck</div>
+        <div class="deck-choice-card premium" onclick="startCardReveal('premium')">Premium Deck</div>
+        <div class="deck-choice-card game" onclick="startCardReveal('game')">Game Deck</div>
+      </div>
+      <div class="card-preview-buttons">
+        <button class="card-preview-btn back" style="max-width: 220px;" onclick="closeDeckChoice()">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deck Overview Modal -->
+  <div class="card-preview-modal deck-overview-modal" id="deckOverviewModal">
+    <div class="deck-overview-wrapper">
+      <div class="deck-overview-title">All Decks</div>
+      <div class="deck-overview-panel">
+        <div class="decks-container" id="decksContainer"></div>
+      </div>
+      <div class="card-preview-buttons">
+        <button class="card-preview-btn back" style="max-width: 220px;" onclick="closeDeckOverview()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Game Card Preview Modal -->
   <div class="card-preview-modal" id="gameCardPreviewModal">
     <div class="card-preview-wrapper">
-      <div class="card-preview-question">Active Game Card</div>
+      <div class="card-preview-question" id="gameCardPreviewQuestion">Active Game Card</div>
       <div class="card-preview-content" id="gameCardPreviewContent">
         <div class="card-preview-name" id="gameCardPreviewName"></div>
         <div class="card-preview-description" id="gameCardPreviewDescription"></div>
@@ -1655,7 +1916,7 @@ button:disabled {
     </div>
   </div>
 
-  <!-- Intro Section and Start Button Wrapper -->
+  <!-- Intro Section -->
   <div class="intro-wrapper" id="introWrapper">
     <div class="intro-section">
       <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
@@ -1672,10 +1933,9 @@ button:disabled {
         <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
       </ul>
       
-      <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck (30 Power Cards & 22 Curse Cards)</p>
-      <p><strong>✨ Premium Deck:</strong> 7 Super Cards (1 of each type)</p>
-      <p><strong>🎮 Game Deck:</strong> 7 Game Cards (1 of each type, drawn every 5 Gameweeks)</p>
-      <p><strong>🏆 Reach milestones</strong> to earn medals, each medal can be spent to draw 1 card from the Regular Deck</p>
+      <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck</p>
+      <p><strong>✨ Premium Deck:</strong> 7 Super Cards</p>
+      <p><strong>🎮 Game Deck:</strong> 7 Game Cards</p>
     </div>
 
     <div class="start-season-wrapper" id="startSeasonWrapper">
@@ -1704,109 +1964,102 @@ button:disabled {
     </div>
   </div>
 
-  <!-- Decks and Active Game Card Wrapper -->
-  <div class="decks-and-game-card-wrapper" id="decksAndGameCardWrapper">
-    <div class="decks-display" id="decksDisplay">
-      <div class="decks-container" id="decksContainer"></div>
+  <div class="top-buttons-bar" id="topButtonsBar"></div>
+
+  <!-- Main Game Layout -->
+  <div class="main-game-layout" id="mainGameLayout">
+    <!-- LEFT PANEL - CONTROLS / PENDING / DISCARD -->
+    <div class="left-panel">
+      <div class="side-actions">
+        <button class="side-action-btn" onclick="openDeckOverview()">View All Decks</button>
+        <button class="side-action-btn" onclick="showGameCardPreview()">View Active Game Card</button>
+        <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()">Draw Card</button>
+      </div>
+
+      <!-- Pending Swap / Steal -->
+      <div class="card-section" id="swapSection">
+        <h2>Pending Swap/Steal</h2>
+        <div id="pendingSwap" class="pending-swap"></div>
+        <div class="action-buttons">
+          <button id="confirmSwapBtn" onclick="confirmSwap()" style="display:none;">Confirm Discard</button>
+          <button id="confirmPickBtn" onclick="confirmPick()" style="display:none;">Confirm Picks</button>
+          <button id="confirmStealBtn" onclick="confirmSteal()" style="display:none;">Confirm Steal</button>
+        </div>
+      </div>
+
+      <!-- Discard Pile -->
+      <div class="card-section" id="discardSection">
+        <h2>Discard Pile</h2>
+        <div id="discardPile" class="discard-pile">Empty</div>
+      </div>
     </div>
-    <div class="active-game-card-section" id="activeGameCardSection">
-      <div class="active-game-card-label">Active Game Card:</div>
-      <div class="active-game-card-display" id="activeGameCardDisplay" onclick="showGameCardPreview()"></div>
-    </div>
-  </div>
 
-  <!-- Draw First Cards Button -->
-  <div class="draw-first-cards-wrapper" id="drawFirstCardsWrapper">
-    <button class="draw-first-cards-btn" id="drawFirstCardsBtn" onclick="drawFirstCards()">🎯 Draw Your First Power and Curse Cards!</button>
-  </div>
+    <!-- CENTER PANEL - PLAYERS (WIDE) -->
+    <div class="center-panel">
+      <!-- Drawn Card Section -->
+      <div id="drawnCardSection">
+        <h2>🎯 Drawn Card</h2>
+        <div id="drawnCardDisplay"></div>
+        <div id="drawnCardAssignButtons">
+          <button class="player-select-btn vas-btn" onclick="assignCard('p1')">✓ Vas</button>
+          <button class="player-select-btn tom-btn" onclick="assignCard('p2')">✓ Tom</button>
+          <button onclick="discardLastCard()">✗ Discard</button>
+        </div>
+      </div>
 
-  <!-- Control Buttons (Hidden Initially) -->
-  <div class="controls" id="controlsSection">
-    <button id="drawRegularBtn" onclick="initiateDrawCard('regular')" disabled>Draw Regular Card</button>
-    <button id="drawPremiumBtn" onclick="initiateDrawCard('premium')" disabled>Draw Premium Card</button>
-    <button id="drawGameBtn" onclick="drawGameCard()" disabled>Draw Game Card</button>
-    <button id="endSeasonBtn" onclick="endSeason()">End Season</button>
-  </div>
-
-  <!-- Drawn Card Section -->
-  <div id="drawnCardSection">
-    <h2>🎯 Drawn Card</h2>
-    <div id="drawnCardDisplay"></div>
-    <div id="drawnCardAssignButtons">
-      <button class="player-select-btn vas-btn" onclick="assignCard('p1')">✓ Give to Vas</button>
-      <button class="player-select-btn tom-btn" onclick="assignCard('p2')">✓ Give to Tom</button>
-      <button onclick="discardLastCard()">✗ Discard</button>
-    </div>
-  </div>
-
-  <!-- Player Hands -->
-  <div class="players-row" id="playersRow">
-    <div class="player-box">
-      <h2>Vas</h2>
-      <div class="player-hand-container">
-        <div class="hand-label">Hand (Click card to use):</div>
-        <div id="p1Hand" class="hand">
-          <div class="dealt-card-target" id="p1CardTarget"></div>
+      <!-- Player Hands -->
+      <div class="players-row" id="playersRow">
+        <div class="player-box">
+          <h2>Vas</h2>
+          <div class="player-hand-container">
+            <div class="hand-label">Hand (Click to play):</div>
+            <div id="p1Hand" class="hand">
+              <div class="dealt-card-target" id="p1CardTarget"></div>
+            </div>
+          </div>
+        </div>
+        <div class="player-box">
+          <h2>Tom</h2>
+          <div class="player-hand-container">
+            <div class="hand-label">Hand (Click to play):</div>
+            <div id="p2Hand" class="hand">
+              <div class="dealt-card-target" id="p2CardTarget"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="player-box">
-      <h2>Tom</h2>
-      <div class="player-hand-container">
-        <div class="hand-label">Hand (Click card to use):</div>
-        <div id="p2Hand" class="hand">
-          <div class="dealt-card-target" id="p2CardTarget"></div>
-        </div>
-      </div>
-    </div>
+
+    <!-- RIGHT PANEL - EMPTY (for spacing) -->
+    <div class="right-panel"></div>
   </div>
 
-  <!-- Pending Swap / Steal -->
-  <div class="card-section" id="swapSection">
-    <h2>Pending Swap / Steal</h2>
-    <div id="pendingSwap" class="pending-swap"></div>
-    <div class="action-buttons">
-      <button id="confirmSwapBtn" onclick="confirmSwap()" style="display:none;">Confirm Discard</button>
-      <button id="confirmPickBtn" onclick="confirmPick()" style="display:none;">Confirm Picks</button>
-      <button id="confirmStealBtn" onclick="confirmSteal()" style="display:none;">Confirm Steal</button>
-    </div>
-  </div>
-
-  <!-- Discard Pile -->
-  <div class="card-section" id="discardSection">
-    <h2>Discard / Used Pile</h2>
-    <div id="discardPile" class="discard-pile">Empty</div>
+  <!-- How It Works Content (for footer) -->
+  <div class="how-it-works-content" id="howItWorksContent">
+    <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
     
-    <!-- How It Works Collapsible (Under Discard Pile) -->
-    <div class="how-it-works-section" id="howItWorksSection">
-      <button class="how-it-works-btn" onclick="toggleHowItWorks()">📖 How It Works</button>
-      <div class="how-it-works-content" id="howItWorksContent">
-        <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
-        
-        <p><strong>The Goal</strong></p>
-        <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
-        
-        <p><strong>🎴 Playing Power, Curse & Super Cards</strong></p>
-        <p>There are 4 types of Card:</p>
-        <ul>
-          <li>💪 <strong>Power Cards (Regular Deck)</strong> - Help you or hinder your opponent</li>
-          <li>🖤 <strong>Curse Cards (Regular Deck)</strong> - Negative effects for your opponent</li>
-          <li>✨ <strong>Super Cards (Premium Deck)</strong> - Powerful premium abilities</li>
-          <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
-        </ul>
-        
-        <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck (30 Power Cards & 22 Curse Cards)</p>
-        <p><strong>✨ Premium Deck:</strong> 7 Super Cards (1 of each type)</p>
-        <p><strong>🎮 Game Deck:</strong> 7 Game Cards (1 of each type)</p>
-      </div>
-    </div>
+    <p><strong>The Goal</strong></p>
+    <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
+    
+    <p><strong>🎴 Playing Power, Curse & Super Cards</strong></p>
+    <ul>
+      <li>💪 <strong>Power Cards</strong> - Help you or hinder your opponent</li>
+      <li>🖤 <strong>Curse Cards</strong> - Negative effects for your opponent</li>
+      <li>✨ <strong>Super Cards</strong> - Powerful premium abilities</li>
+      <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
+    </ul>
   </div>
+</div>
+
+<!-- Fixed Footer -->
+<div class="fixed-footer" id="fixedFooter">
+  <button class="how-it-works-btn" onclick="toggleHowItWorks()">📖 How It Works</button>
+  <button class="end-season-btn" id="endSeasonBtn" onclick="endSeason()">End Season</button>
 </div>
 
 <script>
 // CARD DESCRIPTIONS DATABASE
 const cardDescriptions = {
-  // POWER CARDS
   "Power of the Goal": "🃏 Power of the Goal\n• Valid for 1 Gameweek•\n\n🏆+1 Goal for Star Man this week for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
   "Power of the Swap": "🃏 Power of the Swap\n• Discard 2, Draw 3, Pick 2•\n\n🏆Discard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand for the player playing this card🏆",
   "Power of the Veto": "🃏 Power of the Veto\n\n🏆Veto a Curse played by your opponent🏆",
@@ -1822,7 +2075,6 @@ const cardDescriptions = {
   "Power of the Late Scout": "🃏 Power of the Late Scout\n• Valid for 1 Gameweek•\n\n🏆You may choose your Star Man AFTER line-ups are announced for one match🏆\n\n*Must be played before Star Man's Kick-Off",
   "Power of the Snow": "🃏 Power of the Snow\n• Valid for 1 Gameweek\n\n🏆Any Predicted match played in heavy snow scores DOUBLE points🏆\n\n*Must be played before the start of a Gameweek",
 
-  // CURSE CARDS
   "Curse of the Hated": "🃏 Curse of the Hated\n• Valid for 1 Gameweek•\n\n✖️Opponent must predict 8–2 in at least one game this Gameweek✖️\n\n*Must be played before the start of a Gameweek",
   "Curse of the Gambler": "🃏 Curse of the Gambler\n• Valid for 1 Gameweek•\n\n❌For 3 games, opponent rolls a die for each team, dice roll = goals prediction❌\n\n*Dice roll of Six counts as 0 goals, *Must be played before the start of a Gameweek",
   "Curse of the Bench Warmer": "🃏 Curse of the Bench Warmer\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have been benched in the previous GW❌\n\n*Must be played before the start of a Gameweek",
@@ -1838,7 +2090,6 @@ const cardDescriptions = {
   "Curse of the Even Number": "🃏 Curse of the Even Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Even number of goals for all teams❌\n\n*Must be played before the start of the Gameweek, *Cannot be picked whilst Curse of The Gambler is active",
   "Curse of the Odd Number": "🃏 Curse of the Odd Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Odd number of goals for all teams❌\n\n*Must be played before the start of the Gameweek, *Cannot be picked whilst Curse of The Gambler is active",
 
-  // SUPER CARDS
   "Super Star Man": "🃏 Super Star Man\n• Valid for 1 Gameweek•\n\n🏆Star Man points are TRIPLED for the player playing this card🏆\n\n*Yellow and Red cards are 0pts",
   "Super Golden Gameweek": "🃏 Super Golden Gameweek\n• Valid for 1 Gameweek•\n\n🏆Prediction League points for all games are DOUBLED for the player playing this card🏆",
   "Super Sub": "🃏 Super Sub\n• Valid for 1 Gameweek•\n\n🏆 Star Man can be swapped at any time for any other Star Man for the player playing this card🏆\n\n*New Star Man's match must have NOT kicked off within the same Gameweek",
@@ -1847,7 +2098,6 @@ const cardDescriptions = {
   "Super Duo": "🃏 Super Duo\n• Valid for 1 Gameweek•\n\n🏆Two Star Men can be chosen this Gameweek for the player playing this card🏆\n\n*Must choose both players before Gameweek starts",
   "Super Pen": "🃏 Super Pen\n• Valid for 3 Gameweek•\n\n🏆Draw a card from the Regular Deck any time a penalty is scored in this Gameweek for the player playing this card🏆",
 
-  // GAME CARDS
   "Game of Goals": "🃏 Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
   "Game of Corners": "🃏 Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
   "Game of The Underdog": "🃏 Game of The Underdog\n\nBest of 5 Gameweeks, closest answer wins, predict how many teams will beat a team above them in the league in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
@@ -1859,90 +2109,54 @@ const cardDescriptions = {
 
 // POWER CARDS - 30 TOTAL
 const powerCards = [
-  "Power of the Goal",
-  "Power of the Goal",
-  "Power of the Swap",
-  "Power of the Swap",
-  "Power of the Swap",
-  "Power of the Veto",
-  "Power of the Veto",
-  "Power of the Veto",
-  "Power of the Laundrette",
-  "Power of the Laundrette",
-  "Power of the Rocket Man",
-  "Power of the Rocket Man",
-  "Power of the Rocket Man",
+  "Power of the Goal", "Power of the Goal",
+  "Power of the Swap", "Power of the Swap", "Power of the Swap",
+  "Power of the Veto", "Power of the Veto", "Power of the Veto",
+  "Power of the Laundrette", "Power of the Laundrette",
+  "Power of the Rocket Man", "Power of the Rocket Man", "Power of the Rocket Man",
   "Power of the Pessimist",
-  "Power of the Immigrants",
-  "Power of the Immigrants",
-  "Power of the Lanky Crouch",
-  "Power of the Lanky Crouch",
-  "Power of the Small and Mighty",
-  "Power of the Small and Mighty",
-  "Power of God",
-  "Power of God",
-  "Power of the Hedge",
-  "Power of the Hedge",
+  "Power of the Immigrants", "Power of the Immigrants",
+  "Power of the Lanky Crouch", "Power of the Lanky Crouch",
+  "Power of the Small and Mighty", "Power of the Small and Mighty",
+  "Power of God", "Power of God",
+  "Power of the Hedge", "Power of the Hedge",
   "Power of the Assist King",
-  "Power of the Late Scout",
-  "Power of the Late Scout",
-  "Power of the Late Scout",
-  "Power of the Snow",
-  "Power of the Snow"
+  "Power of the Late Scout", "Power of the Late Scout", "Power of the Late Scout",
+  "Power of the Snow", "Power of the Snow"
 ];
 
 // CURSE CARDS - 22 TOTAL
 const curseCards = [
-  "Curse of the Hated",
-  "Curse of the Hated",
-  "Curse of the Gambler",
-  "Curse of the Gambler",
-  "Curse of the Bench Warmer",
-  "Curse of the Bench Warmer",
+  "Curse of the Hated", "Curse of the Hated",
+  "Curse of the Gambler", "Curse of the Gambler",
+  "Curse of the Bench Warmer", "Curse of the Bench Warmer",
   "Curse of the Alphabet (15+)",
   "Curse of the Alphabet (20+)",
   "Curse of the Scoring Drought (3)",
   "Curse of the Scoring Drought (5)",
-  "Curse of the Random Roulette",
-  "Curse of the Random Roulette",
-  "Curse of the Glasses",
-  "Curse of the Glasses",
-  "Curse of the Deleted Match",
-  "Curse of the Deleted Match",
-  "Curse of the Tiny Club",
-  "Curse of the Tiny Club",
-  "Curse of the Thief",
-  "Curse of the Thief",
+  "Curse of the Random Roulette", "Curse of the Random Roulette",
+  "Curse of the Glasses", "Curse of the Glasses",
+  "Curse of the Deleted Match", "Curse of the Deleted Match",
+  "Curse of the Tiny Club", "Curse of the Tiny Club",
+  "Curse of the Thief", "Curse of the Thief",
   "Curse of the Even Number",
   "Curse of the Odd Number"
 ];
 
 // SUPER CARDS - 7 TOTAL
 const premiumCards = [
-  "Super Star Man",
-  "Super Golden Gameweek",
-  "Super Sub",
-  "Super Fantasy Boost",
-  "Super Draw",
-  "Super Duo",
-  "Super Pen"
+  "Super Star Man", "Super Golden Gameweek", "Super Sub",
+  "Super Fantasy Boost", "Super Draw", "Super Duo", "Super Pen"
 ];
 
 // GAME CARDS - 7 TOTAL
 const gameCards = [
-  "Game of Goals",
-  "Game of Corners",
-  "Game of The Underdog",
-  "Game of The Goalhanger",
-  "Game of War",
-  "Game of The Early Worm",
-  "Game of Time"
+  "Game of Goals", "Game of Corners", "Game of The Underdog",
+  "Game of The Goalhanger", "Game of War", "Game of The Early Worm", "Game of Time"
 ];
 
 // Card type mapping
 const cardTypeMap = {};
-
-// Initialize card type map
 powerCards.forEach(card => { cardTypeMap[card] = 'power'; });
 curseCards.forEach(card => { cardTypeMap[card] = 'curse'; });
 premiumCards.forEach(card => { cardTypeMap[card] = 'super'; });
@@ -1962,7 +2176,9 @@ let gameState = {
   selectedSteal: null,
   activeGameCard: null,
   pendingCardDraw: { type: null, deckType: null },
-  cardToPlay: null
+  cardToPlay: null,
+  selectedDeckType: null,
+  currentPlayer: null
 };
 
 let lastHandSizes = { p1: 0, p2: 0 };
@@ -1984,6 +2200,11 @@ function load() {
   if (saved) gameState = JSON.parse(saved); 
 }
 
+function toggleCollapsible(btn) {
+  const content = btn.nextElementSibling;
+  content.classList.toggle('show');
+}
+
 function toggleHowItWorks() {
   const content = document.getElementById('howItWorksContent');
   content.classList.toggle('show');
@@ -1993,7 +2214,6 @@ async function startGameSequence() {
   if (sequenceInProgress) return;
   sequenceInProgress = true;
 
-  // Initialize decks
   let powerDeck = [...powerCards];
   let curseDeck = [...curseCards];
   let premiumDeck = [...premiumCards];
@@ -2010,19 +2230,14 @@ async function startGameSequence() {
   gameState.gameCardDeck = gameCardDeck;
   gameState.seasonStarted = true;
 
-  // Hide intro section
   document.getElementById('introWrapper').classList.add('hidden');
 
-  // Show countdown
   await showCountdown();
-  
-  // Show card shuffle
   await showCardShuffle();
   
-  // Show decks and draw first cards button
-  document.getElementById('drawFirstCardsWrapper').classList.add('show');
+  document.getElementById('mainGameLayout').classList.add('show');
   updateDecksDisplay();
-  document.getElementById('decksAndGameCardWrapper').classList.add('show');
+  drawFirstCards();
   
   save();
 }
@@ -2070,7 +2285,6 @@ function showCardShuffle() {
     regularContainer.innerHTML = '';
     premiumContainer.innerHTML = '';
     
-    // Show regular deck cards (30 power + 22 curse = 52 total)
     const regularCards = [...powerCards, ...curseCards];
     regularCards.forEach((card, index) => {
       const cardEl = document.createElement('div');
@@ -2091,7 +2305,6 @@ function showCardShuffle() {
       regularContainer.appendChild(cardEl);
     });
 
-    // Show premium deck cards (7 super)
     premiumCards.forEach((card, index) => {
       const cardEl = document.createElement('div');
       const type = cardTypeMap[card];
@@ -2137,9 +2350,7 @@ function playWhistleSound() {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.5);
-  } catch (e) {
-    // Audio not supported
-  }
+  } catch (e) {}
 }
 
 function updateDecksDisplay() {
@@ -2147,22 +2358,22 @@ function updateDecksDisplay() {
   container.innerHTML = `
     <div class="deck-item">
       <div class="deck-card-visual regular">Regular</div>
-      <div class="deck-info-text">
-        <div class="deck-label">Regular Deck</div>
+      <div class="deck-info">
+        <div class="deck-label">Regular</div>
         <div class="deck-count">${gameState.regularDeck.length}</div>
       </div>
     </div>
     <div class="deck-item">
       <div class="deck-card-visual premium">Premium</div>
-      <div class="deck-info-text">
-        <div class="deck-label">Premium Deck</div>
+      <div class="deck-info">
+        <div class="deck-label">Premium</div>
         <div class="deck-count">${gameState.premiumDeck.length}</div>
       </div>
     </div>
     <div class="deck-item">
       <div class="deck-card-visual game">Game</div>
-      <div class="deck-info-text">
-        <div class="deck-label">Game Deck</div>
+      <div class="deck-info">
+        <div class="deck-label">Game</div>
         <div class="deck-count">${gameState.gameCardDeck.length}</div>
       </div>
     </div>
@@ -2170,7 +2381,6 @@ function updateDecksDisplay() {
 }
 
 function drawFirstCards() {
-  // Draw 1 power and 1 curse for each player
   const powerDeck = [];
   const curseDeck = [];
   
@@ -2182,83 +2392,100 @@ function drawFirstCards() {
     }
   });
   
-  // Draw for player 1
   const p1Power = powerDeck.pop();
   const p1Curse = curseDeck.pop();
   gameState.players.p1.hand.push(p1Power, p1Curse);
   
-  // Draw for player 2
   const p2Power = powerDeck.pop();
   const p2Curse = curseDeck.pop();
   gameState.players.p2.hand.push(p2Power, p2Curse);
   
-  // Rebuild deck
   gameState.regularDeck = [];
   powerDeck.forEach(card => gameState.regularDeck.push(card));
   curseDeck.forEach(card => gameState.regularDeck.push(card));
   shuffle(gameState.regularDeck);
   
-  // Hide intro elements
-  document.getElementById('drawFirstCardsWrapper').classList.remove('show');
-  
-  // Show game elements
-  document.getElementById('controlsSection').classList.add('show');
   document.getElementById('playersRow').classList.add('show');
   document.getElementById('swapSection').classList.add('show');
   document.getElementById('discardSection').classList.add('show');
-  document.getElementById('howItWorksSection').classList.add('show');
-  
-  // Enable draw buttons
-  document.getElementById('drawRegularBtn').disabled = false;
-  document.getElementById('drawPremiumBtn').disabled = false;
-  document.getElementById('drawGameBtn').disabled = false;
   
   sequenceInProgress = false;
   save();
   render();
 }
 
-function getDeckPosition(deckType) {
-  if (deckType === 'regular') {
-    // First deck item position
-    const deckItems = document.querySelectorAll('.deck-item');
-    if (deckItems.length > 0) {
-      const rect = deckItems[0].getBoundingClientRect();
-      return { x: rect.left + rect.width / 2, y: rect.top + window.scrollY + rect.height / 2 };
-    }
-  } else if (deckType === 'premium') {
-    // Second deck item position
-    const deckItems = document.querySelectorAll('.deck-item');
-    if (deckItems.length > 1) {
-      const rect = deckItems[1].getBoundingClientRect();
-      return { x: rect.left + rect.width / 2, y: rect.top + window.scrollY + rect.height / 2 };
-    }
-  }
-  // Fallback to center of screen
-  return { x: window.innerWidth / 2, y: 150 };
+function openDeckChoice() {
+  document.body.classList.add('card-preview-open');
+  document.getElementById('deckChoiceModal').classList.add('show');
 }
 
-function initiateDrawCard(deckType) {
-  gameState.pendingCardDraw = { type: 'regular', deckType: deckType };
-  document.getElementById('playerSelectionModal').classList.add('show');
+function closeDeckChoice() {
+  document.getElementById('deckChoiceModal').classList.remove('show');
+  document.body.classList.remove('card-preview-open');
+}
+
+function openDeckOverview() {
+  updateDecksDisplay();
+  document.body.classList.add('card-preview-open');
+  document.getElementById('deckOverviewModal').classList.add('show');
+}
+
+function closeDeckOverview() {
+  document.getElementById('deckOverviewModal').classList.remove('show');
+  document.body.classList.remove('card-preview-open');
+}
+
+function startCardReveal(deckType) {
+  document.getElementById('deckChoiceModal').classList.remove('show');
+  
+  // Check if it's a game card
+  if (deckType === 'game') {
+    document.body.classList.remove('card-preview-open');
+    drawGameCard();
+  } else {
+    document.getElementById('playerSelectionModal').classList.add('show');
+    gameState.pendingCardDraw = { type: 'regular', deckType: deckType };
+  }
 }
 
 function selectPlayerForCard(player) {
   const deckType = gameState.pendingCardDraw.deckType;
   document.getElementById('playerSelectionModal').classList.remove('show');
+  document.body.classList.remove('card-preview-open');
+  gameState.currentPlayer = player;
   
-  // Close modal and perform draw animation
   setTimeout(() => {
-    drawCardWithAnimation(deckType, player);
+    drawAndRevealCard(deckType, player);
   }, 300);
 }
 
-function drawCardWithAnimation(deckType, player) {
-  if (gameState.pendingCardDraw.type === 'regular' && (gameState.lastCard || gameState.pendingSwap || gameState.stealMode)) {
-    alert("Finish current action first!");
-    return;
-  }
-  
+function animateCardToHand(card, cardType, player, onComplete) {
+  const hand = document.getElementById(player + 'Hand');
+  const handRect = hand.getBoundingClientRect();
+  const startX = (window.innerWidth / 2) - 36;
+  const startY = (window.innerHeight / 2) - 47;
+  const cardCount = gameState.players[player].hand.length;
+  const targetX = handRect.left + Math.min(Math.max(handRect.width - 82, 0), 12 + (cardCount % 7) * 18);
+  const targetY = handRect.top + 14 + Math.floor(cardCount / 7) * 18;
+  const animCard = document.createElement('div');
+
+  animCard.className = `dealt-card-animation ${cardType}`;
+  animCard.innerText = card;
+  animCard.style.left = `${startX}px`;
+  animCard.style.top = `${startY}px`;
+  animCard.style.setProperty('--deal-x', `${targetX - startX}px`);
+  animCard.style.setProperty('--deal-y', `${targetY - startY}px`);
+  animCard.style.setProperty('--deal-rotate', player === 'p1' ? '-8deg' : '8deg');
+
+  document.body.appendChild(animCard);
+
+  animCard.addEventListener('animationend', () => {
+    animCard.remove();
+    onComplete();
+  }, { once: true });
+}
+
+function drawAndRevealCard(deckType, player) {
   let deck;
   if (deckType === 'regular') {
     deck = gameState.regularDeck;
@@ -2274,58 +2501,42 @@ function drawCardWithAnimation(deckType, player) {
   }
   
   const card = deck.pop();
-  const cardType = cardTypeMap[card];
+  const cardType = getCardType(card);
   
-  // Get deck starting position
-  const deckPos = getDeckPosition(deckType);
+  // Show fullscreen reveal
+  const reveal = document.getElementById('fullscreenCardReveal');
+  const content = document.getElementById('fullscreenCardContent');
+  const nameEl = document.getElementById('fullscreenCardName');
+  const descEl = document.getElementById('fullscreenCardDescription');
   
-  // Get target position
-  const targetEl = document.getElementById(player + 'CardTarget');
-  const targetRect = targetEl.getBoundingClientRect();
-  const targetX = targetRect.left + targetRect.width / 2;
-  const targetY = targetRect.top + window.scrollY + targetRect.height / 2;
+  content.className = `fullscreen-card-content ${cardType}`;
+  nameEl.textContent = card;
+  descEl.textContent = cardDescriptions[card] || 'No description available.';
   
-  // Create animated card element
-  const animatedCard = document.createElement('div');
-  animatedCard.className = `dealt-card-animation ${cardType}`;
-  animatedCard.innerText = card;
+  reveal.classList.add('show');
   
-  animatedCard.style.left = deckPos.x + 'px';
-  animatedCard.style.top = deckPos.y + 'px';
-  
-  document.body.appendChild(animatedCard);
-  
-  // Trigger animation
+  // Auto-close after 4 seconds and send to hand
   setTimeout(() => {
-    animatedCard.style.setProperty('--target-x', (targetX - deckPos.x) + 'px');
-    animatedCard.style.setProperty('--target-y', (targetY - deckPos.y) + 'px');
-  }, 10);
-  
-  // Remove animation element and add card to hand after animation
-  setTimeout(() => {
-    animatedCard.remove();
-    gameState.players[player].hand.push(card);
-    updateDecksDisplay();
-    render();
-    save();
-  }, 800);
+    reveal.classList.remove('show');
+    setTimeout(() => {
+      animateCardToHand(card, cardType, player, () => {
+        gameState.players[player].hand.push(card);
+        updateDecksDisplay();
+        render();
+        save();
+      });
+    }, 300);
+  }, 4000);
 }
 
 function drawGameCard() {
-  if (gameState.lastCard || gameState.pendingSwap || gameState.stealMode) {
-    alert("Finish current action first!");
-    return;
-  }
-  
-  const deck = gameState.gameCardDeck;
-  
-  if (deck.length === 0) {
+  if (gameState.gameCardDeck.length === 0) {
     alert("Game Deck empty!");
     return;
   }
   
-  const card = deck.pop();
-  const cardType = cardTypeMap[card];
+  const card = gameState.gameCardDeck.pop();
+  const cardType = getCardType(card);
   
   // Discard previous active game card if exists
   if (gameState.activeGameCard) {
@@ -2334,14 +2545,27 @@ function drawGameCard() {
   
   gameState.activeGameCard = card;
   
-  // Animate the card into the active game card display
-  const display = document.getElementById('activeGameCardDisplay');
-  display.innerText = card;
-  display.className = `active-game-card-display ${cardType}`;
+  // Show fullscreen reveal for game card
+  const reveal = document.getElementById('fullscreenCardReveal');
+  const content = document.getElementById('fullscreenCardContent');
+  const nameEl = document.getElementById('fullscreenCardName');
+  const descEl = document.getElementById('fullscreenCardDescription');
   
-  updateDecksDisplay();
-  save();
-  render();
+  content.className = `fullscreen-card-content ${cardType}`;
+  nameEl.textContent = card;
+  descEl.textContent = cardDescriptions[card] || 'No description available.';
+  
+  reveal.classList.add('show');
+  
+  // Auto-close after 4 seconds
+  setTimeout(() => {
+    reveal.classList.remove('show');
+    setTimeout(() => {
+      updateDecksDisplay();
+      render();
+      save();
+    }, 300);
+  }, 4000);
 }
 
 function assignCard(player) {
@@ -2390,7 +2614,6 @@ function confirmCardPlay() {
   
   closeCardPreview();
   
-  // Continue with the card play logic
   if (card.includes("Curse of the Thief")) {
     const opponent = player === 'p1' ? 'p2' : 'p1';
     if (gameState.players[opponent].hand.length === 0) {
@@ -2519,15 +2742,22 @@ function confirmSteal() {
 }
 
 function showGameCardPreview() {
-  if (!gameState.activeGameCard) return;
-  
   const modal = document.getElementById('gameCardPreviewModal');
   const content = document.getElementById('gameCardPreviewContent');
-  const cardType = getCardType(gameState.activeGameCard);
+  const question = document.getElementById('gameCardPreviewQuestion');
   
-  content.className = `card-preview-content ${cardType}`;
-  document.getElementById('gameCardPreviewName').textContent = gameState.activeGameCard;
-  document.getElementById('gameCardPreviewDescription').textContent = cardDescriptions[gameState.activeGameCard] || 'No description available.';
+  if (gameState.activeGameCard) {
+    const cardType = getCardType(gameState.activeGameCard);
+    question.textContent = 'Active Game Card';
+    content.className = `card-preview-content ${cardType}`;
+    document.getElementById('gameCardPreviewName').textContent = gameState.activeGameCard;
+    document.getElementById('gameCardPreviewDescription').textContent = cardDescriptions[gameState.activeGameCard] || 'No description available.';
+  } else {
+    question.textContent = 'Active Game Card';
+    content.className = 'card-preview-content empty-game-card';
+    document.getElementById('gameCardPreviewName').textContent = 'No Active Game Card';
+    document.getElementById('gameCardPreviewDescription').textContent = 'Draw from the Game Deck to reveal the current game card here.';
+  }
   
   document.body.classList.add('card-preview-open');
   modal.classList.add('show');
@@ -2539,7 +2769,7 @@ function closeGameCardPreview() {
 }
 
 function endSeason() {
-  if (confirm("Are you sure you want to end the season? This will reset everything.")) {
+  if (confirm("Are you sure you want to end the season? This will clear the current season.")) {
     localStorage.removeItem("ucGameState");
     location.reload();
   }
@@ -2552,7 +2782,6 @@ function getCardType(cardName) {
 function render() {
   ['p1', 'p2'].forEach(p => {
     const container = document.getElementById(p + 'Hand');
-    // Preserve the target element
     const targetEl = container.querySelector('.dealt-card-target');
     container.innerHTML = "";
     if (targetEl) container.appendChild(targetEl);
@@ -2607,9 +2836,14 @@ function render() {
     swapDiv.style.display = "block";
     swapDiv.innerHTML = `<strong>🎯 ${player} stealing from ${opp}</strong><p>Select a card from ${opp}'s hand below and press Confirm Steal</p>`;
     document.getElementById("confirmStealBtn").style.display = "block";
-  } else swapDiv.style.display = "none";
+  } else {
+    swapDiv.style.display = "block";
+    swapDiv.innerHTML = "<strong>No Pending Swap/Steal</strong><p>Played swap and steal effects will appear here.</p>";
+    document.getElementById("confirmSwapBtn").style.display = "none";
+    document.getElementById("confirmPickBtn").style.display = "none";
+    document.getElementById("confirmStealBtn").style.display = "none";
+  }
 
-  // Update decks display
   updateDecksDisplay();
   
   if (gameState.lastCard) {
@@ -2625,9 +2859,6 @@ function render() {
   document.getElementById("drawnCardAssignButtons").style.display = gameState.lastCard ? "flex" : "none";
   document.getElementById("discardPile").innerText = gameState.discardPile.length ? gameState.discardPile.join(", ") : "Empty";
 
-  document.getElementById("drawRegularBtn").disabled = !gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
-  document.getElementById("drawPremiumBtn").disabled = !gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
-  document.getElementById("drawGameBtn").disabled = !gameState.seasonStarted || gameState.lastCard || gameState.pendingSwap || gameState.stealMode;
 }
 
 load();
@@ -2635,17 +2866,10 @@ if (!gameState.seasonStarted) {
   render();
 } else {
   document.getElementById('introWrapper').classList.add('hidden');
-  document.getElementById('decksAndGameCardWrapper').classList.add('show');
-  document.getElementById('controlsSection').classList.add('show');
+  document.getElementById('mainGameLayout').classList.add('show');
   document.getElementById('playersRow').classList.add('show');
   document.getElementById('swapSection').classList.add('show');
   document.getElementById('discardSection').classList.add('show');
-  document.getElementById('howItWorksSection').classList.add('show');
-  if (gameState.activeGameCard) {
-    document.getElementById('activeGameCardSection').style.display = 'flex';
-    document.getElementById('activeGameCardDisplay').innerText = gameState.activeGameCard;
-    document.getElementById('activeGameCardDisplay').className = `active-game-card-display ${getCardType(gameState.activeGameCard)}`;
-  }
   render();
 }
 </script>
