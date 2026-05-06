@@ -1218,7 +1218,7 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   left: 6px !important;
   right: 6px !important;
   width: calc(100vw - 12px) !important;
-  z-index: 5000 !important;
+  z-index: 1100 !important;
   transform: translate3d(0, 0, 0) !important;
   will-change: transform;
   background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
@@ -1837,6 +1837,11 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   margin: 10px 0;
 }
 
+.intro-section > p,
+.intro-section > ul {
+  display: none;
+}
+
 .intro-section strong {
   color: #f0abfc;
 }
@@ -2436,7 +2441,7 @@ body.mobile-controls-fixed .mobile-fixed-actions {
     left: 6px !important;
     right: 6px !important;
     width: calc(100vw - 12px) !important;
-    z-index: 5000 !important;
+    z-index: 1100 !important;
     transform: translate3d(0, 0, 0) !important;
     will-change: transform;
     background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
@@ -2910,6 +2915,24 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   <!-- Intro Section -->
   <div class="intro-wrapper" id="introWrapper">
     <div class="intro-section">
+      <div class="how-it-works-modal-title">How To Play</div>
+      <div class="how-it-works-summary">There are 4 types of Card:</div>
+      <div class="how-it-works-card-types">
+        <div class="how-it-works-type-pill">Power Cards<br>(Regular Deck)</div>
+        <div class="how-it-works-type-pill">Curse Cards<br>(Regular Deck)</div>
+        <div class="how-it-works-type-pill">Super Cards<br>(Premium Deck)</div>
+        <div class="how-it-works-type-pill">Game Cards<br>(Minigames)</div>
+      </div>
+      <div class="how-it-works-rule-list">
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Power, Curse and Super Cards can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Game Cards (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a Super Card from the Premium Deck.</span></div>
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 Power Card + 1 Curse Card from a 52-card Regular Deck.</span></div>
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127942;</span><span>Reach milestones to earn medals, each medal can be spent to draw 1 card from the Regular Deck.</span></div>
+      </div>
+      <div class="how-it-works-deck-notes">
+        <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 Power Cards &amp; 22 Curse Cards) &mdash; Start with 1 of each</div>
+        <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 Super Cards &mdash; Won by winning &quot;Game Card&quot; Minigames</div>
+      </div>
       <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
       
       <p><strong>The Goal</strong></p>
@@ -3259,7 +3282,7 @@ function syncFixedChrome() {
     homeBtn.style.position = 'fixed';
     homeBtn.style.top = isMobile ? '8px' : '15px';
     homeBtn.style.right = isMobile ? '8px' : '15px';
-    homeBtn.style.zIndex = '5200';
+    homeBtn.style.zIndex = '1200';
     homeBtn.style.transform = 'translate3d(0, 0, 0)';
   }
 
@@ -3268,7 +3291,7 @@ function syncFixedChrome() {
     footer.style.left = '0';
     footer.style.bottom = '0';
     footer.style.width = '100%';
-    footer.style.zIndex = '5100';
+    footer.style.zIndex = '1200';
     footer.style.transform = 'translate3d(0, 0, 0)';
   }
 }
@@ -3290,7 +3313,7 @@ function syncMobileFixedActions() {
     bar.style.left = '6px';
     bar.style.right = '6px';
     bar.style.width = 'calc(100vw - 12px)';
-    bar.style.zIndex = '5000';
+    bar.style.zIndex = '1100';
     bar.style.transform = 'translate3d(0, 0, 0)';
     if (inPanelActions) inPanelActions.style.display = 'none';
   } else {
