@@ -1203,11 +1203,12 @@ button:disabled {
   box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
 }
 
-.mobile-fixed-actions {
-  display: none;
+.mobile-fixed-actions,
+#mobileFixedActions {
+  display: none !important;
 }
 
-body.mobile-controls-fixed .mobile-fixed-actions {
+.side-actions.mobile-docked-actions {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 5px;
@@ -1226,8 +1227,8 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
 }
 
-body.mobile-controls-fixed .left-panel > .side-actions {
-  display: none !important;
+.side-actions-placeholder {
+  display: none;
 }
 
 .side-action-btn {
@@ -2445,18 +2446,10 @@ body.mobile-controls-fixed .left-panel > .side-actions {
     gap: 5px;
     padding: 6px;
     border-radius: 10px;
-    position: fixed;
-    top: 48px;
-    left: 6px;
-    right: 6px;
-    z-index: 1150;
+    position: static;
   }
 
-  .left-panel > .side-actions {
-    display: none !important;
-  }
-
-  body.controls-ready .mobile-fixed-actions {
+  .side-actions.mobile-docked-actions {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
@@ -2812,7 +2805,7 @@ body.mobile-controls-fixed .left-panel > .side-actions {
     padding: 5px;
   }
 
-  body.controls-ready .mobile-fixed-actions {
+  .side-actions.mobile-docked-actions {
     top: 46px !important;
     gap: 4px;
     padding: 5px;
@@ -3015,7 +3008,7 @@ body.mobile-controls-fixed .left-panel > .side-actions {
   <div class="main-game-layout" id="mainGameLayout">
     <!-- LEFT PANEL - CONTROLS / PENDING / DISCARD -->
     <div class="left-panel">
-      <div class="side-actions">
+      <div class="side-actions" id="primarySideActions">
         <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">View All Decks</span></button>
         <button class="side-action-btn active-game-btn" onclick="showGameCardPreview()"><span class="desktop-label">View Active Game Card</span><span class="mobile-label">View Active Game Card</span></button>
         <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Cards</span></button>
@@ -3303,7 +3296,7 @@ window.addEventListener('resize', () => {
 });
 
 function shouldUseMobileFixedActions() {
-  return window.innerWidth <= 1200 || navigator.maxTouchPoints > 0;
+  return window.innerWidth <= 900 || (navigator.maxTouchPoints > 0 && window.innerWidth <= 1200);
 }
 
 function syncFixedChrome() {
@@ -3331,27 +3324,43 @@ function syncFixedChrome() {
 
 function syncMobileFixedActions() {
   syncFixedChrome();
-  const bar = document.getElementById('mobileFixedActions');
-  const inPanelActions = document.querySelector('.left-panel > .side-actions');
-  if (!bar) return;
+  const actions = document.getElementById('primarySideActions');
+  const leftPanel = document.querySelector('.left-panel');
+  if (!actions || !leftPanel) return;
 
   const shouldFix = Boolean(gameState.seasonStarted && document.body.classList.contains('controls-ready') && shouldUseMobileFixedActions());
   document.body.classList.toggle('mobile-controls-fixed', shouldFix);
 
   if (shouldFix) {
-    if (bar.parentElement !== document.body) document.body.appendChild(bar);
-    bar.style.display = 'grid';
-    bar.style.position = 'fixed';
-    bar.style.top = window.innerWidth <= 480 ? '46px' : '48px';
-    bar.style.left = '6px';
-    bar.style.right = '6px';
-    bar.style.width = 'calc(100vw - 12px)';
-    bar.style.zIndex = '1100';
-    bar.style.transform = 'translate3d(0, 0, 0)';
-    if (inPanelActions) inPanelActions.style.display = 'none';
+    let placeholder = document.getElementById('primarySideActionsPlaceholder');
+    if (!placeholder) {
+      placeholder = document.createElement('div');
+      placeholder.id = 'primarySideActionsPlaceholder';
+      placeholder.className = 'side-actions-placeholder';
+    }
+    if (actions.parentElement !== document.body) {
+      actions.parentElement.insertBefore(placeholder, actions);
+      document.body.appendChild(actions);
+    }
+    actions.classList.add('mobile-docked-actions');
+    actions.style.position = 'fixed';
+    actions.style.top = window.innerWidth <= 480 ? '46px' : '48px';
+    actions.style.left = '6px';
+    actions.style.right = '6px';
+    actions.style.width = 'calc(100vw - 12px)';
+    actions.style.zIndex = '1100';
+    actions.style.transform = 'translate3d(0, 0, 0)';
+    actions.style.display = 'grid';
   } else {
-    bar.removeAttribute('style');
-    if (inPanelActions) inPanelActions.style.display = '';
+    const placeholder = document.getElementById('primarySideActionsPlaceholder');
+    actions.classList.remove('mobile-docked-actions');
+    actions.removeAttribute('style');
+    if (placeholder && placeholder.parentElement) {
+      placeholder.parentElement.insertBefore(actions, placeholder);
+      placeholder.remove();
+    } else if (actions.parentElement !== leftPanel) {
+      leftPanel.insertBefore(actions, leftPanel.firstElementChild);
+    }
   }
 }
 
