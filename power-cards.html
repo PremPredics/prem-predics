@@ -2566,49 +2566,59 @@ button:disabled {
 
   .intro-section {
     order: 1;
-    padding: 12px;
-    font-size: 12px;
-    line-height: 1.32;
+    padding: 10px;
+    font-size: 11px;
+    line-height: 1.2;
     width: 100%;
-    min-height: calc(100dvh - 145px);
+    min-height: auto;
+    max-height: calc(100dvh - 142px);
+    justify-content: flex-start;
+    overflow: hidden;
   }
 
   .intro-section .how-it-works-modal-title {
-    font-size: 1.3em;
-    margin-bottom: 0.32em;
+    font-size: 1.22em;
+    margin-bottom: 0.24em;
   }
 
   .intro-section .how-it-works-summary {
-    margin-bottom: 0.4em;
+    margin-bottom: 0.28em;
+    line-height: 1.1;
   }
 
   .intro-section .how-it-works-card-types,
   .intro-section .how-it-works-rule-list,
   .intro-section .how-it-works-deck-notes {
-    gap: 4px;
+    gap: 3px;
   }
 
   .intro-section .how-it-works-card-types,
   .intro-section .how-it-works-rule-list {
-    margin-bottom: 0.42em;
+    margin-bottom: 0.3em;
   }
 
   .intro-section .how-it-works-rule-item {
     grid-template-columns: auto 1fr;
     text-align: left;
     justify-items: stretch;
-    padding: 0.42em 0.52em;
-    line-height: 1.12;
+    padding: 0.34em 0.45em;
+    line-height: 1.06;
   }
 
   .intro-section .how-it-works-rule-icon {
     margin-bottom: 0;
   }
 
+  .intro-section .how-it-works-type-pill,
+  .intro-section .how-it-works-deck-note {
+    padding: 0.32em 0.42em;
+    line-height: 1.05;
+  }
+
   .players-row.show {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px;
-    min-height: calc(100dvh - 178px);
+    min-height: auto;
     align-items: stretch;
   }
 
@@ -2616,6 +2626,7 @@ button:disabled {
     min-width: 0;
     padding: 4px;
     border-radius: 10px;
+    min-height: 0;
   }
 
   .player-box h2 {
@@ -2629,7 +2640,7 @@ button:disabled {
   }
 
   .hand {
-    min-height: calc(100dvh - 245px);
+    min-height: clamp(138px, calc(100dvh - 360px), 250px);
     max-height: none;
     gap: 2px;
     padding: 4px;
