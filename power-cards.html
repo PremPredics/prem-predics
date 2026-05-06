@@ -1208,20 +1208,16 @@ button:disabled {
   display: none !important;
 }
 
-.side-actions.mobile-docked-actions {
+.side-actions.mobile-in-swap-actions {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 5px;
   padding: 6px;
   border-radius: 10px;
-  position: fixed !important;
-  top: 48px !important;
-  left: 6px !important;
-  right: 6px !important;
-  width: calc(100vw - 12px) !important;
-  z-index: 1100 !important;
-  transform: translate3d(0, 0, 0) !important;
-  will-change: transform;
+  position: static !important;
+  width: 100% !important;
+  margin: 0 0 8px 0 !important;
+  transform: none !important;
   background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
   border: 2px solid rgba(196, 132, 252, 0.3);
   box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
@@ -2078,6 +2074,30 @@ button:disabled {
   text-shadow: 0 2px 7px rgba(0, 0, 0, 0.72);
 }
 
+.card-type-power,
+.text-power {
+  color: #7dd3fc !important;
+  text-shadow: 0 0 8px rgba(125, 211, 252, 0.72), 0 2px 7px rgba(0, 0, 0, 0.72) !important;
+}
+
+.card-type-curse,
+.text-curse {
+  color: #fb7185 !important;
+  text-shadow: 0 0 8px rgba(251, 113, 133, 0.7), 0 2px 7px rgba(0, 0, 0, 0.72) !important;
+}
+
+.card-type-super,
+.text-super {
+  color: #f8d568 !important;
+  text-shadow: 0 0 9px rgba(248, 213, 104, 0.78), 0 2px 7px rgba(0, 0, 0, 0.72) !important;
+}
+
+.card-type-game,
+.text-game {
+  color: #6ee7b7 !important;
+  text-shadow: 0 0 8px rgba(110, 231, 183, 0.72), 0 2px 7px rgba(0, 0, 0, 0.72) !important;
+}
+
 .how-it-works-rule-list {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 0.62em;
@@ -2438,6 +2458,7 @@ button:disabled {
   .center-panel {
     gap: 8px;
     height: auto;
+    width: 100%;
   }
 
   .side-actions {
@@ -2449,20 +2470,16 @@ button:disabled {
     position: static;
   }
 
-  .side-actions.mobile-docked-actions {
+  .side-actions.mobile-in-swap-actions {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
     padding: 6px;
     border-radius: 10px;
-    position: fixed !important;
-    top: 48px !important;
-    left: 6px !important;
-    right: 6px !important;
-    width: calc(100vw - 12px) !important;
-    z-index: 1100 !important;
-    transform: translate3d(0, 0, 0) !important;
-    will-change: transform;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 0 8px 0 !important;
+    transform: none !important;
     background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(59, 7, 100, 0.92));
     border: 2px solid rgba(196, 132, 252, 0.3);
     box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
@@ -2557,14 +2574,14 @@ button:disabled {
 
   .players-row.show {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
+    gap: 4px;
     min-height: calc(100dvh - 178px);
     align-items: stretch;
   }
 
   .player-box {
     min-width: 0;
-    padding: 6px;
+    padding: 4px;
     border-radius: 10px;
   }
 
@@ -2581,20 +2598,20 @@ button:disabled {
   .hand {
     min-height: calc(100dvh - 245px);
     max-height: none;
-    gap: 3px;
-    padding: 5px;
+    gap: 2px;
+    padding: 4px;
     border-radius: 8px;
     overflow-y: visible;
     align-content: flex-start;
   }
 
   .card-tile {
-    width: clamp(38px, 12vw, 48px);
-    height: clamp(52px, 16vw, 64px);
-    padding: 4px 2px;
+    width: clamp(34px, 10.8vw, 43px);
+    height: clamp(48px, 14.2vw, 58px);
+    padding: 3px 2px;
     border-radius: 6px;
     border-width: 1px;
-    font-size: clamp(0.34rem, 1.45vw, 0.42rem);
+    font-size: clamp(0.3rem, 1.28vw, 0.38rem);
     line-height: 1.05;
   }
 
@@ -2805,7 +2822,7 @@ button:disabled {
     padding: 5px;
   }
 
-  .side-actions.mobile-docked-actions {
+  .side-actions.mobile-in-swap-actions {
     top: 46px !important;
     gap: 4px;
     padding: 5px;
@@ -2944,20 +2961,20 @@ button:disabled {
       <div class="how-it-works-modal-title">How To Play</div>
       <div class="how-it-works-summary">There are 4 types of Card:</div>
       <div class="how-it-works-card-types">
-        <div class="how-it-works-type-pill">Power Cards<br>(Regular Deck)</div>
-        <div class="how-it-works-type-pill">Curse Cards<br>(Regular Deck)</div>
-        <div class="how-it-works-type-pill">Super Cards<br>(Premium Deck)</div>
-        <div class="how-it-works-type-pill">Game Cards<br>(Minigames)</div>
+        <div class="how-it-works-type-pill card-type-power">Power Cards<br>(Regular Deck)</div>
+        <div class="how-it-works-type-pill card-type-curse">Curse Cards<br>(Regular Deck)</div>
+        <div class="how-it-works-type-pill card-type-super">Super Cards<br>(Premium Deck)</div>
+        <div class="how-it-works-type-pill card-type-game">Game Cards<br>(Minigames)</div>
       </div>
       <div class="how-it-works-rule-list">
-        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Power, Curse and Super Cards can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
-        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Game Cards (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a Super Card from the Premium Deck.</span></div>
-        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 Power Card + 1 Curse Card from a 52-card Regular Deck.</span></div>
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-power">Power</span>, <span class="text-curse">Curse</span> and <span class="text-super">Super Cards</span> can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-game">Game Cards</span> (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a <span class="text-super">Super Card</span> from the Premium Deck.</span></div>
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 <span class="text-power">Power Card</span> + 1 <span class="text-curse">Curse Card</span> from a 52-card Regular Deck.</span></div>
         <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127942;</span><span>Reach milestones to earn medals, each medal can be spent to draw 1 card from the Regular Deck.</span></div>
       </div>
       <div class="how-it-works-deck-notes">
-        <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 Power Cards &amp; 22 Curse Cards) &mdash; Start with 1 of each</div>
-        <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 Super Cards &mdash; Won by winning &quot;Game Card&quot; Minigames</div>
+        <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 <span class="text-power">Power Cards</span> &amp; 22 <span class="text-curse">Curse Cards</span>) &mdash; Start with 1 of each</div>
+        <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 <span class="text-super">Super Cards</span> &mdash; Won by winning &quot;<span class="text-game">Game Card</span>&quot; Minigames</div>
       </div>
       <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
       
@@ -3081,20 +3098,20 @@ button:disabled {
         <div class="how-it-works-modal-title">How To Play</div>
         <div class="how-it-works-summary">There are 4 types of Card:</div>
         <div class="how-it-works-card-types">
-          <div class="how-it-works-type-pill">Power Cards<br>(Regular Deck)</div>
-          <div class="how-it-works-type-pill">Curse Cards<br>(Regular Deck)</div>
-          <div class="how-it-works-type-pill">Super Cards<br>(Premium Deck)</div>
-          <div class="how-it-works-type-pill">Game Cards<br>(Minigames)</div>
+          <div class="how-it-works-type-pill card-type-power">Power Cards<br>(Regular Deck)</div>
+          <div class="how-it-works-type-pill card-type-curse">Curse Cards<br>(Regular Deck)</div>
+          <div class="how-it-works-type-pill card-type-super">Super Cards<br>(Premium Deck)</div>
+          <div class="how-it-works-type-pill card-type-game">Game Cards<br>(Minigames)</div>
         </div>
         <div class="how-it-works-rule-list">
-          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Power, Curse and Super Cards can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
-          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Game Cards (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a Super Card from the Premium Deck.</span></div>
-          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 Power Card + 1 Curse Card from a 52-card Regular Deck.</span></div>
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-power">Power</span>, <span class="text-curse">Curse</span> and <span class="text-super">Super Cards</span> can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-game">Game Cards</span> (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a <span class="text-super">Super Card</span> from the Premium Deck.</span></div>
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 <span class="text-power">Power Card</span> + 1 <span class="text-curse">Curse Card</span> from a 52-card Regular Deck.</span></div>
           <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127942;</span><span>Reach milestones to earn medals, each medal can be spent to draw 1 card from the Regular Deck.</span></div>
         </div>
         <div class="how-it-works-deck-notes">
-          <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 Power Cards &amp; 22 Curse Cards) &mdash; Start with 1 of each</div>
-          <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 Super Cards &mdash; Won by winning &quot;Game Card&quot; Minigames</div>
+          <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 <span class="text-power">Power Cards</span> &amp; 22 <span class="text-curse">Curse Cards</span>) &mdash; Start with 1 of each</div>
+          <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 <span class="text-super">Super Cards</span> &mdash; Won by winning &quot;<span class="text-game">Game Card</span>&quot; Minigames</div>
         </div>
         <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
     
@@ -3326,34 +3343,29 @@ function syncMobileFixedActions() {
   syncFixedChrome();
   const actions = document.getElementById('primarySideActions');
   const leftPanel = document.querySelector('.left-panel');
-  if (!actions || !leftPanel) return;
+  const swapSection = document.getElementById('swapSection');
+  const pendingSwap = document.getElementById('pendingSwap');
+  if (!actions || !leftPanel || !swapSection || !pendingSwap) return;
 
-  const shouldFix = Boolean(gameState.seasonStarted && document.body.classList.contains('controls-ready') && shouldUseMobileFixedActions());
-  document.body.classList.toggle('mobile-controls-fixed', shouldFix);
+  const shouldMoveIntoSwap = Boolean(gameState.seasonStarted && document.body.classList.contains('controls-ready') && shouldUseMobileFixedActions());
+  document.body.classList.toggle('mobile-controls-fixed', shouldMoveIntoSwap);
 
-  if (shouldFix) {
+  if (shouldMoveIntoSwap) {
     let placeholder = document.getElementById('primarySideActionsPlaceholder');
     if (!placeholder) {
       placeholder = document.createElement('div');
       placeholder.id = 'primarySideActionsPlaceholder';
       placeholder.className = 'side-actions-placeholder';
     }
-    if (actions.parentElement !== document.body) {
+    if (actions.parentElement !== swapSection) {
       actions.parentElement.insertBefore(placeholder, actions);
-      document.body.appendChild(actions);
+      swapSection.insertBefore(actions, pendingSwap);
     }
-    actions.classList.add('mobile-docked-actions');
-    actions.style.position = 'fixed';
-    actions.style.top = window.innerWidth <= 480 ? '46px' : '48px';
-    actions.style.left = '6px';
-    actions.style.right = '6px';
-    actions.style.width = 'calc(100vw - 12px)';
-    actions.style.zIndex = '1100';
-    actions.style.transform = 'translate3d(0, 0, 0)';
-    actions.style.display = 'grid';
+    actions.classList.add('mobile-in-swap-actions');
+    actions.removeAttribute('style');
   } else {
     const placeholder = document.getElementById('primarySideActionsPlaceholder');
-    actions.classList.remove('mobile-docked-actions');
+    actions.classList.remove('mobile-in-swap-actions');
     actions.removeAttribute('style');
     if (placeholder && placeholder.parentElement) {
       placeholder.parentElement.insertBefore(actions, placeholder);
