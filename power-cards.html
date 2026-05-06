@@ -1226,6 +1226,10 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   box-shadow: 0 0 14px rgba(123, 63, 248, 0.42);
 }
 
+body.mobile-controls-fixed .left-panel > .side-actions {
+  display: none !important;
+}
+
 .side-action-btn {
   width: 100%;
   min-height: 46px;
@@ -1812,11 +1816,13 @@ body.mobile-controls-fixed .mobile-fixed-actions {
 
 /* ===== INTRO SECTION ===== */
 .intro-wrapper {
-  display: flex;
-  gap: 40px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+  align-items: stretch;
   margin-bottom: 30px;
   animation: fadeInUp 0.6s ease-out;
+  width: 100%;
 }
 
 .intro-wrapper.hidden {
@@ -1824,13 +1830,18 @@ body.mobile-controls-fixed .mobile-fixed-actions {
 }
 
 .intro-section {
-  flex: 1;
+  width: 100%;
+  min-height: clamp(360px, 55vh, 620px);
   background: rgba(46, 16, 102, 0.6);
   border: 2px solid rgba(196, 132, 252, 0.3);
   border-radius: 12px;
   padding: 25px;
   line-height: 1.8;
   font-size: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .intro-section p {
@@ -1853,6 +1864,21 @@ body.mobile-controls-fixed .mobile-fixed-actions {
 
 .intro-section li {
   margin: 8px 0;
+}
+
+.intro-section .how-it-works-rule-item {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+}
+
+.intro-section .how-it-works-rule-icon {
+  margin-bottom: 0.15em;
+}
+
+.intro-section .how-it-works-deck-note,
+.intro-section .how-it-works-type-pill {
+  text-align: center;
 }
 
 @keyframes fadeInUp {
@@ -2517,9 +2543,10 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   }
 
   .intro-wrapper {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 15px;
     margin-bottom: 20px;
+    width: 100%;
   }
 
   .start-season-wrapper {
@@ -2531,15 +2558,20 @@ body.mobile-controls-fixed .mobile-fixed-actions {
     padding: 18px;
     font-size: 14px;
     line-height: 1.6;
+    width: 100%;
+    min-height: calc(100dvh - 180px);
   }
 
   .players-row.show {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    min-height: calc(100dvh - 178px);
+    align-items: stretch;
   }
 
   .player-box {
-    padding: 8px;
+    min-width: 0;
+    padding: 6px;
     border-radius: 10px;
   }
 
@@ -2554,21 +2586,22 @@ body.mobile-controls-fixed .mobile-fixed-actions {
   }
 
   .hand {
-    min-height: clamp(132px, 26vh, 220px);
+    min-height: calc(100dvh - 245px);
     max-height: none;
-    gap: 4px;
-    padding: 6px;
+    gap: 3px;
+    padding: 5px;
     border-radius: 8px;
     overflow-y: visible;
+    align-content: flex-start;
   }
 
   .card-tile {
-    width: 52px;
-    height: 68px;
-    padding: 5px 3px;
-    border-radius: 7px;
+    width: clamp(38px, 12vw, 48px);
+    height: clamp(52px, 16vw, 64px);
+    padding: 4px 2px;
+    border-radius: 6px;
     border-width: 1px;
-    font-size: 0.43rem;
+    font-size: clamp(0.34rem, 1.45vw, 0.42rem);
     line-height: 1.05;
   }
 
@@ -3270,7 +3303,7 @@ window.addEventListener('resize', () => {
 });
 
 function shouldUseMobileFixedActions() {
-  return window.matchMedia('(max-width: 900px), (pointer: coarse) and (max-width: 1200px)').matches;
+  return window.innerWidth <= 1200 || navigator.maxTouchPoints > 0;
 }
 
 function syncFixedChrome() {
@@ -3322,7 +3355,6 @@ function syncMobileFixedActions() {
   }
 }
 
-window.addEventListener('scroll', syncMobileFixedActions, { passive: true });
 window.addEventListener('resize', syncMobileFixedActions);
 window.addEventListener('orientationchange', syncMobileFixedActions);
 
