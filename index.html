@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prem Predics - 2026/27</title>
+<title>Prem Predics</title>
 <style>
 /* ===== BODY & BACKGROUND ===== */
 body {
@@ -41,12 +41,21 @@ header img:hover {
 }
 
 header h1 {
-  font-size: 28px;
-  margin: 0;
-  color: #f3e8ff;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
   text-align: center;
-  letter-spacing: 0.5px;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  margin: 0;
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: 0;
 }
 
 /* ===== CONTAINER ===== */
@@ -154,10 +163,6 @@ footer {
     padding: 0 10px;
   }
 
-  header h1 {
-    font-size: 24px;
-  }
-
   .menu button {
     padding: 25px 20px;
     font-size: 16px;
@@ -182,7 +187,6 @@ footer {
   }
 
   header h1 {
-    font-size: 22px;
     margin: 0;
   }
 
@@ -214,10 +218,6 @@ footer {
 
 /* ===== RESPONSIVE - SMALL MOBILE ===== */
 @media (max-width: 480px) {
-  header h1 {
-    font-size: 18px;
-  }
-
   header img {
     height: 45px;
   }
@@ -254,10 +254,6 @@ footer {
     padding: 12px 20px;
   }
 
-  header h1 {
-    font-size: 20px;
-  }
-
   .container {
     padding: 15px 20px;
   }
@@ -284,7 +280,7 @@ footer {
 <!-- ===== HEADER WITH LOGOS ===== -->
 <header>
   <img src="logo-left.png" alt="Left Logo">
-  <h1>Prem Predics - 2026/27</h1>
+  <h1>Prem Predics</h1>
   <img src="logo-right.png" alt="Right Logo">
 </header>
 
