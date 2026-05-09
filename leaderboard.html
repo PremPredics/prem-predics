@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Leaderboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Leaderboard</title>
 <style>
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
@@ -16,9 +17,24 @@ body {
 header {
   padding: 20px;
   background: linear-gradient(90deg, #7c3aed, #a78bfa);
-  color: #f3e8ff;
-  font-size: 28px;
-  font-weight: bold;
+}
+
+header h1 {
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  margin: 0;
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: 0;
 }
 
 .image-container {
@@ -68,7 +84,9 @@ footer {
 </head>
 <body>
 
-<header>Leaderboard</header>
+<header>
+  <h1>Prem Predics - Leaderboard</h1>
+</header>
 
 <!-- Image and Back Button Container -->
 <div class="image-container">
