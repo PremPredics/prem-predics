@@ -3219,7 +3219,7 @@ const cardDescriptions = {
   "Super Star Man": "🃏 Super Star Man\n• Valid for 1 Gameweek•\n\n🏆Star Man points are TRIPLED for the player playing this card🏆\n\n*Yellow and Red cards are 0pts",
   "Super Golden Gameweek": "🃏 Super Golden Gameweek\n• Valid for 1 Gameweek•\n\n🏆Prediction League points for all games are DOUBLED for the player playing this card🏆",
   "Super Sub": "🃏 Super Sub\n• Valid for 1 Gameweek•\n\n🏆 Star Man can be swapped at any time for any other Star Man for the player playing this card🏆\n\n*New Star Man's match must have NOT kicked off within the same Gameweek",
-  "Super Fantasy Boost": "🃏 Super Fantasy Boost\n• Valid for 1 Gameweek•\n\n🏆 FPL points for Gameweek DOUBLED for the player playing this card🏆",
+  "Super Score": "🃏 Super Score\n• Valid for 1 Gameweek•\n\n🏆Choose one scoreline for the Gameweek. Each time that exact scoreline happens, +3 UC pts for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
   "Super Draw": "🃏 Super Draw\n\n🏆Draw 3 cards from the Regular Deck for the player playing this card🏆",
   "Super Duo": "🃏 Super Duo\n• Valid for 1 Gameweek•\n\n🏆Two Star Men can be chosen this Gameweek for the player playing this card🏆\n\n*Must choose both players before Gameweek starts",
   "Super Pen": "🃏 Super Pen\n• Valid for 3 Gameweek•\n\n🏆Draw a card from the Regular Deck any time a penalty is scored in this Gameweek for the player playing this card🏆",
@@ -3272,7 +3272,7 @@ const curseCards = [
 // SUPER CARDS - 7 TOTAL
 const premiumCards = [
   "Super Star Man", "Super Golden Gameweek", "Super Sub",
-  "Super Fantasy Boost", "Super Draw", "Super Duo", "Super Pen"
+  "Super Score", "Super Draw", "Super Duo", "Super Pen"
 ];
 
 // GAME CARDS - 7 TOTAL
@@ -3321,9 +3321,29 @@ function save() {
   localStorage.setItem("ucGameState", JSON.stringify(gameState)); 
 }
 
+const legacySuperScoreName = "Super " + "Fant" + "asy Boost";
+
+function normalizeCardName(cardName) {
+  return cardName === legacySuperScoreName ? "Super Score" : cardName;
+}
+
+function migrateLegacyCardNames(value) {
+  if (typeof value === 'string') return normalizeCardName(value);
+  if (Array.isArray(value)) return value.map(migrateLegacyCardNames);
+  if (value && typeof value === 'object') {
+    Object.keys(value).forEach(key => {
+      value[key] = migrateLegacyCardNames(value[key]);
+    });
+  }
+  return value;
+}
+
 function load() { 
   const saved = localStorage.getItem("ucGameState"); 
-  if (saved) gameState = JSON.parse(saved); 
+  if (saved) {
+    gameState = migrateLegacyCardNames(JSON.parse(saved));
+    save();
+  }
 }
 
 function toggleCollapsible(btn) {
