@@ -1,0 +1,4 @@
+display_name,surname,scrabble_name,team_name,squad_status,is_homegrown,position,date_of_birth,starts_gameweek_number,ends_gameweek_number
+Mohamed Salah,Salah,,Liverpool,squad_player,false,Forward,,1,
+Erling Haaland,Haaland,,Manchester City,squad_player,false,Forward,,1,
+Bukayo Saka,Saka,,Arsenal,squad_player,true,Forward,,1,

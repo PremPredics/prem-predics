@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Star Man</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+}
+
+header {
+  padding: 20px 14px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.42);
+}
+
+header h1 {
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.4px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85);
+  margin: 0;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+main {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 18px 14px 34px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.toolbar a {
+  color: #f3e8ff;
+  text-decoration: none;
+  font-weight: 800;
+  background: rgba(17, 7, 38, 0.68);
+  border: 1px solid rgba(216, 180, 254, 0.28);
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+.panel {
+  background: rgba(46, 16, 102, 0.66);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.26);
+}
+
+.page-head {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.page-head > div:first-child {
+  flex: 1;
+}
+
+.page-head h2 {
+  margin: 0 0 6px;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  text-align: center;
+}
+
+.state-text,
+.message {
+  color: #ddd6fe;
+  line-height: 1.45;
+  margin: 0;
+  text-align: center;
+}
+
+.lock-note {
+  display: block;
+  margin-top: 4px;
+}
+
+.restrictions {
+  min-width: 220px;
+  max-width: 340px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(17, 7, 38, 0.46);
+  border: 1px solid rgba(216, 180, 254, 0.24);
+  text-align: center;
+}
+
+.restrictions strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.pick-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.pick-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 9px;
+  background: rgba(17, 7, 38, 0.42);
+  border: 1px solid rgba(216, 180, 254, 0.24);
+  text-align: center;
+}
+
+.pick-card[hidden] {
+  display: none;
+}
+
+.pick-card h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+label {
+  color: #ddd6fe;
+  font-weight: 800;
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 7px;
+  border: 1px solid rgba(216, 180, 254, 0.42);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(17, 7, 38, 0.72);
+  color: #fff;
+  font: inherit;
+}
+
+.results {
+  display: grid;
+  gap: 6px;
+}
+
+.result-button {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid rgba(216, 180, 254, 0.24);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(255,255,255,0.09);
+  color: #fff;
+  text-align: center;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.result-button span {
+  display: block;
+  color: #ddd6fe;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.result-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.selected-player {
+  min-height: 22px;
+  color: #bbf7d0;
+  font-weight: 800;
+}
+
+.message {
+  min-height: 24px;
+  margin-top: 10px;
+}
+
+.message[data-type="success"] {
+  color: #bbf7d0;
+}
+
+.message[data-type="error"] {
+  color: #fecaca;
+}
+
+button.save {
+  min-height: 42px;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+button.save:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+footer {
+  text-align: center;
+  padding: 16px;
+  color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  main {
+    padding: 12px 10px 28px;
+  }
+
+  .toolbar {
+    justify-content: center;
+  }
+
+  .toolbar a {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  .page-head {
+    display: grid;
+    text-align: center;
+  }
+
+  .restrictions {
+    max-width: none;
+  }
+
+  .toolbar a {
+    text-align: center;
+  }
+}
+</style>
+</head>
+<body data-require-auth="true" data-require-league="true">
+<header>
+  <h1>Prem Predics - Star Man</h1>
+</header>
+
+<main>
+  <div class="toolbar">
+    <a data-league-back href="leagues.html">Back To League Hub</a>
+  </div>
+
+  <section class="panel">
+    <div class="page-head">
+      <div>
+        <h2 data-league-title>Loading Star Man...</h2>
+        <p class="state-text" data-gameweek-summary>Checking gameweek and card effects.</p>
+      </div>
+      <div class="restrictions">
+        <strong>Restrictions</strong>
+        <p class="state-text" data-restriction-summary>Loading...</p>
+      </div>
+    </div>
+
+    <div class="pick-grid">
+      <section class="pick-card" data-pick-slot="primary">
+        <h3>Star Man</h3>
+        <label>
+          Start typing a player name
+          <input data-player-search="primary" autocomplete="off" placeholder="Search player">
+        </label>
+        <div class="selected-player" data-selected-player="primary"></div>
+        <div class="results" data-search-results="primary"></div>
+        <button class="save" type="button" data-save-star-man="primary" disabled>Save Star Man</button>
+        <p class="message" data-message="primary"></p>
+      </section>
+
+      <section class="pick-card" data-pick-slot="super_duo" hidden>
+        <h3>Super Duo</h3>
+        <label>
+          Start typing a second player name
+          <input data-player-search="super_duo" autocomplete="off" placeholder="Search second player">
+        </label>
+        <div class="selected-player" data-selected-player="super_duo"></div>
+        <div class="results" data-search-results="super_duo"></div>
+        <button class="save" type="button" data-save-star-man="super_duo" disabled>Save Super Duo</button>
+        <p class="message" data-message="super_duo"></p>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer>&copy; 2026 Prem Predics | Star Man</footer>
+
+<script type="module" src="assets/js/site-auth.js"></script>
+<script type="module" src="assets/js/star-man.js"></script>
+</body>
+</html>

@@ -62,9 +62,134 @@ header h1 {
 .container {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 24px;
   padding: 40px 20px;
+}
+
+.account-panel {
+  width: min(100%, 900px);
+  min-height: 64px;
+}
+
+.account-panel-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+  background: rgba(46, 16, 102, 0.62);
+  border: 2px solid rgba(196, 132, 252, 0.28);
+  border-radius: 12px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.26);
+  flex-wrap: wrap;
+}
+
+.account-identity {
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-avatar {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f3e8ff, #a78bfa);
+  border: 2px solid rgba(255,255,255,0.5);
+  color: #2e1065;
+  font-size: 18px;
+  font-weight: 900;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.22);
+  text-decoration: none;
+}
+
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.account-copy {
+  min-width: 0;
+}
+
+.account-label,
+.account-subtext {
+  display: block;
+  color: #ddd6fe;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.account-name {
+  display: block;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.account-actions {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.account-action {
+  min-width: 118px;
+  min-height: 48px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #f3e8ff;
+  color: #2e1065;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 5px 14px rgba(0,0,0,0.2);
+}
+
+.account-action:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.account-action-title {
+  display: block;
+  font-size: 14px;
+  line-height: 1.1;
+}
+
+.account-action-detail {
+  display: block;
+  color: #5b21b6;
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.account-action.logout {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.24);
+  color: #fff;
+}
+
+.account-action.logout:hover {
+  background: rgba(255,255,255,0.2);
 }
 
 /* ===== MENU BUTTONS ===== */
@@ -72,7 +197,7 @@ header h1 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 25px;
-  max-width: 1200px;
+  max-width: 640px;
   width: 100%;
 }
 
@@ -122,6 +247,19 @@ header h1 {
 .menu button:active {
   transform: translateY(-2px) scale(0.98);
   box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.menu button[hidden] {
+  display: none;
+}
+
+.menu button.admin-access {
+  background: linear-gradient(135deg, #111827, #7c2d12);
+  border-color: rgba(253, 186, 116, 0.48);
+}
+
+.menu button.admin-access:hover {
+  background: linear-gradient(135deg, #1f2937, #ea580c);
 }
 
 /* ===== ICON STYLING ===== */
@@ -194,6 +332,20 @@ footer {
     padding: 30px 15px;
   }
 
+  .account-panel-content {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .account-identity {
+    justify-content: center;
+  }
+
+  .account-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
   .menu {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -224,6 +376,15 @@ footer {
 
   .container {
     padding: 20px 10px;
+  }
+
+  .account-panel-content {
+    padding: 14px;
+  }
+
+  .account-action {
+    flex: 1 1 100%;
+    width: 100%;
   }
 
   .menu {
@@ -275,7 +436,7 @@ footer {
 }
 </style>
 </head>
-<body>
+<body data-require-auth="true">
 
 <!-- ===== HEADER WITH LOGOS ===== -->
 <header>
@@ -286,6 +447,8 @@ footer {
 
 <!-- ===== CONTAINER FOR CENTERED CONTENT ===== -->
 <div class="container">
+  <div class="account-panel" data-auth-panel></div>
+
   <!-- ===== MENU BUTTONS WITH ICONS ===== -->
   <div class="menu">
     <!-- How to Play -->
@@ -303,71 +466,36 @@ footer {
       </div>
     </button>
 
-    <!-- Power Cards -->
-    <button onclick="location.href='power-cards.html'">
+    <!-- Leagues -->
+    <button onclick="location.href='leagues.html'">
       <div class="icon-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12z"/>
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
         </svg>
       </div>
-      Power Cards
+      Leagues
       <div class="icon-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12z"/>
-        </svg>
-      </div>
-    </button>
-
-    <!-- Leaderboard -->
-    <button onclick="location.href='leaderboard.html'">
-      <div class="icon-container">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M17 3H7v2H4v4c0 2.21 1.79 4 4 4h1v4h6v-4h1c2.21 0 4-1.79 4-4V5h-3V3z"/>
-        </svg>
-      </div>
-      Leaderboard
-      <div class="icon-container">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M17 3H7v2H4v4c0 2.21 1.79 4 4 4h1v4h6v-4h1c2.21 0 4-1.79 4-4V5h-3V3z"/>
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
         </svg>
       </div>
     </button>
 
-    <!-- Statistics -->
-    <button onclick="location.href='statistics.html'">
+    <button class="admin-access" data-admin-access hidden onclick="location.href='global-admin.html'">
       <div class="icon-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M3 17h2v-7H3v7zm4 0h2V7H7v10zm4 0h2v-4h-2v4zm4 0h2V3h-2v14zm4 0h2v-9h-2v9z"/>
+          <path d="M12 2l7 4v6c0 4.42-2.99 8.53-7 9.74C7.99 20.53 5 16.42 5 12V6l7-4zm0 3.3L7 8.15V12c0 3.22 2.03 6.23 5 7.35 2.97-1.12 5-4.13 5-7.35V8.15l-5-2.85zM11 13.2l4.35-4.35 1.4 1.4L11 16 7.75 12.75l1.4-1.4L11 13.2z"/>
         </svg>
       </div>
-      Statistics
-      <div class="icon-container">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M3 17h2v-7H3v7zm4 0h2V7H7v10zm4 0h2v-4h-2v4zm4 0h2V3h-2v14zm4 0h2v-9h-2v9z"/>
-        </svg>
-      </div>
+      Global Admin Access
     </button>
 
-    <!-- Correct Scores -->
-    <button onclick="location.href='correct-scores.html'">
-      <div class="icon-container">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/>
-        </svg>
-      </div>
-      Correct Scores
-      <div class="icon-container">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"/>
-        </svg>
-      </div>
-    </button>
   </div>
 </div>
 
 <!-- ===== FOOTER ===== -->
 <footer>
-  &copy; 2026 Prem Predics | Homepage
+  &copy; 2026 Prem Predics | Home
 </footer>
 
 <script>
@@ -378,6 +506,8 @@ footer {
     });
   });
 </script>
+<script type="module" src="assets/js/site-auth.js"></script>
+<script type="module" src="assets/js/index-admin.js"></script>
 
 </body>
 </html>

@@ -836,70 +836,6 @@ button:disabled {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
 }
 
-.season-confirm-wrapper {
-  width: min(460px, 94vw);
-  animation: cardZoomIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.season-confirm-panel {
-  background: linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(59, 7, 100, 0.96));
-  border: 3px solid rgba(216, 180, 254, 0.74);
-  border-radius: 18px;
-  padding: clamp(22px, 4vw, 34px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.82), 0 0 28px rgba(196, 132, 252, 0.25);
-  text-align: center;
-}
-
-.season-confirm-title {
-  color: #fff;
-  font-size: clamp(1.05rem, 2.6vw, 1.35rem);
-  font-weight: 900;
-  line-height: 1.35;
-  margin: 0;
-  text-shadow:
-    -1px -1px 0 rgba(0, 0, 0, 0.9),
-    1px -1px 0 rgba(0, 0, 0, 0.9),
-    -1px 1px 0 rgba(0, 0, 0, 0.9),
-    1px 1px 0 rgba(0, 0, 0, 0.9),
-    0 2px 8px rgba(216, 180, 254, 0.4);
-}
-
-.season-confirm-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 24px;
-}
-
-.season-confirm-btn {
-  flex: 1;
-  max-width: 160px;
-  min-height: 44px;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 900;
-  border: 3px solid;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
-  text-shadow:
-    -1px -1px 0 rgba(0, 0, 0, 0.82),
-    1px -1px 0 rgba(0, 0, 0, 0.82),
-    -1px 1px 0 rgba(0, 0, 0, 0.82),
-    1px 1px 0 rgba(0, 0, 0, 0.82),
-    0 2px 5px rgba(0, 0, 0, 0.72);
-}
-
-.season-confirm-btn.yes {
-  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 62%, #d8b4fe 100%);
-  border-color: rgba(216, 180, 254, 0.95);
-  color: #fff;
-}
-
-.season-confirm-btn.no {
-  background: linear-gradient(135deg, #991b1b 0%, #dc2626 64%, #f87171 100%);
-  border-color: #7f1d1d;
-  color: #fff;
-}
-
 .empty-game-card {
   background: linear-gradient(135deg, #2e1066, #4c1d95);
   border-color: rgba(196, 132, 252, 0.55);
@@ -1210,7 +1146,7 @@ button:disabled {
 
 .side-actions.mobile-in-swap-actions {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 5px;
   padding: 6px;
   border-radius: 10px;
@@ -1294,6 +1230,94 @@ button:disabled {
     linear-gradient(45deg, rgba(255,255,255,0.24) 0 12%, transparent 12% 28%, rgba(255,255,255,0.2) 28% 40%, transparent 40% 100%),
     linear-gradient(135deg, #064e3b 0%, #059669 25%, #34d399 58%, #6ee7b7 78%, #d1fae5 100%);
   box-shadow: 0 0 30px rgba(52, 211, 153, 0.78), 0 11px 30px rgba(6, 95, 70, 0.52), inset 0 0 22px rgba(255, 255, 255, 0.22);
+}
+
+.medal-balance-panel,
+.active-game-inline {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(17, 7, 38, 0.72), rgba(46, 16, 102, 0.62));
+  border: 1px solid rgba(216, 180, 254, 0.28);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.medal-balance-panel {
+  display: grid;
+  gap: 9px;
+}
+
+.medal-balance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #ddd6fe;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.medal-balance-row strong {
+  min-width: 34px;
+  min-height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: radial-gradient(circle at 32% 25%, #fff7ad 0%, #facc15 38%, #f59e0b 72%, #92400e 100%);
+  border: 1px solid rgba(253, 230, 138, 0.96);
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 2px 4px rgba(0,0,0,0.85);
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.52), inset 0 1px 0 rgba(255,255,255,0.36);
+}
+
+.active-game-inline {
+  display: grid;
+  gap: 9px;
+  color: #ddd6fe;
+}
+
+.active-game-inline span {
+  color: #a7f3d0;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.active-game-inline strong {
+  color: #fff;
+  font-size: 1rem;
+}
+
+.active-game-inline p {
+  margin: 0;
+  line-height: 1.35;
+  font-size: 0.86rem;
+}
+
+.deck-choice-medals {
+  margin: 0 auto 18px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #ddd6fe;
+  font-weight: 800;
+}
+
+.deck-choice-medals strong {
+  color: #fde68a;
+}
+
+.deck-choice-card.disabled {
+  opacity: 0.52;
+  filter: grayscale(0.35);
+  cursor: not-allowed;
 }
 
 .mobile-label {
@@ -1434,6 +1458,10 @@ button:disabled {
   flex-direction: column;
 }
 
+.tom-btn {
+  display: none !important;
+}
+
 .hand-label {
   font-weight: bold;
   color: #d8b4fe;
@@ -1529,6 +1557,51 @@ button:disabled {
   background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
   border-color: #6ee7b7;
   box-shadow: 0 0 18px rgba(110, 231, 183, 0.58), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255, 255, 255, 0.14);
+}
+
+.card-tile.masked-card {
+  justify-content: center;
+  text-align: center;
+  cursor: default;
+  text-transform: none;
+  font-size: clamp(0.54rem, 1vw, 0.66rem);
+  letter-spacing: 0;
+  line-height: 1;
+  padding: 7px;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.card-tile.masked-regular {
+  background:
+    radial-gradient(circle at 20% 18%, rgba(224, 242, 254, 0.58), transparent 19%),
+    radial-gradient(circle at 82% 18%, rgba(254, 202, 202, 0.54), transparent 19%),
+    radial-gradient(circle at 32% 78%, rgba(7, 89, 133, 0.42), transparent 30%),
+    radial-gradient(circle at 72% 76%, rgba(76, 5, 25, 0.46), transparent 31%),
+    linear-gradient(42deg, rgba(255,255,255,0.16) 0 12%, transparent 12% 27%, rgba(255,255,255,0.13) 27% 38%, transparent 38% 100%),
+    linear-gradient(90deg, #082f49 0%, #075985 24%, #38bdf8 46%, #5866d8 50%, #991b1b 55%, #be123c 76%, #ef4444 100%);
+  color: #fff;
+  border-color: #a78bfa;
+  box-shadow: 0 0 18px rgba(167, 139, 250, 0.62), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 16px rgba(255, 255, 255, 0.16);
+}
+
+.card-tile.masked-premium {
+  background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
+  color: #3b1c05;
+  border-color: #f8d568;
+  box-shadow: 0 0 22px rgba(248, 213, 104, 0.82), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 16px rgba(255, 255, 255, 0.22);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.card-tile.masked-game {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 55%, #bbf7d0 100%);
+  color: #052e16;
+  border-color: rgba(187, 247, 208, 0.95);
+}
+
+.card-tile.discard-card {
+  min-height: 92px;
+  cursor: default;
 }
 
 .card-tile.fly { animation: settleIntoHand 0.45s ease-out forwards; }
@@ -1719,7 +1792,12 @@ button:disabled {
 }
 
 .discard-pile.has-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 10px;
   align-items: flex-start;
+  justify-items: center;
+  white-space: normal;
 }
 
 /* ===== DRAWN CARD SECTION ===== */
@@ -1977,16 +2055,6 @@ button:disabled {
 
 .how-it-works-btn:hover {
   background: linear-gradient(90deg, #a78bfa, #8b5cf6);
-}
-
-.end-season-btn {
-  background: linear-gradient(90deg, #dc2626, #991b1b);
-  padding: 8px 16px;
-  font-size: clamp(0.75rem, 1.6vw, 0.85rem);
-}
-
-.end-season-btn:hover {
-  background: linear-gradient(90deg, #991b1b, #dc2626);
 }
 
 .how-it-works-modal {
@@ -2884,7 +2952,7 @@ button:disabled {
 }
 </style>
 </head>
-<body>
+<body data-require-auth="true" data-require-league="true">
 
 <button class="back-home-btn" onclick="window.location.href='index.html'">← Home</button>
 
@@ -2892,7 +2960,6 @@ button:disabled {
 
 <div class="mobile-fixed-actions" id="mobileFixedActions">
   <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()">View All Decks</button>
-  <button class="side-action-btn active-game-btn" onclick="showGameCardPreview()">View Active Game Card</button>
   <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()">Draw Card</button>
 </div>
 
@@ -2923,11 +2990,14 @@ button:disabled {
   <!-- Deck Choice Modal -->
   <div class="deck-choice-modal" id="deckChoiceModal">
     <div class="deck-choice-wrapper">
-      <div class="deck-choice-question">Click a deck to draw from</div>
+      <div class="deck-choice-question">Choose a deck to draw from</div>
+      <div class="deck-choice-medals">
+        <span>Regular medals: <strong data-draw-regular-medals>0</strong></span>
+        <span>Super medals: <strong data-draw-super-medals>0</strong></span>
+      </div>
       <div class="deck-choice-cards">
-        <div class="deck-choice-card regular" onclick="startCardReveal('regular')">Regular Deck</div>
-        <div class="deck-choice-card premium" onclick="startCardReveal('premium')">Premium Deck</div>
-        <div class="deck-choice-card game" onclick="startCardReveal('game')">Game Deck</div>
+        <div class="deck-choice-card regular" data-deck-choice="regular" onclick="startCardReveal('regular')">Regular Deck</div>
+        <div class="deck-choice-card premium" data-deck-choice="premium" onclick="startCardReveal('premium')">Premium Deck</div>
       </div>
       <div class="card-preview-buttons">
         <button class="card-preview-btn back" style="max-width: 220px;" onclick="closeDeckChoice()">Back</button>
@@ -2961,19 +3031,6 @@ button:disabled {
     </div>
   </div>
 
-  <!-- End Season Confirmation Modal -->
-  <div class="card-preview-modal" id="endSeasonConfirmModal">
-    <div class="season-confirm-wrapper">
-      <div class="season-confirm-panel">
-        <p class="season-confirm-title">Are you sure you would like to End the current Season?</p>
-        <div class="season-confirm-buttons">
-          <button class="season-confirm-btn yes" onclick="confirmEndSeason()">Yes</button>
-          <button class="season-confirm-btn no" onclick="closeEndSeasonConfirm()">No</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Game Card Preview Modal -->
   <div class="card-preview-modal" id="gameCardPreviewModal">
     <div class="card-preview-wrapper">
@@ -2992,9 +3049,7 @@ button:disabled {
   <div class="player-selection-modal" id="playerSelectionModal">
     <div class="player-selection-content">
       <h3 class="player-selection-title">Pick Player To Receive Card</h3>
-      <div class="player-buttons-container">
-        <button class="player-select-btn vas-btn" onclick="selectPlayerForCard('p1')">👤 Vas</button>
-        <button class="player-select-btn tom-btn" onclick="selectPlayerForCard('p2')">👤 Tom</button>
+      <div class="player-buttons-container" id="playerSelectionButtons">
       </div>
     </div>
   </div>
@@ -3012,15 +3067,15 @@ button:disabled {
       </div>
       <div class="how-it-works-rule-list">
         <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-power">Power</span>, <span class="text-curse">Curse</span> and <span class="text-super">Super Cards</span> can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
-        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-game">Game Cards</span> (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a <span class="text-super">Super Card</span> from the Premium Deck.</span></div>
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-game">Game Cards</span> (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 <span class="text-super">Super Medal</span>.</span></div>
         <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 <span class="text-power">Power Card</span> + 1 <span class="text-curse">Curse Card</span> from a 52-card Regular Deck.</span></div>
         <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127941;</span><span>Reach milestones to earn medals, each medal can be spent to draw 1 card from the Regular Deck.</span></div>
       </div>
       <div class="how-it-works-deck-notes">
         <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 <span class="text-power">Power Cards</span> &amp; 22 <span class="text-curse">Curse Cards</span>) &mdash; Start with 1 of each</div>
-        <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 <span class="text-super">Super Cards</span> &mdash; Won by winning &quot;<span class="text-game">Game Card</span>&quot; Minigames</div>
+        <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 <span class="text-super">Super Cards</span> &mdash; Drawn by spending Super Medals won from &quot;<span class="text-game">Game Card</span>&quot; Minigames</div>
       </div>
-      <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
+      <p>Prem Predics is a private league prediction game where players predict every single match throughout an entire Premier League season (380 matches).</p>
       
       <p><strong>The Goal</strong></p>
       <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
@@ -3031,7 +3086,7 @@ button:disabled {
         <li>💪 <strong>Power Cards (Regular Deck)</strong> - Help you or hinder your opponent</li>
         <li>🖤 <strong>Curse Cards (Regular Deck)</strong> - Negative effects for your opponent</li>
         <li>✨ <strong>Super Cards (Premium Deck)</strong> - Powerful premium abilities</li>
-        <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
+        <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Medal rewards</li>
       </ul>
       
       <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck</p>
@@ -3039,9 +3094,9 @@ button:disabled {
       <p><strong>🎮 Game Deck:</strong> 7 Game Cards</p>
     </div>
 
-    <div class="start-season-wrapper" id="startSeasonWrapper">
-      <button class="start-season-btn" id="startSeasonBtn" onclick="startGameSequence()">🚀 Start Season</button>
-    </div>
+  <div class="start-season-wrapper" id="startSeasonWrapper">
+      <button class="start-season-btn" id="startSeasonBtn" onclick="openPlayableCards()">Next</button>
+  </div>
   </div>
 
   <!-- Countdown Overlay -->
@@ -3071,8 +3126,25 @@ button:disabled {
     <div class="left-panel">
       <div class="side-actions" id="primarySideActions">
         <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">View All Decks</span></button>
-        <button class="side-action-btn active-game-btn" onclick="showGameCardPreview()"><span class="desktop-label">View Active Game Card</span><span class="mobile-label">View Active Game Card</span></button>
         <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Cards</span></button>
+      </div>
+
+      <div class="medal-balance-panel" aria-label="Card medal balances">
+        <div class="medal-balance-row">
+          <span>Regular medals</span>
+          <strong data-regular-medals>0</strong>
+        </div>
+        <div class="medal-balance-row">
+          <span>Super medals</span>
+          <strong data-super-medals>0</strong>
+        </div>
+      </div>
+
+      <div class="active-game-inline" data-active-game-panel>
+        <span>Active Game Card</span>
+        <strong data-active-game-name>Loading...</strong>
+        <p data-active-game-range>Checking active gameweek...</p>
+        <p data-active-game-description></p>
       </div>
 
       <!-- Pending Swap / Steal -->
@@ -3102,32 +3174,14 @@ button:disabled {
         <h2>🎯 Drawn Card</h2>
         <div id="drawnCardDisplay"></div>
         <div id="drawnCardAssignButtons">
-          <button class="player-select-btn vas-btn" onclick="assignCard('p1')">✓ Vas</button>
-          <button class="player-select-btn tom-btn" onclick="assignCard('p2')">✓ Tom</button>
+          <button class="player-select-btn vas-btn" onclick="assignCard(getCurrentPlayerKey())">Keep Card</button>
           <button onclick="discardLastCard()">✗ Discard</button>
         </div>
       </div>
 
       <!-- Player Hands -->
       <div class="players-row" id="playersRow">
-        <div class="player-box vas-player">
-          <h2>Vas</h2>
-          <div class="player-hand-container">
-            <div class="hand-label">Hand (Click to play):</div>
-            <div id="p1Hand" class="hand">
-              <div class="dealt-card-target" id="p1CardTarget"></div>
-            </div>
-          </div>
-        </div>
-        <div class="player-box tom-player">
-          <h2>Tom</h2>
-          <div class="player-hand-container">
-            <div class="hand-label">Hand (Click to play):</div>
-            <div id="p2Hand" class="hand">
-              <div class="dealt-card-target" id="p2CardTarget"></div>
-            </div>
-          </div>
-        </div>
+        <div class="state-text">Loading league players...</div>
       </div>
     </div>
 
@@ -3149,15 +3203,15 @@ button:disabled {
         </div>
         <div class="how-it-works-rule-list">
           <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-power">Power</span>, <span class="text-curse">Curse</span> and <span class="text-super">Super Cards</span> can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
-          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-game">Game Cards</span> (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a <span class="text-super">Super Card</span> from the Premium Deck.</span></div>
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-game">Game Cards</span> (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 <span class="text-super">Super Medal</span>.</span></div>
           <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 <span class="text-power">Power Card</span> + 1 <span class="text-curse">Curse Card</span> from a 52-card Regular Deck.</span></div>
           <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127941;</span><span>Reach milestones to earn medals, each medal can be spent to draw 1 card from the Regular Deck.</span></div>
         </div>
         <div class="how-it-works-deck-notes">
           <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 <span class="text-power">Power Cards</span> &amp; 22 <span class="text-curse">Curse Cards</span>) &mdash; Start with 1 of each</div>
-          <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 <span class="text-super">Super Cards</span> &mdash; Won by winning &quot;<span class="text-game">Game Card</span>&quot; Minigames</div>
+          <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 <span class="text-super">Super Cards</span> &mdash; Drawn by spending Super Medals won from &quot;<span class="text-game">Game Card</span>&quot; Minigames</div>
         </div>
-        <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
+        <p>Prem Predics is a private league prediction game where players predict every single match throughout an entire Premier League season (380 matches).</p>
     
     <p><strong>The Goal</strong></p>
     <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
@@ -3167,7 +3221,7 @@ button:disabled {
       <li>💪 <strong>Power Cards</strong> - Help you or hinder your opponent</li>
       <li>🖤 <strong>Curse Cards</strong> - Negative effects for your opponent</li>
       <li>✨ <strong>Super Cards</strong> - Powerful premium abilities</li>
-      <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Card rewards</li>
+      <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Medal rewards</li>
     </ul>
         <div class="card-preview-buttons how-it-works-close-row">
           <button class="card-preview-btn back" style="max-width: 220px;" onclick="closeHowItWorks()">Close</button>
@@ -3180,7 +3234,6 @@ button:disabled {
 <!-- Fixed Footer -->
 <div class="fixed-footer" id="fixedFooter">
   <button class="how-it-works-btn" onclick="toggleHowItWorks()">📖 How It Works</button>
-  <button class="end-season-btn" id="endSeasonBtn" onclick="endSeason()">End Season</button>
 </div>
 
 <script>
@@ -3208,7 +3261,7 @@ const cardDescriptions = {
   "Curse of the Alphabet (20+)": "🃏 Curse of the Alphabet\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man surname must have a Scrabble score of 20+❌\n\n*Must be played before the start of a Gameweek",
   "Curse of the Scoring Drought (3)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 3 PL games❌\n\n*Must be played before the start of a Gameweek",
   "Curse of the Scoring Drought (5)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 5 PL games❌\n\n*Must be played before the start of a Gameweek",
-  "Curse of the Random Roulette": "🃏 Curse of the Random Roulette\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man's squad number is chosen by a roulette spin❌\n\n*If it lands on 0, Squad Number must be 37+, *Must be played before the start of a Gameweek",
+  "Curse of the Random Roulette": "🃏 Curse of the Random Roulette\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man's squad number is chosen by a roulette spin from 1 to 36❌\n\n*The number must be entered before the start of a Gameweek",
   "Curse of the Glasses": "🃏 Curse of the Glasses\n• Valid for 1 Gameweek•\n\n❌Any 0–0 prediction that the Opponent makes scores NOTHING❌\n\n*Must be played before the start of the next Gameweek",
   "Curse of the Deleted Match": "🃏 Curse of the Deleted Match\n• Valid for 1 Gameweek•\n\n❌ Choose ONE of the Opponents Predictions, Opponent cannot earn points from this game❌\n\n*Must be played before the start of the next Gameweek",
   "Curse of the Tiny Club": "🃏 Curse of the Tiny Club\n• Valid for 1 Gameweek •\n\n❌Opponent may NOT pick a Star Man from a Top 10 club❌\n\n*Must be played before the start of a Gameweek",
@@ -3224,13 +3277,13 @@ const cardDescriptions = {
   "Super Duo": "🃏 Super Duo\n• Valid for 1 Gameweek•\n\n🏆Two Star Men can be chosen this Gameweek for the player playing this card🏆\n\n*Must choose both players before Gameweek starts",
   "Super Pen": "🃏 Super Pen\n• Valid for 3 Gameweek•\n\n🏆Draw a card from the Regular Deck any time a penalty is scored in this Gameweek for the player playing this card🏆",
 
-  "Game of Goals": "🃏 Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
-  "Game of Corners": "🃏 Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
-  "Game of The Underdog": "🃏 Game of The Underdog\n\nBest of 5 Gameweeks, closest answer wins, predict how many teams will beat a team above them in the league in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
-  "Game of The Goalhanger": "🃏 Game of The Goalhanger\n\nBest of 5 Gameweeks, closest answer wins, predict how many players score 2+ goals in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
-  "Game of War": "🃏 Game of War\n\nBest of 5 Gameweeks, closest answer wins, predict Total Yellow Cards in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
-  "Game of The Early Worm": "🃏 Game of The Early Worm\n\nBest of 5 Gameweeks, closest answer wins, predict in which minute the earliest goal in each Gameweek is scored.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card",
-  "Game of Time": "🃏 Game of Time\n\nBest of 5 Gameweeks, closest answer wins, predict Total 90'+ min goals in each Gameweek.\n\nWinner gets +1 UC point and draws a Super Card from the Premium Deck.\n\n*If the result is a draw → both players draw a Super Card"
+  "Game of Goals": "🃏 Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of Corners": "🃏 Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of The Underdog": "🃏 Game of The Underdog\n\nBest of 5 Gameweeks, closest answer wins, predict how many teams will beat a team above them in the league in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of The Goalhanger": "🃏 Game of The Goalhanger\n\nBest of 5 Gameweeks, closest answer wins, predict how many players score 2+ goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of War": "🃏 Game of War\n\nBest of 5 Gameweeks, closest answer wins, predict Total Yellow Cards in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of The Early Worm": "🃏 Game of The Early Worm\n\nBest of 5 Gameweeks, closest answer wins, predict in which minute the earliest goal in each Gameweek is scored.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of Time": "🃏 Game of Time\n\nBest of 5 Gameweeks, closest answer wins, predict Total 90'+ min goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick."
 };
 
 // POWER CARDS - 30 TOTAL
@@ -3291,7 +3344,13 @@ gameCards.forEach(card => { cardTypeMap[card] = 'game'; });
 // Game state
 let gameState = {
   seasonStarted: false,
-  players: { p1: { hand: [] }, p2: { hand: [] } },
+  players: { p1: { hand: [] } },
+  playerOrder: ['p1'],
+  playerNames: { p1: 'You' },
+  playerUserIds: {},
+  cardInstanceIdsByPlayer: {},
+  handCardInstancesByPlayer: {},
+  currentPlayerKey: 'p1',
   regularDeck: [],
   premiumDeck: [],
   gameCardDeck: [],
@@ -3303,12 +3362,17 @@ let gameState = {
   activeGameCard: null,
   pendingCardDraw: { type: null, deckType: null },
   cardToPlay: null,
+  pendingCardEffect: null,
+  stealModeEffectId: null,
   selectedDeckType: null,
   currentPlayer: null
 };
 
 let lastHandSizes = { p1: 0, p2: 0 };
 let sequenceInProgress = false;
+let currentCompetitionId = new URLSearchParams(window.location.search).get('competition_id') || 'local';
+let cardRuntime = null;
+let medalBalances = { regular: 0, super: 0 };
 
 function shuffle(arr) { 
   for (let i = arr.length - 1; i > 0; i--) { 
@@ -3317,8 +3381,12 @@ function shuffle(arr) {
   } 
 }
 
+function getStorageKey() {
+  return `ucGameState:${currentCompetitionId || 'local'}`;
+}
+
 function save() { 
-  localStorage.setItem("ucGameState", JSON.stringify(gameState)); 
+  localStorage.setItem(getStorageKey(), JSON.stringify(gameState)); 
 }
 
 const legacySuperScoreName = "Super " + "Fant" + "asy Boost";
@@ -3339,9 +3407,15 @@ function migrateLegacyCardNames(value) {
 }
 
 function load() { 
-  const saved = localStorage.getItem("ucGameState"); 
+  const saved = localStorage.getItem(getStorageKey()); 
   if (saved) {
     gameState = migrateLegacyCardNames(JSON.parse(saved));
+    gameState.playerOrder = gameState.playerOrder || Object.keys(gameState.players || {});
+    gameState.playerNames = gameState.playerNames || {};
+    gameState.playerUserIds = gameState.playerUserIds || {};
+    gameState.cardInstanceIdsByPlayer = gameState.cardInstanceIdsByPlayer || {};
+    gameState.handCardInstancesByPlayer = gameState.handCardInstancesByPlayer || {};
+    gameState.currentPlayerKey = gameState.currentPlayerKey || 'p1';
     save();
   }
 }
@@ -3443,24 +3517,48 @@ function syncMobileFixedActions() {
 window.addEventListener('resize', syncMobileFixedActions);
 window.addEventListener('orientationchange', syncMobileFixedActions);
 
-async function startGameSequence() {
-  if (sequenceInProgress) return;
-  sequenceInProgress = true;
-
+function setupPlayableDecks() {
   let powerDeck = [...powerCards];
   let curseDeck = [...curseCards];
   let premiumDeck = [...premiumCards];
   let gameCardDeck = [...gameCards];
-  
+
   shuffle(powerDeck);
   shuffle(curseDeck);
   shuffle(premiumDeck);
   shuffle(gameCardDeck);
-  
+
   gameState.regularDeck = [...powerDeck, ...curseDeck];
   shuffle(gameState.regularDeck);
   gameState.premiumDeck = premiumDeck;
   gameState.gameCardDeck = gameCardDeck;
+}
+
+function openPlayableCards() {
+  if (sequenceInProgress) return;
+  sequenceInProgress = true;
+
+  gameState.seasonStarted = true;
+  document.body.classList.add('season-started', 'controls-ready');
+  document.getElementById('introWrapper').classList.add('hidden');
+  document.getElementById('mainGameLayout').classList.add('show');
+  document.getElementById('playersRow').classList.add('show');
+  document.getElementById('swapSection').classList.add('show');
+  document.getElementById('discardSection').classList.add('show');
+  syncMobileFixedActions();
+  updateDecksDisplay();
+  updateMedalDisplays();
+  save();
+  render();
+
+  sequenceInProgress = false;
+}
+
+async function startGameSequence() {
+  if (sequenceInProgress) return;
+  sequenceInProgress = true;
+
+  setupPlayableDecks();
   gameState.seasonStarted = true;
   document.body.classList.add('season-started');
   document.body.classList.remove('controls-ready');
@@ -3618,6 +3716,71 @@ function updateDecksDisplay() {
   `;
 }
 
+function updateMedalDisplays() {
+  document.querySelectorAll('[data-regular-medals], [data-draw-regular-medals]').forEach((element) => {
+    element.textContent = medalBalances.regular;
+  });
+  document.querySelectorAll('[data-super-medals], [data-draw-super-medals]').forEach((element) => {
+    element.textContent = medalBalances.super;
+  });
+
+  const regularChoice = document.querySelector('[data-deck-choice="regular"]');
+  const premiumChoice = document.querySelector('[data-deck-choice="premium"]');
+  if (regularChoice) regularChoice.classList.toggle('disabled', medalBalances.regular <= 0);
+  if (premiumChoice) premiumChoice.classList.toggle('disabled', medalBalances.super <= 0);
+}
+
+function getPlayerName(playerKey) {
+  return gameState.playerNames?.[playerKey] || playerKey;
+}
+
+function getCurrentPlayerKey() {
+  return gameState.currentPlayerKey || 'p1';
+}
+
+function renderPlayerBoxes() {
+  const playersRow = document.getElementById('playersRow');
+  if (!playersRow) return;
+
+  const playerOrder = gameState.playerOrder?.length ? gameState.playerOrder : Object.keys(gameState.players || {});
+  playersRow.innerHTML = playerOrder.map((playerKey) => {
+    const isCurrentPlayer = playerKey === getCurrentPlayerKey();
+    return `
+      <div class="player-box ${isCurrentPlayer ? 'vas-player' : 'opponent-player'}">
+        <h2>${getPlayerName(playerKey)}</h2>
+        <div class="player-hand-container">
+          <div class="hand-label">${isCurrentPlayer ? 'Hand (Click to play):' : 'Hand:'}</div>
+          <div id="${playerKey}Hand" class="hand">
+            <div class="dealt-card-target" id="${playerKey}CardTarget"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setActiveGameCardPanel(cardName, rangeText, description) {
+  const nameElement = document.querySelector('[data-active-game-name]');
+  const rangeElement = document.querySelector('[data-active-game-range]');
+  const descriptionElement = document.querySelector('[data-active-game-description]');
+
+  if (nameElement) nameElement.textContent = cardName || 'No active game card';
+  if (rangeElement) rangeElement.textContent = rangeText || 'Game cards are generated at GW 1, 6, 11, 16, 21, 26 and 31.';
+  if (descriptionElement) descriptionElement.textContent = description || '';
+}
+
+function syncHandFromDatabase() {
+  if (cardRuntime?.refreshHands) {
+    cardRuntime.refreshHands().catch(() => {});
+  }
+}
+
+function discardDatabaseCard(playerKey, cardName) {
+  if (cardRuntime?.discardCard) {
+    cardRuntime.discardCard(playerKey, cardName).catch(() => {});
+  }
+}
+
 function drawFirstCards() {
   const powerDeck = [];
   const curseDeck = [];
@@ -3653,6 +3816,7 @@ function drawFirstCards() {
 }
 
 function openDeckChoice() {
+  updateMedalDisplays();
   document.body.classList.add('card-preview-open');
   document.getElementById('deckChoiceModal').classList.add('show');
 }
@@ -3683,16 +3847,33 @@ function closeDiscardPile() {
   document.body.classList.remove('card-preview-open');
 }
 
-function startCardReveal(deckType) {
+async function startCardReveal(deckType) {
+  if (!['regular', 'premium'].includes(deckType)) {
+    alert('Choose either the Regular Deck or Premium Deck.');
+    return;
+  }
+
+  const neededBalance = deckType === 'premium' ? medalBalances.super : medalBalances.regular;
+  if (neededBalance <= 0) {
+    alert(deckType === 'premium'
+      ? 'You need a Super medal to draw from the Premium Deck.'
+      : 'You need a Regular medal to draw from the Regular Deck.');
+    return;
+  }
+
+  if (!cardRuntime?.redeemCardDraw) {
+    alert('Medal card draws are not ready yet. Run the latest card-medals-and-draws.sql in Supabase, then refresh this page.');
+    return;
+  }
+
   document.getElementById('deckChoiceModal').classList.remove('show');
-  
-  // Check if it's a game card
-  if (deckType === 'game') {
-    document.body.classList.remove('card-preview-open');
-    drawGameCard();
-  } else {
-    document.getElementById('playerSelectionModal').classList.add('show');
-    gameState.pendingCardDraw = { type: 'regular', deckType: deckType };
+  document.body.classList.remove('card-preview-open');
+
+  try {
+    const drawn = await cardRuntime.redeemCardDraw(deckType);
+    await drawAndRevealCard(deckType, getCurrentPlayerKey(), drawn.card_name);
+  } catch (error) {
+    alert(error.message || 'Could not draw that card.');
   }
 }
 
@@ -3733,7 +3914,7 @@ function animateCardToHand(card, cardType, player, onComplete) {
   }, { once: true });
 }
 
-function drawAndRevealCard(deckType, player) {
+function drawAndRevealCard(deckType, player, forcedCard = null) {
   let deck;
   if (deckType === 'regular') {
     deck = gameState.regularDeck;
@@ -3743,12 +3924,18 @@ function drawAndRevealCard(deckType, player) {
     deck = gameState.gameCardDeck;
   }
   
-  if (deck.length === 0) {
+  if (!forcedCard && deck.length === 0) {
     alert("Deck empty!");
     return;
   }
   
-  const card = deck.pop();
+  const card = forcedCard || deck.pop();
+  if (forcedCard) {
+    const matchingIndex = deck.findIndex((deckCard) => deckCard === forcedCard);
+    if (matchingIndex >= 0) {
+      deck.splice(matchingIndex, 1);
+    }
+  }
   const cardType = getCardType(card);
   
   // Show fullscreen reveal
@@ -3770,6 +3957,7 @@ function drawAndRevealCard(deckType, player) {
     setTimeout(() => {
       animateCardToHand(card, cardType, player, () => {
         gameState.players[player].hand.push(card);
+        syncHandFromDatabase();
         updateDecksDisplay();
         render();
         save();
@@ -3860,7 +4048,7 @@ function closeCardPreview() {
   gameState.cardToPlay = null;
 }
 
-function confirmCardPlay() {
+async function confirmCardPlay() {
   if (!gameState.cardToPlay) return;
   
   const { name: card, player, index } = gameState.cardToPlay;
@@ -3868,8 +4056,9 @@ function confirmCardPlay() {
   closeCardPreview();
   
   if (card.includes("Curse of the Thief")) {
-    const opponent = player === 'p1' ? 'p2' : 'p1';
-    if (gameState.players[opponent].hand.length === 0) {
+    const opponentsWithCards = (gameState.playerOrder || [])
+      .filter((playerKey) => playerKey !== player && (gameState.players[playerKey]?.hand || []).length > 0);
+    if (opponentsWithCards.length === 0) {
       alert("You cannot play Curse of the Thief when your opponent has no cards!");
       return;
     }
@@ -3893,24 +4082,56 @@ function confirmCardPlay() {
     }
   }
 
-  if (!card.includes("Power of the Swap")) gameState.discardPile.push(card);
+  let activation = null;
+  if (cardRuntime?.activateCardEffect) {
+    try {
+      activation = await cardRuntime.activateCardEffect(card, player);
+    } catch (error) {
+      alert(error.message || "Could not activate this card effect.");
+      return;
+    }
+  }
+
+  if (!card.includes("Power of the Swap")) {
+    gameState.discardPile.push(card);
+    discardDatabaseCard(player, card);
+  }
 
   gameState.players[player].hand.splice(index, 1);
 
   if (card === "Super Draw") {
-    for (let i = 0; i < 3; i++) {
-      if (gameState.regularDeck.length > 0) gameState.players[player].hand.push(gameState.regularDeck.pop());
+    if (cardRuntime?.drawEffectCards && activation?.id) {
+      try {
+        const drawnCards = await cardRuntime.drawEffectCards(activation.id, 3);
+        drawnCards.forEach((drawn) => gameState.players[player].hand.push(normalizeCardName(drawn.card_name)));
+        alert(`Super Draw added: ${drawnCards.map((drawn) => drawn.card_name).join(', ')}`);
+        syncHandFromDatabase();
+      } catch (error) {
+        alert(error.message || "Could not draw cards for Super Draw.");
+      }
+    } else {
+      for (let i = 0; i < 3; i++) {
+        if (gameState.regularDeck.length > 0) gameState.players[player].hand.push(gameState.regularDeck.pop());
+      }
     }
   }
-  else if (card.includes("Power of the Swap")) startSwap(player, card);
-  else if (card.includes("Curse of the Thief")) startStealMode(player);
+  else if (card.includes("Power of the Swap")) startSwap(player, card, activation);
+  else if (card.includes("Curse of the Thief")) startStealMode(player, activation);
 
   save();
   render();
 }
 
-function startSwap(player, card) {
-  gameState.pendingSwap = { player, card, discardChoice: null, drawn: [], selectedIndices: [] };
+function cardNameFromDrawn(card) {
+  return typeof card === 'string' ? card : card?.name;
+}
+
+function cardInstanceFromDrawn(card) {
+  return typeof card === 'string' ? null : card?.id;
+}
+
+function startSwap(player, card, activation = null) {
+  gameState.pendingSwap = { player, card, effectId: activation?.id || null, discardChoice: null, drawn: [], selectedIndices: [] };
   document.getElementById("confirmSwapBtn").style.display = "block";
   render();
 }
@@ -3921,7 +4142,7 @@ function pickSwapDiscard(index) {
   render();
 }
 
-function confirmSwap() {
+async function confirmSwap() {
   const swap = gameState.pendingSwap;
   if (swap.discardChoice === null) {
     alert("Select one card to discard");
@@ -3929,12 +4150,28 @@ function confirmSwap() {
   }
 
   const hand = gameState.players[swap.player].hand;
-  gameState.discardPile.push(hand.splice(swap.discardChoice, 1)[0]);
+  const discardedChoice = hand.splice(swap.discardChoice, 1)[0];
+  gameState.discardPile.push(discardedChoice);
   gameState.discardPile.push(swap.card);
+  discardDatabaseCard(swap.player, discardedChoice);
+  discardDatabaseCard(swap.player, swap.card);
 
   swap.drawn = [];
-  for (let i = 0; i < 3; i++) {
-    if (gameState.regularDeck.length > 0) swap.drawn.push(gameState.regularDeck.pop());
+  if (cardRuntime?.drawEffectCards && swap.effectId) {
+    try {
+      const drawnRows = await cardRuntime.drawEffectCards(swap.effectId, 3);
+      swap.drawn = drawnRows.map((drawn) => ({
+        id: drawn.card_instance_id,
+        name: normalizeCardName(drawn.card_name),
+      }));
+    } catch (error) {
+      alert(error.message || "Could not draw cards for Power of the Swap.");
+      return;
+    }
+  } else {
+    for (let i = 0; i < 3; i++) {
+      if (gameState.regularDeck.length > 0) swap.drawn.push(gameState.regularDeck.pop());
+    }
   }
 
   document.getElementById("confirmSwapBtn").style.display = "none";
@@ -3959,26 +4196,36 @@ function confirmPick() {
   }
 
   swap.selectedIndices.sort((a, b) => b - a)
-    .forEach(i => gameState.players[swap.player].hand.push(swap.drawn.splice(i, 1)[0]));
-  swap.drawn.forEach(c => gameState.discardPile.push(c));
+    .forEach(i => gameState.players[swap.player].hand.push(cardNameFromDrawn(swap.drawn.splice(i, 1)[0])));
+  swap.drawn.forEach(c => {
+    const cardName = cardNameFromDrawn(c);
+    const cardInstanceId = cardInstanceFromDrawn(c);
+    gameState.discardPile.push(cardName);
+    if (cardInstanceId && cardRuntime?.discardCardInstance) {
+      cardRuntime.discardCardInstance(cardInstanceId).catch(() => {});
+    }
+  });
 
   gameState.pendingSwap = null;
   document.getElementById("confirmPickBtn").style.display = "none";
+  syncHandFromDatabase();
   render();
 }
 
-function startStealMode(player) {
+function startStealMode(player, activation = null) {
   gameState.stealMode = player;
+  gameState.stealModeEffectId = activation?.id || null;
   gameState.selectedSteal = null;
   render();
 }
 
 function selectSteal(opponent, index) {
-  gameState.selectedSteal = { opponent, index };
+  const cardInstance = gameState.handCardInstancesByPlayer?.[opponent]?.[index];
+  gameState.selectedSteal = { opponent, index, cardInstanceId: cardInstance?.id || null };
   render();
 }
 
-function confirmSteal() {
+async function confirmSteal() {
   if (!gameState.selectedSteal) {
     alert("Select a card");
     return;
@@ -3986,10 +4233,22 @@ function confirmSteal() {
   
   const { opponent, index } = gameState.selectedSteal;
   const player = gameState.stealMode;
+
+  if (cardRuntime?.stealCard && gameState.stealModeEffectId && gameState.selectedSteal.cardInstanceId) {
+    try {
+      await cardRuntime.stealCard(gameState.stealModeEffectId, gameState.selectedSteal.cardInstanceId);
+    } catch (error) {
+      alert(error.message || "Could not steal that card.");
+      return;
+    }
+  }
+
   gameState.players[player].hand.push(gameState.players[opponent].hand.splice(index, 1)[0]);
   gameState.stealMode = null;
+  gameState.stealModeEffectId = null;
   gameState.selectedSteal = null;
   document.getElementById("confirmStealBtn").style.display = "none";
+  syncHandFromDatabase();
   save();
   render();
 }
@@ -4027,23 +4286,27 @@ function closeGameCardPreview() {
   document.body.classList.remove('card-preview-open');
 }
 
-function endSeason() {
-  document.body.classList.add('card-preview-open');
-  document.getElementById('endSeasonConfirmModal').classList.add('show');
-}
-
-function closeEndSeasonConfirm() {
-  document.getElementById('endSeasonConfirmModal').classList.remove('show');
-  document.body.classList.remove('card-preview-open');
-}
-
-function confirmEndSeason() {
-  localStorage.removeItem("ucGameState");
-  location.reload();
-}
-
 function getCardType(cardName) {
   return cardTypeMap[cardName] || 'power';
+}
+
+function getMaskedCardClass(cardName) {
+  const cardType = getCardType(cardName);
+  if (cardType === 'super') return 'masked-premium';
+  if (cardType === 'game') return 'masked-game';
+  return 'masked-regular';
+}
+
+function getMaskedCardLabel(cardName) {
+  const cardType = getCardType(cardName);
+  if (cardType === 'super') return 'Premium Card';
+  if (cardType === 'game') return 'Game Card';
+  return 'Regular Card';
+}
+
+function cardTileMarkup(cardName, extraClass = '') {
+  const cardType = getCardType(cardName);
+  return `<div class="card-tile ${cardType} ${extraClass}">${cardName}</div>`;
 }
 
 function fitTextWithin(el, minPx = 7) {
@@ -4078,9 +4341,14 @@ function fitTileText(tile) {
 function render() {
   document.body.classList.toggle('season-started', Boolean(gameState.seasonStarted));
   syncMobileFixedActions();
+  renderPlayerBoxes();
 
-  ['p1', 'p2'].forEach(p => {
+  const currentPlayerKey = getCurrentPlayerKey();
+  const playerOrder = gameState.playerOrder?.length ? gameState.playerOrder : Object.keys(gameState.players || {});
+
+  playerOrder.forEach(p => {
     const container = document.getElementById(p + 'Hand');
+    if (!container || !gameState.players[p]) return;
     const targetEl = container.querySelector('.dealt-card-target');
     container.innerHTML = "";
     if (targetEl) container.appendChild(targetEl);
@@ -4088,17 +4356,27 @@ function render() {
     gameState.players[p].hand.forEach((c, i) => {
       const div = document.createElement('div');
       const cardType = getCardType(c);
-      div.className = `card-tile ${cardType}`;
-      div.innerText = c;
+      const isOpponentHand = p !== currentPlayerKey;
+      div.className = isOpponentHand
+        ? `card-tile masked-card ${getMaskedCardClass(c)}`
+        : `card-tile ${cardType}`;
+      div.innerText = isOpponentHand ? getMaskedCardLabel(c) : c;
       div.dataset.player = p;
       div.dataset.index = i;
       div.dataset.card = c;
-      div.setAttribute('role', 'button');
-      div.setAttribute('tabindex', '0');
+
+      if (!isOpponentHand || gameState.stealMode) {
+        div.setAttribute('role', 'button');
+        div.setAttribute('tabindex', '0');
+      }
 
       if (i >= lastHandSizes[p]) div.classList.add('fly');
 
       const handleCardClick = () => {
+        if (isOpponentHand && !(gameState.stealMode && gameState.stealMode !== p)) {
+          return;
+        }
+
         if (gameState.pendingSwap && gameState.pendingSwap.player === p && gameState.pendingSwap.drawn.length === 0) {
           pickSwapDiscard(i);
           return;
@@ -4116,12 +4394,14 @@ function render() {
       };
 
       div.addEventListener('click', handleCardClick);
-      div.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleCardClick();
-        }
-      });
+      if (!isOpponentHand || gameState.stealMode) {
+        div.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleCardClick();
+          }
+        });
+      }
 
       if (gameState.pendingSwap && gameState.pendingSwap.player === p && gameState.pendingSwap.drawn.length === 0) {
         if (gameState.pendingSwap.discardChoice === i) div.classList.add('swap-select');
@@ -4147,9 +4427,10 @@ function render() {
       html += `<p>Choose 2 cards from the 3 drawn to keep:</p>`;
       html += `<div class="drawn-cards">`;
       gameState.pendingSwap.drawn.forEach((c, i) => {
-        const cardType = getCardType(c);
+        const cardName = cardNameFromDrawn(c);
+        const cardType = getCardType(cardName);
         const selected = gameState.pendingSwap.selectedIndices.includes(i) ? 'swap-select' : '';
-        html += `<div class="card-tile ${cardType} ${selected}" onclick="pickSwapKeep(${i})">${c}</div>`;
+        html += `<div class="card-tile ${cardType} ${selected}" onclick="pickSwapKeep(${i})">${cardName}</div>`;
       });
       html += `</div>`;
     }
@@ -4157,10 +4438,13 @@ function render() {
     swapDiv.innerHTML = html;
     swapDiv.querySelectorAll('.card-tile').forEach(fitTileText);
   } else if (gameState.stealMode) {
-    const opp = gameState.stealMode === 'p1' ? 'Tom' : 'Vas';
-    const player = gameState.stealMode === 'p1' ? 'Vas' : 'Tom';
+    const player = getPlayerName(gameState.stealMode);
+    const opponentNames = (gameState.playerOrder || [])
+      .filter((playerKey) => playerKey !== gameState.stealMode)
+      .map(getPlayerName)
+      .join(', ');
     swapDiv.style.display = "block";
-    swapDiv.innerHTML = `<strong>🎯 ${player} stealing from ${opp}</strong><p>Select a card from ${opp}'s hand below and press Confirm Steal</p>`;
+    swapDiv.innerHTML = `<strong>Steal active for ${player}</strong><p>Select a card from ${opponentNames || 'an opponent'}'s hand below and press Confirm Steal</p>`;
     document.getElementById("confirmStealBtn").style.display = "block";
   } else {
     swapDiv.style.display = "block";
@@ -4185,19 +4469,22 @@ function render() {
   document.getElementById("drawnCardSection").style.display = gameState.lastCard ? "block" : "none";
   document.getElementById("drawnCardAssignButtons").style.display = gameState.lastCard ? "flex" : "none";
   const discardPileEl = document.getElementById("discardPile");
-  discardPileEl.innerText = gameState.discardPile.length ? gameState.discardPile.join(", ") : "Empty";
+  discardPileEl.innerHTML = gameState.discardPile.length
+    ? gameState.discardPile.map(card => cardTileMarkup(card, 'discard-card')).join('')
+    : "Empty";
   discardPileEl.classList.toggle("has-cards", gameState.discardPile.length > 0);
+  discardPileEl.querySelectorAll('.card-tile').forEach(fitTileText);
   document.getElementById("discardCountBadge").innerText = gameState.discardPile.length;
 
 }
 
-load();
-if (!gameState.seasonStarted) {
+function applyCardPageVisibility() {
+  if (!gameState.seasonStarted) {
   document.body.classList.remove('season-started');
   document.body.classList.remove('controls-ready');
   syncMobileFixedActions();
   render();
-} else {
+  } else {
   document.body.classList.add('season-started');
   document.body.classList.add('controls-ready');
   document.getElementById('introWrapper').classList.add('hidden');
@@ -4207,7 +4494,586 @@ if (!gameState.seasonStarted) {
   document.getElementById('discardSection').classList.add('show');
   syncMobileFixedActions();
   render();
+  }
 }
+
+function getNestedRecord(value) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+async function initializeCardPage() {
+  load();
+  updateMedalDisplays();
+  setActiveGameCardPanel('Loading...', 'Checking active gameweek...', '');
+
+  try {
+    const [{ supabase }, leagueModule, gameweekModule] = await Promise.all([
+      import('./assets/js/supabase-client.js'),
+      import('./assets/js/league-context.js'),
+      import('./assets/js/gameweek-context.js'),
+    ]);
+
+    const context = await leagueModule.loadLeagueContext();
+    if (context.error) {
+      setActiveGameCardPanel('Private league unavailable', context.error, '');
+      applyCardPageVisibility();
+      return;
+    }
+
+    currentCompetitionId = context.league.id;
+    load();
+
+    async function syncMedals() {
+      const { data, error } = await supabase.rpc('sync_my_card_draw_tokens', {
+        target_competition_id: context.league.id,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const row = Array.isArray(data) ? data[0] : data;
+      medalBalances = {
+        regular: Number(row?.regular_medals || 0),
+        super: Number(row?.super_medals || 0),
+      };
+      updateMedalDisplays();
+    }
+
+    async function refreshHands() {
+      const { data: memberRows, error: memberError } = await supabase
+        .from('competition_members')
+        .select('user_id, role, joined_at, profiles(id, display_name, profile_image_url)')
+        .eq('competition_id', context.league.id)
+        .order('joined_at', { ascending: true });
+
+      if (memberError) {
+        throw memberError;
+      }
+
+      const sortedMembers = (memberRows || []).slice().sort((a, b) => {
+        if (a.user_id === context.user.id) return -1;
+        if (b.user_id === context.user.id) return 1;
+        return new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime();
+      });
+
+      const nextPlayers = {};
+      const nextPlayerNames = {};
+      const nextPlayerUserIds = {};
+      const nextCardInstanceIdsByPlayer = {};
+      const nextHandCardInstancesByPlayer = {};
+      const nextOrder = [];
+
+      sortedMembers.forEach((member, index) => {
+        const key = index === 0 ? 'p1' : `p${index + 1}`;
+        const profile = getNestedRecord(member.profiles);
+        nextPlayers[key] = { hand: [] };
+        nextCardInstanceIdsByPlayer[key] = {};
+        nextHandCardInstancesByPlayer[key] = [];
+        nextPlayerNames[key] = profile?.display_name || (member.user_id === context.user.id ? 'You' : 'Player');
+        nextPlayerUserIds[key] = member.user_id;
+        nextOrder.push(key);
+        lastHandSizes[key] = lastHandSizes[key] || 0;
+      });
+
+      gameState.players = nextPlayers;
+      gameState.playerOrder = nextOrder.length ? nextOrder : ['p1'];
+      gameState.playerNames = nextPlayerNames;
+      gameState.playerUserIds = nextPlayerUserIds;
+      gameState.cardInstanceIdsByPlayer = nextCardInstanceIdsByPlayer;
+      gameState.handCardInstancesByPlayer = nextHandCardInstancesByPlayer;
+      gameState.currentPlayerKey = gameState.playerOrder[0] || 'p1';
+
+      const { data: cardRows, error: cardError } = await supabase
+        .from('league_cards')
+        .select('id, owner_user_id, zone, card_definitions(name, category, deck_type)')
+        .eq('competition_id', context.league.id)
+        .in('zone', ['regular_deck', 'premium_deck', 'game_deck', 'hand', 'discard']);
+
+      if (cardError) {
+        throw cardError;
+      }
+
+      const userIdToPlayerKey = new Map(
+        Object.entries(gameState.playerUserIds).map(([playerKey, userId]) => [userId, playerKey])
+      );
+      const dbDiscardPile = [];
+      gameState.regularDeck = [];
+      gameState.premiumDeck = [];
+
+      (cardRows || []).forEach((row) => {
+        const cardDefinition = getNestedRecord(row.card_definitions);
+        const cardName = normalizeCardName(cardDefinition?.name || row.card_id);
+
+        if (row.zone === 'hand') {
+          const playerKey = userIdToPlayerKey.get(row.owner_user_id);
+          if (playerKey && gameState.players[playerKey]) {
+            gameState.players[playerKey].hand.push(cardName);
+            gameState.handCardInstancesByPlayer[playerKey].push({ id: row.id, name: cardName });
+            gameState.cardInstanceIdsByPlayer[playerKey][cardName] = gameState.cardInstanceIdsByPlayer[playerKey][cardName] || [];
+            gameState.cardInstanceIdsByPlayer[playerKey][cardName].push(row.id);
+          }
+        } else if (row.zone === 'regular_deck') {
+          gameState.regularDeck.push(cardName);
+        } else if (row.zone === 'premium_deck') {
+          gameState.premiumDeck.push(cardName);
+        } else if (row.zone === 'discard') {
+          dbDiscardPile.push(cardName);
+        }
+      });
+
+      if (dbDiscardPile.length) {
+        gameState.discardPile = dbDiscardPile;
+      }
+
+      render();
+      save();
+    }
+
+    async function loadActiveGameCard() {
+      try {
+        await supabase.rpc('ensure_game_card_rounds', {
+          target_competition_id: context.league.id,
+        });
+      } catch (error) {
+        setActiveGameCardPanel('Game card setup pending', 'Run the updated card-medals-and-draws.sql, then refresh.', error.message || '');
+        return;
+      }
+
+      const { activeGameweek } = await gameweekModule.loadActiveGameweek(context.league);
+      const { data: gameweeks, error: gameweekError } = await supabase
+        .from('gameweeks')
+        .select('id, number')
+        .eq('season_id', context.league.season_id);
+
+      if (gameweekError) {
+        throw gameweekError;
+      }
+
+      const gameweekNumberById = new Map((gameweeks || []).map((gameweek) => [String(gameweek.id), Number(gameweek.number)]));
+      const activeGameweekNumber = Number(activeGameweek?.gameweek_number || 0);
+
+      const { data: rounds, error: roundError } = await supabase
+        .from('game_card_rounds')
+        .select('id, start_gameweek_id, end_gameweek_id, status, card_definitions(name, description)')
+        .eq('competition_id', context.league.id)
+        .order('round_number', { ascending: true });
+
+      if (roundError) {
+        throw roundError;
+      }
+
+      const activeRound = (rounds || []).find((round) => {
+        const startNumber = gameweekNumberById.get(String(round.start_gameweek_id));
+        const endNumber = gameweekNumberById.get(String(round.end_gameweek_id));
+        return activeGameweekNumber >= startNumber && activeGameweekNumber <= endNumber;
+      });
+
+      if (!activeRound) {
+        gameState.activeGameCard = null;
+        setActiveGameCardPanel(
+          'No active game card',
+          activeGameweek ? `No scheduled game card covers Gameweek ${activeGameweek.gameweek_number}.` : 'No active gameweek found.',
+          ''
+        );
+        return;
+      }
+
+      const cardDefinition = getNestedRecord(activeRound.card_definitions);
+      const startNumber = gameweekNumberById.get(String(activeRound.start_gameweek_id));
+      const endNumber = gameweekNumberById.get(String(activeRound.end_gameweek_id));
+      gameState.activeGameCard = cardDefinition?.name || null;
+      setActiveGameCardPanel(
+        cardDefinition?.name || 'Active game card',
+        `Active Gameweeks ${startNumber} to ${endNumber}`,
+        cardDefinition?.description || ''
+      );
+    }
+
+    const cardEffectRules = {
+      'Power of the Goal': { cardId: 'power_goal', effectKey: 'power_goal', duration: 1, target: 'self' },
+      'Power of the Swap': { cardId: 'power_swap', effectKey: 'power_swap', duration: 1, target: 'self' },
+      'Power of the Veto': { cardId: 'power_veto', effectKey: 'power_veto', special: 'veto' },
+      'Power of the Laundrette': { cardId: 'power_laundrette', effectKey: 'power_laundrette', duration: 1, target: 'self' },
+      'Power of the Rocket Man': { cardId: 'power_rocket_man', effectKey: 'power_rocket_man', duration: 1, target: 'self' },
+      'Power of the Pessimist': { cardId: 'power_pessimist', effectKey: 'power_pessimist', duration: 1, target: 'self' },
+      'Power of the Immigrants': { cardId: 'power_immigrants', effectKey: 'power_immigrants', duration: 1, target: 'self' },
+      'Power of the Lanky Crouch': { cardId: 'power_lanky_crouch', effectKey: 'power_lanky_crouch', duration: 1, target: 'self' },
+      'Power of the Small and Mighty': { cardId: 'power_small_and_mighty', effectKey: 'power_small_and_mighty', duration: 1, target: 'self' },
+      'Power of God': { cardId: 'power_of_god', effectKey: 'power_of_god', duration: 1, target: 'self' },
+      'Power of the Hedge': { cardId: 'power_hedge', effectKey: 'power_hedge', duration: 1, target: 'self' },
+      'Power of the Assist King': { cardId: 'power_assist_king', effectKey: 'power_assist_king', duration: 1, target: 'self' },
+      'Power of the Late Scout': { cardId: 'power_late_scout', effectKey: 'power_late_scout', duration: 1, target: 'self' },
+      'Power of the Snow': { cardId: 'power_snow', effectKey: 'power_snow', duration: 1, target: 'self' },
+      'Curse of the Hated': { cardId: 'curse_hated', effectKey: 'curse_hated', duration: 1, target: 'opponent', fixture: true, special: 'hated' },
+      'Curse of the Gambler': { cardId: 'curse_gambler', effectKey: 'curse_gambler', duration: 1, target: 'opponent', special: 'gambler' },
+      'Curse of the Bench Warmer': { cardId: 'curse_bench_warmer', effectKey: 'curse_bench_warmer', duration: 1, target: 'opponent' },
+      'Curse of the Alphabet (15+)': { cardId: 'curse_alphabet_15', effectKey: 'curse_alphabet_15', duration: 1, target: 'opponent' },
+      'Curse of the Alphabet (20+)': { cardId: 'curse_alphabet_20', effectKey: 'curse_alphabet_20', duration: 1, target: 'opponent' },
+      'Curse of the Scoring Drought (3)': { cardId: 'curse_scoring_drought_3', effectKey: 'curse_scoring_drought_3', duration: 1, target: 'opponent' },
+      'Curse of the Scoring Drought (5)': { cardId: 'curse_scoring_drought_5', effectKey: 'curse_scoring_drought_5', duration: 1, target: 'opponent' },
+      'Curse of the Random Roulette': { cardId: 'curse_random_roulette', effectKey: 'curse_random_roulette', duration: 1, target: 'opponent', special: 'roulette' },
+      'Curse of the Glasses': { cardId: 'curse_glasses', effectKey: 'curse_glasses', duration: 1, target: 'opponent' },
+      'Curse of the Deleted Match': { cardId: 'curse_deleted_match', effectKey: 'curse_deleted_match', duration: 1, target: 'opponent', fixture: true },
+      'Curse of the Tiny Club': { cardId: 'curse_tiny_club', effectKey: 'curse_tiny_club', duration: 1, target: 'opponent' },
+      'Curse of the Thief': { cardId: 'curse_thief', effectKey: 'curse_thief', duration: 1, target: 'self' },
+      'Curse of the Even Number': { cardId: 'curse_even_number', effectKey: 'curse_even_number', duration: 1, target: 'opponent' },
+      'Curse of the Odd Number': { cardId: 'curse_odd_number', effectKey: 'curse_odd_number', duration: 1, target: 'opponent' },
+      'Super Star Man': { cardId: 'super_star_man', effectKey: 'super_star_man', duration: 1, target: 'self' },
+      'Super Golden Gameweek': { cardId: 'super_golden_gameweek', effectKey: 'super_golden_gameweek', duration: 1, target: 'self' },
+      'Super Sub': { cardId: 'super_sub', effectKey: 'super_sub', duration: 1, target: 'self' },
+      'Super Score': { cardId: 'super_score', effectKey: 'super_score', duration: 1, target: 'self' },
+      'Super Draw': { cardId: 'super_draw', effectKey: 'super_draw', duration: 1, target: 'self' },
+      'Super Duo': { cardId: 'super_duo', effectKey: 'super_duo', duration: 1, target: 'self' },
+      'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 3, target: 'self' },
+    };
+
+    function chooseFromList(title, items, labelFn) {
+      if (!items.length) {
+        throw new Error('There is nothing available to choose.');
+      }
+      const optionsText = items.map((item, index) => `${index + 1}. ${labelFn(item)}`).join('\n');
+      const answer = window.prompt(`${title}\n\n${optionsText}`);
+      if (answer === null) {
+        throw new Error('Card play cancelled.');
+      }
+      const chosenIndex = Number(answer.trim()) - 1;
+      if (!Number.isInteger(chosenIndex) || !items[chosenIndex]) {
+        throw new Error('Choose a valid number from the list.');
+      }
+      return items[chosenIndex];
+    }
+
+    async function leagueMembers() {
+      const { data, error } = await supabase
+        .from('competition_members')
+        .select('user_id, profiles(display_name)')
+        .eq('competition_id', context.league.id)
+        .order('joined_at', { ascending: true });
+
+      if (error) throw error;
+      return (data || []).map((member) => ({
+        user_id: member.user_id,
+        display_name: getNestedRecord(member.profiles)?.display_name || 'Player',
+      }));
+    }
+
+    async function currentGameweekFixtures(activeGameweek) {
+      const { data, error } = await supabase
+        .from('fixtures')
+        .select('id, home_team_id, away_team_id, kickoff_at')
+        .eq('season_id', context.league.season_id)
+        .eq('gameweek_id', activeGameweek.gameweek_id)
+        .order('kickoff_at', { ascending: true });
+
+      if (error) throw error;
+      const fixtures = data || [];
+      const teamIds = [...new Set(fixtures.flatMap((fixture) => [fixture.home_team_id, fixture.away_team_id]).filter(Boolean))];
+      const { data: teams, error: teamError } = await supabase
+        .from('teams')
+        .select('id, name')
+        .in('id', teamIds);
+
+      if (teamError) throw teamError;
+      const teamsById = new Map((teams || []).map((team) => [team.id, team.name]));
+      return fixtures.map((fixture) => ({
+        ...fixture,
+        home_team_name: teamsById.get(fixture.home_team_id) || 'Home',
+        away_team_name: teamsById.get(fixture.away_team_id) || 'Away',
+      }));
+    }
+
+    function fixtureChoiceLabel(fixture) {
+      return `${fixture.home_team_name || 'Home'} v ${fixture.away_team_name || 'Away'}`;
+    }
+
+    async function endGameweekId(activeGameweek, duration) {
+      if (duration <= 1) return activeGameweek.gameweek_id;
+      const targetNumber = Math.min(Number(activeGameweek.gameweek_number) + duration - 1, 38);
+      const { data, error } = await supabase
+        .from('gameweeks')
+        .select('id')
+        .eq('season_id', context.league.season_id)
+        .eq('number', targetNumber)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data?.id || activeGameweek.gameweek_id;
+    }
+
+    async function insertCardEffect(rule, playerKey, activeGameweek, options = {}) {
+      const cardDisplayName = Object.keys(cardEffectRules).find((name) => cardEffectRules[name] === rule);
+      const cardInstanceId = gameState.cardInstanceIdsByPlayer?.[playerKey]?.[cardDisplayName]?.[0] || null;
+      const { data, error } = await supabase
+        .from('active_card_effects')
+        .insert({
+          competition_id: context.league.id,
+          card_instance_id: cardInstanceId,
+          card_id: rule.cardId,
+          season_id: context.league.season_id,
+          gameweek_id: activeGameweek.gameweek_id,
+          start_gameweek_id: activeGameweek.gameweek_id,
+          end_gameweek_id: await endGameweekId(activeGameweek, rule.duration || 1),
+          fixture_id: options.fixtureId || null,
+          played_by_user_id: context.user.id,
+          target_user_id: options.targetUserId || null,
+          status: 'active',
+          payload: { effect_key: rule.effectKey, ...(options.payload || {}) },
+        })
+        .select('id, card_id, fixture_id, target_user_id')
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+
+    async function playVeto(activeGameweek) {
+      const { data, error } = await supabase
+        .from('active_card_effects')
+        .select('id, played_by_user_id, card_definitions(name, category)')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('target_user_id', context.user.id)
+        .eq('status', 'active');
+
+      if (error) throw error;
+      const curses = (data || []).filter((effect) => getNestedRecord(effect.card_definitions)?.category === 'curse');
+      const chosen = chooseFromList('Choose the curse to veto:', curses, (effect) => getNestedRecord(effect.card_definitions)?.name || effect.id);
+      const { error: updateError } = await supabase
+        .from('active_card_effects')
+        .update({ status: 'vetoed', resolved_at: new Date().toISOString() })
+        .eq('id', chosen.id);
+
+      if (updateError) throw updateError;
+      alert('Curse vetoed.');
+      return { id: chosen.id, vetoed: true, activeGameweek };
+    }
+
+    function rollDie() {
+      return Math.floor(Math.random() * 6) + 1;
+    }
+
+    cardRuntime = {
+      refreshHands,
+      async discardCard(playerKey, cardName) {
+        const cardIds = gameState.cardInstanceIdsByPlayer?.[playerKey]?.[cardName];
+        const cardInstanceId = cardIds?.shift();
+        if (!cardInstanceId) {
+          return;
+        }
+
+        const { error } = await supabase.rpc('discard_my_league_card', {
+          target_competition_id: context.league.id,
+          target_card_instance_id: cardInstanceId,
+        });
+
+        if (error) {
+          throw error;
+        }
+      },
+      async redeemCardDraw(deckType) {
+        const { data, error } = await supabase.rpc('redeem_card_draw_token', {
+          target_competition_id: context.league.id,
+          target_deck_type: deckType,
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        const row = Array.isArray(data) ? data[0] : data;
+        medalBalances = {
+          regular: Number(row?.regular_medals || 0),
+          super: Number(row?.super_medals || 0),
+        };
+        updateMedalDisplays();
+        return row;
+      },
+      async drawEffectCards(effectId, count) {
+        const { data, error } = await supabase.rpc('draw_regular_cards_for_effect', {
+          target_competition_id: context.league.id,
+          target_source_card_effect_id: effectId,
+          target_count: count,
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        return data || [];
+      },
+      async discardCardInstance(cardInstanceId) {
+        const { error } = await supabase.rpc('discard_my_league_card', {
+          target_competition_id: context.league.id,
+          target_card_instance_id: cardInstanceId,
+        });
+
+        if (error) {
+          throw error;
+        }
+      },
+      async stealCard(effectId, cardInstanceId) {
+        const { data, error } = await supabase.rpc('steal_regular_card_from_opponent', {
+          target_competition_id: context.league.id,
+          target_source_card_effect_id: effectId,
+          target_card_instance_id: cardInstanceId,
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        return Array.isArray(data) ? data[0] : data;
+      },
+      async activateCardEffect(cardName, playerKey) {
+        const rule = cardEffectRules[cardName];
+        if (!rule) {
+          return;
+        }
+
+        const playedByUserId = gameState.playerUserIds?.[playerKey];
+        if (playedByUserId !== context.user.id) {
+          throw new Error('You can only activate your own cards.');
+        }
+
+        const { activeGameweek } = await gameweekModule.loadActiveGameweek(context.league);
+        if (!activeGameweek) {
+          throw new Error('No active gameweek found.');
+        }
+        const canPlayAfterStart = ['power_of_god', 'power_late_scout', 'super_sub', 'power_swap', 'power_veto', 'curse_thief', 'super_draw'].includes(rule.effectKey);
+        if (!canPlayAfterStart
+          && activeGameweek.first_fixture_kickoff_at
+          && Date.now() >= new Date(activeGameweek.first_fixture_kickoff_at).getTime()) {
+          throw new Error('This card must be played before the gameweek starts.');
+        }
+
+        if (rule.special === 'veto') {
+          return playVeto(activeGameweek);
+        }
+
+        const members = await leagueMembers();
+        const opponents = members.filter((member) => member.user_id !== context.user.id);
+        const fixtures = await currentGameweekFixtures(activeGameweek);
+        let targetUserId = null;
+        let fixtureId = null;
+        let payload = {};
+
+        if (rule.target === 'opponent') {
+          targetUserId = chooseFromList('Choose the opponent this card affects:', opponents, (member) => member.display_name).user_id;
+        }
+
+        if (rule.fixture) {
+          fixtureId = chooseFromList('Choose the match this card affects:', fixtures, fixtureChoiceLabel).id;
+        }
+
+        if (rule.special === 'roulette') {
+          const answer = window.prompt('Enter the roulette number from 1 to 36.');
+          if (answer === null) {
+            throw new Error('Card play cancelled.');
+          }
+          const rouletteNumber = Number(answer.trim());
+          if (!Number.isInteger(rouletteNumber) || rouletteNumber < 1 || rouletteNumber > 36) {
+            throw new Error('Roulette number must be between 1 and 36.');
+          }
+          payload.roulette_number = rouletteNumber;
+        }
+
+        if (rule.special === 'gambler') {
+          const fixtureText = fixtures.map((fixture, index) => `${index + 1}. ${fixtureChoiceLabel(fixture)}`).join('\n');
+          const answer = window.prompt(`Choose 3 match numbers for Curse of the Gambler, separated by commas.\n\n${fixtureText}`);
+          if (answer === null) {
+            throw new Error('Card play cancelled.');
+          }
+          const selectedFixtures = [...new Set(answer.split(',').map((part) => Number(part.trim()) - 1))]
+            .map((index) => fixtures[index])
+            .filter(Boolean)
+            .slice(0, 3);
+          if (selectedFixtures.length !== 3) {
+            throw new Error('Choose exactly 3 valid matches.');
+          }
+          payload.gambler_fixture_ids = selectedFixtures.map((fixture) => fixture.id);
+        }
+
+        const effect = await insertCardEffect(rule, playerKey, activeGameweek, { targetUserId, fixtureId, payload });
+
+        if (rule.special === 'roulette') {
+          const { error } = await supabase.from('curse_random_roulette_inputs').insert({
+            card_effect_id: effect.id,
+            competition_id: context.league.id,
+            season_id: context.league.season_id,
+            gameweek_id: activeGameweek.gameweek_id,
+            played_by_user_id: context.user.id,
+            target_user_id: targetUserId,
+            roulette_number: payload.roulette_number,
+          });
+          if (error) throw error;
+        }
+
+        if (rule.special === 'hated') {
+          const { error } = await supabase.from('curse_hated_forced_predictions').insert({
+            card_effect_id: effect.id,
+            competition_id: context.league.id,
+            season_id: context.league.season_id,
+            gameweek_id: activeGameweek.gameweek_id,
+            fixture_id: fixtureId,
+            played_by_user_id: context.user.id,
+            target_user_id: targetUserId,
+            home_goals: 8,
+            away_goals: 2,
+          });
+          if (error) throw error;
+        }
+
+        if (rule.special === 'gambler') {
+          const selectedFixtures = (payload.gambler_fixture_ids || []).map((id) => fixtures.find((fixture) => fixture.id === id)).filter(Boolean);
+          const rollRows = selectedFixtures.map((fixture, index) => ({
+            card_effect_id: effect.id,
+            competition_id: context.league.id,
+            season_id: context.league.season_id,
+            gameweek_id: activeGameweek.gameweek_id,
+            fixture_id: fixture.id,
+            played_by_user_id: context.user.id,
+            target_user_id: targetUserId,
+            roll_number: index + 1,
+            home_die_roll: rollDie(),
+            away_die_roll: rollDie(),
+          }));
+          const { error } = await supabase.from('curse_gambler_rolls').insert(rollRows);
+          if (error) throw error;
+          alert(rollRows.map((row) => {
+            const fixture = selectedFixtures[row.roll_number - 1];
+            const homeGoals = row.home_die_roll === 6 ? 0 : row.home_die_roll;
+            const awayGoals = row.away_die_roll === 6 ? 0 : row.away_die_roll;
+            return `${fixtureChoiceLabel(fixture)}: ${homeGoals}-${awayGoals}`;
+          }).join('\n'));
+        }
+
+        return effect;
+      },
+    };
+
+    try {
+      await supabase.rpc('ensure_competition_starter_cards', {
+        target_competition_id: context.league.id,
+      });
+    } catch (error) {
+      setActiveGameCardPanel('Starter cards pending', 'Run the updated card-medals-and-draws.sql, then refresh.', error.message || '');
+    }
+
+    await Promise.allSettled([
+      syncMedals(),
+      refreshHands(),
+      loadActiveGameCard(),
+    ]);
+  } catch (error) {
+    setActiveGameCardPanel('Cards unavailable', error.message || 'Could not load league cards.', '');
+  }
+
+  applyCardPageVisibility();
+}
+
+initializeCardPage();
 </script>
+<script type="module" src="assets/js/site-auth.js"></script>
 </body>
 </html>

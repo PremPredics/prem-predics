@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Global Admin</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+}
+
+header {
+  padding: 24px 16px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+header h1 {
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  margin: 0;
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+main {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 24px 14px 44px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.toolbar a,
+.admin-nav button,
+button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 13px;
+  background: rgba(17, 7, 38, 0.72);
+  border: 1px solid rgba(216, 180, 254, 0.32);
+  color: #fff;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.admin-nav button.active,
+button.primary {
+  background: linear-gradient(135deg, #7c3aed, #c084fc);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.panel {
+  background: rgba(46, 16, 102, 0.68);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.gate {
+  width: min(460px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+  text-align: center;
+}
+
+.gate input,
+select,
+input {
+  min-height: 38px;
+  width: 100%;
+  border: 1px solid rgba(216, 180, 254, 0.42);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(17, 7, 38, 0.72);
+  color: #fff;
+  font: inherit;
+}
+
+input[type="checkbox"] {
+  width: auto;
+  min-height: auto;
+}
+
+.admin-content[hidden],
+.admin-section[hidden],
+.gate[hidden] {
+  display: none;
+}
+
+.admin-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.admin-section {
+  display: grid;
+  gap: 14px;
+}
+
+.section-copy {
+  margin: 0;
+  color: #ddd6fe;
+  text-align: center;
+  line-height: 1.45;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.admin-list {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns: minmax(170px, 1.2fr) repeat(4, minmax(72px, 0.5fr)) 92px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 9px;
+  background: rgba(17, 7, 38, 0.44);
+  border: 1px solid rgba(216, 180, 254, 0.2);
+}
+
+.admin-row.schedule {
+  grid-template-columns: minmax(190px, 1.2fr) 180px 120px 120px 92px;
+}
+
+.admin-row.fixture-stats {
+  grid-template-columns: minmax(180px, 1fr) repeat(7, minmax(74px, 0.5fr)) 92px;
+}
+
+.admin-row.player-stats {
+  grid-template-columns: minmax(180px, 1.2fr) repeat(6, minmax(66px, 0.45fr));
+}
+
+.admin-row.team-standing {
+  grid-template-columns: minmax(190px, 1fr) 100px;
+}
+
+.admin-row strong {
+  color: #fff;
+}
+
+.admin-row small {
+  display: block;
+  color: #ddd6fe;
+  margin-top: 2px;
+}
+
+.message {
+  min-height: 22px;
+  color: #ddd6fe;
+  text-align: center;
+  margin: 0;
+}
+
+.message[data-type="success"] { color: #bbf7d0; }
+.message[data-type="error"] { color: #fecaca; }
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+@media (max-width: 820px) {
+  main { padding: 20px 10px 34px; }
+  .admin-row,
+  .admin-row.schedule,
+  .admin-row.fixture-stats,
+  .admin-row.player-stats,
+  .admin-row.team-standing {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .toolbar a { flex: 1; text-align: center; }
+}
+</style>
+</head>
+<body data-require-auth="true">
+<header>
+  <h1>Prem Predics - Global Admin</h1>
+</header>
+
+<main>
+  <div class="toolbar">
+    <a href="index.html">Back To Home</a>
+  </div>
+
+  <section class="panel gate" data-admin-gate>
+    <h2>Global Admin Access</h2>
+    <p class="section-copy">Confirm your password to open the manual entry area.</p>
+    <input type="password" data-admin-password placeholder="Password" autocomplete="current-password">
+    <button class="primary" type="button" data-admin-unlock>Unlock Admin Tools</button>
+    <p class="message" data-admin-gate-message></p>
+  </section>
+
+  <section class="admin-content" data-admin-content hidden>
+    <nav class="admin-nav" aria-label="Global admin sections">
+      <button type="button" data-admin-tab="actual-results" class="active">Actual Results</button>
+      <button type="button" data-admin-tab="schedule">Change Date/Time</button>
+      <button type="button" data-admin-tab="fixture-stats">Fixture Stats</button>
+      <button type="button" data-admin-tab="player-stats">Player Stats</button>
+      <button type="button" data-admin-tab="game-card-results">Game Card Results</button>
+      <button type="button" data-admin-tab="team-standings">Team Standings</button>
+    </nav>
+
+    <section class="panel admin-section" data-admin-section="actual-results">
+      <p class="section-copy">Enter final match scores. Clean sheets are calculated automatically by the database.</p>
+      <div class="controls">
+        <label>Gameweek<select data-actual-gameweek></select></label>
+      </div>
+      <div class="admin-list" data-actual-list></div>
+      <p class="message" data-actual-message></p>
+    </section>
+
+    <section class="panel admin-section" data-admin-section="schedule" hidden>
+      <p class="section-copy">Move fixtures between gameweeks and change kickoff times. Prediction deadlines recalculate from kickoff time.</p>
+      <div class="controls">
+        <label>View<select data-schedule-filter></select></label>
+      </div>
+      <div class="admin-list" data-schedule-list></div>
+      <p class="message" data-schedule-message></p>
+    </section>
+
+    <section class="panel admin-section" data-admin-section="fixture-stats" hidden>
+      <p class="section-copy">Enter fixture-level stats needed for cards such as corners, penalties, yellow cards and late goals.</p>
+      <div class="controls">
+        <label>Gameweek<select data-fixture-stats-gameweek></select></label>
+        <label>Fixture<select data-fixture-stats-fixture></select></label>
+      </div>
+      <div class="admin-list" data-fixture-stats-list></div>
+      <p class="message" data-fixture-stats-message></p>
+    </section>
+
+    <section class="panel admin-section" data-admin-section="player-stats" hidden>
+      <p class="section-copy">Enter player goals, assists, cards and starter/substitution details for a selected fixture.</p>
+      <div class="controls">
+        <label>Gameweek<select data-player-stats-gameweek></select></label>
+        <label>Fixture<select data-player-stats-fixture></select></label>
+      </div>
+      <div class="admin-list" data-player-stats-list></div>
+      <button class="primary" type="button" data-save-player-stats>Save Player Stats</button>
+      <p class="message" data-player-stats-message></p>
+    </section>
+
+    <section class="panel admin-section" data-admin-section="game-card-results" hidden>
+      <p class="section-copy">Enter the global actual value for a Game Card. Every private league references this same result.</p>
+      <div class="controls">
+        <label>Gameweek<select data-game-card-gameweek></select></label>
+        <label>Game Card<select data-game-card-card></select></label>
+        <label>Actual Value<input data-game-card-value type="number" min="0" max="999" step="1"></label>
+      </div>
+      <button class="primary" type="button" data-save-game-card-result>Save Game Card Result</button>
+      <p class="message" data-game-card-message></p>
+    </section>
+
+    <section class="panel admin-section" data-admin-section="team-standings" hidden>
+      <p class="section-copy">Enter league positions by gameweek. This supports Underdog logic and Tiny Club restrictions.</p>
+      <div class="controls">
+        <label>Gameweek<select data-standings-gameweek></select></label>
+      </div>
+      <div class="admin-list" data-standings-list></div>
+      <button class="primary" type="button" data-save-standings>Save Team Standings</button>
+      <p class="message" data-standings-message></p>
+    </section>
+  </section>
+</main>
+
+<footer>&copy; 2026 Prem Predics | Global Admin</footer>
+
+<script type="module" src="assets/js/site-auth.js"></script>
+<script type="module" src="assets/js/global-admin.js"></script>
+</body>
+</html>

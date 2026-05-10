@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Leagues</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+  margin: 0;
+  min-height: 100vh;
+}
+
+header {
+  padding: 25px 20px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+header h1 {
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  margin: 0;
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+main {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 34px 20px 48px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.toolbar a {
+  color: #f3e8ff;
+  text-decoration: none;
+  font-weight: 800;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 10px 13px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.panel {
+  background: rgba(46, 16, 102, 0.66);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.panel h2 {
+  margin: 0 0 16px;
+  font-size: 24px;
+}
+
+.forms {
+  display: grid;
+  gap: 18px;
+}
+
+form {
+  display: grid;
+  gap: 12px;
+}
+
+label {
+  color: #ddd6fe;
+  font-weight: 700;
+}
+
+input,
+select {
+  width: 100%;
+  display: block;
+  margin-top: 7px;
+  border: 1px solid rgba(216, 180, 254, 0.42);
+  border-radius: 8px;
+  padding: 12px 13px;
+  background: rgba(17, 7, 38, 0.72);
+  color: #fff;
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.play-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #f3e8ff;
+  color: #2e1065;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.play-action:hover {
+  background: #fff;
+}
+
+.secondary-action {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 11px;
+  background: rgba(255,255,255,0.11);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: #f3e8ff;
+}
+
+.league-list {
+  display: grid;
+  gap: 12px;
+}
+
+.league-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 18px;
+  border-radius: 10px;
+  background: rgba(17, 7, 38, 0.42);
+  border: 1px solid rgba(216, 180, 254, 0.24);
+}
+
+.league-row h3 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.35rem, 3.2vw, 2rem);
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.league-row p,
+.state-text {
+  margin: 0;
+  color: #ddd6fe;
+}
+
+.join-code {
+  text-align: right;
+}
+
+.league-actions {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.join-code span {
+  display: block;
+  color: #ddd6fe;
+  font-size: 13px;
+}
+
+.join-code strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 18px;
+  letter-spacing: 0;
+}
+
+.copy-code-btn {
+  margin-top: 7px;
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.88),
+    1px -1px 0 rgba(0,0,0,0.88),
+    -1px 1px 0 rgba(0,0,0,0.88),
+    1px 1px 0 rgba(0,0,0,0.88);
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.34);
+}
+
+.message {
+  min-height: 24px;
+  margin: 2px 0 0;
+  line-height: 1.45;
+}
+
+.message[data-type="success"] {
+  color: #bbf7d0;
+}
+
+.message[data-type="error"] {
+  color: #fecaca;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+@media (max-width: 820px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar,
+  .league-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar {
+    text-align: center;
+  }
+
+  .join-code {
+    text-align: left;
+  }
+
+  .league-actions {
+    justify-items: stretch;
+  }
+}
+
+@media (max-width: 560px) {
+  header {
+    padding: 18px 14px;
+  }
+
+  header h1 {
+    font-size: clamp(1.8rem, 11vw, 2.5rem);
+  }
+
+  main {
+    padding: 22px 12px 36px;
+  }
+
+  .panel {
+    padding: 18px 15px;
+    text-align: center;
+  }
+
+  label,
+  .state-text {
+    text-align: left;
+  }
+
+  button,
+  .toolbar a {
+    width: 100%;
+  }
+
+  .join-code {
+    text-align: center;
+  }
+
+  .league-actions {
+    justify-items: stretch;
+  }
+}
+</style>
+</head>
+<body data-require-auth="true">
+<header>
+  <h1>Prem Predics - Leagues</h1>
+</header>
+
+<main>
+  <div class="toolbar">
+    <a href="index.html">Back to Home</a>
+    <a href="how-to-play.html">How To Play</a>
+  </div>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Your Private Leagues</h2>
+      <div class="league-list" data-league-list>
+        <p class="state-text">Loading leagues...</p>
+      </div>
+    </div>
+
+    <div class="panel forms">
+      <section>
+        <h2>Create League</h2>
+        <form data-create-league>
+          <label>
+            League name
+            <input name="name" required maxlength="80" placeholder="Vas Test League">
+          </label>
+          <p class="state-text">League size and deck are locked from the number of members when the first gameweek begins.</p>
+          <button type="submit">Create League</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Join League</h2>
+        <form data-join-league>
+          <label>
+            Join code
+            <input name="joinCode" required maxlength="20" autocomplete="off">
+          </label>
+          <button type="submit">Join League</button>
+        </form>
+      </section>
+
+      <p class="message" data-league-message></p>
+    </div>
+  </section>
+</main>
+
+<footer>&copy; 2026 Prem Predics | Leagues</footer>
+
+<script type="module" src="assets/js/site-auth.js"></script>
+<script type="module" src="assets/js/leagues.js"></script>
+</body>
+</html>

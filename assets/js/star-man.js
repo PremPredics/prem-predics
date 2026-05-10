@@ -1,0 +1,577 @@
+import { supabase } from './supabase-client.js';
+import {
+  escapeHtml,
+  formatDateTime,
+  leagueUrl,
+  loadLeagueContext,
+  normaliseNested,
+} from './league-context.js';
+import { loadActiveGameweek } from './gameweek-context.js';
+
+const leagueTitle = document.querySelector('[data-league-title]');
+const gameweekSummary = document.querySelector('[data-gameweek-summary]');
+const restrictionSummary = document.querySelector('[data-restriction-summary]');
+const leagueBackLink = document.querySelector('[data-league-back]');
+
+const state = {
+  user: null,
+  league: null,
+  activeGameweek: null,
+  fixtures: [],
+  teams: new Map(),
+  players: [],
+  existingPicks: new Map(),
+  usedStarManIds: new Set(),
+  activeEffects: [],
+  targetEffectIds: new Set(),
+  rouletteNumbers: new Map(),
+  previousBenchedIds: new Set(),
+  drought3Ids: new Set(),
+  drought5Ids: new Set(),
+  top10TeamIds: new Set(),
+  selected: {
+    primary: null,
+    super_duo: null,
+  },
+};
+
+function slotElements(slot) {
+  return {
+    section: document.querySelector(`[data-pick-slot="${slot}"]`),
+    input: document.querySelector(`[data-player-search="${slot}"]`),
+    selected: document.querySelector(`[data-selected-player="${slot}"]`),
+    results: document.querySelector(`[data-search-results="${slot}"]`),
+    button: document.querySelector(`[data-save-star-man="${slot}"]`),
+    message: document.querySelector(`[data-message="${slot}"]`),
+  };
+}
+
+function hasSelectionChanged(slot) {
+  const selectedId = state.selected[slot]?.id;
+  const existingId = state.existingPicks.get(slot);
+  return Boolean(selectedId) && String(selectedId) !== String(existingId || '');
+}
+
+function updateSaveButton(slot) {
+  const { button } = slotElements(slot);
+  button.disabled = !hasSelectionChanged(slot);
+}
+
+function setMessage(slot, text, type = 'info') {
+  const { message } = slotElements(slot);
+  message.textContent = text;
+  message.dataset.type = type;
+}
+
+function isPast(value) {
+  return value ? Date.now() >= new Date(value).getTime() : false;
+}
+
+function teamName(teamId) {
+  return state.teams.get(teamId) || 'Team';
+}
+
+function playerLabel(player) {
+  return `${player.display_name} (${teamName(player.team_id)})`;
+}
+
+function effectKey(effect) {
+  return normaliseNested(effect.card_definitions)?.effect_key;
+}
+
+function effectName(effect) {
+  return normaliseNested(effect.card_definitions)?.name || effect.card_id;
+}
+
+function isEffectForCurrentGameweek(effect) {
+  const gameweekId = Number(state.activeGameweek.gameweek_id);
+  const directGameweek = !effect.gameweek_id || Number(effect.gameweek_id) === gameweekId;
+  const startsOk = !effect.start_gameweek_id || Number(effect.start_gameweek_id) <= gameweekId;
+  const endsOk = !effect.end_gameweek_id || Number(effect.end_gameweek_id) >= gameweekId;
+  return directGameweek && startsOk && endsOk;
+}
+
+function effectsTargetingUser() {
+  return state.activeEffects.filter((effect) => (
+    effect.target_user_id === state.user.id || state.targetEffectIds.has(effect.id)
+  ));
+}
+
+function ownEffect(key) {
+  return state.activeEffects.find((effect) => (
+    effect.played_by_user_id === state.user.id && effectKey(effect) === key
+  ));
+}
+
+function restrictions() {
+  return effectsTargetingUser().filter((effect) => [
+    'curse_alphabet_15',
+    'curse_alphabet_20',
+    'curse_bench_warmer',
+    'curse_scoring_drought_3',
+    'curse_scoring_drought_5',
+    'curse_tiny_club',
+    'curse_random_roulette',
+  ].includes(effectKey(effect)));
+}
+
+function playerFixture(player) {
+  return state.fixtures.find((fixture) => (
+    fixture.home_team_id === player.team_id || fixture.away_team_id === player.team_id
+  ));
+}
+
+function deadlineCheck(player, slot) {
+  const globalLocked = isPast(state.activeGameweek.star_man_locks_at);
+
+  if (slot === 'super_duo') {
+    const superDuo = ownEffect('super_duo');
+    if (!superDuo) {
+      return { allowed: false, reason: 'Super Duo is not active.', sourceCardEffectId: null };
+    }
+
+    if (globalLocked) {
+      return { allowed: false, reason: 'Super Duo must be picked before the gameweek lock.', sourceCardEffectId: superDuo.id };
+    }
+
+    return { allowed: true, reason: '', sourceCardEffectId: superDuo.id };
+  }
+
+  if (!globalLocked) {
+    return { allowed: true, reason: '', sourceCardEffectId: null };
+  }
+
+  const lateScout = ownEffect('power_late_scout');
+  const fixture = playerFixture(player);
+  if (lateScout && fixture && !isPast(fixture.kickoff_at)) {
+    return { allowed: true, reason: '', sourceCardEffectId: lateScout.id };
+  }
+
+  const superSub = ownEffect('super_sub');
+  if (superSub && fixture && !isPast(fixture.kickoff_at)) {
+    return { allowed: true, reason: '', sourceCardEffectId: superSub.id };
+  }
+
+  return { allowed: false, reason: 'Star Man deadline has passed.', sourceCardEffectId: null };
+}
+
+function restrictionReasons(player) {
+  const reasons = [];
+
+  restrictions().forEach((effect) => {
+    const key = effectKey(effect);
+    if (key === 'curse_alphabet_15' && Number(player.surname_scrabble_score || 0) < 15) {
+      reasons.push('surname Scrabble score must be 15+');
+    }
+    if (key === 'curse_alphabet_20' && Number(player.surname_scrabble_score || 0) < 20) {
+      reasons.push('surname Scrabble score must be 20+');
+    }
+    if (key === 'curse_bench_warmer' && !state.previousBenchedIds.has(player.id)) {
+      reasons.push('must have been benched last gameweek');
+    }
+    if (key === 'curse_scoring_drought_3' && !state.drought3Ids.has(player.id)) {
+      reasons.push('must have 0 goals in last 3 gameweeks');
+    }
+    if (key === 'curse_scoring_drought_5' && !state.drought5Ids.has(player.id)) {
+      reasons.push('must have 0 goals in last 5 gameweeks');
+    }
+    if (key === 'curse_tiny_club') {
+      if (!state.top10TeamIds.size) {
+        reasons.push('top-10 standings are not entered yet');
+      } else if (state.top10TeamIds.has(player.team_id)) {
+        reasons.push('cannot play for a top-10 club');
+      }
+    }
+    if (key === 'curse_random_roulette') {
+      const number = state.rouletteNumbers.get(effect.id) ?? effect.payload?.roulette_number;
+      if (!number || Number(player.squad_number) !== Number(number)) {
+        reasons.push(number ? `squad number must be ${number}` : 'roulette number has not been entered');
+      }
+    }
+  });
+
+  return reasons;
+}
+
+function evaluatePlayer(player, slot) {
+  const reasons = [];
+
+  if (state.usedStarManIds.has(player.id)) {
+    reasons.push('already used this season');
+  }
+
+  if (slot === 'super_duo' && state.selected.primary?.id === player.id) {
+    reasons.push('already selected as Star Man');
+  }
+
+  reasons.push(...restrictionReasons(player));
+
+  const deadline = deadlineCheck(player, slot);
+  if (!deadline.allowed) {
+    reasons.push(deadline.reason);
+  }
+
+  return {
+    allowed: reasons.length === 0,
+    reasons,
+    sourceCardEffectId: deadline.sourceCardEffectId,
+  };
+}
+
+async function loadTeams() {
+  const { data, error } = await supabase
+    .from('teams')
+    .select('id, name')
+    .order('name', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  state.teams = new Map((data || []).map((team) => [team.id, team.name]));
+}
+
+async function loadPlayers() {
+  const { data, error } = await supabase
+    .from('players')
+    .select('id, display_name, team_id, surname_scrabble_score, squad_number')
+    .eq('is_active', true)
+    .not('team_id', 'is', null)
+    .order('display_name', { ascending: true })
+    .range(0, 1999);
+
+  if (error) {
+    throw error;
+  }
+
+  state.players = data || [];
+}
+
+async function loadFixtures() {
+  const { data, error } = await supabase
+    .from('fixtures')
+    .select('id, home_team_id, away_team_id, kickoff_at, prediction_locks_at, status')
+    .eq('season_id', state.league.season_id)
+    .eq('gameweek_id', state.activeGameweek.gameweek_id)
+    .order('kickoff_at', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  state.fixtures = data || [];
+}
+
+async function loadPicks() {
+  const [{ data: currentPicks, error: currentError }, { data: seasonPicks, error: seasonError }] = await Promise.all([
+    supabase
+      .from('star_man_picks')
+      .select('player_id, pick_slot')
+      .eq('competition_id', state.league.id)
+      .eq('user_id', state.user.id)
+      .eq('gameweek_id', state.activeGameweek.gameweek_id),
+    supabase
+      .from('star_man_picks')
+      .select('player_id, gameweek_id')
+      .eq('competition_id', state.league.id)
+      .eq('user_id', state.user.id)
+      .eq('season_id', state.league.season_id),
+  ]);
+
+  if (currentError) {
+    throw currentError;
+  }
+  if (seasonError) {
+    throw seasonError;
+  }
+
+  state.existingPicks = new Map((currentPicks || []).map((pick) => [pick.pick_slot, pick.player_id]));
+  state.usedStarManIds = new Set(
+    (seasonPicks || [])
+      .filter((pick) => String(pick.gameweek_id) !== String(state.activeGameweek.gameweek_id))
+      .map((pick) => pick.player_id)
+  );
+}
+
+async function loadEffects() {
+  const { data: effects, error: effectsError } = await supabase
+    .from('active_card_effects')
+    .select('id, card_id, season_id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_by_user_id, target_user_id, payload, card_definitions(effect_key, name)')
+    .eq('competition_id', state.league.id)
+    .eq('season_id', state.league.season_id)
+    .eq('status', 'active');
+
+  if (effectsError) {
+    throw effectsError;
+  }
+
+  const activeEffects = (effects || []).filter(isEffectForCurrentGameweek);
+  const { data: targets, error: targetsError } = await supabase
+    .from('card_effect_targets')
+    .select('card_effect_id, target_user_id')
+    .eq('target_user_id', state.user.id);
+
+  if (targetsError) {
+    throw targetsError;
+  }
+
+  state.activeEffects = activeEffects;
+  state.targetEffectIds = new Set((targets || []).map((target) => target.card_effect_id));
+}
+
+async function loadRestrictionData() {
+  const activeRestrictions = restrictions();
+  const keys = new Set(activeRestrictions.map(effectKey));
+  const activeNumber = Number(state.activeGameweek.gameweek_number);
+  const { data: relevantGameweeks } = await supabase
+    .from('gameweek_deadlines')
+    .select('gameweek_id, gameweek_number')
+    .eq('season_id', state.league.season_id)
+    .gte('gameweek_number', Math.max(1, activeNumber - 5))
+    .lte('gameweek_number', activeNumber - 1);
+  const gameweeksByNumber = new Map((relevantGameweeks || []).map((gameweek) => [
+    Number(gameweek.gameweek_number),
+    gameweek.gameweek_id,
+  ]));
+  const previousGameweekId = gameweeksByNumber.get(activeNumber - 1);
+
+  if (keys.has('curse_random_roulette')) {
+    const rouletteIds = activeRestrictions
+      .filter((effect) => effectKey(effect) === 'curse_random_roulette')
+      .map((effect) => effect.id);
+    const { data } = await supabase
+      .from('curse_random_roulette_inputs')
+      .select('card_effect_id, roulette_number')
+      .in('card_effect_id', rouletteIds);
+    state.rouletteNumbers = new Map((data || []).map((row) => [row.card_effect_id, row.roulette_number]));
+  }
+
+  if (keys.has('curse_bench_warmer') && previousGameweekId) {
+    const { data } = await supabase
+      .from('player_fixture_stats')
+      .select('player_id, was_benched')
+      .eq('season_id', state.league.season_id)
+      .eq('gameweek_id', previousGameweekId)
+      .eq('was_benched', true)
+      .range(0, 1999);
+    state.previousBenchedIds = new Set((data || []).map((row) => row.player_id));
+  }
+
+  if ((keys.has('curse_scoring_drought_3') || keys.has('curse_scoring_drought_5')) && previousGameweekId) {
+    const recentGameweekIds = (relevantGameweeks || [])
+      .map((gameweek) => gameweek.gameweek_id)
+      .filter(Boolean);
+    const { data } = await supabase
+      .from('player_gameweek_stats')
+      .select('player_id, gameweek_id, goals')
+      .eq('season_id', state.league.season_id)
+      .in('gameweek_id', recentGameweekIds)
+      .range(0, 10000);
+
+    const goalsByPlayer = new Map();
+    (data || []).forEach((row) => {
+      const group = goalsByPlayer.get(row.player_id) || [];
+      group.push(row);
+      goalsByPlayer.set(row.player_id, group);
+    });
+
+    state.drought3Ids = new Set();
+    state.drought5Ids = new Set();
+    goalsByPlayer.forEach((rows, playerId) => {
+      const sorted = rows.sort((a, b) => Number(b.gameweek_id) - Number(a.gameweek_id));
+      const last3 = sorted.slice(0, 3);
+      const last5 = sorted.slice(0, 5);
+      if (last3.length >= 3 && last3.every((row) => Number(row.goals) === 0)) {
+        state.drought3Ids.add(playerId);
+      }
+      if (last5.length >= 5 && last5.every((row) => Number(row.goals) === 0)) {
+        state.drought5Ids.add(playerId);
+      }
+    });
+  }
+
+  if (keys.has('curse_tiny_club') && previousGameweekId) {
+    const { data } = await supabase
+      .from('team_gameweek_standings')
+      .select('team_id, league_position')
+      .eq('season_id', state.league.season_id)
+      .eq('gameweek_id', previousGameweekId)
+      .lte('league_position', 10);
+    state.top10TeamIds = new Set((data || []).map((row) => row.team_id));
+  }
+}
+
+function renderRestrictionSummary() {
+  const activeRestrictions = restrictions();
+  const helpful = [
+    ownEffect('power_late_scout') ? 'Power of the Late Scout available after the normal lock.' : '',
+    ownEffect('super_sub') ? 'Super Sub lets you swap Star Man until the new player fixture kicks off.' : '',
+    ownEffect('super_duo') ? 'Super Duo allows a second Star Man before the gameweek lock.' : '',
+  ].filter(Boolean);
+
+  const boundaryText = activeRestrictions.map(effectName);
+  const lines = [...boundaryText, ...helpful];
+  restrictionSummary.textContent = lines.length ? lines.join(' ') : 'No active Star Man restrictions.';
+}
+
+function renderExistingSelections() {
+  ['primary', 'super_duo'].forEach((slot) => {
+    const playerId = state.existingPicks.get(slot);
+    const player = state.players.find((item) => item.id === playerId);
+    if (!player) {
+      return;
+    }
+
+    state.selected[slot] = player;
+    const { input, selected, button } = slotElements(slot);
+    input.value = playerLabel(player);
+    selected.textContent = `Selected: ${playerLabel(player)}`;
+    button.disabled = true;
+  });
+}
+
+function renderSearch(slot) {
+  const { input, results, selected } = slotElements(slot);
+  const query = input.value.trim().toLowerCase();
+  const selectedPlayer = state.selected[slot];
+
+  selected.textContent = selectedPlayer ? `Selected: ${playerLabel(selectedPlayer)}` : '';
+  updateSaveButton(slot);
+
+  if (query.length < 2) {
+    results.innerHTML = '<p class="state-text">Type at least 2 letters.</p>';
+    return;
+  }
+
+  const matches = state.players
+    .filter((player) => playerLabel(player).toLowerCase().includes(query))
+    .slice(0, 10);
+
+  if (!matches.length) {
+    results.innerHTML = '<p class="state-text">No players found.</p>';
+    return;
+  }
+
+  results.innerHTML = matches.map((player) => {
+    const check = evaluatePlayer(player, slot);
+    const reason = check.allowed ? 'Available' : check.reasons.join(', ');
+    return `
+      <button class="result-button" type="button" data-select-player="${player.id}" ${check.allowed ? '' : 'disabled'}>
+        ${escapeHtml(player.display_name)}
+        <span>${escapeHtml(teamName(player.team_id))} - ${escapeHtml(reason)}</span>
+      </button>
+    `;
+  }).join('');
+
+  results.querySelectorAll('[data-select-player]').forEach((resultButton) => {
+    resultButton.addEventListener('click', () => {
+      const player = state.players.find((item) => item.id === resultButton.dataset.selectPlayer);
+      state.selected[slot] = player;
+      input.value = playerLabel(player);
+      results.innerHTML = '';
+      renderSearch(slot);
+      if (slot === 'primary') {
+        renderSearch('super_duo');
+      }
+    });
+  });
+}
+
+async function savePick(slot) {
+  const player = state.selected[slot];
+  if (!player) {
+    setMessage(slot, 'Choose a player first.', 'error');
+    return;
+  }
+
+  const check = evaluatePlayer(player, slot);
+  if (!check.allowed) {
+    setMessage(slot, check.reasons.join(', '), 'error');
+    return;
+  }
+
+  setMessage(slot, 'Saving pick...', 'info');
+
+  const { error } = await supabase.from('star_man_picks').upsert({
+    competition_id: state.league.id,
+    season_id: state.league.season_id,
+    gameweek_id: state.activeGameweek.gameweek_id,
+    user_id: state.user.id,
+    player_id: player.id,
+    pick_slot: slot,
+    source_card_effect_id: check.sourceCardEffectId,
+  }, {
+    onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
+  });
+
+  if (error) {
+    if (error.code === '23505' || error.message.includes('star_man_picks_unique_player')) {
+      setMessage(slot, 'You have already used that Star Man in this league this season.', 'error');
+      return;
+    }
+    setMessage(slot, error.message || 'Could not save Star Man.', 'error');
+    return;
+  }
+
+  state.existingPicks.set(slot, player.id);
+  updateSaveButton(slot);
+  setMessage(slot, slot === 'super_duo' ? 'Super Duo saved.' : 'Star Man saved.', 'success');
+}
+
+function wireSlots() {
+  ['primary', 'super_duo'].forEach((slot) => {
+    const { input, button } = slotElements(slot);
+    input.addEventListener('input', () => {
+      state.selected[slot] = null;
+      renderSearch(slot);
+    });
+    button.addEventListener('click', () => savePick(slot));
+  });
+}
+
+async function boot() {
+  wireSlots();
+
+  const context = await loadLeagueContext();
+  if (context.error) {
+    leagueTitle.textContent = 'Star Man unavailable';
+    gameweekSummary.textContent = context.error;
+    restrictionSummary.textContent = 'No league context.';
+    return;
+  }
+
+  state.user = context.user;
+  state.league = context.league;
+  leagueBackLink.href = leagueUrl('league.html', state.league.id);
+  leagueTitle.textContent = `${state.league.name} Star Man`;
+
+  try {
+    const { activeGameweek } = await loadActiveGameweek(state.league);
+    state.activeGameweek = activeGameweek;
+
+    if (!state.activeGameweek) {
+      gameweekSummary.textContent = 'No active gameweek found for this league.';
+      restrictionSummary.textContent = 'No active gameweek.';
+      return;
+    }
+
+    await Promise.all([loadTeams(), loadPlayers(), loadFixtures(), loadPicks(), loadEffects()]);
+    await loadRestrictionData();
+
+    gameweekSummary.innerHTML = `Gameweek ${state.activeGameweek.gameweek_number} - Star Man Pick locks ${formatDateTime(state.activeGameweek.star_man_locks_at)}<span class="lock-note">(90 minutes before the first match of the current gameweek).</span>`;
+    renderRestrictionSummary();
+
+    const superDuoSection = slotElements('super_duo').section;
+    superDuoSection.hidden = !ownEffect('super_duo');
+
+    renderExistingSelections();
+    renderSearch('primary');
+    renderSearch('super_duo');
+  } catch (error) {
+    leagueTitle.textContent = 'Star Man unavailable';
+    gameweekSummary.textContent = error.message || 'Could not load Star Man page.';
+    restrictionSummary.textContent = 'Could not check active card effects.';
+  }
+}
+
+boot();

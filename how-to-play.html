@@ -503,11 +503,11 @@
             </ul>
             
             <p>🎴 <strong>Power, Curse and Super Cards</strong> can help you or hinder your opponent. They add strategy and excitement to the game!</p>
-            <p>🎴 <strong>Game Cards (7 Total)</strong> are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1, win to draw a Super Card from the Premium Deck</p>
+            <p>🎴 <strong>Game Cards (7 Total)</strong> are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 Super Medal.</p>
             <p>🎴 <strong>Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck</p>
             <p>🏆 <strong>Reach milestones</strong> to earn medals, each medal can be spent to draw 1 card from the Regular Deck</p>
             
-            <p style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(196, 132, 252, 0.3);"><strong>Regular Deck:</strong> 52 cards (30 Power Cards & 22 Curse Cards) — Start with 1 of each<br><strong>Premium Deck:</strong> 7 Super Cards — Won by winning "Game Card" Minigames</p>
+            <p style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(196, 132, 252, 0.3);"><strong>Regular Deck:</strong> 52 cards (30 Power Cards & 22 Curse Cards) — Start with 1 of each<br><strong>Premium Deck:</strong> 7 Super Cards — Drawn by spending Super Medals won from "Game Card" Minigames</p>
             
             <button class="show-cards-btn" onclick="toggleCardsDisplay()">Show All Cards</button>
             
@@ -550,7 +550,7 @@
         <!-- ===== FOOTER BUTTONS ===== -->
         <div class="button-group">
             <button class="faq-btn" onclick="window.location.href='faq.html'">❓ Frequently Asked Questions</button>
-            <button class="back-btn" onclick="window.location.href='index.html'">← Back to Homepage</button>
+            <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
         </div>
     </div>
     
@@ -584,7 +584,7 @@
                 { name: "Curse of the Bench Warmer", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man must have been benched in the previous Gameweek. Must be played before the start of a Gameweek." },
                 { name: "Curse of the Alphabet", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man surname must have a Scrabble score of 15+ (or 20+ for second copy). Must be played before the start of a Gameweek." },
                 { name: "Curse of the Scoring Drought", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man must have 0 goals in their last 3 (or 5 for second copy) PL games. Must be played before the start of a Gameweek." },
-                { name: "Curse of the Random Roulette", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man's squad number is chosen by a roulette spin. If it lands on 0, Squad Number must be 37+. Must be played before the start of a Gameweek." },
+                { name: "Curse of the Random Roulette", count: 2, description: "Valid for 1 Gameweek. Opponent's Star Man's squad number is chosen by a roulette spin from 1 to 36. The number must be entered before the start of a Gameweek." },
                 { name: "Curse of the Glasses", count: 2, description: "Valid for 1 Gameweek. Any 0–0 prediction that the Opponent makes scores NOTHING. Must be played before the start of the next Gameweek." },
                 { name: "Curse of the Deleted Match", count: 2, description: "Valid for 1 Gameweek. Choose ONE of the Opponent's Predictions, Opponent cannot earn points from this game. Must be played before the start of the next Gameweek." },
                 { name: "Curse of the Tiny Club", count: 2, description: "Valid for 1 Gameweek. Opponent may NOT pick a Star Man from a Top 10 club. Must be played before the start of a Gameweek." },
@@ -602,13 +602,13 @@
                 { name: "Super Pen", count: 1, description: "Valid for 3 Gameweeks. Draw a card from the Regular Deck any time a penalty is scored in this Gameweek." }
             ],
             game: [
-                { name: "Game of Goals", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and draws a Super Card from the Premium Deck." },
-                { name: "Game of Corners", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek. Winner gets +1 UC point and draws a Super Card from the Premium Deck." },
-                { name: "Game of The Underdog", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict how many teams will beat a team above them in the league in each Gameweek. Winner gets +1 UC point and draws a Super Card from the Premium Deck." },
-                { name: "Game of The Goalhanger", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict how many players score 2+ goals in each Gameweek. Winner gets +1 UC point and draws a Super Card from the Premium Deck." },
-                { name: "Game of War", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict Total Yellow Cards in each Gameweek. Winner gets +1 UC point and draws a Super Card from the Premium Deck." },
-                { name: "Game of The Early Worm", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict in which minute the earliest goal in each Gameweek is scored. Winner gets +1 UC point and draws a Super Card from the Premium Deck." },
-                { name: "Game of Time", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict Total 90'+ min goals in each Gameweek. Winner gets +1 UC point and draws a Super Card from the Premium Deck." }
+                { name: "Game of Goals", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal." },
+                { name: "Game of Corners", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal." },
+                { name: "Game of The Underdog", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict how many teams will beat a team above them in the league in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal." },
+                { name: "Game of The Goalhanger", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict how many players score 2+ goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal." },
+                { name: "Game of War", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict Total Yellow Cards in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal." },
+                { name: "Game of The Early Worm", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict in which minute the earliest goal in each Gameweek is scored. Winner gets +1 UC point and earns 1 Super Medal." },
+                { name: "Game of Time", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict Total 90'+ min goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal." }
             ]
         };
         

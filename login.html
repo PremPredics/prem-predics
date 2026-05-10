@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Login</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 25px 20px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+header img {
+  height: 58px;
+}
+
+header h1 {
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  margin: 0;
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 36px 20px;
+}
+
+.auth-shell {
+  width: min(100%, 460px);
+  background: rgba(46, 16, 102, 0.72);
+  border: 2px solid rgba(196, 132, 252, 0.35);
+  border-radius: 12px;
+  padding: 26px;
+  box-shadow: 0 18px 42px rgba(0,0,0,0.35);
+}
+
+.auth-shell h2 {
+  margin: 0 0 18px;
+  font-size: 26px;
+}
+
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.mode-tabs button,
+.auth-shell button,
+.secondary-link {
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.mode-tabs button {
+  padding: 12px;
+  color: #ede9fe;
+  background: rgba(124, 58, 237, 0.5);
+}
+
+.mode-tabs button.active {
+  background: #f3e8ff;
+  color: #2e1065;
+}
+
+label {
+  display: block;
+  margin-bottom: 14px;
+  color: #ddd6fe;
+  font-weight: 700;
+}
+
+input,
+select {
+  width: 100%;
+  display: block;
+  margin-top: 7px;
+  border: 1px solid rgba(216, 180, 254, 0.42);
+  border-radius: 8px;
+  padding: 13px 14px;
+  background: rgba(17, 7, 38, 0.72);
+  color: #fff;
+  font: inherit;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid #c4b5fd;
+  outline-offset: 2px;
+}
+
+select {
+  appearance: none;
+}
+
+.signup-fields[hidden] {
+  display: none;
+}
+
+.optional {
+  color: #c4b5fd;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 13px 16px;
+  background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+}
+
+.primary-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.secondary-link {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 11px 14px;
+  background: rgba(255,255,255,0.1);
+  color: #f3e8ff;
+  text-decoration: none;
+}
+
+.message {
+  min-height: 24px;
+  margin: 14px 0 0;
+  line-height: 1.45;
+}
+
+.message[data-type="success"] {
+  color: #bbf7d0;
+}
+
+.message[data-type="error"] {
+  color: #fecaca;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+@media (max-width: 560px) {
+  header {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 18px 14px;
+  }
+
+  header img {
+    height: 42px;
+  }
+
+  header h1 {
+    flex-basis: 100%;
+    order: 2;
+    font-size: clamp(1.9rem, 12vw, 2.6rem);
+  }
+
+  main {
+    align-items: start;
+    padding: 22px 12px;
+  }
+
+  .auth-shell {
+    padding: 20px 16px;
+    text-align: center;
+  }
+
+  label {
+    text-align: left;
+  }
+
+  .secondary-link {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+<header>
+  <img src="logo-left.png" alt="Left Logo">
+  <h1>Prem Predics</h1>
+  <img src="logo-right.png" alt="Right Logo">
+</header>
+
+<main>
+  <section class="auth-shell">
+    <div class="mode-tabs">
+      <button type="button" data-auth-mode="signin">Log In</button>
+      <button type="button" data-auth-mode="signup">Sign Up</button>
+    </div>
+
+    <h2 data-auth-title>Log In</h2>
+
+    <form data-auth-form>
+      <label>
+        Email address
+        <input name="email" type="email" autocomplete="email" required>
+      </label>
+
+      <label>
+        Password
+        <input name="password" type="password" autocomplete="current-password" required minlength="6">
+      </label>
+
+      <div class="signup-fields" data-signup-fields hidden>
+        <label>
+          Username
+          <input name="displayName" type="text" autocomplete="nickname" minlength="2" maxlength="40" data-signup-only disabled>
+        </label>
+
+        <label>
+          First name
+          <input name="firstName" type="text" autocomplete="given-name" maxlength="60" data-signup-only disabled>
+        </label>
+
+        <label>
+          Last name <span class="optional">optional</span>
+          <input name="lastName" type="text" autocomplete="family-name" maxlength="80" data-signup-only disabled>
+        </label>
+
+        <label>
+          Nationality <span class="optional">optional</span>
+          <input name="nationality" type="text" list="signup-nationality-options" autocomplete="country-name" maxlength="80" data-signup-only disabled>
+          <datalist id="signup-nationality-options" data-nationality-options></datalist>
+        </label>
+
+        <label>
+          Favourite Premier League team <span class="optional">optional</span>
+          <select name="favoriteTeam" data-favorite-team data-signup-only disabled>
+            <option value="">Choose later</option>
+          </select>
+        </label>
+      </div>
+
+      <button class="primary-btn" type="submit" data-auth-submit>Log In</button>
+      <p class="message" data-auth-message></p>
+    </form>
+
+    <a class="secondary-link" href="how-to-play.html">How To Play</a>
+  </section>
+</main>
+
+<footer>&copy; 2026 Prem Predics | Login</footer>
+
+<script type="module" src="assets/js/login.js"></script>
+</body>
+</html>

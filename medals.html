@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Medals</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+}
+
+header {
+  padding: 24px 16px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+header h1 {
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  margin: 0;
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+main {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 28px 14px 44px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.toolbar a {
+  color: #f3e8ff;
+  text-decoration: none;
+  font-weight: 900;
+  background: rgba(17, 7, 38, 0.72);
+  border: 1px solid rgba(216, 180, 254, 0.32);
+  border-radius: 8px;
+  padding: 10px 13px;
+}
+
+.panel {
+  background: rgba(46, 16, 102, 0.68);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.summary-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.summary-pill {
+  min-width: min(100%, 300px);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: rgba(17, 7, 38, 0.5);
+  border: 1px solid rgba(216, 180, 254, 0.26);
+}
+
+.summary-pill span {
+  color: #ddd6fe;
+  font-weight: 900;
+}
+
+.summary-pill strong {
+  color: #fde68a;
+  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  line-height: 1;
+}
+
+.medal-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.medal-accolade {
+  min-height: 86px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 13px;
+  border-radius: 8px;
+  background: rgba(12, 6, 26, 0.66);
+  border: 1px solid rgba(216, 180, 254, 0.16);
+  color: #c4b5fd;
+  filter: grayscale(0.8);
+  opacity: 0.48;
+  text-align: center;
+  transition: opacity 0.2s, filter 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.medal-accolade.unlocked {
+  opacity: 1;
+  filter: none;
+  border-color: rgba(250, 204, 21, 0.78);
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.34), inset 0 0 14px rgba(250, 204, 21, 0.1);
+}
+
+.medal-accolade strong {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.medal-accolade.unlocked strong {
+  color: #fde68a;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.8),
+    1px -1px 0 rgba(0,0,0,0.8),
+    -1px 1px 0 rgba(0,0,0,0.8),
+    1px 1px 0 rgba(0,0,0,0.8);
+}
+
+.medal-accolade span {
+  justify-self: center;
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: rgba(255,255,255,0.1);
+  color: #ddd6fe;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.medal-accolade.unlocked span {
+  background: rgba(250, 204, 21, 0.18);
+  color: #fff;
+}
+
+.empty,
+.message {
+  margin: 0;
+  color: #ddd6fe;
+  line-height: 1.5;
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+@media (max-width: 620px) {
+  main { padding: 22px 10px 34px; }
+  .panel { padding: 14px; }
+  .summary-pill {
+    width: 100%;
+    border-radius: 10px;
+  }
+  .medal-board { grid-template-columns: 1fr; }
+  .toolbar a { flex: 1; text-align: center; }
+}
+</style>
+</head>
+<body data-require-auth="true" data-require-league="true">
+<header>
+  <h1>Prem Predics - Medals</h1>
+</header>
+
+<main>
+  <div class="toolbar">
+    <a data-league-link href="league.html">Back To League Hub</a>
+  </div>
+
+  <section class="panel">
+    <div class="summary-strip">
+      <div class="summary-pill">
+        <span>Total Medals Earned</span>
+        <strong data-earned-count>0</strong>
+      </div>
+    </div>
+    <div class="medal-board" data-medal-list>
+      <p class="message">Loading medals...</p>
+    </div>
+  </section>
+</main>
+
+<footer>&copy; 2026 Prem Predics | Medals</footer>
+
+<script type="module" src="assets/js/site-auth.js"></script>
+<script type="module" src="assets/js/medals.js"></script>
+</body>
+</html>

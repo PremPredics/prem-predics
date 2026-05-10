@@ -5,18 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prem Predics - Correct Scores</title>
 <style>
+* { box-sizing: border-box; }
+
 body {
+  min-height: 100vh;
+  margin: 0;
   font-family: 'Segoe UI', Arial, sans-serif;
   background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
   color: #f3f4f6;
-  margin: 0;
-  padding: 0;
-  text-align: center;
 }
 
 header {
-  padding: 20px;
+  padding: 24px 16px;
   background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
 }
 
 header h1 {
@@ -34,73 +36,150 @@ header h1 {
   font-size: clamp(2rem, 5.5vw, 3.35rem);
   line-height: 1.05;
   font-weight: 900;
-  letter-spacing: 0;
 }
 
-section {
-  margin: 40px auto;
-  max-width: 800px;
+main {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 28px 14px 44px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.toolbar a {
+  color: #f3e8ff;
+  text-decoration: none;
+  font-weight: 900;
+  background: rgba(17, 7, 38, 0.72);
+  border: 1px solid rgba(216, 180, 254, 0.32);
+  border-radius: 8px;
+  padding: 10px 13px;
+}
+
+.scores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.player-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(46, 16, 102, 0.68);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.player-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   text-align: center;
 }
 
-.image-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
+.avatar {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f3e8ff, #a78bfa);
+  color: #2e1065;
+  border: 2px solid rgba(255,255,255,0.65);
+  font-weight: 900;
 }
 
-.image-container img {
-  max-width: 80%;
-  border: 4px solid #a78bfa;
-  border-radius: 12px;
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-head h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.score-list {
+  display: grid;
+  gap: 8px;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) 58px;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(17, 7, 38, 0.44);
+  border: 1px solid rgba(216, 180, 254, 0.2);
+}
+
+.score-row strong {
+  color: #fde68a;
+  text-align: center;
+}
+
+.score-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.empty {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  color: #ddd6fe;
 }
 
 footer {
-  margin-top: 50px;
+  text-align: center;
   padding: 20px;
-  border-top: 1px solid #a78bfa;
   color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
 }
 
-/* Back Button Styling */
-.back-btn {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #7c3aed;
-  color: white;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  transition: 0.3s;
-  margin-top: 20px;
-}
-
-.back-btn:hover {
-  background: #a78bfa;
-  transform: translateY(-2px);
-}
-
-.back-btn:active {
-  transform: translateY(1px);
+@media (max-width: 640px) {
+  main { padding: 22px 10px 34px; }
+  .toolbar a { flex: 1; text-align: center; }
+  .scores-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
-<body>
-
+<body data-require-auth="true" data-require-league="true">
 <header>
   <h1>Prem Predics - Correct Scores</h1>
 </header>
 
-<!-- Image and Back Button Container -->
-<div class="image-container">
-  <img src="correct-scores.png" alt="Correct Scores">
-  <button class="back-btn" onclick="location.href='index.html'">← Back to Homepage</button>
-</div>
+<main>
+  <div class="toolbar">
+    <a data-league-link href="league.html">Back To League Hub</a>
+  </div>
+
+  <section class="scores-grid" data-correct-scores>
+    <p class="empty">Loading correct scores...</p>
+  </section>
+</main>
 
 <footer>&copy; 2026 Prem Predics | Correct Scores</footer>
 
+<script type="module" src="assets/js/site-auth.js"></script>
+<script type="module" src="assets/js/correct-scores.js"></script>
 </body>
 </html>

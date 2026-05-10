@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Edit Profile</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 25px 20px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+header h1 {
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  margin: 0;
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 34px 20px;
+}
+
+.panel {
+  width: min(100%, 480px);
+  background: rgba(46, 16, 102, 0.7);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+  text-align: center;
+}
+
+.panel h2 { margin: 0 0 16px; }
+.email { color: #ddd6fe; margin: 0 0 18px; }
+
+label {
+  display: block;
+  color: #ddd6fe;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+input,
+select {
+  width: 100%;
+  display: block;
+  margin-top: 7px;
+  border: 1px solid rgba(216, 180, 254, 0.42);
+  border-radius: 8px;
+  padding: 12px 13px;
+  background: rgba(17, 7, 38, 0.72);
+  color: #fff;
+  font: inherit;
+  text-align: center;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid #c4b5fd;
+  outline-offset: 2px;
+}
+
+select {
+  appearance: none;
+}
+
+.hint {
+  color: #c4b5fd;
+  font-size: 13px;
+  line-height: 1.45;
+  margin: -4px 0 16px;
+}
+
+.optional {
+  color: #c4b5fd;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.profile-photo-editor {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.profile-photo-preview {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #f3e8ff, #a78bfa);
+  border: 2px solid rgba(255,255,255,0.55);
+  color: #2e1065;
+  font-size: 28px;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.22);
+}
+
+.profile-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.file-btn {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+}
+
+.file-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+button,
+.link-btn {
+  display: inline-block;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link-btn {
+  margin-left: 8px;
+  background: rgba(255,255,255,0.1);
+}
+
+.league-hub-link {
+  display: none;
+  margin: 10px 0 0;
+  background: rgba(17, 7, 38, 0.68);
+  border: 1px solid rgba(216, 180, 254, 0.28);
+}
+
+.league-hub-link.show {
+  display: inline-block;
+}
+
+.subtle-btn {
+  background: rgba(255,255,255,0.1);
+}
+
+.message { min-height: 24px; margin: 14px 0 0; }
+.message[data-type="success"] { color: #bbf7d0; }
+.message[data-type="error"] { color: #fecaca; }
+
+.section-divider {
+  height: 1px;
+  margin: 22px 0;
+  background: rgba(216, 180, 254, 0.24);
+}
+
+.password-form h3 {
+  margin: 0 0 14px;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+@media (max-width: 560px) {
+  header {
+    padding: 18px 14px;
+  }
+
+  header h1 {
+    font-size: clamp(1.8rem, 11vw, 2.5rem);
+  }
+
+  main {
+    align-items: start;
+    padding: 22px 12px;
+  }
+
+  .panel {
+    padding: 20px 16px;
+    text-align: center;
+  }
+
+  .profile-photo-editor,
+  .profile-photo-actions {
+    justify-content: center;
+  }
+
+  label {
+    text-align: left;
+  }
+
+  button,
+  .link-btn {
+    width: 100%;
+    margin: 8px 0 0;
+    text-align: center;
+  }
+}
+</style>
+</head>
+<body data-require-auth="true">
+<header>
+  <h1>Prem Predics - Edit Profile</h1>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Edit Profile</h2>
+    <p class="email">Email: <span data-email>Loading...</span></p>
+
+    <form data-profile-form>
+      <div class="profile-photo-editor">
+        <div class="profile-photo-preview" data-profile-photo-preview>?</div>
+        <div class="profile-photo-actions">
+          <label class="file-btn link-btn">
+            Profile Picture
+            <input name="profileImage" type="file" accept="image/png,image/jpeg,image/webp" data-profile-image>
+          </label>
+          <button class="subtle-btn" type="button" data-remove-profile-image>Remove</button>
+        </div>
+      </div>
+
+      <label>
+        Username
+        <input name="displayName" required minlength="2" maxlength="40" autocomplete="nickname">
+      </label>
+      <p class="hint">Your username can be changed once per active season.</p>
+
+      <label>
+        First name
+        <input name="firstName" required maxlength="60" autocomplete="given-name">
+      </label>
+
+      <label>
+        Last name <span class="optional">optional</span>
+        <input name="lastName" maxlength="80" autocomplete="family-name">
+      </label>
+
+      <label>
+        Nationality <span class="optional">optional</span>
+        <input name="nationality" list="profile-nationality-options" maxlength="80" autocomplete="country-name">
+        <datalist id="profile-nationality-options" data-nationality-options></datalist>
+      </label>
+
+      <label>
+        Favourite Premier League team <span class="optional">optional</span>
+        <select name="favoriteTeamId" data-favorite-team>
+          <option value="">Choose later</option>
+        </select>
+      </label>
+
+      <button type="submit">Save Profile</button>
+      <a class="link-btn" href="index.html">Home</a>
+      <a class="link-btn league-hub-link" href="leagues.html" data-league-hub-back>Back To League Hub</a>
+      <p class="message" data-profile-message></p>
+    </form>
+
+    <div class="section-divider"></div>
+
+    <form class="password-form" data-password-form>
+      <h3>Change Password</h3>
+      <label>
+        Current password
+        <input name="currentPassword" type="password" autocomplete="current-password">
+      </label>
+      <label>
+        New password
+        <input name="newPassword" type="password" minlength="6" autocomplete="new-password">
+      </label>
+      <label>
+        Confirm new password
+        <input name="confirmPassword" type="password" minlength="6" autocomplete="new-password">
+      </label>
+      <button type="submit">Update Password</button>
+      <p class="message" data-password-message></p>
+    </form>
+  </section>
+</main>
+
+<footer>&copy; 2026 Prem Predics | Edit Profile</footer>
+
+<script type="module" src="assets/js/site-auth.js"></script>
+<script type="module" src="assets/js/profile.js"></script>
+</body>
+</html>
