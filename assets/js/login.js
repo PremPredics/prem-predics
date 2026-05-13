@@ -124,6 +124,7 @@ form.addEventListener('submit', async (event) => {
   const firstName = String(formData.get('firstName') || '').trim();
   const lastName = String(formData.get('lastName') || '').trim();
   const nationality = String(formData.get('nationality') || '').trim();
+  const favoriteColor = String(formData.get('favoriteColor') || '#ffffff');
   const favoriteTeamOption = favoriteTeamSelect?.selectedOptions?.[0];
   const favoriteTeamId = favoriteTeamOption?.dataset.teamId || null;
   const favoriteTeamName = favoriteTeamOption?.value
@@ -158,6 +159,7 @@ form.addEventListener('submit', async (event) => {
             nationality: getMatchingCountry(nationality),
             favorite_team_id: favoriteTeamId,
             favorite_team_name: favoriteTeamId ? null : favoriteTeamName,
+            favorite_color: favoriteColor,
           },
         },
       });

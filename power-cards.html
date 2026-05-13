@@ -939,6 +939,110 @@ button:disabled {
   transform: scale(0.96);
 }
 
+/* ===== OPPONENT TARGET MODAL ===== */
+.opponent-target-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2600;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: rgba(8, 3, 20, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.opponent-target-modal.show {
+  display: flex;
+}
+
+.opponent-target-content {
+  width: min(620px, 100%);
+  display: grid;
+  gap: 22px;
+  padding: 26px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(17, 7, 38, 0.96));
+  border: 2px solid rgba(216, 180, 254, 0.38);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.58);
+  animation: slideInScale 0.25s ease-out;
+}
+
+.opponent-target-title {
+  margin: 0;
+  color: #fff;
+  text-align: center;
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  line-height: 1.14;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9),
+    0 0 12px rgba(216, 180, 254, 0.65);
+}
+
+.opponent-target-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+}
+
+.opponent-target-btn {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  min-height: 132px;
+  border: 1px solid rgba(216, 180, 254, 0.32);
+  border-radius: 12px;
+  padding: 14px 10px;
+  background: rgba(17, 7, 38, 0.62);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+  text-align: center;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.opponent-target-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(248, 113, 113, 0.78);
+  box-shadow: 0 0 18px rgba(248, 113, 113, 0.32);
+}
+
+.opponent-target-avatar {
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f3e8ff, #a78bfa);
+  color: #2e1065;
+  border: 2px solid rgba(255,255,255,0.72);
+  font-size: 26px;
+  font-weight: 950;
+}
+
+.opponent-target-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.opponent-target-cancel {
+  justify-self: center;
+  min-width: 170px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #dc2626, #7f1d1d);
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.35);
+}
+
 /* ===== COLLAPSIBLE SECTIONS ===== */
 .collapsible-section {
   background: rgba(46, 16, 102, 0.8);
@@ -1436,19 +1540,32 @@ button:disabled {
   margin-top: 0;
   margin-bottom: 14px;
   color: #f0abfc;
-  text-shadow: 0 0 4px #c084fc;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.88),
+    1px -1px 0 rgba(0,0,0,0.88),
+    -1px 1px 0 rgba(0,0,0,0.88),
+    1px 1px 0 rgba(0,0,0,0.88),
+    0 0 8px rgba(255,255,255,0.28);
   font-size: clamp(1.35rem, 2vw, 1.8rem);
   font-weight: 900;
 }
 
 .player-box.vas-player h2 {
-  color: #ef2f3c;
-  text-shadow: 0 0 9px rgba(239, 47, 60, 0.72), 0 0 16px rgba(185, 28, 28, 0.36);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9),
+    0 0 10px rgba(255,255,255,0.32);
 }
 
 .player-box.tom-player h2 {
-  color: #7dd3fc;
-  text-shadow: 0 0 9px rgba(125, 211, 252, 0.76), 0 0 16px rgba(14, 165, 233, 0.38);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9),
+    0 0 10px rgba(255,255,255,0.32);
 }
 
 .player-hand-container {
@@ -1564,10 +1681,10 @@ button:disabled {
   text-align: center;
   cursor: default;
   text-transform: none;
-  font-size: clamp(0.54rem, 1vw, 0.66rem);
+  font-size: clamp(0.48rem, 0.86vw, 0.58rem);
   letter-spacing: 0;
-  line-height: 1;
-  padding: 7px;
+  line-height: 0.96;
+  padding: 6px 5px;
   overflow-wrap: normal;
   word-break: normal;
 }
@@ -1639,6 +1756,40 @@ button:disabled {
 .card-tile.swap-select { 
   border: 3px solid #fbbf24;
   background: linear-gradient(135deg, #ca8a04, #f59e0b);
+}
+
+.card-tile.used-card {
+  filter: grayscale(0.95);
+  opacity: 0.62;
+  cursor: default;
+  border-color: rgba(226, 232, 240, 0.86);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.42), inset 0 0 18px rgba(0,0,0,0.34);
+}
+
+.card-tile.used-card:hover {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.42), inset 0 0 18px rgba(0,0,0,0.34);
+}
+
+.card-tile .used-card-name {
+  display: block;
+}
+
+.card-tile .used-card-label {
+  display: block;
+  margin-top: 5px;
+  border-radius: 999px;
+  padding: 3px 5px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fff;
+  font-size: 0.58rem;
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.85),
+    1px -1px 0 rgba(0,0,0,0.85),
+    -1px 1px 0 rgba(0,0,0,0.85),
+    1px 1px 0 rgba(0,0,0,0.85);
 }
 
 .dealt-card-animation {
@@ -2950,6 +3101,20 @@ button:disabled {
     padding: 4px 3px;
   }
 }
+@media (max-width: 650px) {
+  header h1,
+  body > h1 {
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    line-height: 1.12;
+  }
+}
 </style>
 </head>
 <body data-require-auth="true" data-require-league="true">
@@ -3051,6 +3216,15 @@ button:disabled {
       <h3 class="player-selection-title">Pick Player To Receive Card</h3>
       <div class="player-buttons-container" id="playerSelectionButtons">
       </div>
+    </div>
+  </div>
+
+  <!-- Opponent Target Modal -->
+  <div class="opponent-target-modal" id="opponentTargetModal" aria-hidden="true">
+    <div class="opponent-target-content" role="dialog" aria-modal="true" aria-labelledby="opponentTargetTitle">
+      <h3 class="opponent-target-title" id="opponentTargetTitle">Choose Which Opponent This Card Will Affect</h3>
+      <div class="opponent-target-list" id="opponentTargetList"></div>
+      <button class="opponent-target-cancel" type="button" id="opponentTargetCancel">Cancel</button>
     </div>
   </div>
 
@@ -3347,9 +3521,11 @@ let gameState = {
   players: { p1: { hand: [] } },
   playerOrder: ['p1'],
   playerNames: { p1: 'You' },
+  playerColors: { p1: '#ffffff' },
   playerUserIds: {},
   cardInstanceIdsByPlayer: {},
   handCardInstancesByPlayer: {},
+  usedCardEffectsByInstance: {},
   currentPlayerKey: 'p1',
   regularDeck: [],
   premiumDeck: [],
@@ -3373,6 +3549,7 @@ let sequenceInProgress = false;
 let currentCompetitionId = new URLSearchParams(window.location.search).get('competition_id') || 'local';
 let cardRuntime = null;
 let medalBalances = { regular: 0, super: 0 };
+let handRefreshTimer = null;
 
 function shuffle(arr) { 
   for (let i = arr.length - 1; i > 0; i--) { 
@@ -3412,9 +3589,11 @@ function load() {
     gameState = migrateLegacyCardNames(JSON.parse(saved));
     gameState.playerOrder = gameState.playerOrder || Object.keys(gameState.players || {});
     gameState.playerNames = gameState.playerNames || {};
+    gameState.playerColors = gameState.playerColors || {};
     gameState.playerUserIds = gameState.playerUserIds || {};
     gameState.cardInstanceIdsByPlayer = gameState.cardInstanceIdsByPlayer || {};
     gameState.handCardInstancesByPlayer = gameState.handCardInstancesByPlayer || {};
+    gameState.usedCardEffectsByInstance = gameState.usedCardEffectsByInstance || {};
     gameState.currentPlayerKey = gameState.currentPlayerKey || 'p1';
     save();
   }
@@ -3734,6 +3913,20 @@ function getPlayerName(playerKey) {
   return gameState.playerNames?.[playerKey] || playerKey;
 }
 
+function safeProfileColor(color) {
+  return /^#[0-9a-f]{6}$/i.test(String(color || '')) ? color : '#ffffff';
+}
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[character]));
+}
+
 function getCurrentPlayerKey() {
   return gameState.currentPlayerKey || 'p1';
 }
@@ -3745,9 +3938,10 @@ function renderPlayerBoxes() {
   const playerOrder = gameState.playerOrder?.length ? gameState.playerOrder : Object.keys(gameState.players || {});
   playersRow.innerHTML = playerOrder.map((playerKey) => {
     const isCurrentPlayer = playerKey === getCurrentPlayerKey();
+    const nameColor = safeProfileColor(gameState.playerColors?.[playerKey]);
     return `
       <div class="player-box ${isCurrentPlayer ? 'vas-player' : 'opponent-player'}">
-        <h2>${getPlayerName(playerKey)}</h2>
+        <h2 style="color: ${nameColor}">${escapeHtml(getPlayerName(playerKey))}</h2>
         <div class="player-hand-container">
           <div class="hand-label">${isCurrentPlayer ? 'Hand (Click to play):' : 'Hand:'}</div>
           <div id="${playerKey}Hand" class="hand">
@@ -3775,8 +3969,12 @@ function syncHandFromDatabase() {
   }
 }
 
-function discardDatabaseCard(playerKey, cardName) {
+function discardDatabaseCard(playerKey, cardName, cardInstanceId = null) {
   if (cardRuntime?.discardCard) {
+    if (cardInstanceId && cardRuntime?.discardCardInstance) {
+      cardRuntime.discardCardInstance(cardInstanceId).catch(() => {});
+      return;
+    }
     cardRuntime.discardCard(playerKey, cardName).catch(() => {});
   }
 }
@@ -4052,6 +4250,7 @@ async function confirmCardPlay() {
   if (!gameState.cardToPlay) return;
   
   const { name: card, player, index } = gameState.cardToPlay;
+  const selectedCardInstanceId = gameState.handCardInstancesByPlayer?.[player]?.[index]?.id || null;
   
   closeCardPreview();
   
@@ -4085,19 +4284,30 @@ async function confirmCardPlay() {
   let activation = null;
   if (cardRuntime?.activateCardEffect) {
     try {
-      activation = await cardRuntime.activateCardEffect(card, player);
+      activation = await cardRuntime.activateCardEffect(card, player, selectedCardInstanceId);
     } catch (error) {
+      if (error.message === 'Card play cancelled.') {
+        return;
+      }
       alert(error.message || "Could not activate this card effect.");
       return;
     }
   }
 
+  const keepPlayedCardInHand = !card.includes("Power of the Swap") && shouldKeepPlayedCardInHand(activation);
   if (!card.includes("Power of the Swap")) {
-    gameState.discardPile.push(card);
-    discardDatabaseCard(player, card);
+    if (keepPlayedCardInHand) {
+      markCardInstanceAsUsed(player, index, activation);
+    } else {
+      gameState.discardPile.push(card);
+      discardDatabaseCard(player, card, selectedCardInstanceId);
+    }
   }
 
-  gameState.players[player].hand.splice(index, 1);
+  if (!keepPlayedCardInHand) {
+    gameState.players[player].hand.splice(index, 1);
+    gameState.handCardInstancesByPlayer?.[player]?.splice(index, 1);
+  }
 
   if (card === "Super Draw") {
     if (cardRuntime?.drawEffectCards && activation?.id) {
@@ -4309,6 +4519,31 @@ function cardTileMarkup(cardName, extraClass = '') {
   return `<div class="card-tile ${cardType} ${extraClass}">${cardName}</div>`;
 }
 
+function gameweekHasStartedFromTime(kickoffAt) {
+  return Boolean(kickoffAt) && Date.now() >= new Date(kickoffAt).getTime();
+}
+
+function shouldKeepPlayedCardInHand(activation) {
+  return Boolean(activation?.card_instance_id)
+    && !gameweekHasStartedFromTime(activation.first_fixture_kickoff_at);
+}
+
+function markCardInstanceAsUsed(playerKey, cardIndex, activation) {
+  const cardInstance = gameState.handCardInstancesByPlayer?.[playerKey]?.[cardIndex];
+  const cardInstanceId = activation?.card_instance_id || cardInstance?.id;
+  if (!cardInstanceId) {
+    return;
+  }
+
+  gameState.usedCardEffectsByInstance = gameState.usedCardEffectsByInstance || {};
+  gameState.usedCardEffectsByInstance[cardInstanceId] = {
+    effectId: activation.id,
+    gameweekNumber: activation.gameweek_number || '?',
+    firstFixtureKickoffAt: activation.first_fixture_kickoff_at || null,
+    hasGameweekStarted: gameweekHasStartedFromTime(activation.first_fixture_kickoff_at),
+  };
+}
+
 function fitTextWithin(el, minPx = 7) {
   if (!el) return;
   el.style.fontSize = "";
@@ -4357,15 +4592,25 @@ function render() {
       const div = document.createElement('div');
       const cardType = getCardType(c);
       const isOpponentHand = p !== currentPlayerKey;
+      const cardInstance = gameState.handCardInstancesByPlayer?.[p]?.[i];
+      const usedMeta = cardInstance?.id ? gameState.usedCardEffectsByInstance?.[cardInstance.id] : null;
       div.className = isOpponentHand
         ? `card-tile masked-card ${getMaskedCardClass(c)}`
         : `card-tile ${cardType}`;
-      div.innerText = isOpponentHand ? getMaskedCardLabel(c) : c;
+      if (usedMeta) {
+        div.classList.add('used-card');
+        div.innerHTML = `
+          <span class="used-card-name">${escapeHtml(isOpponentHand ? getMaskedCardLabel(c) : c)}</span>
+          <span class="used-card-label">Used GW${escapeHtml(usedMeta.gameweekNumber || '?')}</span>
+        `;
+      } else {
+        div.innerText = isOpponentHand ? getMaskedCardLabel(c) : c;
+      }
       div.dataset.player = p;
       div.dataset.index = i;
       div.dataset.card = c;
 
-      if (!isOpponentHand || gameState.stealMode) {
+      if (!usedMeta && (!isOpponentHand || gameState.stealMode)) {
         div.setAttribute('role', 'button');
         div.setAttribute('tabindex', '0');
       }
@@ -4373,6 +4618,10 @@ function render() {
       if (i >= lastHandSizes[p]) div.classList.add('fly');
 
       const handleCardClick = () => {
+        if (usedMeta) {
+          return;
+        }
+
         if (isOpponentHand && !(gameState.stealMode && gameState.stealMode !== p)) {
           return;
         }
@@ -4394,7 +4643,7 @@ function render() {
       };
 
       div.addEventListener('click', handleCardClick);
-      if (!isOpponentHand || gameState.stealMode) {
+      if (!usedMeta && (!isOpponentHand || gameState.stealMode)) {
         div.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
@@ -4543,7 +4792,7 @@ async function initializeCardPage() {
     async function refreshHands() {
       const { data: memberRows, error: memberError } = await supabase
         .from('competition_members')
-        .select('user_id, role, joined_at, profiles(id, display_name, profile_image_url)')
+        .select('user_id, role, joined_at, profiles(id, display_name, profile_image_url, favorite_color)')
         .eq('competition_id', context.league.id)
         .order('joined_at', { ascending: true });
 
@@ -4559,6 +4808,7 @@ async function initializeCardPage() {
 
       const nextPlayers = {};
       const nextPlayerNames = {};
+      const nextPlayerColors = {};
       const nextPlayerUserIds = {};
       const nextCardInstanceIdsByPlayer = {};
       const nextHandCardInstancesByPlayer = {};
@@ -4571,6 +4821,7 @@ async function initializeCardPage() {
         nextCardInstanceIdsByPlayer[key] = {};
         nextHandCardInstancesByPlayer[key] = [];
         nextPlayerNames[key] = profile?.display_name || (member.user_id === context.user.id ? 'You' : 'Player');
+        nextPlayerColors[key] = safeProfileColor(profile?.favorite_color);
         nextPlayerUserIds[key] = member.user_id;
         nextOrder.push(key);
         lastHandSizes[key] = lastHandSizes[key] || 0;
@@ -4579,10 +4830,52 @@ async function initializeCardPage() {
       gameState.players = nextPlayers;
       gameState.playerOrder = nextOrder.length ? nextOrder : ['p1'];
       gameState.playerNames = nextPlayerNames;
+      gameState.playerColors = nextPlayerColors;
       gameState.playerUserIds = nextPlayerUserIds;
       gameState.cardInstanceIdsByPlayer = nextCardInstanceIdsByPlayer;
       gameState.handCardInstancesByPlayer = nextHandCardInstancesByPlayer;
+      gameState.usedCardEffectsByInstance = {};
       gameState.currentPlayerKey = gameState.playerOrder[0] || 'p1';
+
+      const { data: playedEffects, error: playedEffectsError } = await supabase
+        .from('active_card_effects')
+        .select('id, card_instance_id, gameweek_id, start_gameweek_id, played_at, status')
+        .eq('competition_id', context.league.id)
+        .not('card_instance_id', 'is', null)
+        .in('status', ['active', 'resolved', 'vetoed']);
+
+      if (playedEffectsError) {
+        throw playedEffectsError;
+      }
+
+      const playedGameweekIds = [...new Set((playedEffects || [])
+        .map((effect) => effect.start_gameweek_id || effect.gameweek_id)
+        .filter(Boolean))];
+      let gameweeksById = new Map();
+      if (playedGameweekIds.length) {
+        const { data: gameweeks, error: gameweekError } = await supabase
+          .from('gameweek_deadlines')
+          .select('gameweek_id, gameweek_number, first_fixture_kickoff_at')
+          .eq('season_id', context.league.season_id)
+          .in('gameweek_id', playedGameweekIds);
+
+        if (gameweekError) {
+          throw gameweekError;
+        }
+
+        gameweeksById = new Map((gameweeks || []).map((gameweek) => [String(gameweek.gameweek_id), gameweek]));
+      }
+
+      (playedEffects || []).forEach((effect) => {
+        const gameweek = gameweeksById.get(String(effect.start_gameweek_id || effect.gameweek_id));
+        const firstFixtureKickoffAt = gameweek?.first_fixture_kickoff_at || null;
+        gameState.usedCardEffectsByInstance[effect.card_instance_id] = {
+          effectId: effect.id,
+          gameweekNumber: gameweek?.gameweek_number || '?',
+          firstFixtureKickoffAt,
+          hasGameweekStarted: gameweekHasStartedFromTime(firstFixtureKickoffAt),
+        };
+      });
 
       const { data: cardRows, error: cardError } = await supabase
         .from('league_cards')
@@ -4604,8 +4897,14 @@ async function initializeCardPage() {
       (cardRows || []).forEach((row) => {
         const cardDefinition = getNestedRecord(row.card_definitions);
         const cardName = normalizeCardName(cardDefinition?.name || row.card_id);
+        const usedMeta = gameState.usedCardEffectsByInstance[row.id];
 
         if (row.zone === 'hand') {
+          if (usedMeta?.hasGameweekStarted) {
+            dbDiscardPile.push(cardName);
+            return;
+          }
+
           const playerKey = userIdToPlayerKey.get(row.owner_user_id);
           if (playerKey && gameState.players[playerKey]) {
             gameState.players[playerKey].hand.push(cardName);
@@ -4618,13 +4917,21 @@ async function initializeCardPage() {
         } else if (row.zone === 'premium_deck') {
           gameState.premiumDeck.push(cardName);
         } else if (row.zone === 'discard') {
+          if (usedMeta && !usedMeta.hasGameweekStarted) {
+            const playerKey = userIdToPlayerKey.get(row.owner_user_id);
+            if (playerKey && gameState.players[playerKey]) {
+              gameState.players[playerKey].hand.push(cardName);
+              gameState.handCardInstancesByPlayer[playerKey].push({ id: row.id, name: cardName });
+              gameState.cardInstanceIdsByPlayer[playerKey][cardName] = gameState.cardInstanceIdsByPlayer[playerKey][cardName] || [];
+              gameState.cardInstanceIdsByPlayer[playerKey][cardName].push(row.id);
+            }
+            return;
+          }
           dbDiscardPile.push(cardName);
         }
       });
 
-      if (dbDiscardPile.length) {
-        gameState.discardPile = dbDiscardPile;
-      }
+      gameState.discardPile = dbDiscardPile;
 
       render();
       save();
@@ -4747,15 +5054,101 @@ async function initializeCardPage() {
     async function leagueMembers() {
       const { data, error } = await supabase
         .from('competition_members')
-        .select('user_id, profiles(display_name)')
+        .select('user_id, profiles(display_name, profile_image_url)')
         .eq('competition_id', context.league.id)
         .order('joined_at', { ascending: true });
 
       if (error) throw error;
-      return (data || []).map((member) => ({
-        user_id: member.user_id,
-        display_name: getNestedRecord(member.profiles)?.display_name || 'Player',
-      }));
+      return (data || []).map((member) => {
+        const profile = getNestedRecord(member.profiles);
+        return {
+          user_id: member.user_id,
+          display_name: profile?.display_name || 'Player',
+          profile_image_url: profile?.profile_image_url || null,
+        };
+      });
+    }
+
+    function opponentAvatar(member) {
+      const imageUrl = member.profile_image_url?.startsWith('data:image/')
+        ? member.profile_image_url
+        : null;
+
+      if (imageUrl) {
+        return `<span class="opponent-target-avatar"><img src="${escapeHtml(imageUrl)}" alt=""></span>`;
+      }
+
+      const initial = (member.display_name || 'P').trim().charAt(0).toUpperCase() || 'P';
+      return `<span class="opponent-target-avatar">${escapeHtml(initial)}</span>`;
+    }
+
+    function chooseOpponentFromModal(opponents) {
+      if (!opponents.length) {
+        throw new Error('There is no opponent available to choose.');
+      }
+
+      const modal = document.getElementById('opponentTargetModal');
+      const list = document.getElementById('opponentTargetList');
+      const cancelButton = document.getElementById('opponentTargetCancel');
+
+      return new Promise((resolve, reject) => {
+        let settled = false;
+
+        function cleanup() {
+          modal.classList.remove('show');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('card-preview-open');
+          cancelButton.removeEventListener('click', cancel);
+          modal.removeEventListener('click', modalClick);
+          document.removeEventListener('keydown', keydown);
+        }
+
+        function finish(member) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          resolve(member);
+        }
+
+        function cancel() {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(new Error('Card play cancelled.'));
+        }
+
+        function modalClick(event) {
+          if (event.target === modal) {
+            cancel();
+          }
+        }
+
+        function keydown(event) {
+          if (event.key === 'Escape') {
+            cancel();
+          }
+        }
+
+        list.innerHTML = opponents.map((member, index) => `
+          <button class="opponent-target-btn" type="button" data-opponent-index="${index}">
+            ${opponentAvatar(member)}
+            <span>${escapeHtml(member.display_name)}</span>
+          </button>
+        `).join('');
+
+        list.querySelectorAll('[data-opponent-index]').forEach((button) => {
+          button.addEventListener('click', () => {
+            finish(opponents[Number(button.dataset.opponentIndex)]);
+          });
+        });
+
+        cancelButton.addEventListener('click', cancel);
+        modal.addEventListener('click', modalClick);
+        document.addEventListener('keydown', keydown);
+        document.body.classList.add('card-preview-open');
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+      });
     }
 
     async function currentGameweekFixtures(activeGameweek) {
@@ -4803,7 +5196,7 @@ async function initializeCardPage() {
 
     async function insertCardEffect(rule, playerKey, activeGameweek, options = {}) {
       const cardDisplayName = Object.keys(cardEffectRules).find((name) => cardEffectRules[name] === rule);
-      const cardInstanceId = gameState.cardInstanceIdsByPlayer?.[playerKey]?.[cardDisplayName]?.[0] || null;
+      const cardInstanceId = options.cardInstanceId || gameState.cardInstanceIdsByPlayer?.[playerKey]?.[cardDisplayName]?.[0] || null;
       const { data, error } = await supabase
         .from('active_card_effects')
         .insert({
@@ -4820,11 +5213,15 @@ async function initializeCardPage() {
           status: 'active',
           payload: { effect_key: rule.effectKey, ...(options.payload || {}) },
         })
-        .select('id, card_id, fixture_id, target_user_id')
+        .select('id, card_instance_id, card_id, fixture_id, target_user_id, gameweek_id, start_gameweek_id')
         .single();
 
       if (error) throw error;
-      return data;
+      return {
+        ...data,
+        gameweek_number: activeGameweek.gameweek_number,
+        first_fixture_kickoff_at: activeGameweek.first_fixture_kickoff_at,
+      };
     }
 
     async function playVeto(activeGameweek) {
@@ -4925,7 +5322,7 @@ async function initializeCardPage() {
 
         return Array.isArray(data) ? data[0] : data;
       },
-      async activateCardEffect(cardName, playerKey) {
+      async activateCardEffect(cardName, playerKey, cardInstanceId = null) {
         const rule = cardEffectRules[cardName];
         if (!rule) {
           return;
@@ -4959,7 +5356,7 @@ async function initializeCardPage() {
         let payload = {};
 
         if (rule.target === 'opponent') {
-          targetUserId = chooseFromList('Choose the opponent this card affects:', opponents, (member) => member.display_name).user_id;
+          targetUserId = (await chooseOpponentFromModal(opponents)).user_id;
         }
 
         if (rule.fixture) {
@@ -4994,7 +5391,7 @@ async function initializeCardPage() {
           payload.gambler_fixture_ids = selectedFixtures.map((fixture) => fixture.id);
         }
 
-        const effect = await insertCardEffect(rule, playerKey, activeGameweek, { targetUserId, fixtureId, payload });
+        const effect = await insertCardEffect(rule, playerKey, activeGameweek, { targetUserId, fixtureId, payload, cardInstanceId });
 
         if (rule.special === 'roulette') {
           const { error } = await supabase.from('curse_random_roulette_inputs').insert({
@@ -5065,6 +5462,13 @@ async function initializeCardPage() {
       refreshHands(),
       loadActiveGameCard(),
     ]);
+    if (!handRefreshTimer) {
+      handRefreshTimer = window.setInterval(() => {
+        if (!document.hidden) {
+          syncHandFromDatabase();
+        }
+      }, 60000);
+    }
   } catch (error) {
     setActiveGameCardPanel('Cards unavailable', error.message || 'Could not load league cards.', '');
   }

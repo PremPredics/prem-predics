@@ -1644,3 +1644,360 @@ $$;
 
 grant execute on function public.draw_regular_cards_for_effect(uuid, uuid, integer) to authenticated;
 grant execute on function public.steal_regular_card_from_opponent(uuid, uuid, uuid) to authenticated;
+
+-- Version 1.1.1 profile colour + calculated Premier League table upgrades.
+
+alter table public.profiles
+  add column if not exists favorite_color text not null default '#ffffff';
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'profiles_favorite_color_hex_check'
+      and conrelid = 'public.profiles'::regclass
+  ) then
+    alter table public.profiles
+      add constraint profiles_favorite_color_hex_check
+      check (favorite_color ~ '^#[0-9A-Fa-f]{6}$');
+  end if;
+end $$;
+
+update public.profiles
+set favorite_color = '#ffffff'
+where favorite_color is null
+   or favorite_color !~ '^#[0-9A-Fa-f]{6}$';
+
+drop function if exists public.update_my_profile(text, text, text, text, uuid, text);
+
+create or replace function public.update_my_profile(
+  target_display_name text,
+  target_first_name text,
+  target_last_name text default null,
+  target_nationality text default null,
+  target_favorite_team_id uuid default null,
+  target_profile_image_url text default null,
+  target_favorite_color text default '#ffffff'
+)
+returns public.profiles
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  current_profile public.profiles;
+  updated_profile public.profiles;
+  active_season uuid;
+  cleaned_display_name text := nullif(trim(target_display_name), '');
+  cleaned_first_name text := nullif(trim(target_first_name), '');
+  cleaned_last_name text := nullif(trim(coalesce(target_last_name, '')), '');
+  cleaned_nationality text := nullif(trim(coalesce(target_nationality, '')), '');
+  cleaned_profile_image_url text := nullif(trim(coalesce(target_profile_image_url, '')), '');
+  cleaned_favorite_color text := coalesce(nullif(trim(coalesce(target_favorite_color, '')), ''), '#ffffff');
+  username_changed boolean;
+begin
+  if auth.uid() is null then
+    raise exception 'You must be signed in to update your profile.';
+  end if;
+
+  if cleaned_display_name is null or length(cleaned_display_name) < 2 then
+    raise exception 'Username must be at least 2 characters.';
+  end if;
+
+  if cleaned_first_name is null then
+    raise exception 'First name is required.';
+  end if;
+
+  if cleaned_nationality is not null
+    and not exists (
+      select 1
+      from public.profile_nationalities pn
+      where pn.name = cleaned_nationality
+    ) then
+    raise exception 'Choose nationality from the list.';
+  end if;
+
+  if target_favorite_team_id is not null
+    and not exists (select 1 from public.teams t where t.id = target_favorite_team_id) then
+    raise exception 'Favourite team was not found.';
+  end if;
+
+  if cleaned_profile_image_url is not null
+    and cleaned_profile_image_url not like 'data:image/%' then
+    raise exception 'Profile picture must be an image.';
+  end if;
+
+  if cleaned_profile_image_url is not null
+    and length(cleaned_profile_image_url) > 700000 then
+    raise exception 'Profile picture is too large.';
+  end if;
+
+  if cleaned_favorite_color !~ '^#[0-9A-Fa-f]{6}$' then
+    raise exception 'Choose a valid favourite colour.';
+  end if;
+
+  select p.*
+    into current_profile
+  from public.profiles p
+  where p.id = auth.uid()
+  for update;
+
+  if current_profile.id is null then
+    raise exception 'Profile was not found.';
+  end if;
+
+  if exists (
+    select 1
+    from public.profiles p
+    where lower(p.display_name) = lower(cleaned_display_name)
+      and p.id <> auth.uid()
+  ) then
+    raise exception 'That username is already taken.' using errcode = '23505';
+  end if;
+
+  username_changed := current_profile.display_name is distinct from cleaned_display_name;
+
+  if username_changed then
+    active_season := public.current_active_season_id();
+
+    if active_season is null then
+      raise exception 'No active season is configured.';
+    end if;
+
+    if exists (
+      select 1
+      from public.profile_username_changes puc
+      where puc.user_id = auth.uid()
+        and puc.season_id = active_season
+    ) then
+      raise exception 'You have already changed your username this season.';
+    end if;
+
+    insert into public.profile_username_changes (
+      user_id,
+      season_id,
+      old_display_name,
+      new_display_name
+    )
+    values (
+      auth.uid(),
+      active_season,
+      current_profile.display_name,
+      cleaned_display_name
+    );
+  end if;
+
+  update public.profiles
+  set
+    display_name = cleaned_display_name,
+    first_name = cleaned_first_name,
+    last_name = cleaned_last_name,
+    nationality = cleaned_nationality,
+    favorite_team_id = target_favorite_team_id,
+    profile_image_url = cleaned_profile_image_url,
+    favorite_color = lower(cleaned_favorite_color)
+  where id = auth.uid()
+  returning *
+    into updated_profile;
+
+  return updated_profile;
+end;
+$$;
+
+grant execute on function public.update_my_profile(text, text, text, text, uuid, text, text) to authenticated;
+
+create or replace function public.handle_new_auth_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  profile_display_name text;
+  profile_first_name text;
+  profile_last_name text;
+  profile_nationality text;
+  profile_favorite_team_id uuid;
+  profile_image_url text;
+  profile_favorite_color text;
+begin
+  profile_display_name := coalesce(
+    nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''),
+    nullif(trim(new.raw_user_meta_data ->> 'username'), ''),
+    nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''),
+    'Player ' || upper(substr(replace(new.id::text, '-', ''), 1, 6))
+  );
+
+  profile_first_name := coalesce(
+    nullif(trim(new.raw_user_meta_data ->> 'first_name'), ''),
+    profile_display_name
+  );
+
+  profile_last_name := nullif(trim(coalesce(new.raw_user_meta_data ->> 'last_name', '')), '');
+  profile_nationality := nullif(trim(coalesce(new.raw_user_meta_data ->> 'nationality', '')), '');
+  profile_image_url := nullif(trim(coalesce(new.raw_user_meta_data ->> 'profile_image_url', '')), '');
+  profile_favorite_color := coalesce(
+    nullif(trim(coalesce(new.raw_user_meta_data ->> 'favorite_color', '')), ''),
+    '#ffffff'
+  );
+
+  if profile_nationality is not null
+    and not exists (
+      select 1
+      from public.profile_nationalities pn
+      where pn.name = profile_nationality
+    ) then
+    profile_nationality := null;
+  end if;
+
+  if profile_image_url is not null
+    and (
+      profile_image_url not like 'data:image/%'
+      or length(profile_image_url) > 700000
+    ) then
+    profile_image_url := null;
+  end if;
+
+  if profile_favorite_color !~ '^#[0-9A-Fa-f]{6}$' then
+    profile_favorite_color := '#ffffff';
+  end if;
+
+  if nullif(trim(coalesce(new.raw_user_meta_data ->> 'favorite_team_id', '')), '') is not null then
+    select t.id
+      into profile_favorite_team_id
+    from public.teams t
+    where t.id::text = trim(new.raw_user_meta_data ->> 'favorite_team_id')
+    limit 1;
+  end if;
+
+  if profile_favorite_team_id is null
+    and nullif(trim(coalesce(new.raw_user_meta_data ->> 'favorite_team_name', '')), '') is not null then
+    select t.id
+      into profile_favorite_team_id
+    from public.teams t
+    where lower(t.name) = lower(trim(new.raw_user_meta_data ->> 'favorite_team_name'))
+    limit 1;
+  end if;
+
+  insert into public.profiles (
+    id,
+    display_name,
+    first_name,
+    last_name,
+    nationality,
+    favorite_team_id,
+    profile_image_url,
+    favorite_color
+  )
+  values (
+    new.id,
+    profile_display_name,
+    profile_first_name,
+    profile_last_name,
+    profile_nationality,
+    profile_favorite_team_id,
+    profile_image_url,
+    lower(profile_favorite_color)
+  )
+  on conflict (id) do nothing;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_auth_user();
+
+create or replace view public.team_gameweek_computed_standings
+with (security_invoker = true)
+as
+with match_rows as (
+  select
+    f.season_id,
+    f.gameweek_id,
+    gw.number as gameweek_number,
+    f.home_team_id as team_id,
+    1 as played,
+    case when mr.home_goals > mr.away_goals then 1 else 0 end as wins,
+    case when mr.home_goals = mr.away_goals then 1 else 0 end as draws,
+    case when mr.home_goals < mr.away_goals then 1 else 0 end as losses,
+    mr.home_goals as goals_for,
+    mr.away_goals as goals_against,
+    case
+      when mr.home_goals > mr.away_goals then 3
+      when mr.home_goals = mr.away_goals then 1
+      else 0
+    end as points
+  from public.fixtures f
+  join public.gameweeks gw on gw.id = f.gameweek_id
+  join public.match_results mr on mr.fixture_id = f.id
+
+  union all
+
+  select
+    f.season_id,
+    f.gameweek_id,
+    gw.number as gameweek_number,
+    f.away_team_id as team_id,
+    1 as played,
+    case when mr.away_goals > mr.home_goals then 1 else 0 end as wins,
+    case when mr.away_goals = mr.home_goals then 1 else 0 end as draws,
+    case when mr.away_goals < mr.home_goals then 1 else 0 end as losses,
+    mr.away_goals as goals_for,
+    mr.home_goals as goals_against,
+    case
+      when mr.away_goals > mr.home_goals then 3
+      when mr.away_goals = mr.home_goals then 1
+      else 0
+    end as points
+  from public.fixtures f
+  join public.gameweeks gw on gw.id = f.gameweek_id
+  join public.match_results mr on mr.fixture_id = f.id
+),
+cumulative as (
+  select
+    gw.season_id,
+    gw.id as gameweek_id,
+    gw.number as gameweek_number,
+    t.id as team_id,
+    t.name as team_name,
+    coalesce(sum(mr.played) filter (where mr.gameweek_number <= gw.number), 0)::integer as played,
+    coalesce(sum(mr.wins) filter (where mr.gameweek_number <= gw.number), 0)::integer as wins,
+    coalesce(sum(mr.draws) filter (where mr.gameweek_number <= gw.number), 0)::integer as draws,
+    coalesce(sum(mr.losses) filter (where mr.gameweek_number <= gw.number), 0)::integer as losses,
+    coalesce(sum(mr.goals_for) filter (where mr.gameweek_number <= gw.number), 0)::integer as goals_for,
+    coalesce(sum(mr.goals_against) filter (where mr.gameweek_number <= gw.number), 0)::integer as goals_against,
+    coalesce(sum(mr.points) filter (where mr.gameweek_number <= gw.number), 0)::integer as points
+  from public.gameweeks gw
+  cross join public.teams t
+  left join match_rows mr
+    on mr.season_id = gw.season_id
+   and mr.team_id = t.id
+   and mr.gameweek_number <= gw.number
+  group by gw.season_id, gw.id, gw.number, t.id, t.name
+)
+select
+  row_number() over (
+    partition by season_id, gameweek_id
+    order by points desc, (goals_for - goals_against) desc, goals_for desc, team_name asc
+  )::integer as league_position,
+  season_id,
+  gameweek_id,
+  gameweek_number,
+  team_id,
+  team_name,
+  played,
+  wins,
+  draws,
+  losses,
+  goals_for,
+  goals_against,
+  (goals_for - goals_against)::integer as goal_difference,
+  points
+from cumulative;
+
+grant select on public.team_gameweek_computed_standings to authenticated;

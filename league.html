@@ -76,7 +76,7 @@ main {
 
 .league-summary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.62fr) minmax(150px, auto);
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.75fr) minmax(170px, 0.45fr);
   gap: 16px;
   align-items: center;
   margin-bottom: 22px;
@@ -85,7 +85,7 @@ main {
 }
 
 .league-summary h2 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   color: #fff;
   -webkit-text-stroke: 1px #05010c;
   text-shadow:
@@ -96,6 +96,14 @@ main {
     0 0 10px rgba(216, 180, 254, 0.82);
   font-size: clamp(1.8rem, 5vw, 2.65rem);
   line-height: 1.05;
+  font-weight: 900;
+  text-align: center;
+}
+
+.league-members-count {
+  margin: 0;
+  color: #ddd6fe;
+  font-size: 14px;
   font-weight: 900;
   text-align: center;
 }
@@ -134,8 +142,15 @@ main {
 }
 
 .join-code {
-  min-width: 150px;
-  text-align: right;
+  min-width: 170px;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(17, 7, 38, 0.34);
+  border: 1px solid rgba(216, 180, 254, 0.2);
 }
 
 .join-code span {
@@ -146,7 +161,7 @@ main {
 
 .join-code strong {
   display: block;
-  margin-top: 4px;
+  margin-top: 0;
   font-size: 20px;
   letter-spacing: 0;
 }
@@ -170,38 +185,94 @@ main {
 
 .play-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.play-group {
+  display: grid;
   gap: 14px;
 }
 
+.play-group.primary {
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+.play-group.game {
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+}
+
+.play-group.reference {
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+}
+
 .play-card {
-  min-height: 112px;
+  --accent: #facc15;
+  min-height: 124px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 8px;
-  padding: 18px;
+  padding: 20px 18px;
   border-radius: 8px;
-  background: rgba(17, 7, 38, 0.48);
-  border: 1px solid rgba(216, 180, 254, 0.24);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.08), transparent 34%),
+    linear-gradient(135deg, rgba(13, 8, 31, 0.92), rgba(48, 18, 88, 0.88));
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, rgba(255,255,255,0.18));
   color: #fff;
   text-decoration: none;
   text-align: center;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.22);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.1);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.play-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 7px;
+  background: linear-gradient(180deg, var(--accent), rgba(255,255,255,0.85));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.play-card::after {
+  content: '';
+  position: absolute;
+  width: 86px;
+  height: 86px;
+  right: -30px;
+  top: -32px;
+  border: 1px solid color-mix(in srgb, var(--accent) 48%, transparent);
+  transform: rotate(18deg);
+  opacity: 0.34;
 }
 
 .play-card:hover {
-  background: rgba(124, 58, 237, 0.46);
   transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 16px 30px rgba(0,0,0,0.34), 0 0 18px color-mix(in srgb, var(--accent) 32%, transparent);
 }
 
 .play-card strong {
-  font-size: 18px;
+  font-size: 23px;
+  letter-spacing: 0;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.85),
+    1px -1px 0 rgba(0,0,0,0.85),
+    -1px 1px 0 rgba(0,0,0,0.85),
+    1px 1px 0 rgba(0,0,0,0.85),
+    0 0 10px color-mix(in srgb, var(--accent) 48%, transparent);
+  position: relative;
+  z-index: 1;
 }
 
 .play-card span {
-  color: #ddd6fe;
+  color: #f5f3ff;
   line-height: 1.35;
+  position: relative;
+  z-index: 1;
 }
 
 .state-text {
@@ -220,6 +291,18 @@ footer {
 @media (max-width: 650px) {
   header {
     padding: 18px 14px;
+  }
+
+  header h1 {
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    line-height: 1.12;
   }
 
   main {
@@ -251,6 +334,17 @@ footer {
   .join-code {
     text-align: center;
   }
+
+  .play-group.primary,
+  .play-group.game,
+  .play-group.reference {
+    grid-template-columns: 1fr;
+  }
+
+  .play-card {
+    min-height: 96px;
+    padding: 16px 14px;
+  }
 }
 </style>
 </head>
@@ -263,12 +357,14 @@ footer {
   <div class="toolbar">
     <a href="index.html">Back To Home</a>
     <a href="leagues.html">Back To Leagues</a>
+    <a href="profile.html" data-profile-link>Edit Profile</a>
   </div>
 
   <section class="league-panel">
     <div class="league-summary">
       <div>
         <h2 data-league-name>Loading league...</h2>
+        <p class="league-members-count" data-member-count></p>
       </div>
       <div class="gameweek-card">
         <span data-gameweek-label>Checking gameweek...</span>

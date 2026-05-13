@@ -12,6 +12,7 @@ const leagueTitle = document.querySelector('[data-league-title]');
 const gameweekSummary = document.querySelector('[data-gameweek-summary]');
 const restrictionSummary = document.querySelector('[data-restriction-summary]');
 const leagueBackLink = document.querySelector('[data-league-back]');
+const historyList = document.querySelector('[data-star-man-history]');
 
 const state = {
   user: null,
@@ -21,6 +22,8 @@ const state = {
   teams: new Map(),
   players: [],
   existingPicks: new Map(),
+  seasonPicks: [],
+  gameweeks: [],
   usedStarManIds: new Set(),
   activeEffects: [],
   targetEffectIds: new Set(),
@@ -263,7 +266,11 @@ async function loadFixtures() {
 }
 
 async function loadPicks() {
-  const [{ data: currentPicks, error: currentError }, { data: seasonPicks, error: seasonError }] = await Promise.all([
+  const [
+    { data: currentPicks, error: currentError },
+    { data: seasonPicks, error: seasonError },
+    { data: gameweeks, error: gameweekError },
+  ] = await Promise.all([
     supabase
       .from('star_man_picks')
       .select('player_id, pick_slot')
@@ -272,10 +279,15 @@ async function loadPicks() {
       .eq('gameweek_id', state.activeGameweek.gameweek_id),
     supabase
       .from('star_man_picks')
-      .select('player_id, gameweek_id')
+      .select('player_id, gameweek_id, pick_slot')
       .eq('competition_id', state.league.id)
       .eq('user_id', state.user.id)
       .eq('season_id', state.league.season_id),
+    supabase
+      .from('gameweek_deadlines')
+      .select('gameweek_id, gameweek_number, star_man_locks_at')
+      .eq('season_id', state.league.season_id)
+      .order('gameweek_number', { ascending: true }),
   ]);
 
   if (currentError) {
@@ -284,8 +296,13 @@ async function loadPicks() {
   if (seasonError) {
     throw seasonError;
   }
+  if (gameweekError) {
+    throw gameweekError;
+  }
 
   state.existingPicks = new Map((currentPicks || []).map((pick) => [pick.pick_slot, pick.player_id]));
+  state.seasonPicks = seasonPicks || [];
+  state.gameweeks = gameweeks || [];
   state.usedStarManIds = new Set(
     (seasonPicks || [])
       .filter((pick) => String(pick.gameweek_id) !== String(state.activeGameweek.gameweek_id))
@@ -391,12 +408,23 @@ async function loadRestrictionData() {
   }
 
   if (keys.has('curse_tiny_club') && previousGameweekId) {
-    const { data } = await supabase
-      .from('team_gameweek_standings')
+    let { data, error } = await supabase
+      .from('team_gameweek_computed_standings')
       .select('team_id, league_position')
       .eq('season_id', state.league.season_id)
       .eq('gameweek_id', previousGameweekId)
       .lte('league_position', 10);
+
+    if (error) {
+      const fallback = await supabase
+        .from('team_gameweek_standings')
+        .select('team_id, league_position')
+        .eq('season_id', state.league.season_id)
+        .eq('gameweek_id', previousGameweekId)
+        .lte('league_position', 10);
+      data = fallback.data;
+    }
+
     state.top10TeamIds = new Set((data || []).map((row) => row.team_id));
   }
 }
@@ -477,6 +505,44 @@ function renderSearch(slot) {
   });
 }
 
+function renderStarManHistory() {
+  if (!historyList) {
+    return;
+  }
+
+  const gameweeksById = new Map(state.gameweeks.map((gameweek) => [String(gameweek.gameweek_id), gameweek]));
+  const rows = state.seasonPicks
+    .map((pick) => {
+      const gameweek = gameweeksById.get(String(pick.gameweek_id));
+      const player = state.players.find((item) => item.id === pick.player_id);
+      return { pick, gameweek, player };
+    })
+    .filter(({ gameweek, player }) => {
+      if (!gameweek || !player) {
+        return false;
+      }
+      const isEarlierGameweek = Number(gameweek.gameweek_number) < Number(state.activeGameweek.gameweek_number);
+      return isEarlierGameweek || isPast(gameweek.star_man_locks_at);
+    })
+    .sort((a, b) => (
+      Number(a.gameweek.gameweek_number) - Number(b.gameweek.gameweek_number)
+      || String(a.pick.pick_slot).localeCompare(String(b.pick.pick_slot))
+    ));
+
+  if (!rows.length) {
+    historyList.innerHTML = '';
+    return;
+  }
+
+  historyList.innerHTML = rows.map(({ pick, gameweek, player }) => `
+    <div class="history-row">
+      <strong>GW${escapeHtml(gameweek.gameweek_number)}</strong>
+      <span>${escapeHtml(player.display_name)}</span>
+      <small>${escapeHtml(teamName(player.team_id))}${pick.pick_slot === 'super_duo' ? ' - Super Duo' : ''}</small>
+    </div>
+  `).join('');
+}
+
 async function savePick(slot) {
   const player = state.selected[slot];
   if (!player) {
@@ -514,7 +580,21 @@ async function savePick(slot) {
   }
 
   state.existingPicks.set(slot, player.id);
+  const savedPick = {
+    player_id: player.id,
+    gameweek_id: state.activeGameweek.gameweek_id,
+    pick_slot: slot,
+  };
+  const existingIndex = state.seasonPicks.findIndex((pick) => (
+    String(pick.gameweek_id) === String(savedPick.gameweek_id) && pick.pick_slot === slot
+  ));
+  if (existingIndex >= 0) {
+    state.seasonPicks[existingIndex] = savedPick;
+  } else {
+    state.seasonPicks.push(savedPick);
+  }
   updateSaveButton(slot);
+  renderStarManHistory();
   setMessage(slot, slot === 'super_duo' ? 'Super Duo saved.' : 'Star Man saved.', 'success');
 }
 
@@ -565,6 +645,7 @@ async function boot() {
     superDuoSection.hidden = !ownEffect('super_duo');
 
     renderExistingSelections();
+    renderStarManHistory();
     renderSearch('primary');
     renderSearch('super_duo');
   } catch (error) {

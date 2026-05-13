@@ -303,6 +303,20 @@ footer {
     justify-items: stretch;
   }
 }
+@media (max-width: 650px) {
+  header h1,
+  body > h1 {
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    line-height: 1.12;
+  }
+}
 </style>
 </head>
 <body data-require-auth="true">

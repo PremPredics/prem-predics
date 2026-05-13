@@ -99,6 +99,64 @@ th {
   text-shadow: 0 0 8px rgba(216, 180, 254, 0.72);
 }
 
+.stat-head {
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  line-height: 1;
+}
+
+.uc-head {
+  color: #fde68a;
+  font-size: 14px;
+}
+
+.stat-icons {
+  min-height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.symbol {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  font-size: 13px;
+  font-weight: 900;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.75),
+    1px -1px 0 rgba(0,0,0,0.75),
+    -1px 1px 0 rgba(0,0,0,0.75),
+    1px 1px 0 rgba(0,0,0,0.75);
+}
+
+.symbol.tick-green { color: #22c55e; }
+.symbol.tick-amber { color: #f59e0b; }
+.symbol.star { color: #fde047; }
+.symbol.ball { color: #f8fafc; }
+.symbol.target { color: #67e8f9; }
+
+.symbol.card {
+  width: 11px;
+  height: 15px;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.7);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.38);
+}
+
+.symbol.card.yellow { background: #facc15; }
+.symbol.card.red { background: #ef4444; }
+
+.uc-cell {
+  color: #fde68a;
+  font-size: 1.08rem;
+  font-weight: 950;
+}
+
 td {
   color: #fff;
   font-weight: 800;
@@ -208,6 +266,44 @@ tbody tr:nth-child(even) {
   line-height: 1.7;
 }
 
+.legend-key {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  text-align: center;
+}
+
+.legend-key div {
+  display: grid;
+  grid-template-columns: 90px 22px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  justify-items: center;
+  color: #fff;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.legend-key .key-code {
+  justify-self: center;
+}
+
+.legend-key .uc-head {
+  text-align: center;
+}
+
+.legend-key .key-equals {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.2);
+  color: #fde68a;
+  border: 1px solid rgba(253, 230, 138, 0.45);
+  font-weight: 950;
+}
+
 .legend-close {
   margin-top: 16px;
 }
@@ -234,6 +330,20 @@ footer {
     min-width: 160px;
   }
 }
+@media (max-width: 650px) {
+  header h1,
+  body > h1 {
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    line-height: 1.12;
+  }
+}
 </style>
 </head>
 <body data-require-auth="true" data-require-league="true">
@@ -244,7 +354,6 @@ footer {
 <main>
   <div class="toolbar">
     <a data-league-link href="league.html">Back To League Hub</a>
-    <a href="index.html">Home</a>
   </div>
 
   <section class="leaderboard-panel">
@@ -254,14 +363,14 @@ footer {
           <tr>
             <th>Pos</th>
             <th>Player</th>
-            <th>UC pts</th>
-            <th>CS</th>
-            <th>CR</th>
-            <th>SMP</th>
-            <th>SMG</th>
-            <th>SMA</th>
-            <th>SMY</th>
-            <th>SMR</th>
+            <th class="uc-head">UC PTS</th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-green">✓</span></span><span>CS</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-amber">✓</span></span><span>CR</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">★</span></span><span>SMP</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">★</span><span class="symbol ball">⚽</span></span><span>SMG</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">★</span><span class="symbol target">➶</span></span><span>SMA</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">★</span><span class="symbol card yellow"></span></span><span>SMY</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">★</span><span class="symbol card red"></span></span><span>SMR</span></span></th>
           </tr>
         </thead>
         <tbody data-leaderboard-body>
@@ -278,14 +387,16 @@ footer {
 
 <div class="legend-modal" data-legend-modal aria-hidden="true">
   <div class="legend-panel" role="dialog" aria-modal="true" aria-label="Leaderboard stat key">
-    <p>
-      UC PTS = Total Ultimate Champion Points<br>
-      CS = Total Correct Scores<br>
-      CR = Total Correct Results<br>
-      SMP = Total Star Man Points<br>
-      SMG = Total Star Man Goals<br>
-      SMA = Total Star Man Assists
-    </p>
+    <div class="legend-key">
+      <div><span class="key-code uc-head">UC PTS</span><span class="key-equals">=</span><span>Total Ultimate Champion Points</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span><span class="key-equals">=</span><span>Total Correct Scores</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol tick-amber">&#10003;</span></span><span>CR</span></span><span class="key-equals">=</span><span>Total Correct Results</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span></span><span>SMP</span></span><span class="key-equals">=</span><span>Total Star Man Points</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol ball">&#9917;</span></span><span>SMG</span></span><span class="key-equals">=</span><span>Total Star Man Goals</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol target">&#10166;</span></span><span>SMA</span></span><span class="key-equals">=</span><span>Total Star Man Assists</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol card yellow"></span></span><span>SMY</span></span><span class="key-equals">=</span><span>Total Star Man Yellow Cards</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol card red"></span></span><span>SMR</span></span><span class="key-equals">=</span><span>Total Star Man Red Cards</span></div>
+    </div>
     <button class="legend-close" type="button" data-close-legend>Close</button>
   </div>
 </div>

@@ -185,7 +185,7 @@ main {
 
 .fixture-row {
   display: grid;
-  grid-template-columns: 48px minmax(110px, 1fr) 46px 14px 46px minmax(110px, 1fr) 112px;
+  grid-template-columns: 72px minmax(110px, 1fr) 46px 14px 46px minmax(110px, 1fr) 112px;
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -193,6 +193,13 @@ main {
   border-radius: 8px;
   background: rgba(17, 7, 38, 0.44);
   border: 1px solid rgba(216, 180, 254, 0.2);
+}
+
+.fixture-flags {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
 .fixture-gameweek {
@@ -204,6 +211,34 @@ main {
   color: #fde68a;
   font-size: 12px;
   font-weight: 900;
+}
+
+.curse-marker {
+  width: 25px;
+  height: 25px;
+  min-height: 25px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(254, 202, 202, 0.82);
+  border-radius: 999px;
+  padding: 0;
+  background:
+    radial-gradient(circle at 42% 25%, rgba(254, 226, 226, 0.72), transparent 24%),
+    linear-gradient(135deg, #7f1d1d, #dc2626 54%, #fb7185);
+  color: #fff;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.66), 0 0 26px rgba(249, 115, 22, 0.28);
+}
+
+.curse-marker:hover {
+  transform: translateY(-1px) scale(1.06);
 }
 
 .fixture-lock {
@@ -262,7 +297,7 @@ main {
 
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 10px;
   margin-top: 10px;
 }
@@ -299,6 +334,13 @@ button:disabled {
   border: 1px solid rgba(216, 180, 254, 0.2);
 }
 
+.summary-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
 .summary-row span {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -320,6 +362,68 @@ button:disabled {
   color: #bbf7d0;
   text-align: center;
   font-weight: 900;
+}
+
+.curse-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 18px;
+  background: rgba(8, 3, 20, 0.54);
+  backdrop-filter: blur(7px);
+  z-index: 1000;
+}
+
+.curse-modal.show {
+  display: grid;
+}
+
+.curse-panel {
+  width: min(560px, 100%);
+  display: grid;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(76, 5, 25, 0.98), rgba(17, 7, 38, 0.98));
+  border: 2px solid rgba(251, 113, 133, 0.54);
+  box-shadow: 0 20px 52px rgba(0,0,0,0.5), 0 0 30px rgba(239, 68, 68, 0.22);
+  text-align: center;
+}
+
+.curse-panel h2 {
+  margin: 0;
+  color: #fff;
+}
+
+.curse-detail {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 9px;
+  background: rgba(17, 7, 38, 0.46);
+  border: 1px solid rgba(254, 202, 202, 0.24);
+}
+
+.curse-detail strong {
+  color: #fecaca;
+}
+
+.curse-detail span {
+  color: #fff;
+  font-weight: 900;
+}
+
+.curse-detail p {
+  margin: 0;
+  color: #f5f3ff;
+  line-height: 1.45;
+}
+
+.curse-close {
+  justify-self: center;
+  min-width: 120px;
+  background: linear-gradient(135deg, #7f1d1d, #ef4444);
 }
 
 footer {
@@ -353,7 +457,7 @@ footer {
   }
 
   .fixture-row {
-    grid-template-columns: 40px minmax(72px, 1fr) 36px 10px 36px minmax(72px, 1fr);
+    grid-template-columns: 62px minmax(72px, 1fr) 36px 10px 36px minmax(72px, 1fr);
     min-height: 34px;
     padding: 4px 5px;
     gap: 4px;
@@ -405,10 +509,31 @@ footer {
     width: 100%;
   }
 
+  .curse-marker {
+    width: 23px;
+    min-width: 23px;
+    height: 23px;
+    min-height: 23px;
+  }
+
   .summary-row {
     grid-template-columns: minmax(82px, 1fr) 50px minmax(82px, 1fr);
     min-height: 31px;
     font-size: 12px;
+  }
+}
+@media (max-width: 650px) {
+  header h1,
+  body > h1 {
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    line-height: 1.12;
   }
 }
 </style>
@@ -442,6 +567,14 @@ footer {
     <p class="message" data-prediction-message></p>
   </section>
 </main>
+
+<div class="curse-modal" data-curse-modal aria-hidden="true">
+  <div class="curse-panel" role="dialog" aria-modal="true" aria-label="Active prediction curse">
+    <h2>Active Curse</h2>
+    <div data-curse-modal-body></div>
+    <button class="curse-close" type="button" data-close-curse>Close</button>
+  </div>
+</div>
 
 <footer>&copy; 2026 Prem Predics | Predictions</footer>
 

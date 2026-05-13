@@ -58,7 +58,7 @@ function render(rows, profilesById) {
             <span class="username">${escapeHtml(displayName)}</span>
           </div>
         </td>
-        <td>${numberValue(row.ultimate_champion_points)}</td>
+        <td class="uc-cell">${numberValue(row.ultimate_champion_points)}</td>
         <td>${numberValue(row.correct_scores)}</td>
         <td>${numberValue(row.correct_results)}</td>
         <td>${numberValue(row.star_man_points)}</td>

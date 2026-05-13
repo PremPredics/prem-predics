@@ -111,6 +111,12 @@ main {
   margin: 0;
   color: #fff;
   font-size: 1.35rem;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9),
+    0 0 10px rgba(255,255,255,0.28);
 }
 
 .stat-list {
@@ -137,10 +143,93 @@ main {
   font-weight: 900;
 }
 
-.stat strong {
+.stat-label {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  line-height: 1.15;
+}
+
+.stat-icons {
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.symbol {
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  line-height: 1;
+  font-size: 14px;
+  font-weight: 900;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.75),
+    1px -1px 0 rgba(0,0,0,0.75),
+    -1px 1px 0 rgba(0,0,0,0.75),
+    1px 1px 0 rgba(0,0,0,0.75);
+}
+
+.symbol.tick-green { color: #22c55e; }
+.symbol.tick-amber { color: #f59e0b; }
+.symbol.star { color: #fde047; }
+.symbol.ball { color: #f8fafc; }
+.symbol.target { color: #67e8f9; }
+
+.symbol.card {
+  width: 12px;
+  height: 16px;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.7);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.38);
+}
+
+.symbol.card.yellow { background: #facc15; }
+.symbol.card.red { background: #ef4444; }
+
+.stat.uc-stat .stat-label {
   color: #fde68a;
+  font-size: 13px;
+}
+
+.stat.uc-stat .stat-label > span:last-child {
+  color: #fde68a;
+}
+
+.stat.gold-stat .stat-label {
+  color: #fde68a;
+}
+
+.stat.gold-stat .stat-label > span:last-child {
+  color: #fde68a;
+}
+
+.stat.green-stat .stat-label {
+  color: #86efac;
+}
+
+.stat.green-stat .stat-label > span:last-child {
+  color: #86efac;
+}
+
+.stat strong {
+  color: #fff;
   font-size: 1.45rem;
   line-height: 1;
+}
+
+.stat.uc-stat strong {
+  color: #fde68a;
+  font-size: 1.65rem;
+}
+
+.stat.game-won-stat {
+  grid-column: 1 / -1;
+  width: min(240px, 100%);
+  justify-self: center;
 }
 
 .empty {
@@ -161,6 +250,20 @@ footer {
   main { padding: 22px 10px 34px; }
   .toolbar a { flex: 1; text-align: center; }
   .stats-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 650px) {
+  header h1,
+  body > h1 {
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    line-height: 1.12;
+  }
 }
 </style>
 </head>

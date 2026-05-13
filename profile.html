@@ -47,6 +47,15 @@ main {
   padding: 34px 20px;
 }
 
+.toolbar {
+  width: min(100%, 480px);
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
 .panel {
   width: min(100%, 480px);
   background: rgba(46, 16, 102, 0.7);
@@ -80,6 +89,12 @@ select {
   color: #fff;
   font: inherit;
   text-align: center;
+}
+
+input[type="color"] {
+  height: 48px;
+  padding: 6px;
+  cursor: pointer;
 }
 
 input:focus,
@@ -215,7 +230,15 @@ footer {
   }
 
   header h1 {
-    font-size: clamp(1.8rem, 11vw, 2.5rem);
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.15rem);
+    line-height: 1.12;
   }
 
   main {
@@ -252,6 +275,11 @@ footer {
 </header>
 
 <main>
+  <div class="toolbar">
+    <a class="link-btn" href="index.html">Back To Home</a>
+    <a class="link-btn league-hub-link" href="leagues.html" data-league-hub-back>Back To League Hub</a>
+  </div>
+
   <section class="panel">
     <h2>Edit Profile</h2>
     <p class="email">Email: <span data-email>Loading...</span></p>
@@ -297,9 +325,12 @@ footer {
         </select>
       </label>
 
+      <label>
+        Favourite colour
+        <input name="favoriteColor" type="color" value="#ffffff" data-favorite-color>
+      </label>
+
       <button type="submit">Save Profile</button>
-      <a class="link-btn" href="index.html">Home</a>
-      <a class="link-btn league-hub-link" href="leagues.html" data-league-hub-back>Back To League Hub</a>
       <p class="message" data-profile-message></p>
     </form>
 

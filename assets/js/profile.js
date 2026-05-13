@@ -8,6 +8,7 @@ const firstNameInput = document.querySelector('[name="firstName"]');
 const lastNameInput = document.querySelector('[name="lastName"]');
 const nationalityInput = document.querySelector('[name="nationality"]');
 const favoriteTeamSelect = document.querySelector('[data-favorite-team]');
+const favoriteColorInput = document.querySelector('[data-favorite-color]');
 const nationalityOptions = document.querySelector('[data-nationality-options]');
 const profileImageInput = document.querySelector('[data-profile-image]');
 const profileImagePreview = document.querySelector('[data-profile-photo-preview]');
@@ -130,7 +131,7 @@ async function loadProfile() {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('display_name, first_name, last_name, nationality, favorite_team_id, profile_image_url')
+    .select('display_name, first_name, last_name, nationality, favorite_team_id, profile_image_url, favorite_color')
     .eq('id', userData.user.id)
     .maybeSingle();
 
@@ -145,6 +146,7 @@ async function loadProfile() {
   lastNameInput.value = data?.last_name || '';
   nationalityInput.value = data?.nationality || '';
   favoriteTeamSelect.value = data?.favorite_team_id || '';
+  favoriteColorInput.value = data?.favorite_color || '#ffffff';
   profileImageUrl = data?.profile_image_url?.startsWith('data:image/')
     ? data.profile_image_url
     : null;
@@ -183,6 +185,7 @@ form.addEventListener('submit', async (event) => {
   const lastName = lastNameInput.value.trim();
   const nationality = nationalityInput.value.trim();
   const favoriteTeamId = favoriteTeamSelect.value || null;
+  const favoriteColor = favoriteColorInput.value || '#ffffff';
 
   if (displayName.length < 2) {
     setMessage('Username must be at least 2 characters.', 'error');
@@ -217,6 +220,7 @@ form.addEventListener('submit', async (event) => {
     target_nationality: getMatchingCountry(nationality),
     target_favorite_team_id: favoriteTeamId,
     target_profile_image_url: profileImageUrl,
+    target_favorite_color: favoriteColor,
   });
 
   if (error) {

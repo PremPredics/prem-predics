@@ -19,13 +19,21 @@ function avatarMarkup(profile, displayName) {
   return `<span class="avatar">${escapeHtml(initial)}</span>`;
 }
 
-function render(members, scoresByUser) {
+function render(members, scoresByUser, currentUserId) {
   if (!members.length) {
     container.innerHTML = '<p class="empty">No league members found.</p>';
     return;
   }
 
-  container.innerHTML = members.map((member) => {
+  const orderedMembers = [...members].sort((a, b) => {
+    if (a.user_id === currentUserId) return -1;
+    if (b.user_id === currentUserId) return 1;
+    const profileA = normaliseNested(a.profiles);
+    const profileB = normaliseNested(b.profiles);
+    return String(profileA?.display_name || 'Player').localeCompare(String(profileB?.display_name || 'Player'), 'en-GB');
+  });
+
+  container.innerHTML = orderedMembers.map((member) => {
     const profile = normaliseNested(member.profiles);
     const displayName = profile?.display_name || 'Player';
     const scores = scoresByUser.get(member.user_id) || [];
@@ -90,7 +98,7 @@ async function loadCorrectScores() {
     scoresByUser.set(score.user_id, group);
   });
 
-  render(members || [], scoresByUser);
+  render(members || [], scoresByUser, context.user.id);
 }
 
 loadCorrectScores();

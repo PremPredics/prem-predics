@@ -250,6 +250,7 @@ function renderSchedule() {
   const select = document.querySelector('[data-schedule-filter]');
   const list = document.querySelector('[data-schedule-list]');
   const message = document.querySelector('[data-schedule-message]');
+  const saveAllButton = document.querySelector('[data-save-all-schedules]');
   populateGameweekSelect(select, true);
 
   function renderList() {
@@ -265,53 +266,85 @@ function renderSchedule() {
         <select data-status>
           ${['scheduled', 'postponed', 'locked', 'in_progress', 'final'].map((status) => `<option value="${status}" ${fixture.status === status ? 'selected' : ''}>${status}</option>`).join('')}
         </select>
-        <button type="button" data-save-schedule>Save</button>
+        <span>Ready</span>
       </div>
     `).join('') || '<p class="section-copy">No fixtures found.</p>';
 
-    list.querySelectorAll('[data-save-schedule]').forEach((button) => {
-      button.addEventListener('click', () => saveSchedule(button.closest('[data-fixture-id]'), message));
-    });
+    if (saveAllButton) {
+      saveAllButton.disabled = fixtures.length === 0;
+    }
   }
 
   select.onchange = renderList;
+  if (saveAllButton) {
+    saveAllButton.onclick = () => saveVisibleScheduleRows(list, message, saveAllButton, renderList);
+  }
   renderList();
 }
 
-async function saveSchedule(row, message) {
-  const fixtureId = row.dataset.fixtureId;
-  const fixture = state.fixtures.find((item) => item.id === fixtureId);
-  const newGameweekId = row.querySelector('[data-new-gameweek]').value;
-  const newKickoff = fromDatetimeLocal(row.querySelector('[data-kickoff]').value);
-  const status = row.querySelector('[data-status]').value;
-
-  const { error } = await supabase
-    .from('fixtures')
-    .update({ gameweek_id: newGameweekId, kickoff_at: newKickoff, status })
-    .eq('id', fixtureId);
-
-  if (error) {
-    setMessage(message, error.message, 'error');
+async function saveVisibleScheduleRows(list, message, button, renderList) {
+  const rows = [...list.querySelectorAll('[data-fixture-id]')];
+  if (!rows.length) {
+    setMessage(message, 'No fixtures to save.', 'info');
     return;
   }
 
-  await supabase.from('fixture_schedule_changes').insert({
-    fixture_id: fixtureId,
-    previous_gameweek_id: fixture?.gameweek_id,
-    new_gameweek_id: newGameweekId,
-    previous_kickoff_at: fixture?.kickoff_at,
-    new_kickoff_at: newKickoff,
-    reason: 'Manual admin update',
-    changed_by: state.user.id,
-  });
+  setMessage(message, 'Saving fixtures...', 'info');
+  button.disabled = true;
 
-  if (fixture) {
-    fixture.gameweek_id = Number(newGameweekId);
-    fixture.kickoff_at = newKickoff;
-    fixture.status = status;
+  try {
+    let changedCount = 0;
+
+    for (const row of rows) {
+      const fixtureId = row.dataset.fixtureId;
+      const fixture = state.fixtures.find((item) => item.id === fixtureId);
+      const newGameweekId = row.querySelector('[data-new-gameweek]').value;
+      const newKickoff = fromDatetimeLocal(row.querySelector('[data-kickoff]').value);
+      const status = row.querySelector('[data-status]').value;
+      const hasChanged = !fixture
+        || String(fixture.gameweek_id) !== String(newGameweekId)
+        || fixture.kickoff_at !== newKickoff
+        || fixture.status !== status;
+
+      if (!hasChanged) {
+        continue;
+      }
+
+      const { error } = await supabase
+        .from('fixtures')
+        .update({ gameweek_id: newGameweekId, kickoff_at: newKickoff, status })
+        .eq('id', fixtureId);
+
+      if (error) {
+        throw error;
+      }
+
+      await supabase.from('fixture_schedule_changes').insert({
+        fixture_id: fixtureId,
+        previous_gameweek_id: fixture?.gameweek_id,
+        new_gameweek_id: newGameweekId,
+        previous_kickoff_at: fixture?.kickoff_at,
+        new_kickoff_at: newKickoff,
+        reason: 'Manual admin update',
+        changed_by: state.user.id,
+      });
+
+      if (fixture) {
+        fixture.gameweek_id = Number(newGameweekId);
+        fixture.kickoff_at = newKickoff;
+        fixture.status = status;
+      }
+
+      changedCount += 1;
+    }
+
+    renderList();
+    setMessage(message, changedCount ? `${changedCount} fixture${changedCount === 1 ? '' : 's'} saved.` : 'No fixture changes to save.', 'success');
+  } catch (error) {
+    setMessage(message, error.message || 'Could not save fixture schedule.', 'error');
+  } finally {
+    button.disabled = list.querySelectorAll('[data-fixture-id]').length === 0;
   }
-
-  setMessage(message, 'Fixture schedule saved.', 'success');
 }
 
 function renderFixtureStatsControls() {
@@ -550,44 +583,50 @@ async function renderTeamStandings() {
   populateGameweekSelect(select);
 
   async function renderList() {
-    const { data } = await supabase
-      .from('team_gameweek_standings')
-      .select('team_id, league_position')
+    const { data, error } = await supabase
+      .from('team_gameweek_computed_standings')
+      .select('league_position, team_id, team_name, played, wins, draws, losses, goals_for, goals_against, goal_difference, points')
       .eq('season_id', state.season.id)
-      .eq('gameweek_id', select.value);
-    const standingsByTeam = new Map((data || []).map((row) => [row.team_id, row.league_position]));
-    list.innerHTML = state.teams.map((team) => `
-      <div class="admin-row team-standing" data-team-id="${team.id}">
-        <strong>${escapeHtml(team.name)}</strong>
-        <input data-position type="number" min="1" max="20" value="${standingsByTeam.get(team.id) ?? ''}" placeholder="Position">
+      .eq('gameweek_id', select.value)
+      .order('league_position', { ascending: true });
+
+    if (error) {
+      list.innerHTML = '<p class="section-copy">Run the latest Supabase SQL update, then refresh this page to show the calculated Premier League table.</p>';
+      return;
+    }
+
+    list.innerHTML = `
+      <div class="admin-row team-standing">
+        <strong>Pos</strong>
+        <strong>Team</strong>
+        <strong>P</strong>
+        <strong>W</strong>
+        <strong>D</strong>
+        <strong>L</strong>
+        <strong>GF</strong>
+        <strong>GA</strong>
+        <strong>GD</strong>
+        <strong>Pts</strong>
       </div>
-    `).join('');
+      ${(data || []).map((row) => `
+        <div class="admin-row team-standing" data-team-id="${row.team_id}">
+          <strong>${row.league_position}</strong>
+          <strong>${escapeHtml(row.team_name)}</strong>
+          <span>${row.played}</span>
+          <span>${row.wins}</span>
+          <span>${row.draws}</span>
+          <span>${row.losses}</span>
+          <span>${row.goals_for}</span>
+          <span>${row.goals_against}</span>
+          <span>${row.goal_difference}</span>
+          <span>${row.points}</span>
+        </div>
+      `).join('') || '<p class="section-copy">No table data found for this gameweek yet.</p>'}
+    `;
   }
 
   select.onchange = renderList;
-  document.querySelector('[data-save-standings]').onclick = saveTeamStandings;
   await renderList();
-}
-
-async function saveTeamStandings() {
-  const message = document.querySelector('[data-standings-message]');
-  const gameweekId = document.querySelector('[data-standings-gameweek]').value;
-  const rows = [...document.querySelectorAll('[data-standings-list] [data-team-id]')];
-  const payload = rows
-    .map((row) => ({
-      season_id: state.season.id,
-      gameweek_id: gameweekId,
-      team_id: row.dataset.teamId,
-      league_position: Number(row.querySelector('[data-position]').value),
-      entered_by: state.user.id,
-    }))
-    .filter((row) => Number.isInteger(row.league_position) && row.league_position >= 1 && row.league_position <= 20);
-
-  const { error } = await supabase.from('team_gameweek_standings').upsert(payload, {
-    onConflict: 'season_id,gameweek_id,team_id',
-  });
-
-  setMessage(message, error ? error.message : 'Team standings saved.', error ? 'error' : 'success');
 }
 
 async function boot() {

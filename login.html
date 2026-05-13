@@ -119,6 +119,12 @@ select {
   font: inherit;
 }
 
+input[type="color"] {
+  height: 48px;
+  padding: 6px;
+  cursor: pointer;
+}
+
 input:focus,
 select:focus {
   outline: 2px solid #c4b5fd;
@@ -197,7 +203,15 @@ footer {
   header h1 {
     flex-basis: 100%;
     order: 2;
-    font-size: clamp(1.9rem, 12vw, 2.6rem);
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.6rem, 8vw, 2.2rem);
+    line-height: 1.12;
   }
 
   main {
@@ -274,6 +288,11 @@ footer {
           <select name="favoriteTeam" data-favorite-team data-signup-only disabled>
             <option value="">Choose later</option>
           </select>
+        </label>
+
+        <label>
+          Favourite colour
+          <input name="favoriteColor" type="color" value="#ffffff" data-signup-only disabled>
         </label>
       </div>
 

@@ -14,6 +14,7 @@ declare
   profile_nationality text;
   profile_favorite_team_id uuid;
   profile_image_url text;
+  profile_favorite_color text;
 begin
   profile_display_name := coalesce(
     nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''),
@@ -30,6 +31,10 @@ begin
   profile_last_name := nullif(trim(coalesce(new.raw_user_meta_data ->> 'last_name', '')), '');
   profile_nationality := nullif(trim(coalesce(new.raw_user_meta_data ->> 'nationality', '')), '');
   profile_image_url := nullif(trim(coalesce(new.raw_user_meta_data ->> 'profile_image_url', '')), '');
+  profile_favorite_color := coalesce(
+    nullif(trim(coalesce(new.raw_user_meta_data ->> 'favorite_color', '')), ''),
+    '#ffffff'
+  );
 
   if profile_nationality is not null
     and not exists (
@@ -46,6 +51,10 @@ begin
       or length(profile_image_url) > 700000
     ) then
     profile_image_url := null;
+  end if;
+
+  if profile_favorite_color !~ '^#[0-9A-Fa-f]{6}$' then
+    profile_favorite_color := '#ffffff';
   end if;
 
   if nullif(trim(coalesce(new.raw_user_meta_data ->> 'favorite_team_id', '')), '') is not null then
@@ -72,7 +81,8 @@ begin
     last_name,
     nationality,
     favorite_team_id,
-    profile_image_url
+    profile_image_url,
+    favorite_color
   )
   values (
     new.id,
@@ -81,7 +91,8 @@ begin
     profile_last_name,
     profile_nationality,
     profile_favorite_team_id,
-    profile_image_url
+    profile_image_url,
+    lower(profile_favorite_color)
   )
   on conflict (id) do nothing;
 

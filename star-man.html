@@ -41,7 +41,7 @@ header h1 {
 }
 
 main {
-  width: min(980px, 100%);
+  width: min(1180px, 100%);
   margin: 0 auto;
   padding: 18px 14px 34px;
 }
@@ -70,6 +70,59 @@ main {
   border-radius: 10px;
   padding: 18px;
   box-shadow: 0 12px 28px rgba(0,0,0,0.26);
+}
+
+.star-man-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.history-panel {
+  min-height: 220px;
+  background: rgba(46, 16, 102, 0.66);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.26);
+  text-align: center;
+}
+
+.history-panel h2 {
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  line-height: 1.1;
+}
+
+.history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.history-row {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(17, 7, 38, 0.42);
+  border: 1px solid rgba(216, 180, 254, 0.24);
+  text-align: center;
+}
+
+.history-row strong {
+  color: #fde68a;
+}
+
+.history-row span {
+  color: #fff;
+  font-weight: 900;
+}
+
+.history-row small {
+  color: #ddd6fe;
+  font-weight: 800;
 }
 
 .page-head {
@@ -261,6 +314,24 @@ footer {
   .toolbar a {
     text-align: center;
   }
+
+  .star-man-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 650px) {
+  header h1,
+  body > h1 {
+    -webkit-text-stroke: 0.8px #05010c;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    line-height: 1.12;
+  }
 }
 </style>
 </head>
@@ -274,44 +345,52 @@ footer {
     <a data-league-back href="leagues.html">Back To League Hub</a>
   </div>
 
-  <section class="panel">
-    <div class="page-head">
-      <div>
-        <h2 data-league-title>Loading Star Man...</h2>
-        <p class="state-text" data-gameweek-summary>Checking gameweek and card effects.</p>
+  <div class="star-man-layout">
+    <section class="panel">
+      <div class="page-head">
+        <div>
+          <h2 data-league-title>Loading Star Man...</h2>
+          <p class="state-text" data-gameweek-summary>Checking gameweek and card effects.</p>
+        </div>
+        <div class="restrictions">
+          <strong>Restrictions</strong>
+          <p class="state-text" data-restriction-summary>Loading...</p>
+        </div>
       </div>
-      <div class="restrictions">
-        <strong>Restrictions</strong>
-        <p class="state-text" data-restriction-summary>Loading...</p>
+
+      <div class="pick-grid">
+        <section class="pick-card" data-pick-slot="primary">
+          <h3>Star Man</h3>
+          <label>
+            Start typing a player name
+            <input data-player-search="primary" autocomplete="off" placeholder="Search player">
+          </label>
+          <div class="selected-player" data-selected-player="primary"></div>
+          <div class="results" data-search-results="primary"></div>
+          <button class="save" type="button" data-save-star-man="primary" disabled>Save Star Man</button>
+          <p class="message" data-message="primary"></p>
+        </section>
+
+        <section class="pick-card" data-pick-slot="super_duo" hidden>
+          <h3>Super Duo</h3>
+          <label>
+            Start typing a second player name
+            <input data-player-search="super_duo" autocomplete="off" placeholder="Search second player">
+          </label>
+          <div class="selected-player" data-selected-player="super_duo"></div>
+          <div class="results" data-search-results="super_duo"></div>
+          <button class="save" type="button" data-save-star-man="super_duo" disabled>Save Super Duo</button>
+          <p class="message" data-message="super_duo"></p>
+        </section>
       </div>
-    </div>
+    </section>
 
-    <div class="pick-grid">
-      <section class="pick-card" data-pick-slot="primary">
-        <h3>Star Man</h3>
-        <label>
-          Start typing a player name
-          <input data-player-search="primary" autocomplete="off" placeholder="Search player">
-        </label>
-        <div class="selected-player" data-selected-player="primary"></div>
-        <div class="results" data-search-results="primary"></div>
-        <button class="save" type="button" data-save-star-man="primary" disabled>Save Star Man</button>
-        <p class="message" data-message="primary"></p>
-      </section>
-
-      <section class="pick-card" data-pick-slot="super_duo" hidden>
-        <h3>Super Duo</h3>
-        <label>
-          Start typing a second player name
-          <input data-player-search="super_duo" autocomplete="off" placeholder="Search second player">
-        </label>
-        <div class="selected-player" data-selected-player="super_duo"></div>
-        <div class="results" data-search-results="super_duo"></div>
-        <button class="save" type="button" data-save-star-man="super_duo" disabled>Save Super Duo</button>
-        <p class="message" data-message="super_duo"></p>
-      </section>
-    </div>
-  </section>
+    <aside class="history-panel">
+      <h2>History Of Star Man Picks</h2>
+      <div class="history-list" data-star-man-history>
+      </div>
+    </aside>
+  </div>
 </main>
 
 <footer>&copy; 2026 Prem Predics | Star Man</footer>

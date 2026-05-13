@@ -221,7 +221,7 @@ async function loadPredictionsAndResults() {
 function renderNoRounds() {
   content.innerHTML = `
     <div class="card-copy">
-      <h2>No active Game Card</h2>
+      <h2>No Active Game Card</h2>
       <p>No Game Card is active for the current gameweek in this league, and there is no Game Card history yet.</p>
     </div>
   `;

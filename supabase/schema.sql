@@ -223,6 +223,8 @@ create table public.profiles (
   last_name text,
   nationality text references public.profile_nationalities(name),
   profile_image_url text,
+  favorite_color text not null default '#ffffff'
+    check (favorite_color ~ '^#[0-9A-Fa-f]{6}$'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -302,7 +304,8 @@ create or replace function public.update_my_profile(
   target_last_name text default null,
   target_nationality text default null,
   target_favorite_team_id uuid default null,
-  target_profile_image_url text default null
+  target_profile_image_url text default null,
+  target_favorite_color text default '#ffffff'
 )
 returns public.profiles
 language plpgsql
@@ -318,6 +321,7 @@ declare
   cleaned_last_name text := nullif(trim(coalesce(target_last_name, '')), '');
   cleaned_nationality text := nullif(trim(coalesce(target_nationality, '')), '');
   cleaned_profile_image_url text := nullif(trim(coalesce(target_profile_image_url, '')), '');
+  cleaned_favorite_color text := coalesce(nullif(trim(coalesce(target_favorite_color, '')), ''), '#ffffff');
   username_changed boolean;
 begin
   if auth.uid() is null then
@@ -354,6 +358,10 @@ begin
   if cleaned_profile_image_url is not null
     and length(cleaned_profile_image_url) > 700000 then
     raise exception 'Profile picture is too large.';
+  end if;
+
+  if cleaned_favorite_color !~ '^#[0-9A-Fa-f]{6}$' then
+    raise exception 'Choose a valid favourite colour.';
   end if;
 
   select p.*
@@ -414,7 +422,8 @@ begin
     last_name = cleaned_last_name,
     nationality = cleaned_nationality,
     favorite_team_id = target_favorite_team_id,
-    profile_image_url = cleaned_profile_image_url
+    profile_image_url = cleaned_profile_image_url,
+    favorite_color = lower(cleaned_favorite_color)
   where id = auth.uid()
   returning *
     into updated_profile;
@@ -1200,6 +1209,94 @@ create table public.team_gameweek_standings (
 create trigger team_gameweek_standings_set_updated_at
 before update on public.team_gameweek_standings
 for each row execute function public.set_updated_at();
+
+create or replace view public.team_gameweek_computed_standings
+with (security_invoker = true)
+as
+with match_rows as (
+  select
+    f.season_id,
+    f.gameweek_id,
+    gw.number as gameweek_number,
+    f.home_team_id as team_id,
+    1 as played,
+    case when mr.home_goals > mr.away_goals then 1 else 0 end as wins,
+    case when mr.home_goals = mr.away_goals then 1 else 0 end as draws,
+    case when mr.home_goals < mr.away_goals then 1 else 0 end as losses,
+    mr.home_goals as goals_for,
+    mr.away_goals as goals_against,
+    case
+      when mr.home_goals > mr.away_goals then 3
+      when mr.home_goals = mr.away_goals then 1
+      else 0
+    end as points
+  from public.fixtures f
+  join public.gameweeks gw on gw.id = f.gameweek_id
+  join public.match_results mr on mr.fixture_id = f.id
+
+  union all
+
+  select
+    f.season_id,
+    f.gameweek_id,
+    gw.number as gameweek_number,
+    f.away_team_id as team_id,
+    1 as played,
+    case when mr.away_goals > mr.home_goals then 1 else 0 end as wins,
+    case when mr.away_goals = mr.home_goals then 1 else 0 end as draws,
+    case when mr.away_goals < mr.home_goals then 1 else 0 end as losses,
+    mr.away_goals as goals_for,
+    mr.home_goals as goals_against,
+    case
+      when mr.away_goals > mr.home_goals then 3
+      when mr.away_goals = mr.home_goals then 1
+      else 0
+    end as points
+  from public.fixtures f
+  join public.gameweeks gw on gw.id = f.gameweek_id
+  join public.match_results mr on mr.fixture_id = f.id
+),
+cumulative as (
+  select
+    gw.season_id,
+    gw.id as gameweek_id,
+    gw.number as gameweek_number,
+    t.id as team_id,
+    t.name as team_name,
+    coalesce(sum(mr.played) filter (where mr.gameweek_number <= gw.number), 0)::integer as played,
+    coalesce(sum(mr.wins) filter (where mr.gameweek_number <= gw.number), 0)::integer as wins,
+    coalesce(sum(mr.draws) filter (where mr.gameweek_number <= gw.number), 0)::integer as draws,
+    coalesce(sum(mr.losses) filter (where mr.gameweek_number <= gw.number), 0)::integer as losses,
+    coalesce(sum(mr.goals_for) filter (where mr.gameweek_number <= gw.number), 0)::integer as goals_for,
+    coalesce(sum(mr.goals_against) filter (where mr.gameweek_number <= gw.number), 0)::integer as goals_against,
+    coalesce(sum(mr.points) filter (where mr.gameweek_number <= gw.number), 0)::integer as points
+  from public.gameweeks gw
+  cross join public.teams t
+  left join match_rows mr
+    on mr.season_id = gw.season_id
+   and mr.team_id = t.id
+   and mr.gameweek_number <= gw.number
+  group by gw.season_id, gw.id, gw.number, t.id, t.name
+)
+select
+  row_number() over (
+    partition by season_id, gameweek_id
+    order by points desc, (goals_for - goals_against) desc, goals_for desc, team_name asc
+  )::integer as league_position,
+  season_id,
+  gameweek_id,
+  gameweek_number,
+  team_id,
+  team_name,
+  played,
+  wins,
+  draws,
+  losses,
+  goals_for,
+  goals_against,
+  (goals_for - goals_against)::integer as goal_difference,
+  points
+from cumulative;
 
 create table public.card_definitions (
   id text primary key,
@@ -3113,6 +3210,7 @@ grant select on
   public.star_man_picks,
   public.player_gameweek_stats,
   public.team_gameweek_standings,
+  public.team_gameweek_computed_standings,
   public.card_definitions,
   public.card_deck_cards,
   public.league_cards,
@@ -3164,7 +3262,7 @@ grant insert on public.card_effect_targets to authenticated;
 grant execute on function public.join_competition_by_code(text) to authenticated;
 grant execute on function public.leave_competition_before_start(uuid) to authenticated;
 grant execute on function public.finalize_competition_start(uuid) to authenticated;
-grant execute on function public.update_my_profile(text, text, text, text, uuid, text) to authenticated;
+grant execute on function public.update_my_profile(text, text, text, text, uuid, text, text) to authenticated;
 grant execute on function public.star_man_lock_at_for_gameweek(uuid, bigint) to authenticated;
 grant execute on function public.scrabble_score(text) to authenticated;
 

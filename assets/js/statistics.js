@@ -12,6 +12,10 @@ function numberValue(value) {
   return Number(value || 0);
 }
 
+function safeProfileColor(color) {
+  return /^#[0-9a-f]{6}$/i.test(String(color || '')) ? color : '#ffffff';
+}
+
 function avatar(profile, displayName) {
   const imageUrl = profile?.profile_image_url;
   if (imageUrl?.startsWith('data:image/')) {
@@ -21,22 +25,62 @@ function avatar(profile, displayName) {
   return `<span class="avatar">${escapeHtml((displayName || 'P').trim().charAt(0).toUpperCase() || 'P')}</span>`;
 }
 
-function stat(label, value) {
+const statVisuals = {
+  uc: '',
+  cs: '<span class="symbol tick-green">✓</span>',
+  cr: '<span class="symbol tick-amber">✓</span>',
+  smp: '<span class="symbol star">★</span>',
+  smg: '<span class="symbol star">★</span><span class="symbol ball">⚽</span>',
+  sma: '<span class="symbol star">★</span><span class="symbol target">➶</span>',
+  smy: '<span class="symbol star">★</span><span class="symbol card yellow"></span>',
+  smr: '<span class="symbol star">★</span><span class="symbol card red"></span>',
+};
+
+function statClass(key) {
+  if (key === 'uc') {
+    return 'uc-stat';
+  }
+  if (key === 'medals' || key === 'spent') {
+    return 'gold-stat';
+  }
+  if (key === 'games') {
+    return 'green-stat game-won-stat';
+  }
+  return '';
+}
+
+function stat(key, label, value) {
+  const icons = statVisuals[key] || '';
   return `
-    <div class="stat">
-      <span>${escapeHtml(label)}</span>
+    <div class="stat ${statClass(key)}">
+      <span class="stat-label">
+        ${icons ? `<span class="stat-icons">${icons}</span>` : ''}
+        <span>${escapeHtml(label)}</span>
+      </span>
       <strong>${numberValue(value)}</strong>
     </div>
   `;
 }
 
-function render(rows, profilesById, medalsByUser, spentByUser, gameCardsWonByUser) {
+function sortRows(rows, currentUserId) {
+  return [...rows].sort((a, b) => {
+    if (a.user_id === currentUserId) {
+      return -1;
+    }
+    if (b.user_id === currentUserId) {
+      return 1;
+    }
+    return String(a.display_name || 'Player').localeCompare(String(b.display_name || 'Player'));
+  });
+}
+
+function render(rows, profilesById, medalsByUser, spentByUser, gameCardsWonByUser, currentUserId) {
   if (!rows.length) {
     grid.innerHTML = '<p class="empty">No statistics available yet.</p>';
     return;
   }
 
-  grid.innerHTML = rows.map((row) => {
+  grid.innerHTML = sortRows(rows, currentUserId).map((row) => {
     const displayName = row.display_name || 'Player';
     const profile = profilesById.get(row.user_id);
 
@@ -44,19 +88,20 @@ function render(rows, profilesById, medalsByUser, spentByUser, gameCardsWonByUse
       <article class="stats-card">
         <div class="player-head">
           ${avatar(profile, displayName)}
-          <h2>${escapeHtml(displayName)}</h2>
+          <h2 style="color: ${safeProfileColor(profile?.favorite_color)}">${escapeHtml(displayName)}</h2>
         </div>
         <div class="stat-list">
-          ${stat('UC pts', row.ultimate_champion_points)}
-          ${stat('Correct Scores', row.correct_scores)}
-          ${stat('Correct Results', row.correct_results)}
-          ${stat('Star Man Goals', row.star_man_goals)}
-          ${stat('Star Man Assists', row.star_man_assists)}
-          ${stat('Star Man Yellows', row.star_man_yellows)}
-          ${stat('Star Man Reds', row.star_man_reds)}
-          ${stat('Medals Earned', medalsByUser.get(row.user_id) || 0)}
-          ${stat('Medals Spent', spentByUser.get(row.user_id) || 0)}
-          ${stat('Game Cards Won', gameCardsWonByUser.get(row.user_id) || 0)}
+          ${stat('uc', 'UC PTS', row.ultimate_champion_points)}
+          ${stat('cs', 'Correct Scores', row.correct_scores)}
+          ${stat('cr', 'Correct Results', row.correct_results)}
+          ${stat('smp', 'Star Man Points', row.star_man_points)}
+          ${stat('smg', 'Star Man Goals', row.star_man_goals)}
+          ${stat('sma', 'Star Man Assists', row.star_man_assists)}
+          ${stat('smy', 'Star Man Yellows', row.star_man_yellows)}
+          ${stat('smr', 'Star Man Reds', row.star_man_reds)}
+          ${stat('medals', 'Medals Earned', medalsByUser.get(row.user_id) || 0)}
+          ${stat('spent', 'Medals Spent', spentByUser.get(row.user_id) || 0)}
+          ${stat('games', 'Game Cards Won', gameCardsWonByUser.get(row.user_id) || 0)}
         </div>
       </article>
     `;
@@ -79,7 +124,7 @@ async function loadStatistics() {
   const [{ data: rows, error }, { data: tokens }, { data: gameCardWins }] = await Promise.all([
     supabase
       .from('leaderboard')
-      .select('competition_id, user_id, display_name, ultimate_champion_points, correct_scores, correct_results, star_man_goals, star_man_assists, star_man_yellows, star_man_reds')
+      .select('competition_id, user_id, display_name, ultimate_champion_points, correct_scores, correct_results, star_man_points, star_man_goals, star_man_assists, star_man_yellows, star_man_reds')
       .eq('competition_id', context.league.id),
     supabase
       .from('card_draw_tokens')
@@ -104,7 +149,7 @@ async function loadStatistics() {
   if (userIds.length) {
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, profile_image_url')
+      .select('id, profile_image_url, favorite_color')
       .in('id', userIds);
 
     (profiles || []).forEach((profile) => {
@@ -128,7 +173,7 @@ async function loadStatistics() {
     gameCardsWonByUser.set(win.user_id, (gameCardsWonByUser.get(win.user_id) || 0) + 1);
   });
 
-  render(rows || [], profilesById, medalsByUser, spentByUser, gameCardsWonByUser);
+  render(rows || [], profilesById, medalsByUser, spentByUser, gameCardsWonByUser, context.user.id);
 }
 
 loadStatistics();
