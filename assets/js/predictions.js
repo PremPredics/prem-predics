@@ -4,6 +4,7 @@ import {
   formatDateTime,
   leagueUrl,
   loadLeagueContext,
+  shortTeamName,
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 
@@ -74,7 +75,7 @@ function countdownText(value) {
 }
 
 function teamName(teamId) {
-  return state.teams.get(teamId) || 'Team';
+  return shortTeamName(state.teams.get(teamId) || 'Team');
 }
 
 function fixtureLabel(fixture) {

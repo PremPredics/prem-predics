@@ -5,6 +5,7 @@ import {
   leagueUrl,
   loadLeagueContext,
   normaliseNested,
+  shortTeamName,
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 
@@ -71,7 +72,7 @@ function isPast(value) {
 }
 
 function teamName(teamId) {
-  return state.teams.get(teamId) || 'Team';
+  return shortTeamName(state.teams.get(teamId) || 'Team');
 }
 
 function playerLabel(player) {
@@ -623,7 +624,7 @@ async function boot() {
   state.user = context.user;
   state.league = context.league;
   leagueBackLink.href = leagueUrl('league.html', state.league.id);
-  leagueTitle.textContent = `${state.league.name} Star Man`;
+  leagueTitle.textContent = 'Star Man Pick';
 
   try {
     const { activeGameweek } = await loadActiveGameweek(state.league);
@@ -638,7 +639,7 @@ async function boot() {
     await Promise.all([loadTeams(), loadPlayers(), loadFixtures(), loadPicks(), loadEffects()]);
     await loadRestrictionData();
 
-    gameweekSummary.innerHTML = `Gameweek ${state.activeGameweek.gameweek_number} - Star Man Pick locks ${formatDateTime(state.activeGameweek.star_man_locks_at)}<span class="lock-note">(90 minutes before the first match of the current gameweek).</span>`;
+    gameweekSummary.textContent = `Gameweek ${state.activeGameweek.gameweek_number} - Star Man Pick locks ${formatDateTime(state.activeGameweek.star_man_locks_at)}`;
     renderRestrictionSummary();
 
     const superDuoSection = slotElements('super_duo').section;

@@ -3104,7 +3104,7 @@ button:disabled {
 @media (max-width: 650px) {
   header h1,
   body > h1 {
-    -webkit-text-stroke: 0.8px #05010c;
+    -webkit-text-stroke: 0;
     text-shadow:
       -1px -1px 0 #05010c,
       1px -1px 0 #05010c,
@@ -3443,13 +3443,13 @@ const cardDescriptions = {
   "Curse of the Even Number": "🃏 Curse of the Even Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Even number of goals for all teams❌\n\n*Must be played before the start of the Gameweek, *Cannot be picked whilst Curse of The Gambler is active",
   "Curse of the Odd Number": "🃏 Curse of the Odd Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Odd number of goals for all teams❌\n\n*Must be played before the start of the Gameweek, *Cannot be picked whilst Curse of The Gambler is active",
 
-  "Super Star Man": "🃏 Super Star Man\n• Valid for 1 Gameweek•\n\n🏆Star Man points are TRIPLED for the player playing this card🏆\n\n*Yellow and Red cards are 0pts",
-  "Super Golden Gameweek": "🃏 Super Golden Gameweek\n• Valid for 1 Gameweek•\n\n🏆Prediction League points for all games are DOUBLED for the player playing this card🏆",
-  "Super Sub": "🃏 Super Sub\n• Valid for 1 Gameweek•\n\n🏆 Star Man can be swapped at any time for any other Star Man for the player playing this card🏆\n\n*New Star Man's match must have NOT kicked off within the same Gameweek",
-  "Super Score": "🃏 Super Score\n• Valid for 1 Gameweek•\n\n🏆Choose one scoreline for the Gameweek. Each time that exact scoreline happens, +3 UC pts for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
+  "Super Star Man": "🃏 Super Star Man\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Star Man points are TRIPLED for the player playing this card🏆\n\n*Yellow and Red cards are 0pts",
+  "Super Golden Gameweek": "🃏 Super Golden Gameweek\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Prediction League points for all games are DOUBLED for the player playing this card🏆",
+  "Super Sub": "🃏 Super Sub\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆 Star Man can be swapped at any time for any other Star Man for the player playing this card🏆\n\n*New Star Man's match must have NOT kicked off within the same Gameweek",
+  "Super Score": "🃏 Super Score\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Choose one scoreline for the active range. Each time that exact scoreline happens, +3 UC pts for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
   "Super Draw": "🃏 Super Draw\n\n🏆Draw 3 cards from the Regular Deck for the player playing this card🏆",
-  "Super Duo": "🃏 Super Duo\n• Valid for 1 Gameweek•\n\n🏆Two Star Men can be chosen this Gameweek for the player playing this card🏆\n\n*Must choose both players before Gameweek starts",
-  "Super Pen": "🃏 Super Pen\n• Valid for 3 Gameweek•\n\n🏆Draw a card from the Regular Deck any time a penalty is scored in this Gameweek for the player playing this card🏆",
+  "Super Duo": "🃏 Super Duo\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Two Star Men can be chosen during the active range for the player playing this card🏆\n\n*Must choose both players before the relevant Gameweek starts",
+  "Super Pen": "🃏 Super Pen\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Draw a card from the Regular Deck any time a penalty is scored during the active range for the player playing this card🏆",
 
   "Game of Goals": "🃏 Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
   "Game of Corners": "🃏 Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
@@ -5171,9 +5171,23 @@ async function initializeCardPage() {
       const teamsById = new Map((teams || []).map((team) => [team.id, team.name]));
       return fixtures.map((fixture) => ({
         ...fixture,
-        home_team_name: teamsById.get(fixture.home_team_id) || 'Home',
-        away_team_name: teamsById.get(fixture.away_team_id) || 'Away',
+        home_team_name: shortTeamLabel(teamsById.get(fixture.home_team_id) || 'Home'),
+        away_team_name: shortTeamLabel(teamsById.get(fixture.away_team_id) || 'Away'),
       }));
+    }
+
+    function shortTeamLabel(name) {
+      const teamName = String(name || '');
+      const names = {
+        'Manchester United': 'Man U',
+        'Manchester City': 'Man City',
+        'Wolverhampton Wanderers': 'Wolves',
+        Wolverhampton: 'Wolves',
+        'Nottingham Forest': "Nott'm Forest",
+        'Nottigham Forest': "Nott'm Forest",
+      };
+
+      return names[teamName] || teamName;
     }
 
     function fixtureChoiceLabel(fixture) {
@@ -5194,6 +5208,21 @@ async function initializeCardPage() {
       return data?.id || activeGameweek.gameweek_id;
     }
 
+    function superDurationForLeague() {
+      const deckVariant = context.league.locked_deck_variant_id || context.league.deck_variant_id;
+      if (deckVariant === 'players_4_6') return 2;
+      if (deckVariant === 'players_7_10') return 3;
+      return 1;
+    }
+
+    function effectiveCardDuration(rule) {
+      if (rule.cardId?.startsWith('super_') && rule.cardId !== 'super_draw') {
+        return superDurationForLeague();
+      }
+
+      return rule.duration || 1;
+    }
+
     async function insertCardEffect(rule, playerKey, activeGameweek, options = {}) {
       const cardDisplayName = Object.keys(cardEffectRules).find((name) => cardEffectRules[name] === rule);
       const cardInstanceId = options.cardInstanceId || gameState.cardInstanceIdsByPlayer?.[playerKey]?.[cardDisplayName]?.[0] || null;
@@ -5206,7 +5235,7 @@ async function initializeCardPage() {
           season_id: context.league.season_id,
           gameweek_id: activeGameweek.gameweek_id,
           start_gameweek_id: activeGameweek.gameweek_id,
-          end_gameweek_id: await endGameweekId(activeGameweek, rule.duration || 1),
+          end_gameweek_id: await endGameweekId(activeGameweek, effectiveCardDuration(rule)),
           fixture_id: options.fixtureId || null,
           played_by_user_id: context.user.id,
           target_user_id: options.targetUserId || null,

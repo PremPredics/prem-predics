@@ -275,13 +275,14 @@ tbody tr:nth-child(even) {
 
 .legend-key div {
   display: grid;
-  grid-template-columns: 90px 22px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 94px 18px minmax(0, 1fr);
+  gap: 9px;
   align-items: center;
   justify-items: center;
   color: #fff;
   font-weight: 800;
   line-height: 1.35;
+  text-align: center;
 }
 
 .legend-key .key-code {
@@ -293,14 +294,7 @@ tbody tr:nth-child(even) {
 }
 
 .legend-key .key-equals {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(250, 204, 21, 0.2);
-  color: #fde68a;
-  border: 1px solid rgba(253, 230, 138, 0.45);
+  color: #fff;
   font-weight: 950;
 }
 
@@ -333,7 +327,7 @@ footer {
 @media (max-width: 650px) {
   header h1,
   body > h1 {
-    -webkit-text-stroke: 0.8px #05010c;
+    -webkit-text-stroke: 0;
     text-shadow:
       -1px -1px 0 #05010c,
       1px -1px 0 #05010c,

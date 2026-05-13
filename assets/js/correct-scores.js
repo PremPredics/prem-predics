@@ -4,6 +4,7 @@ import {
   leagueUrl,
   loadLeagueContext,
   normaliseNested,
+  shortTeamName,
 } from './league-context.js';
 
 const container = document.querySelector('[data-correct-scores]');
@@ -17,6 +18,10 @@ function avatarMarkup(profile, displayName) {
 
   const initial = (displayName || 'P').trim().charAt(0).toUpperCase() || 'P';
   return `<span class="avatar">${escapeHtml(initial)}</span>`;
+}
+
+function safeProfileColor(color) {
+  return /^#[0-9a-f]{6}$/i.test(String(color || '')) ? color : '#ffffff';
 }
 
 function render(members, scoresByUser, currentUserId) {
@@ -42,13 +47,13 @@ function render(members, scoresByUser, currentUserId) {
       <article class="player-card">
         <div class="player-head">
           ${avatarMarkup(profile, displayName)}
-          <h2>${escapeHtml(displayName)}</h2>
+          <h2 style="color: ${safeProfileColor(profile?.favorite_color)}">${escapeHtml(displayName)}</h2>
         </div>
         <div class="score-list">
           ${scores.length ? scores.map((score) => `
             <div class="score-row">
               <strong>GW${escapeHtml(score.gameweek_number)}</strong>
-              <span>${escapeHtml(score.home_team)} v ${escapeHtml(score.away_team)}</span>
+              <span>${escapeHtml(shortTeamName(score.home_team))} v ${escapeHtml(shortTeamName(score.away_team))}</span>
               <strong>${escapeHtml(score.actual_home_goals)}-${escapeHtml(score.actual_away_goals)}</strong>
             </div>
           `).join('') : '<p class="empty">No Correct Scores</p>'}
@@ -70,7 +75,7 @@ async function loadCorrectScores() {
   const [{ data: members, error: memberError }, { data: scores, error: scoreError }] = await Promise.all([
     supabase
       .from('competition_members')
-      .select('user_id, joined_at, profiles(id, display_name, profile_image_url)')
+      .select('user_id, joined_at, profiles(id, display_name, profile_image_url, favorite_color)')
       .eq('competition_id', context.league.id)
       .order('joined_at', { ascending: true }),
     supabase

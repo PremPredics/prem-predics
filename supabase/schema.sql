@@ -759,7 +759,13 @@ declare
   league_accepts_new_members boolean;
   league_member_lock_at timestamptz;
 begin
-  select c.max_members, c.accepts_new_members, c.member_lock_at
+  select
+    case
+      when c.member_lock_at is not null and now() < c.member_lock_at then 10
+      else c.max_members
+    end,
+    c.accepts_new_members,
+    c.member_lock_at
     into allowed_members, league_accepts_new_members, league_member_lock_at
   from public.competitions c
   where c.id = new.competition_id;
@@ -900,7 +906,14 @@ begin
     raise exception 'You must be signed in to join a league.';
   end if;
 
-  select c.id, c.max_members, c.accepts_new_members, c.member_lock_at
+  select
+    c.id,
+    case
+      when c.member_lock_at is not null and now() < c.member_lock_at then 10
+      else c.max_members
+    end,
+    c.accepts_new_members,
+    c.member_lock_at
     into target_competition_id, target_max_members, target_accepts_new_members, target_member_lock_at
   from public.competitions c
   where lower(c.join_code) = lower(trim(invite_code))
@@ -1035,6 +1048,64 @@ begin
     accepts_new_members = false,
     started_at = coalesce(started_at, now())
   where id = target_competition_id;
+end;
+$$;
+
+create or replace function public.sync_competition_member_lock(target_competition_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  member_count integer;
+  final_deck_variant_id text;
+  target_lock_at timestamptz;
+begin
+  if auth.uid() is null then
+    raise exception 'You must be signed in to sync a league.';
+  end if;
+
+  if not public.is_competition_member(target_competition_id)
+    and not exists (
+      select 1
+      from public.profiles p
+      where p.id = auth.uid()
+        and p.is_global_admin = true
+    ) then
+    raise exception 'You cannot access this league.';
+  end if;
+
+  select c.member_lock_at
+    into target_lock_at
+  from public.competitions c
+  where c.id = target_competition_id;
+
+  if target_lock_at is null or now() < target_lock_at then
+    return;
+  end if;
+
+  select count(*)
+    into member_count
+  from public.competition_members
+  where competition_id = target_competition_id;
+
+  if member_count < 2 then
+    raise exception 'A league needs at least two players before it can start.';
+  end if;
+
+  final_deck_variant_id := public.deck_variant_for_member_count(member_count);
+
+  update public.competitions
+  set
+    max_members = member_count,
+    deck_variant_id = final_deck_variant_id,
+    locked_member_count = member_count,
+    locked_deck_variant_id = final_deck_variant_id,
+    accepts_new_members = false,
+    started_at = coalesce(started_at, now())
+  where id = target_competition_id
+    and locked_member_count is null;
 end;
 $$;
 
@@ -3262,6 +3333,7 @@ grant insert on public.card_effect_targets to authenticated;
 grant execute on function public.join_competition_by_code(text) to authenticated;
 grant execute on function public.leave_competition_before_start(uuid) to authenticated;
 grant execute on function public.finalize_competition_start(uuid) to authenticated;
+grant execute on function public.sync_competition_member_lock(uuid) to authenticated;
 grant execute on function public.update_my_profile(text, text, text, text, uuid, text, text) to authenticated;
 grant execute on function public.star_man_lock_at_for_gameweek(uuid, bigint) to authenticated;
 grant execute on function public.scrabble_score(text) to authenticated;

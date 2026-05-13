@@ -1,5 +1,5 @@
 import { supabase } from './supabase-client.js';
-import { escapeHtml, normaliseNested } from './league-context.js';
+import { escapeHtml, normaliseNested, shortTeamName } from './league-context.js';
 
 const gate = document.querySelector('[data-admin-gate]');
 const content = document.querySelector('[data-admin-content]');
@@ -43,7 +43,7 @@ function fromDatetimeLocal(value) {
 }
 
 function teamName(teamId) {
-  return state.teamsById.get(teamId)?.name || 'Team';
+  return shortTeamName(state.teamsById.get(teamId)?.name || 'Team');
 }
 
 function gameweekNumber(gameweekId) {

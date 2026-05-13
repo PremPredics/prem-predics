@@ -32,6 +32,20 @@ export function formatDateTime(value) {
   }).format(new Date(value));
 }
 
+export function shortTeamName(name) {
+  const teamName = String(name || '');
+  const names = {
+    'Manchester United': 'Man U',
+    'Manchester City': 'Man City',
+    'Wolverhampton Wanderers': 'Wolves',
+    Wolverhampton: 'Wolves',
+    'Nottingham Forest': "Nott'm Forest",
+    'Nottigham Forest': "Nott'm Forest",
+  };
+
+  return names[teamName] || teamName;
+}
+
 export function normaliseNested(value) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -59,9 +73,9 @@ export async function loadLeagueContext() {
     return { user, error: 'Choose a private league first.' };
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('competition_members')
-    .select('role, joined_at, competitions(id, name, slug, join_code, season_id, starts_gameweek_id, starts_at, member_lock_at, started_at, locked_member_count, locked_deck_variant_id)')
+    .select('role, joined_at, competitions(id, name, slug, join_code, season_id, starts_gameweek_id, starts_at, member_lock_at, started_at, deck_variant_id, locked_member_count, locked_deck_variant_id)')
     .eq('user_id', user.id)
     .eq('competition_id', competitionId)
     .maybeSingle();
@@ -72,6 +86,29 @@ export async function loadLeagueContext() {
 
   if (!data) {
     return { user, error: 'You do not have access to this private league.' };
+  }
+
+  const league = normaliseNested(data.competitions);
+  const lockTime = league?.member_lock_at ? new Date(league.member_lock_at).getTime() : null;
+  if (lockTime && Date.now() >= lockTime && !league.locked_member_count) {
+    try {
+      await supabase.rpc('sync_competition_member_lock', {
+        target_competition_id: competitionId,
+      });
+
+      const refreshed = await supabase
+        .from('competition_members')
+        .select('role, joined_at, competitions(id, name, slug, join_code, season_id, starts_gameweek_id, starts_at, member_lock_at, started_at, deck_variant_id, locked_member_count, locked_deck_variant_id)')
+        .eq('user_id', user.id)
+        .eq('competition_id', competitionId)
+        .maybeSingle();
+
+      if (!refreshed.error && refreshed.data) {
+        data = refreshed.data;
+      }
+    } catch {
+      // Older Supabase projects may not have this helper until the latest SQL is run.
+    }
   }
 
   return {

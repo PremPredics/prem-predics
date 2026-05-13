@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - FAQ</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 32%),
+    radial-gradient(circle at top right, rgba(250, 204, 21, 0.14), transparent 28%),
+    linear-gradient(135deg, #21104f, #6d28d9 48%, #180a35);
+  color: #f3f4f6;
+}
+
+header {
+  padding: 25px 20px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+header h1 {
+  margin: 0;
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.5px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85),
+    0 0 24px rgba(124, 58, 237, 0.55);
+  font-size: clamp(2rem, 5.5vw, 3.35rem);
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+main {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+
+.intro,
+.faq-card {
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.08), transparent 36%),
+    rgba(46, 16, 102, 0.7);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.intro {
+  padding: 22px;
+  margin-bottom: 18px;
+  text-align: center;
+  color: #f5f3ff;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.faq-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.faq-card {
+  padding: 18px;
+}
+
+.faq-card h2 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.faq-card p {
+  margin: 0;
+  color: #ddd6fe;
+  line-height: 1.58;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+.actions a {
+  min-width: 150px;
+  text-align: center;
+  color: #f3e8ff;
+  text-decoration: none;
+  font-weight: 900;
+  background: rgba(17, 7, 38, 0.72);
+  border: 1px solid rgba(216, 180, 254, 0.32);
+  border-radius: 8px;
+  padding: 11px 14px;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+@media (max-width: 650px) {
+  header {
+    padding: 18px 14px;
+  }
+
+  header h1 {
+    -webkit-text-stroke: 0;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.75);
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    line-height: 1.12;
+  }
+
+  main {
+    padding: 22px 12px 34px;
+  }
+
+  .actions a {
+    flex: 1 1 100%;
+  }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Prem Predics - FAQ</h1>
+</header>
+
+<main>
+  <section class="intro">
+    <p>Quick answers for the private-league version of Prem Predics.</p>
+  </section>
+
+  <section class="faq-grid">
+    <article class="faq-card">
+      <h2>Do I need an account to play?</h2>
+      <p>Yes. You can read How To Play without logging in, but predictions, Star Man picks, cards, leaderboards and stats are only available after you log in and join a private league.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>Can I play without joining a league?</h2>
+      <p>No. Prem Predics currently uses private leagues only. After logging in, create a league or join one with a join code.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>When does a league lock?</h2>
+      <p>A league stays open until the first match of that league's first gameweek kicks off. At that point the member count locks and the league uses the deck rules for that final player count.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>When do predictions lock?</h2>
+      <p>Score predictions lock 90 minutes before each match kicks off, unless a card changes your personal deadline.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>When does Star Man lock?</h2>
+      <p>Your Star Man pick locks 90 minutes before the first match of the current gameweek, unless a card such as Power of the Late Scout changes your personal deadline.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>Can I pick the same Star Man twice?</h2>
+      <p>No. Within a league, each player can only use a Premier League player as their Star Man once per season.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>What are Regular and Premium cards?</h2>
+      <p>Regular cards are Power and Curse cards. Premium cards are Super cards. You spend Regular Medals to draw Regular cards and Super Medals to draw Premium cards.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>How long do Super cards last?</h2>
+      <p>Super cards last 1 gameweek in 2-3 player leagues, 2 gameweeks in 4-6 player leagues, and 3 gameweeks in 7-10 player leagues.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>How do Game Cards work?</h2>
+      <p>Game Cards run over five gameweeks. Players submit the required prediction for each active week, the global admin enters the actual result, and the site ranks the league to award the winner.</p>
+    </article>
+
+    <article class="faq-card">
+      <h2>Can anyone see my password?</h2>
+      <p>No. Passwords are handled by Supabase Auth and are not visible as plain text in the app or database.</p>
+    </article>
+  </section>
+
+  <nav class="actions">
+    <a href="how-to-play.html">How To Play</a>
+    <a href="index.html">Home</a>
+  </nav>
+</main>
+
+<footer>&copy; 2026 Prem Predics | FAQ</footer>
+</body>
+</html>

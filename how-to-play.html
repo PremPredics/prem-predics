@@ -11,7 +11,10 @@
         
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+            background:
+                radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 32%),
+                radial-gradient(circle at top right, rgba(250, 204, 21, 0.14), transparent 28%),
+                linear-gradient(135deg, #21104f, #6d28d9 48%, #180a35);
             color: #f3f4f6;
             margin: 0;
             padding: 0;
@@ -50,20 +53,24 @@
         
         /* ===== MAIN CONTAINER ===== */
         .container {
-            max-width: 900px;
+            max-width: 1040px;
             margin: 0 auto;
             padding: 40px 20px;
         }
         
         /* ===== INTRO TEXT ===== */
         .intro-text {
-            background: rgba(46, 16, 102, 0.6);
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.08), transparent 36%),
+                rgba(46, 16, 102, 0.7);
             border: 2px solid rgba(196, 132, 252, 0.3);
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 10px;
+            padding: 26px;
             margin-bottom: 30px;
             line-height: 1.8;
             font-size: 16px;
+            text-align: center;
+            box-shadow: 0 14px 34px rgba(0,0,0,0.28);
         }
         
         .intro-text p {
@@ -76,7 +83,9 @@
         
         /* ===== COLLAPSIBLE SECTION ===== */
         .collapsible-btn {
-            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.12), transparent 34%),
+                linear-gradient(135deg, rgba(17, 7, 38, 0.92), rgba(91, 33, 182, 0.9));
             color: white;
             padding: 18px 25px;
             margin-bottom: 15px;
@@ -87,11 +96,12 @@
             font-weight: 600;
             font-size: 18px;
             border: none;
-            border-radius: 12px;
+            border-radius: 9px;
             transition: all 0.3s ease;
             width: 100%;
             text-align: left;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid rgba(216, 180, 254, 0.28);
         }
         
         .collapsible-btn:hover {
@@ -195,19 +205,22 @@
         /* ===== CARD GRID ===== */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
+            gap: 14px;
             margin-top: 20px;
         }
         
         .card-item {
-            border-radius: 10px;
+            min-height: 220px;
+            border-radius: 8px;
             padding: 0;
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             position: relative;
+            display: grid;
+            place-items: center;
         }
         
         .card-item:hover {
@@ -217,7 +230,9 @@
         
         /* ===== POWER CARDS ===== */
         .card-item.power {
-            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            background:
+                radial-gradient(circle at 28% 18%, rgba(255,255,255,0.42), transparent 18%),
+                linear-gradient(155deg, #06b6d4, #0891b2 52%, #1e3a8a);
             border: 2px solid #06d6d4;
         }
         
@@ -228,7 +243,9 @@
         
         /* ===== CURSE CARDS ===== */
         .card-item.curse {
-            background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+            background:
+                radial-gradient(circle at 28% 18%, rgba(255,255,255,0.26), transparent 18%),
+                linear-gradient(155deg, #7f1d1d, #b91c1c 54%, #450a0a);
             border: 2px solid #dc2626;
         }
         
@@ -239,7 +256,9 @@
         
         /* ===== SUPER CARDS ===== */
         .card-item.super {
-            background: linear-gradient(135deg, #b45309, #f59e0b);
+            background:
+                radial-gradient(circle at 28% 18%, rgba(255,255,255,0.45), transparent 18%),
+                linear-gradient(155deg, #92400e, #f59e0b 54%, #facc15);
             border: 2px solid #fbbf24;
         }
         
@@ -250,7 +269,9 @@
         
         /* ===== GAME CARDS ===== */
         .card-item.game {
-            background: linear-gradient(135deg, #059669, #10b981);
+            background:
+                radial-gradient(circle at 28% 18%, rgba(255,255,255,0.35), transparent 18%),
+                linear-gradient(155deg, #065f46, #10b981 54%, #22c55e);
             border: 2px solid #34d399;
         }
         
@@ -275,16 +296,23 @@
         }
         
         .card-header {
-            padding: 15px;
-            font-weight: 600;
+            width: 100%;
+            padding: 28px 15px;
+            font-weight: 950;
             color: white;
             cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.12;
             position: relative;
-            padding-right: 35px;
+            text-shadow:
+                -1px -1px 0 rgba(0,0,0,0.9),
+                1px -1px 0 rgba(0,0,0,0.9),
+                -1px 1px 0 rgba(0,0,0,0.9),
+                1px 1px 0 rgba(0,0,0,0.9),
+                0 0 12px rgba(255,255,255,0.35);
         }
         
         .card-header::after {
@@ -316,6 +344,22 @@
         .card-content p {
             margin: 5px 0;
             line-height: 1.5;
+        }
+
+        .card-header::after {
+            content: none;
+            display: none;
+        }
+
+        .card-help-note {
+            margin: 0;
+            padding: 14px 16px;
+            text-align: center;
+            color: #fff;
+            font-weight: 900;
+            background: rgba(17, 7, 38, 0.5);
+            border: 1px solid rgba(216, 180, 254, 0.26);
+            border-radius: 8px;
         }
         
         /* ===== CATEGORY LABEL ===== */
@@ -358,6 +402,90 @@
         
         .cards-section.show {
             display: block;
+        }
+
+        .card-view-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            place-items: center;
+            padding: 20px;
+            background: rgba(8, 3, 20, 0.54);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+        }
+
+        .card-view-modal.show {
+            display: grid;
+        }
+
+        body.card-modal-open {
+            overflow: hidden;
+        }
+
+        .card-view-panel {
+            width: min(430px, 100%);
+            min-height: 560px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 18px;
+            border-radius: 10px;
+            padding: 24px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.32);
+            box-shadow: 0 24px 58px rgba(0,0,0,0.54);
+            color: #fff;
+        }
+
+        .card-view-panel.power {
+            background: linear-gradient(155deg, #06b6d4, #0891b2 52%, #1e3a8a);
+        }
+
+        .card-view-panel.curse {
+            background: linear-gradient(155deg, #7f1d1d, #b91c1c 54%, #450a0a);
+        }
+
+        .card-view-panel.super {
+            background: linear-gradient(155deg, #92400e, #f59e0b 54%, #facc15);
+        }
+
+        .card-view-panel.game {
+            background: linear-gradient(155deg, #065f46, #10b981 54%, #22c55e);
+        }
+
+        .card-view-panel h2 {
+            margin: 0;
+            font-size: clamp(1.7rem, 8vw, 2.35rem);
+            line-height: 1.05;
+            text-shadow:
+                -1px -1px 0 rgba(0,0,0,0.95),
+                1px -1px 0 rgba(0,0,0,0.95),
+                -1px 1px 0 rgba(0,0,0,0.95),
+                1px 1px 0 rgba(0,0,0,0.95),
+                0 0 14px rgba(255,255,255,0.42);
+        }
+
+        .card-view-panel p {
+            align-self: center;
+            margin: 0;
+            padding: 18px;
+            border-radius: 9px;
+            background: rgba(0,0,0,0.22);
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1.52;
+        }
+
+        .card-view-back {
+            min-height: 42px;
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 16px;
+            background: rgba(17, 7, 38, 0.72);
+            color: #fff;
+            font-weight: 950;
+            cursor: pointer;
         }
         
         /* ===== FOOTER BUTTONS ===== */
@@ -422,6 +550,14 @@
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 12px;
             }
+
+            .card-item {
+                min-height: 178px;
+            }
+
+            .card-view-panel {
+                min-height: min(560px, 82vh);
+            }
             
             .medal-list {
                 grid-template-columns: 1fr;
@@ -430,7 +566,7 @@
 @media (max-width: 650px) {
   header h1,
   body > h1 {
-    -webkit-text-stroke: 0.8px #05010c;
+    -webkit-text-stroke: 0;
     text-shadow:
       -1px -1px 0 #05010c,
       1px -1px 0 #05010c,
@@ -463,9 +599,9 @@
         <!-- ===== COLLAPSIBLE BUTTONS ===== -->
         
         <!-- PREDICTING MATCHES -->
-        <button class="collapsible-btn" onclick="toggleCollapsible(this)">🎯 Predicting Matches Correctly</button>
+        <button class="collapsible-btn" onclick="toggleCollapsible(this)">Predicting Matches Correctly</button>
         <div class="collapsible-content">
-            <p>✅ All predictions must be made at least 1.5hrs before Kick-Off</p>
+            <p>All predictions must be made at least 1.5hrs before Kick-Off.</p>
             <p>UC pts can be earned through match predictions, here's the breakdown:</p>
             
             <div class="section-title">Match Predictions</div>
@@ -480,9 +616,9 @@
         </div>
         
         <!-- SELECTING STAR MAN -->
-        <button class="collapsible-btn" onclick="toggleCollapsible(this)">⭐ Selecting A "Star Man" Each Week</button>
+        <button class="collapsible-btn" onclick="toggleCollapsible(this)">Selecting A "Star Man" Each Week</button>
         <div class="collapsible-content">
-            <p>⭐Select one Premier League Player each week to be your "Star Man"</p>
+            <p>Select one Premier League Player each week to be your "Star Man".</p>
             
             <p><strong>Star Men can only be picked once and cannot be chosen again by either player for the rest of the season.</strong></p>
             
@@ -506,7 +642,7 @@
         </div>
         
         <!-- PLAYING CARDS -->
-        <button class="collapsible-btn" onclick="toggleCollapsible(this)">🎴 Playing Power, Curse & Super Cards</button>
+        <button class="collapsible-btn" onclick="toggleCollapsible(this)">Playing Power, Curse & Super Cards</button>
         <div class="collapsible-content">
             <p><strong>There are 4 types of Card:</strong></p>
             <ul style="margin: 15px 0; padding-left: 25px;">
@@ -516,55 +652,64 @@
                 <li>Game Cards (Minigames)</li>
             </ul>
             
-            <p>🎴 <strong>Power, Curse and Super Cards</strong> can help you or hinder your opponent. They add strategy and excitement to the game!</p>
-            <p>🎴 <strong>Game Cards (7 Total)</strong> are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 Super Medal.</p>
-            <p>🎴 <strong>Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck</p>
-            <p>🏆 <strong>Reach milestones</strong> to earn medals, each medal can be spent to draw 1 card from the Regular Deck</p>
+            <p><strong>Power, Curse and Super Cards</strong> can help you or hinder your opponent. They add strategy and excitement to the game!</p>
+            <p><strong>Game Cards (7 Total)</strong> are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 Super Medal.</p>
+            <p><strong>Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck.</p>
+            <p><strong>Reach milestones</strong> to earn medals. Each medal can be spent to draw 1 card from the Regular Deck.</p>
             
             <p style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(196, 132, 252, 0.3);"><strong>Regular Deck:</strong> 52 cards (30 Power Cards & 22 Curse Cards) — Start with 1 of each<br><strong>Premium Deck:</strong> 7 Super Cards — Drawn by spending Super Medals won from "Game Card" Minigames</p>
             
-            <button class="show-cards-btn" onclick="toggleCardsDisplay()">Show All Cards</button>
+            <button class="show-cards-btn" onclick="toggleCardsDisplay(this)">Show All Cards</button>
             
             <!-- CARDS SECTION -->
             <div class="cards-section" id="cardsSection">
+                <p class="card-help-note">Click on each card to view what it does!</p>
                 <div id="cardsList"></div>
             </div>
         </div>
         
         <!-- EARNING MEDALS -->
-        <button class="collapsible-btn" onclick="toggleCollapsible(this)">🏅 Earning Medals to Draw More Cards</button>
+        <button class="collapsible-btn" onclick="toggleCollapsible(this)">Earning Medals to Draw More Cards</button>
         <div class="collapsible-content">
-            <p>🏅 <strong>Medals can be spent to draw 1 Card from the Regular Deck for each Medal.</strong></p>
+            <p><strong>Medals can be spent to draw 1 Card from the Regular Deck for each Medal.</strong></p>
             <p>Earn Medals as you progress through the season by achieving the following accomplishments:</p>
             
             <div class="medal-list">
-                <div class="medal-item">🏅 Reach 20 UC pts</div>
-                <div class="medal-item">🏅 Reach 40 UC pts</div>
-                <div class="medal-item">🏅 Reach 60 UC pts</div>
-                <div class="medal-item">🏅 Reach 80 UC pts</div>
-                <div class="medal-item">🏅 Reach 100 UC pts</div>
-                <div class="medal-item">🏅 Reach 125 UC pts</div>
-                <div class="medal-item">🏅 Reach 150 UC pts</div>
-                <div class="medal-item">🏅 Reach 175 UC pts</div>
-                <div class="medal-item">🏅 Reach 200 UC pts</div>
-                <div class="medal-item">🏅 Reach 225 UC pts</div>
-                <div class="medal-item">🏅 Reach 250 UC pts</div>
-                <div class="medal-item">🏅 Reach 275 UC pts</div>
-                <div class="medal-item">🏅 Reach 300 UC pts</div>
-                <div class="medal-item">🏅 Reach 1 Star Man Goals</div>
-                <div class="medal-item">🏅 Reach 3 Star Man Goals</div>
-                <div class="medal-item">🏅 Reach 5 Star Man Goals</div>
-                <div class="medal-item">🏅 Reach 8 Star Man Goals</div>
-                <div class="medal-item">🏅 Reach 12 Star Man Goals</div>
-                <div class="medal-item">🏅 Reach 15 Star Man Goals</div>
-                <div class="medal-item">🏅 Reach 20 Star Man Goals</div>
+                <div class="medal-item">Reach 20 UC pts</div>
+                <div class="medal-item">Reach 40 UC pts</div>
+                <div class="medal-item">Reach 60 UC pts</div>
+                <div class="medal-item">Reach 80 UC pts</div>
+                <div class="medal-item">Reach 100 UC pts</div>
+                <div class="medal-item">Reach 125 UC pts</div>
+                <div class="medal-item">Reach 150 UC pts</div>
+                <div class="medal-item">Reach 175 UC pts</div>
+                <div class="medal-item">Reach 200 UC pts</div>
+                <div class="medal-item">Reach 225 UC pts</div>
+                <div class="medal-item">Reach 250 UC pts</div>
+                <div class="medal-item">Reach 275 UC pts</div>
+                <div class="medal-item">Reach 300 UC pts</div>
+                <div class="medal-item">Reach 1 Star Man Goal</div>
+                <div class="medal-item">Reach 3 Star Man Goals</div>
+                <div class="medal-item">Reach 5 Star Man Goals</div>
+                <div class="medal-item">Reach 8 Star Man Goals</div>
+                <div class="medal-item">Reach 12 Star Man Goals</div>
+                <div class="medal-item">Reach 15 Star Man Goals</div>
+                <div class="medal-item">Reach 20 Star Man Goals</div>
             </div>
         </div>
         
         <!-- ===== FOOTER BUTTONS ===== -->
         <div class="button-group">
-            <button class="faq-btn" onclick="window.location.href='faq.html'">❓ Frequently Asked Questions</button>
-            <button class="back-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+            <button class="faq-btn" onclick="window.location.href='faq.html'">Frequently Asked Questions</button>
+            <button class="back-btn" onclick="window.location.href='index.html'">Back to Home</button>
+        </div>
+    </div>
+
+    <div class="card-view-modal" id="cardViewModal" aria-hidden="true">
+        <div class="card-view-panel power" id="cardViewPanel" role="dialog" aria-modal="true" aria-labelledby="cardViewTitle">
+            <h2 id="cardViewTitle"></h2>
+            <p id="cardViewDescription"></p>
+            <button class="card-view-back" type="button" id="cardViewBack">Back</button>
         </div>
     </div>
     
@@ -607,13 +752,13 @@
                 { name: "Curse of the Odd Number", count: 1, description: "Valid for 1 Gameweek. Opponent can only Predict an Odd number of goals for all teams. Must be played before the start of the Gameweek. Cannot be picked whilst Curse of The Gambler is active." }
             ],
             super: [
-                { name: "Super Star Man", count: 1, description: "Valid for 1 Gameweek. Star Man points are TRIPLED. Yellow and Red cards are 0pts." },
-                { name: "Super Golden Gameweek", count: 1, description: "Valid for 1 Gameweek. Prediction League points for all games are DOUBLED." },
-                { name: "Super Sub", count: 1, description: "Valid for 1 Gameweek. Star Man can be swapped at any time for any other Star Man. New Star Man's match must have NOT kicked off within the same Gameweek." },
-                { name: "Super Score", count: 1, description: "Valid for 1 Gameweek. Choose one scoreline, for example 0-0, 1-0, or 1-2. Each time that exact scoreline happens, earn +3 UC pts." },
+                { name: "Super Star Man", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Star Man points are TRIPLED. Yellow and Red cards are 0pts." },
+                { name: "Super Golden Gameweek", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Prediction League points for all games are DOUBLED." },
+                { name: "Super Sub", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Star Man can be swapped at any time for any other Star Man. New Star Man's match must have NOT kicked off within the same Gameweek." },
+                { name: "Super Score", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Choose one scoreline, for example 0-0, 1-0, or 1-2. Each time that exact scoreline happens, earn +3 UC pts." },
                 { name: "Super Draw", count: 1, description: "Draw 3 cards from the Regular Deck." },
-                { name: "Super Duo", count: 1, description: "Valid for 1 Gameweek. Two Star Men can be chosen this Gameweek. Must choose both players before Gameweek starts." },
-                { name: "Super Pen", count: 1, description: "Valid for 3 Gameweeks. Draw a card from the Regular Deck any time a penalty is scored in this Gameweek." }
+                { name: "Super Duo", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Two Star Men can be chosen during the active range. Must choose both players before the relevant Gameweek starts." },
+                { name: "Super Pen", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Draw a card from the Regular Deck any time a penalty is scored in the active range." }
             ],
             game: [
                 { name: "Game of Goals", count: 1, description: "Best of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal." },
@@ -634,10 +779,10 @@
         }
         
         // Toggle cards display
-        function toggleCardsDisplay() {
+        function toggleCardsDisplay(button) {
             const cardsSection = document.getElementById('cardsSection');
             cardsSection.classList.toggle('show');
-            event.target.textContent = cardsSection.classList.contains('show') ? 'Hide All Cards' : 'Show All Cards';
+            button.textContent = cardsSection.classList.contains('show') ? 'Hide All Cards' : 'Show All Cards';
         }
         
         // Populate cards
@@ -648,7 +793,7 @@
             // Power Cards
             const powerTitle = document.createElement('div');
             powerTitle.className = 'card-category';
-            powerTitle.textContent = '💪 Power Cards (14 Types)';
+            powerTitle.textContent = 'Power Cards (14 Types)';
             cardsList.appendChild(powerTitle);
             
             const powerGrid = document.createElement('div');
@@ -661,7 +806,7 @@
             // Curse Cards
             const curseTitle = document.createElement('div');
             curseTitle.className = 'card-category';
-            curseTitle.textContent = '🖤 Curse Cards (14 Types)';
+            curseTitle.textContent = 'Curse Cards (14 Types)';
             cardsList.appendChild(curseTitle);
             
             const curseGrid = document.createElement('div');
@@ -674,7 +819,7 @@
             // Super Cards
             const superTitle = document.createElement('div');
             superTitle.className = 'card-category';
-            superTitle.textContent = '✨ Super Cards (7 Types)';
+            superTitle.textContent = 'Super Cards (7 Types)';
             cardsList.appendChild(superTitle);
             
             const superGrid = document.createElement('div');
@@ -687,7 +832,7 @@
             // Game Cards
             const gameTitle = document.createElement('div');
             gameTitle.className = 'card-category';
-            gameTitle.textContent = '🎮 Game Cards (7 Types)';
+            gameTitle.textContent = 'Game Cards (7 Types)';
             cardsList.appendChild(gameTitle);
             
             const gameGrid = document.createElement('div');
@@ -707,19 +852,46 @@
                 <div class="card-content"><p>${card.description}</p></div>
             `;
             
-            const header = cardItem.querySelector('.card-header');
-            const content = cardItem.querySelector('.card-content');
-            header.addEventListener('click', function(e) {
+            cardItem.addEventListener('click', function(e) {
                 e.stopPropagation();
-                cardItem.classList.toggle('expanded');
-                content.classList.toggle('expanded');
+                openCardView(card, type);
             });
             
             return cardItem;
         }
+
+        function openCardView(card, type) {
+            const modal = document.getElementById('cardViewModal');
+            const panel = document.getElementById('cardViewPanel');
+            document.getElementById('cardViewTitle').textContent = card.name;
+            document.getElementById('cardViewDescription').textContent = card.description;
+            panel.className = `card-view-panel ${type}`;
+            modal.classList.add('show');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('card-modal-open');
+        }
+
+        function closeCardView() {
+            const modal = document.getElementById('cardViewModal');
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('card-modal-open');
+        }
         
         // Initialize cards on page load
         populateCards();
+
+        document.getElementById('cardViewBack').addEventListener('click', closeCardView);
+        document.getElementById('cardViewModal').addEventListener('click', (event) => {
+            if (event.target.id === 'cardViewModal') {
+                closeCardView();
+            }
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeCardView();
+            }
+        });
     </script>
 </body>
 </html>

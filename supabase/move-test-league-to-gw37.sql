@@ -24,7 +24,7 @@ update public.competitions c
 set
   starts_gameweek_id = target_gameweek.id,
   starts_at = first_fixture.first_kickoff_at - interval '24 hours',
-  member_lock_at = first_fixture.first_kickoff_at - interval '24 hours'
+  member_lock_at = first_fixture.first_kickoff_at
 from target_gameweek
 cross join first_fixture
 where c.slug = 'vas-test-league';
