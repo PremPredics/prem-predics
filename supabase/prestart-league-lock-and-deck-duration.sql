@@ -287,7 +287,7 @@ begin
     raise exception 'You are not a member of this private league.';
   end if;
 
-  target_deck_variant := coalesce(target_competition.locked_deck_variant_id, 'players_2_3');
+  target_deck_variant := coalesce(target_competition.locked_deck_variant_id, 'players_2');
 
   with desired as (
     select cdc.card_id, cdc.quantity

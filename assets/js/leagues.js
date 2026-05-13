@@ -181,7 +181,7 @@ createForm.addEventListener('submit', async (event) => {
       name,
       slug: slugify(name),
       max_members: 10,
-      deck_variant_id: 'players_7_10',
+      deck_variant_id: 'players_10',
       starts_gameweek_id: startGameweek.gameweek_id,
       starts_at: startsAt,
       member_lock_at: memberLockAt,

@@ -61,37 +61,102 @@ set
   description = excluded.description,
   is_active = true;
 
-with base_quantities (card_id, quantity) as (
-  values
-    ('power_goal', 2),
-    ('power_swap', 3),
-    ('power_veto', 3),
-    ('power_laundrette', 2),
-    ('power_rocket_man', 3),
-    ('power_pessimist', 1),
-    ('power_immigrants', 2),
-    ('power_lanky_crouch', 2),
-    ('power_small_and_mighty', 2),
-    ('power_of_god', 2),
-    ('power_hedge', 2),
-    ('power_assist_king', 1),
-    ('power_late_scout', 3),
-    ('power_snow', 2),
+insert into public.card_deck_variants (id, name, min_members, max_members, description, is_active)
+select
+  'players_' || player_count,
+  player_count || ' Player Deck',
+  player_count,
+  player_count,
+  'Exact ' || player_count || '-player deck. Regular deck uses 26 cards per player, scaled from the original 52-card 2-player deck.',
+  true
+from generate_series(2, 10) as counts(player_count)
+on conflict (id) do update
+set
+  name = excluded.name,
+  min_members = excluded.min_members,
+  max_members = excluded.max_members,
+  description = excluded.description,
+  is_active = true;
 
-    ('curse_hated', 2),
-    ('curse_gambler', 2),
-    ('curse_bench_warmer', 2),
-    ('curse_alphabet_15', 1),
-    ('curse_alphabet_20', 1),
-    ('curse_scoring_drought_3', 1),
-    ('curse_scoring_drought_5', 1),
-    ('curse_random_roulette', 2),
-    ('curse_glasses', 2),
-    ('curse_deleted_match', 2),
-    ('curse_tiny_club', 2),
-    ('curse_thief', 2),
-    ('curse_even_number', 1),
-    ('curse_odd_number', 1),
+update public.card_deck_variants
+set is_active = false
+where id in ('players_2_3', 'players_4_6', 'players_7_10');
+
+with base_quantities (card_id, category, base_quantity, priority) as (
+  values
+    ('power_goal', 'power', 2, 1),
+    ('power_swap', 'power', 3, 2),
+    ('power_veto', 'power', 3, 3),
+    ('power_laundrette', 'power', 2, 4),
+    ('power_rocket_man', 'power', 3, 5),
+    ('power_pessimist', 'power', 1, 6),
+    ('power_immigrants', 'power', 2, 7),
+    ('power_lanky_crouch', 'power', 2, 8),
+    ('power_small_and_mighty', 'power', 2, 9),
+    ('power_of_god', 'power', 2, 10),
+    ('power_hedge', 'power', 2, 11),
+    ('power_assist_king', 'power', 1, 12),
+    ('power_late_scout', 'power', 3, 13),
+    ('power_snow', 'power', 2, 14),
+
+    ('curse_hated', 'curse', 2, 101),
+    ('curse_gambler', 'curse', 2, 102),
+    ('curse_bench_warmer', 'curse', 2, 103),
+    ('curse_alphabet_15', 'curse', 1, 104),
+    ('curse_scoring_drought_3', 'curse', 1, 105),
+    ('curse_even_number', 'curse', 1, 106),
+    ('curse_alphabet_20', 'curse', 1, 107),
+    ('curse_scoring_drought_5', 'curse', 1, 108),
+    ('curse_odd_number', 'curse', 1, 109),
+    ('curse_random_roulette', 'curse', 2, 110),
+    ('curse_glasses', 'curse', 2, 111),
+    ('curse_deleted_match', 'curse', 2, 112),
+    ('curse_tiny_club', 'curse', 2, 113),
+    ('curse_thief', 'curse', 2, 114)
+),
+member_counts as (
+  select player_count, 'players_' || player_count::text as deck_variant_id
+  from generate_series(2, 10) as counts(player_count)
+),
+regular_scaled as (
+  select
+    mc.deck_variant_id,
+    mc.player_count,
+    bq.card_id,
+    bq.category,
+    bq.priority,
+    (bq.base_quantity * mc.player_count / 2.0) as raw_quantity,
+    floor(bq.base_quantity * mc.player_count / 2.0)::integer as floor_quantity,
+    case bq.category
+      when 'power' then 15 * mc.player_count
+      else 11 * mc.player_count
+    end as target_category_total
+  from member_counts mc
+  cross join base_quantities bq
+),
+regular_ranked as (
+  select
+    *,
+    row_number() over (
+      partition by deck_variant_id, category
+      order by (raw_quantity - floor_quantity) desc, priority asc
+    ) as remainder_rank,
+    sum(floor_quantity) over (partition by deck_variant_id, category) as floor_category_total
+  from regular_scaled
+),
+regular_final as (
+  select
+    deck_variant_id,
+    card_id,
+    floor_quantity
+      + case
+          when remainder_rank <= target_category_total - floor_category_total then 1
+          else 0
+        end as quantity
+  from regular_ranked
+),
+fixed_cards (card_id, quantity) as (
+  values
 
     ('super_star_man', 1),
     ('super_golden_gameweek', 1),
@@ -109,22 +174,19 @@ with base_quantities (card_id, quantity) as (
     ('game_early_worm', 1),
     ('game_time', 1)
 ),
-variant_scale (deck_variant_id, regular_multiplier) as (
-  values
-    ('players_2_3', 1),
-    ('players_4_6', 2),
-    ('players_7_10', 3)
+all_quantities as (
+  select deck_variant_id, card_id, quantity
+  from regular_final
+  union all
+  select mc.deck_variant_id, fc.card_id, fc.quantity
+  from member_counts mc
+  cross join fixed_cards fc
 )
 insert into public.card_deck_cards (deck_variant_id, card_id, quantity)
 select
-  vs.deck_variant_id,
-  bq.card_id,
-  case
-    when cd.deck_type = 'regular' then bq.quantity * vs.regular_multiplier
-    else bq.quantity
-  end as quantity
-from variant_scale vs
-cross join base_quantities bq
-join public.card_definitions cd on cd.id = bq.card_id
+  deck_variant_id,
+  card_id,
+  quantity
+from all_quantities
 on conflict (deck_variant_id, card_id) do update
 set quantity = excluded.quantity;

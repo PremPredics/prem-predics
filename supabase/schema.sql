@@ -676,10 +676,13 @@ create table public.card_deck_variants (
 );
 
 insert into public.card_deck_variants (id, name, min_members, max_members, description)
-values
-  ('players_2_3', '2-3 Player Deck', 2, 3, 'Current launch deck.'),
-  ('players_4_6', '4-6 Player Deck', 4, 6, 'Future larger-league deck; starts as a copy of the 2-3 player deck.'),
-  ('players_7_10', '7-10 Player Deck', 7, 10, 'Future largest-league deck; starts as a copy of the 2-3 player deck.')
+select
+  'players_' || player_count,
+  player_count || ' Player Deck',
+  player_count,
+  player_count,
+  'Exact ' || player_count || '-player deck. Regular deck uses 26 cards per player, scaled from the original 52-card 2-player deck.'
+from generate_series(2, 10) as counts(player_count)
 on conflict (id) do nothing;
 
 create or replace function public.deck_variant_for_member_count(member_count integer)
@@ -688,9 +691,7 @@ language sql
 immutable
 as $$
   select case
-    when member_count between 2 and 3 then 'players_2_3'
-    when member_count between 4 and 6 then 'players_4_6'
-    when member_count between 7 and 10 then 'players_7_10'
+    when member_count between 2 and 10 then 'players_' || member_count::text
     else null
   end;
 $$;
@@ -701,8 +702,8 @@ create table public.competitions (
   owner_id uuid not null references public.profiles(id) on delete cascade,
   name text not null,
   slug text not null unique,
-  max_members integer not null default 3 check (max_members between 2 and 10),
-  deck_variant_id text not null default 'players_2_3'
+  max_members integer not null default 10 check (max_members between 2 and 10),
+  deck_variant_id text not null default 'players_10'
     references public.card_deck_variants(id),
   starts_gameweek_id bigint not null,
   starts_at timestamptz not null,
@@ -718,9 +719,15 @@ create table public.competitions (
     references public.gameweeks(id, season_id) on delete restrict,
   unique (id, season_id),
   check (
-    (max_members between 2 and 3 and deck_variant_id = 'players_2_3')
-    or (max_members between 4 and 6 and deck_variant_id = 'players_4_6')
-    or (max_members between 7 and 10 and deck_variant_id = 'players_7_10')
+    (max_members = 2 and deck_variant_id = 'players_2')
+    or (max_members = 3 and deck_variant_id = 'players_3')
+    or (max_members = 4 and deck_variant_id = 'players_4')
+    or (max_members = 5 and deck_variant_id = 'players_5')
+    or (max_members = 6 and deck_variant_id = 'players_6')
+    or (max_members = 7 and deck_variant_id = 'players_7')
+    or (max_members = 8 and deck_variant_id = 'players_8')
+    or (max_members = 9 and deck_variant_id = 'players_9')
+    or (max_members = 10 and deck_variant_id = 'players_10')
   ),
   check (
     (locked_member_count is null and locked_deck_variant_id is null)

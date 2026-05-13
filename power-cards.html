@@ -3550,7 +3550,7 @@ let currentCompetitionId = new URLSearchParams(window.location.search).get('comp
 let cardRuntime = null;
 let medalBalances = { regular: 0, super: 0 };
 let handRefreshTimer = null;
-let currentDeckVariantId = 'players_2_3';
+let currentDeckVariantId = 'players_2';
 
 function shuffle(arr) { 
   for (let i = arr.length - 1; i > 0; i--) { 
@@ -3584,10 +3584,30 @@ function migrateLegacyCardNames(value) {
   return value;
 }
 
-function superDrawCountForLeague() {
-  if (currentDeckVariantId === 'players_7_10') return 5;
-  if (currentDeckVariantId === 'players_4_6') return 4;
+function playerCountFromDeckVariant(deckVariantId) {
+  const exactMatch = /^players_(\d+)$/.exec(deckVariantId || '');
+  if (exactMatch) return Number(exactMatch[1]);
+  if (deckVariantId === 'players_7_10') return 10;
+  if (deckVariantId === 'players_4_6') return 6;
+  return 2;
+}
+
+function superDrawCountForDeckVariant(deckVariantId) {
+  const playerCount = playerCountFromDeckVariant(deckVariantId);
+  if (playerCount >= 7) return 5;
+  if (playerCount >= 4) return 4;
   return 3;
+}
+
+function superDurationForDeckVariant(deckVariantId) {
+  const playerCount = playerCountFromDeckVariant(deckVariantId);
+  if (playerCount >= 7) return 3;
+  if (playerCount >= 4) return 2;
+  return 1;
+}
+
+function superDrawCountForLeague() {
+  return superDrawCountForDeckVariant(currentDeckVariantId);
 }
 
 function load() { 
@@ -4779,7 +4799,7 @@ async function initializeCardPage() {
     }
 
     currentCompetitionId = context.league.id;
-    currentDeckVariantId = context.league.locked_deck_variant_id || context.league.deck_variant_id || 'players_2_3';
+    currentDeckVariantId = context.league.locked_deck_variant_id || (context.league.locked_member_count ? context.league.deck_variant_id : 'players_2') || 'players_2';
     load();
 
     async function syncMedals() {
@@ -5219,10 +5239,8 @@ async function initializeCardPage() {
     }
 
     function superDurationForLeague() {
-      const deckVariant = context.league.locked_deck_variant_id || context.league.deck_variant_id;
-      if (deckVariant === 'players_4_6') return 2;
-      if (deckVariant === 'players_7_10') return 3;
-      return 1;
+      const deckVariant = context.league.locked_deck_variant_id || (context.league.locked_member_count ? context.league.deck_variant_id : 'players_2');
+      return superDurationForDeckVariant(deckVariant);
     }
 
     function effectiveCardDuration(rule) {

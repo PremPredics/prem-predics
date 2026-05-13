@@ -299,7 +299,7 @@ The power-card page is no longer only local game state. The backend needs to sto
 
 Core card tables:
 
-- `card_deck_variants`: the league-size deck options for 2-3, 4-6, and 7-10 player leagues
+- `card_deck_variants`: exact league-size deck options for 2 through 10 player leagues
 - `card_definitions`: the master list of Power, Curse, Super, and Game cards
 - `card_deck_cards`: the quantity of each card in each deck variant
 - `league_cards`: physical/virtual card instances inside one private league
@@ -314,11 +314,11 @@ Core card tables:
 
 Deck variants:
 
-- The current deck is the 2-3 player deck.
-- The 4-6 player and 7-10 player deck datasets are separate records inside the same Supabase database.
-- Version 1 can seed all three variants with the same card quantities as the current 2-3 player deck.
-- Each private league stores its intended `max_members` and `deck_variant_id`, so card generation is league-size aware from the start.
-- When a league starts, it can freeze `locked_member_count` and `locked_deck_variant_id`, so the actual deck used is based on the member count at league lock/start time.
+- The original 52-card regular deck is now the 2-player deck.
+- Exact variants exist for `players_2` through `players_10`.
+- Each regular deck uses 26 regular cards per player: 15 Power cards and 11 Curse cards per player.
+- Unlocked leagues can accept up to 10 members, then freeze `locked_member_count` and `locked_deck_variant_id` at the 90-minute pre-kickoff member lock.
+- Before lock, leagues seed from the 2-player deck. Once locked, they top up to the exact deck for the final player count.
 
 Prediction cards require `predictions.competition_id`, because a prediction changed by cards in one league must not affect another league.
 

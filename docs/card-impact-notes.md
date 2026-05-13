@@ -92,7 +92,7 @@ Selection/editing effects:
 
 Inventory effects:
 
-- Super Draw: draw 3 regular cards.
+- Super Draw: draw 3 regular cards in 2-3 player leagues, 4 in 4-6 player leagues, and 5 in 7-10 player leagues.
 
 Medals:
 
@@ -109,10 +109,10 @@ Player name data:
 
 Deck variants:
 
-- The current card list is the 2-3 player deck.
-- 4-6 player leagues and 7-10 player leagues should use their own deck variants.
-- Version 1 can seed the 4-6 and 7-10 variants as copies of the current 2-3 player deck, then replace their card quantities over time.
-- A league freezes its actual member count and deck variant when it starts.
+- The original 52-card regular list is the 2-player deck.
+- Exact `players_2` through `players_10` variants exist.
+- Each exact regular deck contains 26 cards per player, split as 15 Power and 11 Curse cards per player.
+- A league freezes its actual member count and exact deck variant 90 minutes before the first kickoff of its starting gameweek.
 
 ## Game Cards
 

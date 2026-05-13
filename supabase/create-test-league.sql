@@ -46,11 +46,11 @@ created_league as (
     target_owner.id,
     'Vas Test League',
     'vas-test-league',
-    3,
-    'players_2_3',
+    10,
+    'players_10',
     target_gameweek.id,
     first_fixture.first_kickoff_at - interval '24 hours',
-    first_fixture.first_kickoff_at - interval '24 hours'
+    first_fixture.first_kickoff_at - interval '90 minutes'
   from target_owner
   cross join target_season
   cross join target_gameweek

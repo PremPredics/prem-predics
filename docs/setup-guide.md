@@ -103,7 +103,7 @@ Run:
 1. `supabase/verify-reference-data.sql`
 2. `supabase/create-test-league.sql`
 
-The test league is owned by `goulasvasilios@gmail.com`, starts in GW38, and uses the 2-3 player deck.
+The test league is owned by `goulasvasilios@gmail.com`, starts in GW38, and can accept up to 10 players before locking to the exact deck for its final member count.
 
 Later, create private leagues from the app UI instead of inserting them manually.
 
