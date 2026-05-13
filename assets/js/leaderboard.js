@@ -10,6 +10,13 @@ const leagueLink = document.querySelector('[data-league-link]');
 const legendModal = document.querySelector('[data-legend-modal]');
 const openLegendButton = document.querySelector('[data-open-legend]');
 const closeLegendButton = document.querySelector('[data-close-legend]');
+const profileModal = document.querySelector('[data-profile-modal]');
+const profileModalAvatar = document.querySelector('[data-profile-modal-avatar]');
+const profileModalUsername = document.querySelector('[data-profile-modal-username]');
+const profileModalFirstName = document.querySelector('[data-profile-modal-first-name]');
+const closeProfileButton = document.querySelector('[data-close-profile]');
+
+let currentProfilesById = new Map();
 
 function numberValue(value) {
   return Number(value || 0);
@@ -48,6 +55,7 @@ function render(rows, profilesById) {
   body.innerHTML = sortRows(rows).map((row, index) => {
     const displayName = row.display_name || 'Player';
     const profile = profilesById.get(row.user_id);
+    const firstName = profile?.first_name || 'Not set';
 
     return `
       <tr>
@@ -55,7 +63,10 @@ function render(rows, profilesById) {
         <td>
           <div class="player-cell">
             ${avatarMarkup(profile, displayName)}
-            <span class="username">${escapeHtml(displayName)}</span>
+            <span class="player-copy">
+              <button class="username" type="button" data-profile-user-id="${escapeHtml(row.user_id)}">${escapeHtml(displayName)}</button>
+              <span class="first-name-inline">First name: ${escapeHtml(firstName)}</span>
+            </span>
           </div>
         </td>
         <td class="uc-cell">${numberValue(row.ultimate_champion_points)}</td>
@@ -96,7 +107,7 @@ async function loadLeaderboard() {
   if (userIds.length) {
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, profile_image_url')
+      .select('id, first_name, profile_image_url')
       .in('id', userIds);
 
     (profiles || []).forEach((profile) => {
@@ -104,6 +115,7 @@ async function loadLeaderboard() {
     });
   }
 
+  currentProfilesById = profilesById;
   render(rows || [], profilesById);
 }
 
@@ -123,5 +135,54 @@ legendModal?.addEventListener('click', (event) => {
   if (event.target === legendModal) {
     legendModal.classList.remove('show');
     legendModal.setAttribute('aria-hidden', 'true');
+  }
+});
+
+function closeProfileModal() {
+  profileModal?.classList.remove('show');
+  profileModal?.setAttribute('aria-hidden', 'true');
+}
+
+function openProfileModal(userId, username) {
+  const profile = currentProfilesById.get(userId);
+  profileModalAvatar.innerHTML = avatarMarkup(profile, username);
+  profileModalUsername.textContent = username;
+  profileModalFirstName.textContent = profile?.first_name || 'Not set';
+  profileModal.classList.add('show');
+  profileModal.setAttribute('aria-hidden', 'false');
+}
+
+body.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-profile-user-id]');
+  if (!button) {
+    return;
+  }
+
+  const isMobile = window.matchMedia('(max-width: 650px)').matches;
+  const cell = button.closest('.player-cell');
+  if (isMobile) {
+    openProfileModal(button.dataset.profileUserId, button.textContent.trim() || 'Player');
+    return;
+  }
+
+  document.querySelectorAll('.player-cell.show-first-name').forEach((item) => {
+    if (item !== cell) {
+      item.classList.remove('show-first-name');
+    }
+  });
+  cell?.classList.toggle('show-first-name');
+});
+
+closeProfileButton?.addEventListener('click', closeProfileModal);
+
+profileModal?.addEventListener('click', (event) => {
+  if (event.target === profileModal) {
+    closeProfileModal();
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeProfileModal();
   }
 });

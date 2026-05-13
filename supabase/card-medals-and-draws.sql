@@ -313,34 +313,70 @@ begin
     raise exception 'You are not a member of this private league.';
   end if;
 
-  target_deck_variant := coalesce(
-    target_competition.locked_deck_variant_id,
-    target_competition.deck_variant_id,
-    'players_2_3'
-  );
+  target_deck_variant := coalesce(target_competition.locked_deck_variant_id, 'players_2_3');
 
-  if not exists (
-    select 1
-    from public.league_cards
-    where competition_id = target_competition_id
-      and zone in ('regular_deck', 'premium_deck')
-  ) then
-    insert into public.league_cards (competition_id, card_id, zone, sort_order, source)
-    select
-      target_competition_id,
-      cdc.card_id,
-      case cd.deck_type
-        when 'premium' then 'premium_deck'
-        else 'regular_deck'
-      end,
-      row_number() over (order by random()),
-      'deck_seed'
+  with desired as (
+    select cdc.card_id, cdc.quantity
     from public.card_deck_cards cdc
     join public.card_definitions cd on cd.id = cdc.card_id
-    cross join lateral generate_series(1, cdc.quantity)
     where cdc.deck_variant_id = target_deck_variant
-      and cd.deck_type in ('regular', 'premium');
-  end if;
+      and cd.deck_type in ('regular', 'premium')
+  ),
+  existing as (
+    select lc.card_id, count(*) as current_count
+    from public.league_cards lc
+    where lc.competition_id = target_competition_id
+    group by lc.card_id
+  ),
+  removable as (
+    select
+      lc.id,
+      row_number() over (partition by lc.card_id order by lc.created_at desc, lc.id) as removable_rank,
+      greatest(coalesce(e.current_count, 0) - coalesce(d.quantity, 0), 0) as surplus_count
+    from public.league_cards lc
+    left join desired d on d.card_id = lc.card_id
+    left join existing e on e.card_id = lc.card_id
+    join public.card_definitions cd on cd.id = lc.card_id
+    where lc.competition_id = target_competition_id
+      and lc.owner_user_id is null
+      and lc.zone in ('regular_deck', 'premium_deck')
+      and cd.deck_type in ('regular', 'premium')
+  )
+  delete from public.league_cards lc
+  using removable r
+  where lc.id = r.id
+    and r.removable_rank <= r.surplus_count;
+
+  insert into public.league_cards (competition_id, card_id, zone, sort_order, source)
+  select
+    target_competition_id,
+    desired.card_id,
+    case desired.deck_type
+      when 'premium' then 'premium_deck'
+      else 'regular_deck'
+    end,
+    row_number() over (order by random())
+      + coalesce((select max(sort_order) from public.league_cards where competition_id = target_competition_id), 0),
+    case
+      when target_competition.locked_deck_variant_id is null then 'deck_seed'
+      else 'deck_top_up_' || target_deck_variant
+    end
+  from (
+    select
+      cdc.card_id,
+      cd.deck_type,
+      greatest(cdc.quantity - count(lc.id), 0) as missing_count
+    from public.card_deck_cards cdc
+    join public.card_definitions cd on cd.id = cdc.card_id
+    left join public.league_cards lc
+      on lc.competition_id = target_competition_id
+     and lc.card_id = cdc.card_id
+    where cdc.deck_variant_id = target_deck_variant
+      and cd.deck_type in ('regular', 'premium')
+    group by cdc.card_id, cd.deck_type, cdc.quantity
+  ) desired
+  cross join lateral generate_series(1, desired.missing_count)
+  where desired.missing_count > 0;
 end;
 $$;
 

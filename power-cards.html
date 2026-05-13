@@ -3447,7 +3447,7 @@ const cardDescriptions = {
   "Super Golden Gameweek": "🃏 Super Golden Gameweek\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Prediction League points for all games are DOUBLED for the player playing this card🏆",
   "Super Sub": "🃏 Super Sub\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆 Star Man can be swapped at any time for any other Star Man for the player playing this card🏆\n\n*New Star Man's match must have NOT kicked off within the same Gameweek",
   "Super Score": "🃏 Super Score\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Choose one scoreline for the active range. Each time that exact scoreline happens, +3 UC pts for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
-  "Super Draw": "🃏 Super Draw\n\n🏆Draw 3 cards from the Regular Deck for the player playing this card🏆",
+  "Super Draw": "🃏 Super Draw\n\n🏆Draw Regular Deck cards for the player playing this card: 3 cards in 2-3 player leagues, 4 cards in 4-6 player leagues, and 5 cards in 7-10 player leagues🏆",
   "Super Duo": "🃏 Super Duo\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Two Star Men can be chosen during the active range for the player playing this card🏆\n\n*Must choose both players before the relevant Gameweek starts",
   "Super Pen": "🃏 Super Pen\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Draw a card from the Regular Deck any time a penalty is scored during the active range for the player playing this card🏆",
 
@@ -3550,6 +3550,7 @@ let currentCompetitionId = new URLSearchParams(window.location.search).get('comp
 let cardRuntime = null;
 let medalBalances = { regular: 0, super: 0 };
 let handRefreshTimer = null;
+let currentDeckVariantId = 'players_2_3';
 
 function shuffle(arr) { 
   for (let i = arr.length - 1; i > 0; i--) { 
@@ -3581,6 +3582,12 @@ function migrateLegacyCardNames(value) {
     });
   }
   return value;
+}
+
+function superDrawCountForLeague() {
+  if (currentDeckVariantId === 'players_7_10') return 5;
+  if (currentDeckVariantId === 'players_4_6') return 4;
+  return 3;
 }
 
 function load() { 
@@ -4275,8 +4282,9 @@ async function confirmCardPlay() {
   }
 
   if (card === "Super Draw") {
-    if (gameState.regularDeck.length < 3) {
-      alert("You need at least 3 cards in the regular deck to play Super Draw!");
+    const superDrawCount = superDrawCountForLeague();
+    if (gameState.regularDeck.length < superDrawCount) {
+      alert(`You need at least ${superDrawCount} cards in the regular deck to play Super Draw!`);
       return;
     }
   }
@@ -4310,9 +4318,10 @@ async function confirmCardPlay() {
   }
 
   if (card === "Super Draw") {
+    const superDrawCount = superDrawCountForLeague();
     if (cardRuntime?.drawEffectCards && activation?.id) {
       try {
-        const drawnCards = await cardRuntime.drawEffectCards(activation.id, 3);
+        const drawnCards = await cardRuntime.drawEffectCards(activation.id, superDrawCount);
         drawnCards.forEach((drawn) => gameState.players[player].hand.push(normalizeCardName(drawn.card_name)));
         alert(`Super Draw added: ${drawnCards.map((drawn) => drawn.card_name).join(', ')}`);
         syncHandFromDatabase();
@@ -4320,7 +4329,7 @@ async function confirmCardPlay() {
         alert(error.message || "Could not draw cards for Super Draw.");
       }
     } else {
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < superDrawCount; i++) {
         if (gameState.regularDeck.length > 0) gameState.players[player].hand.push(gameState.regularDeck.pop());
       }
     }
@@ -4770,6 +4779,7 @@ async function initializeCardPage() {
     }
 
     currentCompetitionId = context.league.id;
+    currentDeckVariantId = context.league.locked_deck_variant_id || context.league.deck_variant_id || 'players_2_3';
     load();
 
     async function syncMedals() {

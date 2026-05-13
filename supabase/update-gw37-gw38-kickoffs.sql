@@ -135,7 +135,7 @@ target_gameweeks as (
 update public.competitions c
 set
   starts_at = tg.new_kickoff_at - interval '24 hours',
-  member_lock_at = tg.new_kickoff_at,
+  member_lock_at = tg.new_kickoff_at - interval '90 minutes',
   started_at = null,
   accepts_new_members = true,
   locked_member_count = null,

@@ -756,7 +756,7 @@
                 { name: "Super Golden Gameweek", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Prediction League points for all games are DOUBLED." },
                 { name: "Super Sub", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Star Man can be swapped at any time for any other Star Man. New Star Man's match must have NOT kicked off within the same Gameweek." },
                 { name: "Super Score", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Choose one scoreline, for example 0-0, 1-0, or 1-2. Each time that exact scoreline happens, earn +3 UC pts." },
-                { name: "Super Draw", count: 1, description: "Draw 3 cards from the Regular Deck." },
+                { name: "Super Draw", count: 1, description: "Draw Regular Deck cards: 3 cards in 2-3 player leagues, 4 cards in 4-6 player leagues, and 5 cards in 7-10 player leagues." },
                 { name: "Super Duo", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Two Star Men can be chosen during the active range. Must choose both players before the relevant Gameweek starts." },
                 { name: "Super Pen", count: 1, description: "Valid for your league's Super Card duration: 1 Gameweek for 2-3 players, 2 Gameweeks for 4-6 players, and 3 Gameweeks for 7-10 players. Draw a card from the Regular Deck any time a penalty is scored in the active range." }
             ],
@@ -847,7 +847,6 @@
             const cardItem = document.createElement('div');
             cardItem.className = `card-item ${type}`;
             cardItem.innerHTML = `
-                <div class="card-count">x${card.count}</div>
                 <div class="card-header">${card.name}</div>
                 <div class="card-content"><p>${card.description}</p></div>
             `;

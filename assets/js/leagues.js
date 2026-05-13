@@ -173,6 +173,7 @@ createForm.addEventListener('submit', async (event) => {
 
     const firstKickoffAt = new Date(startGameweek.first_fixture_kickoff_at).toISOString();
     const startsAt = new Date(new Date(firstKickoffAt).getTime() - 24 * 60 * 60 * 1000).toISOString();
+    const memberLockAt = new Date(new Date(firstKickoffAt).getTime() - 90 * 60 * 1000).toISOString();
 
     const { error } = await supabase.from('competitions').insert({
       season_id: startGameweek.season_id,
@@ -183,7 +184,7 @@ createForm.addEventListener('submit', async (event) => {
       deck_variant_id: 'players_7_10',
       starts_gameweek_id: startGameweek.gameweek_id,
       starts_at: startsAt,
-      member_lock_at: firstKickoffAt,
+      member_lock_at: memberLockAt,
     });
 
     if (error) {

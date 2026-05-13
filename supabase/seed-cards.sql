@@ -37,7 +37,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('super_golden_gameweek', 'Super Golden Gameweek', 'super', 'premium', 'super_golden_gameweek', 'Prediction League points for all games are doubled.'),
     ('super_sub', 'Super Sub', 'super', 'premium', 'super_sub', 'Star Man can be swapped before the new player fixture kicks off.'),
     ('super_score', 'Super Score', 'super', 'premium', 'super_score', 'Choose one exact scoreline; each matching real fixture earns +3 UC points.'),
-    ('super_draw', 'Super Draw', 'super', 'premium', 'super_draw', 'Draw 3 cards from the Regular Deck.'),
+    ('super_draw', 'Super Draw', 'super', 'premium', 'super_draw', 'Draw 3, 4, or 5 Regular Deck cards depending on league size.'),
     ('super_duo', 'Super Duo', 'super', 'premium', 'super_duo', 'Choose a second Star Man for the active gameweek range.'),
     ('super_pen', 'Super Pen', 'super', 'premium', 'super_pen', 'Draw a Regular Deck card whenever a penalty is scored during the active gameweek range.'),
 
@@ -61,7 +61,7 @@ set
   description = excluded.description,
   is_active = true;
 
-with quantities (card_id, quantity) as (
+with base_quantities (card_id, quantity) as (
   values
     ('power_goal', 2),
     ('power_swap', 3),
@@ -108,11 +108,23 @@ with quantities (card_id, quantity) as (
     ('game_war', 1),
     ('game_early_worm', 1),
     ('game_time', 1)
+),
+variant_scale (deck_variant_id, regular_multiplier) as (
+  values
+    ('players_2_3', 1),
+    ('players_4_6', 2),
+    ('players_7_10', 3)
 )
 insert into public.card_deck_cards (deck_variant_id, card_id, quantity)
-select cdv.id, q.card_id, q.quantity
-from public.card_deck_variants cdv
-cross join quantities q
-where cdv.id in ('players_2_3', 'players_4_6', 'players_7_10')
+select
+  vs.deck_variant_id,
+  bq.card_id,
+  case
+    when cd.deck_type = 'regular' then bq.quantity * vs.regular_multiplier
+    else bq.quantity
+  end as quantity
+from variant_scale vs
+cross join base_quantities bq
+join public.card_definitions cd on cd.id = bq.card_id
 on conflict (deck_variant_id, card_id) do update
 set quantity = excluded.quantity;

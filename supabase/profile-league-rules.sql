@@ -567,6 +567,27 @@ begin
     return;
   end if;
 
+  update public.active_card_effects
+  set status = 'removed',
+      resolved_at = now()
+  where competition_id = target_competition_id
+    and played_by_user_id = auth.uid()
+    and status = 'active';
+
+  update public.league_cards lc
+  set owner_user_id = null,
+      zone = case cd.deck_type
+        when 'premium' then 'premium_deck'
+        else 'regular_deck'
+      end,
+      source = 'returned_prestart_leave',
+      updated_at = now()
+  from public.card_definitions cd
+  where cd.id = lc.card_id
+    and lc.competition_id = target_competition_id
+    and lc.owner_user_id = auth.uid()
+    and cd.deck_type in ('regular', 'premium');
+
   delete from public.competition_members
   where competition_id = target_competition_id
     and user_id = auth.uid();
