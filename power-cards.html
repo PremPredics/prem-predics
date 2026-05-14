@@ -3623,7 +3623,7 @@ const cardDescriptions = {
   "Curse of the Alphabet (20+)": "🃏 Curse of the Alphabet\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man surname must have a Scrabble score of 20+❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Scoring Drought (3)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 3 PL games❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Scoring Drought (5)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 5 PL games❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Random Roulette": "🃏 Curse of the Random Roulette\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man's squad number is chosen by a roulette spin from 1 to 36❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse Of The Microstate": "Curse Of The Microstate\nValid for 1 Gameweek.\n\nOpponent's Star Man's nationality must be from a Country with a population of less than 1 million.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Glasses": "🃏 Curse of the Glasses\n• Valid for 1 Gameweek•\n\n❌Any 0–0 prediction that the Opponent makes scores NOTHING❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Deleted Match": "🃏 Curse of the Deleted Match\n• Valid for 1 Gameweek•\n\n❌ Choose ONE of the Opponents Predictions, Opponent cannot earn points from this game❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Tiny Club": "🃏 Curse of the Tiny Club\n• Valid for 1 Gameweek •\n\n❌Opponent may NOT pick a Star Man from a Top 10 club❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
@@ -3631,13 +3631,13 @@ const cardDescriptions = {
   "Curse of the Even Number": "🃏 Curse of the Even Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Even number of goals for all teams❌\n\n*Must be played at least 24 hours before the gameweek's first KO time, *Cannot be picked whilst Curse of The Random is active",
   "Curse of the Odd Number": "🃏 Curse of the Odd Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Odd number of goals for all teams❌\n\n*Must be played at least 24 hours before the gameweek's first KO time, *Cannot be picked whilst Curse of The Random is active",
 
-  "Super Star Man": "🃏 Super Star Man\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Star Man points are TRIPLED for the player playing this card🏆\n\n*Yellow and Red cards are 0pts",
-  "Super Golden Gameweek": "🃏 Super Golden Gameweek\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Prediction League points for all games are DOUBLED for the player playing this card🏆",
-  "Super Sub": "🃏 Super Sub\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆 Star Man can be swapped at any time for any other Star Man for the player playing this card🏆\n\n*New Star Man's match must have NOT kicked off within the same Gameweek",
-  "Super Score": "🃏 Super Score\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Choose one scoreline for the active range. Each time that exact scoreline happens, +3 UC pts for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
-  "Super Draw": "🃏 Super Draw\n\n🏆Draw Regular Deck cards for the player playing this card: 3 cards in 2-3 player leagues, 4 cards in 4-6 player leagues, and 5 cards in 7-10 player leagues🏆",
-  "Super Duo": "🃏 Super Duo\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Two Star Men can be chosen during the active range for the player playing this card🏆\n\n*Must choose both players before the relevant Gameweek starts",
-  "Super Pen": "🃏 Super Pen\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Draw a card from the Regular Deck any time a penalty is scored during the active range for the player playing this card🏆",
+  "Super Star Man": "Super Star Man\nValid for {SUPER_DURATION}.\n\nStar Man points are TRIPLED for the player playing this card.\n\nYellow and Red cards are 0pts.",
+  "Super Golden Gameweek": "Super Golden Gameweek\nValid for {SUPER_DURATION}.\n\nPrediction League points for all games are DOUBLED for the player playing this card.",
+  "Super Sub": "Super Sub\nValid for {SUPER_DURATION}.\n\nStar Man can be swapped at any time for any other Star Man for the player playing this card.\n\nNew Star Man's match must have NOT kicked off within the same Gameweek.",
+  "Super Score": "Super Score\nValid for {SUPER_DURATION}.\n\nChoose one scoreline for the active range. Each time that exact scoreline happens, +3 UC pts for the player playing this card.\n\nMust be played before the start of a Gameweek.",
+  "Super Draw": "Super Draw\n\nDraw {SUPER_DRAW_COUNT} Regular Deck cards for the player playing this card.",
+  "Super Duo": "Super Duo\nValid for {SUPER_DURATION}.\n\nTwo Star Men can be chosen during the active range for the player playing this card.\n\nMust choose both players before the relevant Gameweek starts.",
+  "Super Pen": "Super Pen\nValid for {SUPER_DURATION}.\n\nDraw a card from the Regular Deck any time a penalty is scored during the active range for the player playing this card.",
 
   "Game of Goals": "🃏 Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
   "Game of Corners": "🃏 Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
@@ -3648,6 +3648,7 @@ const cardDescriptions = {
   "Game of Time": "🃏 Game of Time\n\nBest of 5 Gameweeks, closest answer wins, predict Total 90'+ min goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick."
 };
 cardDescriptions["Curse of the Gambler"] = cardDescriptions["Curse of the Random"];
+cardDescriptions["Curse of the Random Roulette"] = cardDescriptions["Curse Of The Microstate"];
 
 // POWER CARDS - 30 TOTAL
 const powerCards = [
@@ -3676,7 +3677,7 @@ const curseCards = [
   "Curse of the Alphabet (20+)",
   "Curse of the Scoring Drought (3)",
   "Curse of the Scoring Drought (5)",
-  "Curse of the Random Roulette", "Curse of the Random Roulette",
+  "Curse Of The Microstate", "Curse Of The Microstate",
   "Curse of the Glasses", "Curse of the Glasses",
   "Curse of the Deleted Match", "Curse of the Deleted Match",
   "Curse of the Tiny Club", "Curse of the Tiny Club",
@@ -3761,6 +3762,7 @@ const legacySuperScoreName = "Super " + "Fant" + "asy Boost";
 function normalizeCardName(cardName) {
   if (cardName === legacySuperScoreName) return "Super Score";
   if (cardName === "Curse of the Gambler") return "Curse of the Random";
+  if (cardName === "Curse of the Random Roulette") return "Curse Of The Microstate";
   return cardName;
 }
 
@@ -3799,6 +3801,16 @@ function superDurationForDeckVariant(deckVariantId) {
 
 function superDrawCountForLeague() {
   return superDrawCountForDeckVariant(currentDeckVariantId);
+}
+
+function cardDescriptionFor(cardName) {
+  const normalizedCardName = normalizeCardName(cardName);
+  const duration = superDurationForDeckVariant(currentDeckVariantId);
+  const drawCount = superDrawCountForLeague();
+  const durationText = `${duration} ${duration === 1 ? 'Gameweek' : 'Gameweeks'}`;
+  return (cardDescriptions[normalizedCardName] || cardDescriptions[cardName] || 'No description available.')
+    .replaceAll('{SUPER_DURATION}', durationText)
+    .replaceAll('{SUPER_DRAW_COUNT}', String(drawCount));
 }
 
 function load() { 
@@ -4362,7 +4374,7 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
   
   content.className = `fullscreen-card-content ${cardType}`;
   nameEl.textContent = card;
-  descEl.textContent = cardDescriptions[card] || 'No description available.';
+  descEl.textContent = cardDescriptionFor(card);
   
   reveal.classList.add('show');
   fitPreviewText(nameEl, descEl);
@@ -4406,7 +4418,7 @@ function drawGameCard() {
   
   content.className = `fullscreen-card-content ${cardType}`;
   nameEl.textContent = card;
-  descEl.textContent = cardDescriptions[card] || 'No description available.';
+  descEl.textContent = cardDescriptionFor(card);
   
   reveal.classList.add('show');
   fitPreviewText(nameEl, descEl);
@@ -4451,7 +4463,7 @@ function showCardPreview(cardName, player, index) {
   const nameEl = document.getElementById('cardPreviewName');
   const descEl = document.getElementById('cardPreviewDescription');
   nameEl.textContent = cardName;
-  descEl.textContent = cardDescriptions[cardName] || 'No description available.';
+  descEl.textContent = cardDescriptionFor(cardName);
   
   document.body.classList.add('card-preview-open');
   modal.classList.add('show');
@@ -4695,7 +4707,7 @@ function showGameCardPreview() {
     const nameEl = document.getElementById('gameCardPreviewName');
     const descEl = document.getElementById('gameCardPreviewDescription');
     nameEl.textContent = gameState.activeGameCard;
-    descEl.textContent = cardDescriptions[gameState.activeGameCard] || 'No description available.';
+    descEl.textContent = cardDescriptionFor(gameState.activeGameCard);
     fitPreviewText(nameEl, descEl);
   } else {
     question.textContent = 'Active Game Card';
@@ -5280,7 +5292,7 @@ async function initializeCardPage() {
       'Curse of the Alphabet (20+)': { cardId: 'curse_alphabet_20', effectKey: 'curse_alphabet_20', duration: 1, target: 'opponent' },
       'Curse of the Scoring Drought (3)': { cardId: 'curse_scoring_drought_3', effectKey: 'curse_scoring_drought_3', duration: 1, target: 'opponent' },
       'Curse of the Scoring Drought (5)': { cardId: 'curse_scoring_drought_5', effectKey: 'curse_scoring_drought_5', duration: 1, target: 'opponent' },
-      'Curse of the Random Roulette': { cardId: 'curse_random_roulette', effectKey: 'curse_random_roulette', duration: 1, target: 'opponent', special: 'roulette' },
+      'Curse Of The Microstate': { cardId: 'curse_random_roulette', effectKey: 'curse_random_roulette', duration: 1, target: 'opponent' },
       'Curse of the Glasses': { cardId: 'curse_glasses', effectKey: 'curse_glasses', duration: 1, target: 'opponent' },
       'Curse of the Deleted Match': { cardId: 'curse_deleted_match', effectKey: 'curse_deleted_match', duration: 1, target: 'opponent', fixture: true },
       'Curse of the Tiny Club': { cardId: 'curse_tiny_club', effectKey: 'curse_tiny_club', duration: 1, target: 'opponent' },
@@ -5296,6 +5308,7 @@ async function initializeCardPage() {
       'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 3, target: 'self' },
     };
     cardEffectRules['Curse of the Gambler'] = cardEffectRules['Curse of the Random'];
+    cardEffectRules['Curse of the Random Roulette'] = cardEffectRules['Curse Of The Microstate'];
 
     function chooseFromList(title, items, labelFn) {
       if (!items.length) {
@@ -5770,6 +5783,11 @@ async function initializeCardPage() {
     }
 
     async function playVeto(activeGameweek) {
+      const curseActivationDeadline = cardPlayDeadline({ cardId: 'curse_veto_window' }, activeGameweek);
+      if (!curseActivationDeadline || Date.now() < new Date(curseActivationDeadline).getTime()) {
+        throw new Error(`Power of the Veto opens once curses activate, 24 hours before the gameweek's first KO time. Opens: ${formatDeadlineForMessage(curseActivationDeadline)}.`);
+      }
+
       const { data, error } = await supabase
         .from('active_card_effects')
         .select('id, played_by_user_id, card_definitions(name, category)')
@@ -5911,18 +5929,6 @@ async function initializeCardPage() {
           fixtureId = chooseFromList('Choose the match this card affects:', fixtures, fixtureChoiceLabel).id;
         }
 
-        if (rule.special === 'roulette') {
-          const answer = window.prompt('Enter the roulette number from 1 to 36.');
-          if (answer === null) {
-            throw new Error('Card play cancelled.');
-          }
-          const rouletteNumber = Number(answer.trim());
-          if (!Number.isInteger(rouletteNumber) || rouletteNumber < 1 || rouletteNumber > 36) {
-            throw new Error('Roulette number must be between 1 and 36.');
-          }
-          payload.roulette_number = rouletteNumber;
-        }
-
         if (rule.special === 'gambler') {
           const selectedFixtures = await chooseRandomCurseFixturesFromModal(fixtures);
           pendingRandomRollRows = await rollRandomCurseScoresFromModal(selectedFixtures);
@@ -5930,19 +5936,6 @@ async function initializeCardPage() {
         }
 
         const effect = await insertCardEffect(rule, playerKey, activeGameweek, { targetUserId, fixtureId, payload, cardInstanceId });
-
-        if (rule.special === 'roulette') {
-          const { error } = await supabase.from('curse_random_roulette_inputs').insert({
-            card_effect_id: effect.id,
-            competition_id: context.league.id,
-            season_id: context.league.season_id,
-            gameweek_id: activeGameweek.gameweek_id,
-            played_by_user_id: context.user.id,
-            target_user_id: targetUserId,
-            roulette_number: payload.roulette_number,
-          });
-          if (error) throw error;
-        }
 
         if (rule.special === 'hated') {
           const { error } = await supabase.from('curse_hated_forced_predictions').insert({

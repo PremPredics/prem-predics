@@ -145,7 +145,7 @@ Admin inputs:
 - `team_gameweek_standings`
 - `game_card_results`
 - `game_card_round_tiebreaks`
-- `curse_random_roulette_inputs`
+- `curse_random_roulette_inputs` (legacy table from the old Random Roulette design; the card id now represents Curse Of The Microstate)
 - `curse_hated_forced_predictions`
 - `curse_gambler_rolls`
 
@@ -308,7 +308,7 @@ Core card tables:
 - `super_score_picks`: the scoreline selected when a user plays Super Score
 - `card_draw_tokens`: regular medals and super medals used to redeem Regular and Premium deck cards
 - `card_draw_events`: audit trail for cards drawn from a deck
-- `curse_random_roulette_inputs`: stores the 1-36 roulette number submitted by the card player
+- `curse_random_roulette_inputs`: legacy Random Roulette inputs; unused after the Microstate redesign
 - `curse_hated_forced_predictions`: stores the chosen fixture where the target is forced to predict 8-2
 - `curse_gambler_rolls`: stores dice rolls and their forced scoreline predictions
 
@@ -381,7 +381,7 @@ Extra data needed for card effects:
 
 - player nationality for Power of the Immigrants
 - player height for Power of the Lanky Crouch and Power of the Small and Mighty
-- player squad number for Curse of the Random Roulette
+- player nationality for Curse Of The Microstate
 - `players.scrabble_name` and `players.surname_scrabble_score` for Curse of the Alphabet; the score is calculated automatically from the player's stored surname/last name
 - previous bench status and recent scoring history for Bench Warmer / Scoring Drought curses
 - team standings by gameweek for Tiny Club and Underdog logic
@@ -392,7 +392,7 @@ Extra data needed for card effects:
 Specific card data:
 
 - Super Pen uses `fixture_game_stats.penalties_scored`.
-- Curse of the Random Roulette requires the card player to submit a number from 1 to 36 before the gameweek lock. If no number is submitted before lock, the app should treat the card as not played.
+- Curse Of The Microstate uses the legacy `curse_random_roulette` card id and requires the target Star Man nationality to be in the under-1-million country list.
 - Curse of the Hated stores the selected target user and fixture, and creates an effective 8-2 prediction for scoring.
 - Curse of the Random stores up to three fixture dice rolls. Die rolls are 0-5 and become the forced goals directly.
 

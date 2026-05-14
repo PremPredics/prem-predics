@@ -28,12 +28,7 @@ const predictionCurseKeys = new Set([
   'curse_gambler',
 ]);
 
-const hiddenUntilFixtureLockCurseKeys = new Set([
-  'curse_deleted_match',
-  'curse_hated',
-  'curse_gambler',
-]);
-
+const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
 const effectNameOverrides = {
   curse_gambler: 'Curse of the Random',
 };
@@ -71,6 +66,19 @@ function setMessage(text, type = 'info') {
 
 function isPast(value) {
   return value ? Date.now() >= new Date(value).getTime() : false;
+}
+
+function curseActivationAt() {
+  const firstKickoff = state.activeGameweek?.first_fixture_kickoff_at || state.fixtures[0]?.kickoff_at;
+  if (!firstKickoff) {
+    return null;
+  }
+  return new Date(new Date(firstKickoff).getTime() - CURSE_ACTIVATION_MS).toISOString();
+}
+
+function curseActiveNow() {
+  const activationAt = curseActivationAt();
+  return activationAt ? isPast(activationAt) : false;
 }
 
 function countdownText(value) {
@@ -136,11 +144,7 @@ function curseAppliesToFixture(effect, fixture) {
 }
 
 function curseRevealAllowed(effect, fixture) {
-  const key = effectKey(effect);
-  if (!hiddenUntilFixtureLockCurseKeys.has(key)) {
-    return isPast(fixture.prediction_locks_at);
-  }
-  return isPast(fixture.prediction_locks_at);
+  return Boolean(effect && fixture && curseActiveNow());
 }
 
 function predictionCursesForFixture(fixture) {
@@ -168,7 +172,7 @@ function renderCurseMarker(fixture) {
 }
 
 function revealedCurseOverride(fixture) {
-  if (!isPast(fixture.prediction_locks_at)) {
+  if (!curseActiveNow()) {
     return null;
   }
   return state.curseOverridePredictions.get(fixture.id) || null;
@@ -335,9 +339,10 @@ async function loadActivePredictionEffects() {
       .in('id', playedByUserIds);
     state.effectProfiles = new Map((profiles || []).map((profile) => [profile.id, profile]));
   }
-  state.predictionParity = state.targetEffects.some((effect) => effectKey(effect) === 'curse_even_number')
+  const activeTargetEffects = curseActiveNow() ? state.targetEffects : [];
+  state.predictionParity = activeTargetEffects.some((effect) => effectKey(effect) === 'curse_even_number')
     ? 'even'
-    : state.targetEffects.some((effect) => effectKey(effect) === 'curse_odd_number')
+    : activeTargetEffects.some((effect) => effectKey(effect) === 'curse_odd_number')
       ? 'odd'
       : null;
 
@@ -634,16 +639,13 @@ function renderTargetRestrictionPanel() {
     if (!isPredictionCurse(effect)) {
       return false;
     }
-    if (!hiddenUntilFixtureLockCurseKeys.has(effectKey(effect))) {
-      return true;
-    }
     return state.fixtures.some((fixture) => (
       curseAppliesToFixture(effect, fixture) && curseRevealAllowed(effect, fixture)
     ));
   });
 
   const restrictionNames = visibleEffects
-    .map((effect) => (Array.isArray(effect.card_definitions) ? effect.card_definitions[0] : effect.card_definitions)?.name)
+    .map(effectName)
     .filter(Boolean);
 
   if (!restrictionNames.length) {

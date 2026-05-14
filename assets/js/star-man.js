@@ -28,7 +28,6 @@ const state = {
   usedStarManIds: new Set(),
   activeEffects: [],
   targetEffectIds: new Set(),
-  rouletteNumbers: new Map(),
   previousBenchedIds: new Set(),
   drought3Ids: new Set(),
   drought5Ids: new Set(),
@@ -38,6 +37,58 @@ const state = {
     super_duo: null,
   },
 };
+
+const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
+const effectNameOverrides = {
+  curse_random_roulette: 'Curse Of The Microstate',
+};
+const microstateNationalities = new Set([
+  'andorra',
+  'antigua and barbuda',
+  'antigua and deps',
+  'bahamas',
+  'barbados',
+  'belize',
+  'bhutan',
+  'brunei',
+  'cabo verde',
+  'cape verde',
+  'comoros',
+  'dominica',
+  'fiji',
+  'grenada',
+  'guyana',
+  'iceland',
+  'kiribati',
+  'liechtenstein',
+  'luxembourg',
+  'maldives',
+  'marshall islands',
+  'micronesia',
+  'monaco',
+  'montenegro',
+  'nauru',
+  'palau',
+  'saint kitts and nevis',
+  'st kitts and nevis',
+  'st kitts nevis',
+  'saint lucia',
+  'st lucia',
+  'saint vincent and the grenadines',
+  'saint vincent the grenadines',
+  'st vincent and the grenadines',
+  'samoa',
+  'san marino',
+  'sao tome and principe',
+  'sao tome principe',
+  'seychelles',
+  'solomon islands',
+  'suriname',
+  'tonga',
+  'tuvalu',
+  'vanuatu',
+  'vatican city',
+]);
 
 function slotElements(slot) {
   return {
@@ -71,6 +122,30 @@ function isPast(value) {
   return value ? Date.now() >= new Date(value).getTime() : false;
 }
 
+function normaliseText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/[{}']/g, '')
+    .replace(/[^a-z0-9]+/gi, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function curseActivationAt() {
+  const firstKickoff = state.activeGameweek?.first_fixture_kickoff_at || state.fixtures[0]?.kickoff_at;
+  if (!firstKickoff) {
+    return null;
+  }
+  return new Date(new Date(firstKickoff).getTime() - CURSE_ACTIVATION_MS).toISOString();
+}
+
+function curseActiveNow() {
+  const activationAt = curseActivationAt();
+  return activationAt ? isPast(activationAt) : false;
+}
+
 function teamName(teamId) {
   return shortTeamName(state.teams.get(teamId) || 'Team');
 }
@@ -79,12 +154,46 @@ function playerLabel(player) {
   return `${player.display_name} (${teamName(player.team_id)})`;
 }
 
+function playerSearchTokens(player) {
+  return [
+    player.display_name,
+    player.first_name,
+    player.last_name,
+    player.surname,
+    player.nationality,
+    teamName(player.team_id),
+  ]
+    .filter(Boolean)
+    .flatMap((value) => normaliseText(value).split(' ').filter(Boolean));
+}
+
+function playerMatchesQuery(player, query) {
+  const terms = normaliseText(query).split(' ').filter(Boolean);
+  if (!terms.length) {
+    return false;
+  }
+  const haystack = normaliseText([
+    player.display_name,
+    player.first_name,
+    player.last_name,
+    player.surname,
+    player.nationality,
+    teamName(player.team_id),
+  ].filter(Boolean).join(' '));
+  const tokens = playerSearchTokens(player);
+  return terms.every((term) => (
+    haystack.includes(term)
+    || tokens.some((token) => token.startsWith(term))
+  ));
+}
+
 function effectKey(effect) {
   return normaliseNested(effect.card_definitions)?.effect_key;
 }
 
 function effectName(effect) {
-  return normaliseNested(effect.card_definitions)?.name || effect.card_id;
+  const key = effectKey(effect);
+  return effectNameOverrides[key] || normaliseNested(effect.card_definitions)?.name || effect.card_id;
 }
 
 function isEffectForCurrentGameweek(effect) {
@@ -116,7 +225,12 @@ function restrictions() {
     'curse_scoring_drought_5',
     'curse_tiny_club',
     'curse_random_roulette',
-  ].includes(effectKey(effect)));
+  ].includes(effectKey(effect)) && curseActiveNow());
+}
+
+function hasMicrostateNationality(player) {
+  const normalised = normaliseText(player.nationality);
+  return microstateNationalities.has(normalised);
 }
 
 function playerFixture(player) {
@@ -186,11 +300,8 @@ function restrictionReasons(player) {
         reasons.push('cannot play for a top-10 club');
       }
     }
-    if (key === 'curse_random_roulette') {
-      const number = state.rouletteNumbers.get(effect.id) ?? effect.payload?.roulette_number;
-      if (!number || Number(player.squad_number) !== Number(number)) {
-        reasons.push(number ? `squad number must be ${number}` : 'roulette number has not been entered');
-      }
+    if (key === 'curse_random_roulette' && !hasMicrostateNationality(player)) {
+      reasons.push('nationality must be from a country with fewer than 1 million people');
     }
   });
 
@@ -238,7 +349,7 @@ async function loadTeams() {
 async function loadPlayers() {
   const { data, error } = await supabase
     .from('players')
-    .select('id, display_name, team_id, surname_scrabble_score, squad_number')
+    .select('id, display_name, first_name, last_name, surname, nationality, team_id, surname_scrabble_score, squad_number')
     .eq('is_active', true)
     .not('team_id', 'is', null)
     .order('display_name', { ascending: true })
@@ -352,17 +463,6 @@ async function loadRestrictionData() {
     gameweek.gameweek_id,
   ]));
   const previousGameweekId = gameweeksByNumber.get(activeNumber - 1);
-
-  if (keys.has('curse_random_roulette')) {
-    const rouletteIds = activeRestrictions
-      .filter((effect) => effectKey(effect) === 'curse_random_roulette')
-      .map((effect) => effect.id);
-    const { data } = await supabase
-      .from('curse_random_roulette_inputs')
-      .select('card_effect_id, roulette_number')
-      .in('card_effect_id', rouletteIds);
-    state.rouletteNumbers = new Map((data || []).map((row) => [row.card_effect_id, row.roulette_number]));
-  }
 
   if (keys.has('curse_bench_warmer') && previousGameweekId) {
     const { data } = await supabase
@@ -522,7 +622,7 @@ async function autoReplaceInvalidPrimaryPick() {
 
 function renderSearch(slot) {
   const { input, results, selected } = slotElements(slot);
-  const query = input.value.trim().toLowerCase();
+  const query = input.value.trim();
   const selectedPlayer = state.selected[slot];
 
   selected.textContent = selectedPlayer ? `Selected: ${playerLabel(selectedPlayer)}` : '';
@@ -534,7 +634,7 @@ function renderSearch(slot) {
   }
 
   const matches = state.players
-    .filter((player) => playerLabel(player).toLowerCase().includes(query))
+    .filter((player) => playerMatchesQuery(player, query))
     .slice(0, 10);
 
   if (!matches.length) {

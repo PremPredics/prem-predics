@@ -38,7 +38,9 @@ set description = 'Valid for 1 Gameweek. Opponent Star Man must have 0 goals in 
 where id = 'curse_scoring_drought_5';
 
 update public.card_definitions
-set description = 'Valid for 1 Gameweek. Opponent Star Man squad number is chosen by roulette from 1 to 36. Must be played at least 24 hours before the gameweek''s first KO time.'
+set
+  name = 'Curse Of The Microstate',
+  description = 'Valid for 1 Gameweek. Opponent Star Man nationality must be from a Country with a population of less than 1 million. Must be played at least 24 hours before the gameweek''s first KO time.'
 where id = 'curse_random_roulette';
 
 update public.card_definitions
