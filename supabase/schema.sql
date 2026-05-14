@@ -633,14 +633,14 @@ declare
   fallback_name text;
 begin
   fallback_name := regexp_replace(coalesce(new.display_name, ''), '^.*[[:space:]]', '');
-  new.scrabble_name := coalesce(nullif(new.scrabble_name, ''), nullif(new.last_name, ''), nullif(new.surname, ''), nullif(fallback_name, ''), new.display_name);
+  new.scrabble_name := coalesce(nullif(new.last_name, ''), nullif(new.surname, ''), nullif(new.scrabble_name, ''), nullif(fallback_name, ''), new.display_name);
   new.surname_scrabble_score := public.scrabble_score(new.scrabble_name);
   return new;
 end;
 $$;
 
 create trigger players_set_scrabble_score
-before insert or update of display_name, surname, scrabble_name on public.players
+before insert or update of display_name, first_name, last_name, surname, scrabble_name on public.players
 for each row execute function public.set_player_scrabble_score();
 
 create table public.player_team_assignments (
@@ -1506,7 +1506,7 @@ begin
 
   if now() >= play_deadline and not public.is_admin() then
     if card_row.category = 'curse' then
-      raise exception 'Curse cards must be played at least 24 hours before the gameweek starts.';
+      raise exception 'Curse cards must be played at least 24 hours before the gameweek''s first KO time.';
     end if;
     raise exception 'Power and Super cards must be played before the 90-minute gameweek deadline.';
   end if;
@@ -1618,8 +1618,8 @@ create table public.curse_gambler_rolls (
   played_by_user_id uuid not null references public.profiles(id) on delete cascade,
   target_user_id uuid not null references public.profiles(id) on delete cascade,
   roll_number integer not null check (roll_number between 1 and 3),
-  home_die_roll integer not null check (home_die_roll between 1 and 6),
-  away_die_roll integer not null check (away_die_roll between 1 and 6),
+  home_die_roll integer not null check (home_die_roll between 0 and 5),
+  away_die_roll integer not null check (away_die_roll between 0 and 5),
   home_goals integer not null check (home_goals between 0 and 5),
   away_goals integer not null check (away_goals between 0 and 5),
   rolled_at timestamptz not null default now(),
@@ -1639,8 +1639,8 @@ returns trigger
 language plpgsql
 as $$
 begin
-  new.home_goals = case when new.home_die_roll = 6 then 0 else new.home_die_roll end;
-  new.away_goals = case when new.away_die_roll = 6 then 0 else new.away_die_roll end;
+  new.home_goals = new.home_die_roll;
+  new.away_goals = new.away_die_roll;
   return new;
 end;
 $$;

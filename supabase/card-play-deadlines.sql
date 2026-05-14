@@ -53,7 +53,7 @@ begin
 
   if now() >= play_deadline and not public.is_admin() then
     if card_row.category = 'curse' then
-      raise exception 'Curse cards must be played at least 24 hours before the gameweek starts.';
+      raise exception 'Curse cards must be played at least 24 hours before the gameweek''s first KO time.';
     end if;
     raise exception 'Power and Super cards must be played before the 90-minute gameweek deadline.';
   end if;

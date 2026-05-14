@@ -1043,6 +1043,168 @@ button:disabled {
   box-shadow: 0 0 16px rgba(220, 38, 38, 0.35);
 }
 
+.random-curse-content {
+  width: min(760px, 100%);
+}
+
+.random-curse-body {
+  display: grid;
+  gap: 16px;
+}
+
+.random-curse-helper {
+  margin: 0;
+  color: #f5f3ff;
+  text-align: center;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.random-fixture-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.random-fixture-btn {
+  min-height: 78px;
+  border: 1px solid rgba(216, 180, 254, 0.32);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(17, 7, 38, 0.66);
+  color: #fff;
+  font-weight: 950;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.random-fixture-btn:hover,
+.random-fixture-btn.selected {
+  transform: translateY(-2px);
+  border-color: rgba(250, 204, 21, 0.9);
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.26);
+}
+
+.random-fixture-btn.selected {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.86), rgba(245, 158, 11, 0.42));
+}
+
+.random-curse-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.random-curse-confirm,
+.random-dice-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #f59e0b, #854d0e);
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.random-curse-confirm:disabled,
+.random-dice-btn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.random-roll-list {
+  display: grid;
+  gap: 12px;
+}
+
+.random-roll-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(17, 7, 38, 0.64);
+  border: 1px solid rgba(216, 180, 254, 0.26);
+}
+
+.random-roll-fixture {
+  color: #fff;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.random-roll-score {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.random-die-face,
+.random-score-box {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #fff7ed, #fde68a);
+  color: #111827;
+  border: 2px solid rgba(120, 53, 15, 0.5);
+  font-size: 20px;
+  font-weight: 950;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.82), 0 5px 12px rgba(0,0,0,0.28);
+}
+
+.random-score-box.empty {
+  color: rgba(17, 24, 39, 0.36);
+}
+
+.random-dice-btn {
+  min-width: 102px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.random-dice-btn.rolling .random-die-face {
+  animation: diceTumble 0.18s linear infinite;
+}
+
+.random-roll-summary {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(120, 53, 15, 0.32);
+  border: 1px solid rgba(250, 204, 21, 0.38);
+  color: #fff;
+  text-align: center;
+  font-weight: 900;
+}
+
+@keyframes diceTumble {
+  0% { transform: rotate(-10deg) translateY(0); }
+  50% { transform: rotate(12deg) translateY(-2px); }
+  100% { transform: rotate(-10deg) translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .random-curse-content {
+    padding: 18px;
+  }
+
+  .random-roll-row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+}
+
 /* ===== COLLAPSIBLE SECTIONS ===== */
 .collapsible-section {
   background: rgba(46, 16, 102, 0.8);
@@ -3246,6 +3408,14 @@ button:disabled {
     </div>
   </div>
 
+  <!-- Curse of the Random Modal -->
+  <div class="opponent-target-modal random-curse-modal" id="randomCurseModal" aria-hidden="true">
+    <div class="opponent-target-content random-curse-content" role="dialog" aria-modal="true" aria-labelledby="randomCurseTitle">
+      <h3 class="opponent-target-title" id="randomCurseTitle">Curse of the Random</h3>
+      <div class="random-curse-body" id="randomCurseBody"></div>
+    </div>
+  </div>
+
   <!-- Intro Section -->
   <div class="intro-wrapper" id="introWrapper">
     <div class="intro-section">
@@ -3446,20 +3616,20 @@ const cardDescriptions = {
   "Power of the Late Scout": "🃏 Power of the Late Scout\n• Valid for 1 Gameweek•\n\n🏆You may choose your Star Man AFTER line-ups are announced for one match🏆\n\n*Must be played before Star Man's Kick-Off",
   "Power of the Snow": "🃏 Power of the Snow\n• Valid for 1 Gameweek\n\n🏆Any Predicted match played in heavy snow scores DOUBLE points🏆\n\n*Must be played before the start of a Gameweek",
 
-  "Curse of the Hated": "🃏 Curse of the Hated\n• Valid for 1 Gameweek•\n\n✖️Opponent must predict 8–2 in at least one game this Gameweek✖️\n\n*Must be played before the start of a Gameweek",
-  "Curse of the Gambler": "🃏 Curse of the Gambler\n• Valid for 1 Gameweek•\n\n❌For 3 games, opponent rolls a die for each team, dice roll = goals prediction❌\n\n*Dice roll of Six counts as 0 goals, *Must be played before the start of a Gameweek",
-  "Curse of the Bench Warmer": "🃏 Curse of the Bench Warmer\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have been benched in the previous GW❌\n\n*Must be played before the start of a Gameweek",
-  "Curse of the Alphabet (15+)": "🃏 Curse of the Alphabet\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man surname must have a Scrabble score of 15+❌\n\n*Must be played before the start of a Gameweek",
-  "Curse of the Alphabet (20+)": "🃏 Curse of the Alphabet\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man surname must have a Scrabble score of 20+❌\n\n*Must be played before the start of a Gameweek",
-  "Curse of the Scoring Drought (3)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 3 PL games❌\n\n*Must be played before the start of a Gameweek",
-  "Curse of the Scoring Drought (5)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 5 PL games❌\n\n*Must be played before the start of a Gameweek",
-  "Curse of the Random Roulette": "🃏 Curse of the Random Roulette\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man's squad number is chosen by a roulette spin from 1 to 36❌\n\n*The number must be entered before the start of a Gameweek",
-  "Curse of the Glasses": "🃏 Curse of the Glasses\n• Valid for 1 Gameweek•\n\n❌Any 0–0 prediction that the Opponent makes scores NOTHING❌\n\n*Must be played before the start of the next Gameweek",
-  "Curse of the Deleted Match": "🃏 Curse of the Deleted Match\n• Valid for 1 Gameweek•\n\n❌ Choose ONE of the Opponents Predictions, Opponent cannot earn points from this game❌\n\n*Must be played before the start of the next Gameweek",
-  "Curse of the Tiny Club": "🃏 Curse of the Tiny Club\n• Valid for 1 Gameweek •\n\n❌Opponent may NOT pick a Star Man from a Top 10 club❌\n\n*Must be played before the start of a Gameweek",
-  "Curse of the Thief": "🃏 Curse of the Thief\n\n❌Steal a card from your Opponent❌\n\n*Cannot steal Super Cards",
-  "Curse of the Even Number": "🃏 Curse of the Even Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Even number of goals for all teams❌\n\n*Must be played before the start of the Gameweek, *Cannot be picked whilst Curse of The Gambler is active",
-  "Curse of the Odd Number": "🃏 Curse of the Odd Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Odd number of goals for all teams❌\n\n*Must be played before the start of the Gameweek, *Cannot be picked whilst Curse of The Gambler is active",
+  "Curse of the Hated": "🃏 Curse of the Hated\n• Valid for 1 Gameweek•\n\n✖️Opponent must predict 8–2 in at least one game this Gameweek✖️\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Random": "🃏 Curse of the Random\n• Valid for 1 Gameweek•\n\n❌For 3 games, roll a dice to determine the score predictions of an opponent❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Bench Warmer": "🃏 Curse of the Bench Warmer\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have been benched in the previous GW❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Alphabet (15+)": "🃏 Curse of the Alphabet\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man surname must have a Scrabble score of 15+❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Alphabet (20+)": "🃏 Curse of the Alphabet\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man surname must have a Scrabble score of 20+❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Scoring Drought (3)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 3 PL games❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Scoring Drought (5)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 5 PL games❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Random Roulette": "🃏 Curse of the Random Roulette\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man's squad number is chosen by a roulette spin from 1 to 36❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Glasses": "🃏 Curse of the Glasses\n• Valid for 1 Gameweek•\n\n❌Any 0–0 prediction that the Opponent makes scores NOTHING❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Deleted Match": "🃏 Curse of the Deleted Match\n• Valid for 1 Gameweek•\n\n❌ Choose ONE of the Opponents Predictions, Opponent cannot earn points from this game❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Tiny Club": "🃏 Curse of the Tiny Club\n• Valid for 1 Gameweek •\n\n❌Opponent may NOT pick a Star Man from a Top 10 club❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Thief": "🃏 Curse of the Thief\n\n❌Steal a card from your Opponent❌\n\n*Cannot steal Super Cards, *Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Even Number": "🃏 Curse of the Even Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Even number of goals for all teams❌\n\n*Must be played at least 24 hours before the gameweek's first KO time, *Cannot be picked whilst Curse of The Random is active",
+  "Curse of the Odd Number": "🃏 Curse of the Odd Number\n• Valid for 1 Gameweek •\n\n❌Opponent can only Predict an Odd number of goals for all teams❌\n\n*Must be played at least 24 hours before the gameweek's first KO time, *Cannot be picked whilst Curse of The Random is active",
 
   "Super Star Man": "🃏 Super Star Man\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Star Man points are TRIPLED for the player playing this card🏆\n\n*Yellow and Red cards are 0pts",
   "Super Golden Gameweek": "🃏 Super Golden Gameweek\n• Super Card duration depends on league size: 1 GW for 2-3 players, 2 GWs for 4-6 players, 3 GWs for 7-10 players •\n\n🏆Prediction League points for all games are DOUBLED for the player playing this card🏆",
@@ -3477,6 +3647,7 @@ const cardDescriptions = {
   "Game of The Early Worm": "🃏 Game of The Early Worm\n\nBest of 5 Gameweeks, closest answer wins, predict in which minute the earliest goal in each Gameweek is scored.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
   "Game of Time": "🃏 Game of Time\n\nBest of 5 Gameweeks, closest answer wins, predict Total 90'+ min goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick."
 };
+cardDescriptions["Curse of the Gambler"] = cardDescriptions["Curse of the Random"];
 
 // POWER CARDS - 30 TOTAL
 const powerCards = [
@@ -3499,7 +3670,7 @@ const powerCards = [
 // CURSE CARDS - 22 TOTAL
 const curseCards = [
   "Curse of the Hated", "Curse of the Hated",
-  "Curse of the Gambler", "Curse of the Gambler",
+  "Curse of the Random", "Curse of the Random",
   "Curse of the Bench Warmer", "Curse of the Bench Warmer",
   "Curse of the Alphabet (15+)",
   "Curse of the Alphabet (20+)",
@@ -3588,7 +3759,9 @@ function save() {
 const legacySuperScoreName = "Super " + "Fant" + "asy Boost";
 
 function normalizeCardName(cardName) {
-  return cardName === legacySuperScoreName ? "Super Score" : cardName;
+  if (cardName === legacySuperScoreName) return "Super Score";
+  if (cardName === "Curse of the Gambler") return "Curse of the Random";
+  return cardName;
 }
 
 function migrateLegacyCardNames(value) {
@@ -4604,7 +4777,7 @@ function assertCardPlayDeadline(rule, activeGameweek) {
   }
 
   if (isCurseRule(rule)) {
-    throw new Error(`Curse cards must be played at least 24 hours before the gameweek starts. Deadline: ${formatDeadlineForMessage(deadline)}.`);
+    throw new Error(`Curse cards must be played at least 24 hours before the gameweek's first KO time. Deadline: ${formatDeadlineForMessage(deadline)}.`);
   }
 
   throw new Error(`Power and Super cards must be played before the 90-minute gameweek deadline. Deadline: ${formatDeadlineForMessage(deadline)}.`);
@@ -5101,7 +5274,7 @@ async function initializeCardPage() {
       'Power of the Late Scout': { cardId: 'power_late_scout', effectKey: 'power_late_scout', duration: 1, target: 'self' },
       'Power of the Snow': { cardId: 'power_snow', effectKey: 'power_snow', duration: 1, target: 'self' },
       'Curse of the Hated': { cardId: 'curse_hated', effectKey: 'curse_hated', duration: 1, target: 'opponent', special: 'hated' },
-      'Curse of the Gambler': { cardId: 'curse_gambler', effectKey: 'curse_gambler', duration: 1, target: 'opponent', special: 'gambler' },
+      'Curse of the Random': { cardId: 'curse_gambler', effectKey: 'curse_gambler', duration: 1, target: 'opponent', special: 'gambler' },
       'Curse of the Bench Warmer': { cardId: 'curse_bench_warmer', effectKey: 'curse_bench_warmer', duration: 1, target: 'opponent' },
       'Curse of the Alphabet (15+)': { cardId: 'curse_alphabet_15', effectKey: 'curse_alphabet_15', duration: 1, target: 'opponent' },
       'Curse of the Alphabet (20+)': { cardId: 'curse_alphabet_20', effectKey: 'curse_alphabet_20', duration: 1, target: 'opponent' },
@@ -5122,6 +5295,7 @@ async function initializeCardPage() {
       'Super Duo': { cardId: 'super_duo', effectKey: 'super_duo', duration: 1, target: 'self' },
       'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 3, target: 'self' },
     };
+    cardEffectRules['Curse of the Gambler'] = cardEffectRules['Curse of the Random'];
 
     function chooseFromList(title, items, labelFn) {
       if (!items.length) {
@@ -5236,6 +5410,262 @@ async function initializeCardPage() {
         document.body.classList.add('card-preview-open');
         modal.classList.add('show');
         modal.setAttribute('aria-hidden', 'false');
+      });
+    }
+
+    function randomCurseModalParts() {
+      return {
+        modal: document.getElementById('randomCurseModal'),
+        body: document.getElementById('randomCurseBody'),
+      };
+    }
+
+    function closeRandomCurseModal() {
+      const { modal, body } = randomCurseModalParts();
+      modal?.classList.remove('show');
+      modal?.setAttribute('aria-hidden', 'true');
+      if (body) body.innerHTML = '';
+      document.body.classList.remove('card-preview-open');
+    }
+
+    function openRandomCurseModal() {
+      const { modal } = randomCurseModalParts();
+      document.body.classList.add('card-preview-open');
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function randomScoreBox(value) {
+      return value === null || value === undefined
+        ? '<span class="random-score-box empty">-</span>'
+        : `<span class="random-score-box">${value}</span>`;
+    }
+
+    function chooseRandomCurseFixturesFromModal(fixtures) {
+      if (fixtures.length < 3) {
+        throw new Error('Curse of the Random needs at least 3 fixtures in this gameweek.');
+      }
+
+      const { modal, body } = randomCurseModalParts();
+      const selected = new Set();
+
+      return new Promise((resolve, reject) => {
+        let settled = false;
+
+        function cleanup() {
+          document.removeEventListener('keydown', keydown);
+          modal.removeEventListener('click', modalClick);
+        }
+
+        function finish(result) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          resolve(result);
+        }
+
+        function cancel() {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          closeRandomCurseModal();
+          reject(new Error('Card play cancelled.'));
+        }
+
+        function modalClick(event) {
+          if (event.target === modal) {
+            cancel();
+          }
+        }
+
+        function keydown(event) {
+          if (event.key === 'Escape') {
+            cancel();
+          }
+        }
+
+        function updateSelectedState() {
+          body.querySelectorAll('[data-random-fixture-index]').forEach((button) => {
+            const index = Number(button.dataset.randomFixtureIndex);
+            button.classList.toggle('selected', selected.has(index));
+            button.setAttribute('aria-pressed', selected.has(index) ? 'true' : 'false');
+          });
+          const confirm = body.querySelector('[data-random-fixture-confirm]');
+          if (confirm) confirm.disabled = selected.size !== 3;
+        }
+
+        body.innerHTML = `
+          <p class="random-curse-helper">Choose exactly 3 fixtures for the dice to decide.</p>
+          <div class="random-fixture-list">
+            ${fixtures.map((fixture, index) => `
+              <button class="random-fixture-btn" type="button" data-random-fixture-index="${index}" aria-pressed="false">
+                ${escapeHtml(fixtureChoiceLabel(fixture))}
+              </button>
+            `).join('')}
+          </div>
+          <div class="random-curse-actions">
+            <button class="random-curse-confirm" type="button" data-random-fixture-confirm disabled>Confirm 3 Fixtures</button>
+            <button class="opponent-target-cancel" type="button" data-random-cancel>Cancel</button>
+          </div>
+        `;
+
+        body.querySelectorAll('[data-random-fixture-index]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const index = Number(button.dataset.randomFixtureIndex);
+            if (selected.has(index)) {
+              selected.delete(index);
+            } else if (selected.size < 3) {
+              selected.add(index);
+            }
+            updateSelectedState();
+          });
+        });
+
+        body.querySelector('[data-random-fixture-confirm]')?.addEventListener('click', () => {
+          if (selected.size !== 3) return;
+          finish([...selected].map((index) => fixtures[index]));
+        });
+        body.querySelector('[data-random-cancel]')?.addEventListener('click', cancel);
+        modal.addEventListener('click', modalClick);
+        document.addEventListener('keydown', keydown);
+        openRandomCurseModal();
+      });
+    }
+
+    function rollRandomCurseScoresFromModal(selectedFixtures) {
+      const { modal, body } = randomCurseModalParts();
+      const rolls = selectedFixtures.map((fixture, index) => ({
+        fixture,
+        roll_number: index + 1,
+        home_die_roll: null,
+        away_die_roll: null,
+      }));
+
+      return new Promise((resolve, reject) => {
+        let settled = false;
+
+        function cleanup() {
+          document.removeEventListener('keydown', keydown);
+          modal.removeEventListener('click', modalClick);
+        }
+
+        function finish(result) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          closeRandomCurseModal();
+          resolve(result);
+        }
+
+        function cancel() {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          closeRandomCurseModal();
+          reject(new Error('Card play cancelled.'));
+        }
+
+        function modalClick(event) {
+          if (event.target === modal) {
+            cancel();
+          }
+        }
+
+        function keydown(event) {
+          if (event.key === 'Escape') {
+            cancel();
+          }
+        }
+
+        function showSummary() {
+          body.innerHTML = `
+            <div class="random-roll-summary">
+              <strong>Curse of the Random results saved to the card.</strong>
+              ${rolls.map((roll) => `
+                <span>${escapeHtml(fixtureChoiceLabel(roll.fixture))}: ${roll.home_die_roll}-${roll.away_die_roll}</span>
+              `).join('')}
+            </div>
+          `;
+          window.setTimeout(() => {
+            finish(rolls.map((roll) => ({
+              fixture_id: roll.fixture.id,
+              roll_number: roll.roll_number,
+              home_die_roll: roll.home_die_roll,
+              away_die_roll: roll.away_die_roll,
+            })));
+          }, 5000);
+        }
+
+        function updateRollRow(index) {
+          const roll = rolls[index];
+          const row = body.querySelector(`[data-random-roll-row="${index}"]`);
+          if (!row) return;
+          row.querySelector('[data-home-score-box]').innerHTML = randomScoreBox(roll.home_die_roll);
+          row.querySelector('[data-away-score-box]').innerHTML = randomScoreBox(roll.away_die_roll);
+        }
+
+        function allRolled() {
+          return rolls.every((roll) => roll.home_die_roll !== null && roll.away_die_roll !== null);
+        }
+
+        body.innerHTML = `
+          <p class="random-curse-helper">Roll two dice for each fixture. Each die has sides 0, 1, 2, 3, 4 and 5.</p>
+          <div class="random-roll-list">
+            ${rolls.map((roll, index) => `
+              <div class="random-roll-row" data-random-roll-row="${index}">
+                <span class="random-roll-fixture">${escapeHtml(fixtureChoiceLabel(roll.fixture))}</span>
+                <span class="random-roll-score">
+                  <span data-home-score-box>${randomScoreBox(null)}</span>
+                  <strong>-</strong>
+                  <span data-away-score-box>${randomScoreBox(null)}</span>
+                </span>
+                <button class="random-dice-btn" type="button" data-random-roll-index="${index}">
+                  <span class="random-die-face" data-home-die-face>?</span>
+                  <span class="random-die-face" data-away-die-face>?</span>
+                </button>
+              </div>
+            `).join('')}
+          </div>
+          <div class="random-curse-actions">
+            <button class="opponent-target-cancel" type="button" data-random-cancel>Cancel</button>
+          </div>
+        `;
+
+        body.querySelectorAll('[data-random-roll-index]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const index = Number(button.dataset.randomRollIndex);
+            const roll = rolls[index];
+            if (!roll || roll.home_die_roll !== null || button.disabled) return;
+
+            const homeFace = button.querySelector('[data-home-die-face]');
+            const awayFace = button.querySelector('[data-away-die-face]');
+            button.disabled = true;
+            button.classList.add('rolling');
+            let ticks = 0;
+            const interval = window.setInterval(() => {
+              homeFace.textContent = rollDie();
+              awayFace.textContent = rollDie();
+              ticks += 1;
+              if (ticks >= 10) {
+                window.clearInterval(interval);
+                roll.home_die_roll = rollDie();
+                roll.away_die_roll = rollDie();
+                homeFace.textContent = roll.home_die_roll;
+                awayFace.textContent = roll.away_die_roll;
+                button.classList.remove('rolling');
+                updateRollRow(index);
+                if (allRolled()) {
+                  window.setTimeout(showSummary, 450);
+                }
+              }
+            }, 80);
+          });
+        });
+
+        body.querySelector('[data-random-cancel]')?.addEventListener('click', cancel);
+        modal.addEventListener('click', modalClick);
+        document.addEventListener('keydown', keydown);
+        openRandomCurseModal();
       });
     }
 
@@ -5362,7 +5792,7 @@ async function initializeCardPage() {
     }
 
     function rollDie() {
-      return Math.floor(Math.random() * 6) + 1;
+      return Math.floor(Math.random() * 6);
     }
 
     cardRuntime = {
@@ -5464,6 +5894,7 @@ async function initializeCardPage() {
         let targetUserId = null;
         let fixtureId = null;
         let payload = {};
+        let pendingRandomRollRows = [];
 
         if (rule.target === 'opponent') {
           targetUserId = (await chooseOpponentFromModal(opponents)).user_id;
@@ -5493,18 +5924,8 @@ async function initializeCardPage() {
         }
 
         if (rule.special === 'gambler') {
-          const fixtureText = fixtures.map((fixture, index) => `${index + 1}. ${fixtureChoiceLabel(fixture)}`).join('\n');
-          const answer = window.prompt(`Choose 3 match numbers for Curse of the Gambler, separated by commas.\n\n${fixtureText}`);
-          if (answer === null) {
-            throw new Error('Card play cancelled.');
-          }
-          const selectedFixtures = [...new Set(answer.split(',').map((part) => Number(part.trim()) - 1))]
-            .map((index) => fixtures[index])
-            .filter(Boolean)
-            .slice(0, 3);
-          if (selectedFixtures.length !== 3) {
-            throw new Error('Choose exactly 3 valid matches.');
-          }
+          const selectedFixtures = await chooseRandomCurseFixturesFromModal(fixtures);
+          pendingRandomRollRows = await rollRandomCurseScoresFromModal(selectedFixtures);
           payload.gambler_fixture_ids = selectedFixtures.map((fixture) => fixture.id);
         }
 
@@ -5539,27 +5960,20 @@ async function initializeCardPage() {
         }
 
         if (rule.special === 'gambler') {
-          const selectedFixtures = (payload.gambler_fixture_ids || []).map((id) => fixtures.find((fixture) => fixture.id === id)).filter(Boolean);
-          const rollRows = selectedFixtures.map((fixture, index) => ({
+          const rollRows = pendingRandomRollRows.map((roll) => ({
             card_effect_id: effect.id,
             competition_id: context.league.id,
             season_id: context.league.season_id,
             gameweek_id: activeGameweek.gameweek_id,
-            fixture_id: fixture.id,
+            fixture_id: roll.fixture_id,
             played_by_user_id: context.user.id,
             target_user_id: targetUserId,
-            roll_number: index + 1,
-            home_die_roll: rollDie(),
-            away_die_roll: rollDie(),
+            roll_number: roll.roll_number,
+            home_die_roll: roll.home_die_roll,
+            away_die_roll: roll.away_die_roll,
           }));
           const { error } = await supabase.from('curse_gambler_rolls').insert(rollRows);
           if (error) throw error;
-          alert(rollRows.map((row) => {
-            const fixture = selectedFixtures[row.roll_number - 1];
-            const homeGoals = row.home_die_roll === 6 ? 0 : row.home_die_roll;
-            const awayGoals = row.away_die_roll === 6 ? 0 : row.away_die_roll;
-            return `${fixtureChoiceLabel(fixture)}: ${homeGoals}-${awayGoals}`;
-          }).join('\n'));
         }
 
         return effect;

@@ -310,7 +310,7 @@ Core card tables:
 - `card_draw_events`: audit trail for cards drawn from a deck
 - `curse_random_roulette_inputs`: stores the 1-36 roulette number submitted by the card player
 - `curse_hated_forced_predictions`: stores the chosen fixture where the target is forced to predict 8-2
-- `curse_gambler_rolls`: stores dice rolls and their converted scoreline predictions
+- `curse_gambler_rolls`: stores dice rolls and their forced scoreline predictions
 
 Deck variants:
 
@@ -332,7 +332,7 @@ Prediction support:
 
 Prediction scoring priority:
 
-- Curse of the Hated and Curse of the Gambler override the target user's normal prediction for that fixture.
+- Curse of the Hated and Curse of the Random override the target user's normal prediction for that fixture.
 - Power of God overrides the normal prediction for that fixture.
 - Power of the Hedge only uses best-of-two behavior when no override card is active.
 
@@ -382,7 +382,7 @@ Extra data needed for card effects:
 - player nationality for Power of the Immigrants
 - player height for Power of the Lanky Crouch and Power of the Small and Mighty
 - player squad number for Curse of the Random Roulette
-- `players.scrabble_name` and `players.surname_scrabble_score` for Curse of the Alphabet; the score is calculated automatically from the stored Scrabble name
+- `players.scrabble_name` and `players.surname_scrabble_score` for Curse of the Alphabet; the score is calculated automatically from the player's stored surname/last name
 - previous bench status and recent scoring history for Bench Warmer / Scoring Drought curses
 - team standings by gameweek for Tiny Club and Underdog logic
 - player team assignments by gameweek for transfers and Star Man eligibility
@@ -394,7 +394,7 @@ Specific card data:
 - Super Pen uses `fixture_game_stats.penalties_scored`.
 - Curse of the Random Roulette requires the card player to submit a number from 1 to 36 before the gameweek lock. If no number is submitted before lock, the app should treat the card as not played.
 - Curse of the Hated stores the selected target user and fixture, and creates an effective 8-2 prediction for scoring.
-- Curse of the Gambler stores up to three fixture dice rolls. Die rolls are 1-6, with 6 converting to 0 goals.
+- Curse of the Random stores up to three fixture dice rolls. Die rolls are 0-5 and become the forced goals directly.
 
 Fixture movement:
 

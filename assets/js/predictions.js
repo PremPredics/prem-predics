@@ -34,6 +34,14 @@ const hiddenUntilFixtureLockCurseKeys = new Set([
   'curse_gambler',
 ]);
 
+const effectNameOverrides = {
+  curse_gambler: 'Curse of the Random',
+};
+
+const effectDescriptionOverrides = {
+  curse_gambler: "Valid for 1 Gameweek. For 3 games, roll a dice to determine the score predictions of an opponent. Must be played at least 24 hours before the gameweek's first KO time.",
+};
+
 const state = {
   user: null,
   league: null,
@@ -98,11 +106,13 @@ function effectKey(effect) {
 }
 
 function effectName(effect) {
-  return effectDefinition(effect)?.name || 'Curse Card';
+  const key = effectKey(effect);
+  return effectNameOverrides[key] || effectDefinition(effect)?.name || 'Curse Card';
 }
 
 function effectDescription(effect) {
-  return effectDefinition(effect)?.description || 'This curse affects how your prediction can score.';
+  const key = effectKey(effect);
+  return effectDescriptionOverrides[key] || effectDefinition(effect)?.description || 'This curse affects how your prediction can score.';
 }
 
 function playedByName(effect) {
@@ -150,8 +160,11 @@ function renderCurseMarker(fixture) {
     return '';
   }
 
+  const hasRandomCurse = curses.some((effect) => effectKey(effect) === 'curse_gambler');
   const label = curses.length === 1 ? 'View active curse' : `View ${curses.length} active curses`;
-  return `<button class="curse-marker" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9760;</button>`;
+  const markerClass = hasRandomCurse ? 'curse-marker dice-curse-marker' : 'curse-marker';
+  const markerSymbol = hasRandomCurse ? '&#9856;' : '&#9760;';
+  return `<button class="${markerClass}" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">${markerSymbol}</button>`;
 }
 
 function revealedCurseOverride(fixture) {

@@ -44,7 +44,7 @@ Power of the Swap should be represented as one played card effect, two discarded
 Prediction constraints:
 
 - Curse of the Hated: opponent must predict 8-2 in at least one game.
-- Curse of the Gambler: opponent uses dice-generated scores for three games.
+- Curse of the Random: opponent uses dice-generated scores for three games.
 - Curse of the Glasses: opponent's 0-0 predictions score nothing.
 - Curse of the Deleted Match: chosen opponent prediction scores nothing.
 - Curse of the Even Number: opponent can only predict even team goal totals.
@@ -53,9 +53,9 @@ Prediction constraints:
 Curse prediction overrides:
 
 - Curse of the Hated stores the target user and a random fixture selected by the app, then scores that target as an 8-2 prediction for that fixture.
-- Curse of the Gambler stores three simulated dice-roll predictions. Rolls are 1-6, and a roll of 6 becomes 0 goals.
+- Curse of the Random stores three simulated dice-roll predictions. Rolls are 0-5 and become the forced scoreline directly.
 - Curse-generated predictions override normal predictions for those fixtures.
-- Prediction-override curse details such as Hated, Gambler, and Deleted Match stay hidden from the target until the relevant fixture prediction deadline has passed.
+- Prediction-override curse details such as Hated, Random, and Deleted Match stay hidden from the target until the relevant fixture prediction deadline has passed.
 
 Star Man constraints:
 
@@ -114,7 +114,7 @@ Medals:
 Player name data:
 
 - Curse of the Alphabet uses `players.scrabble_name` and `players.surname_scrabble_score`.
-- Scrabble score is calculated from the stored Scrabble name, which can be the player's surname or chosen game name.
+- Scrabble score is calculated from the player's stored surname/last name, with `scrabble_name` retained as the scoring field.
 
 Deck variants:
 
