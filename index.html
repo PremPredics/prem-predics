@@ -210,11 +210,11 @@ header h1 {
   border-radius: 10px;
   cursor: pointer;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.18), transparent 35%),
-    linear-gradient(135deg, #0f172a, #4c1d95 58%, #7c3aed);
+    linear-gradient(135deg, rgba(255,255,255,0.13), transparent 34%),
+    linear-gradient(145deg, rgba(17, 7, 38, 0.96), rgba(49, 18, 91, 0.92) 58%, rgba(76, 29, 149, 0.86));
   color: #fff;
-  box-shadow: 0 16px 36px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.18);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.14);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -223,7 +223,7 @@ header h1 {
   text-align: center;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.22);
+  border: 1px solid rgba(216, 180, 254, 0.32);
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.92),
     1px -1px 0 rgba(0,0,0,0.92),
@@ -238,7 +238,7 @@ header h1 {
   inset: -40% auto auto -18%;
   width: 130px;
   height: 220px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.26), transparent);
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent);
   transform: rotate(22deg);
   transition: transform 0.28s ease, opacity 0.28s ease;
   opacity: 0.72;
@@ -250,20 +250,8 @@ header h1 {
   inset: auto 16px 14px;
   height: 4px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #22d3ee, #facc15, #fb7185);
-  box-shadow: 0 0 18px rgba(34, 211, 238, 0.5);
-}
-
-.menu button:nth-of-type(1) {
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.18), transparent 35%),
-    linear-gradient(135deg, #042f2e, #0e7490 52%, #7c3aed);
-}
-
-.menu button:nth-of-type(2) {
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.18), transparent 35%),
-    linear-gradient(135deg, #1e1b4b, #6d28d9 54%, #be185d);
+  background: linear-gradient(90deg, rgba(216, 180, 254, 0.12), #f5d76e, rgba(216, 180, 254, 0.12));
+  box-shadow: 0 0 18px rgba(245, 215, 110, 0.34);
 }
 
 .menu button:hover::before {
@@ -273,7 +261,10 @@ header h1 {
 
 .menu button:hover {
   transform: translateY(-5px);
-  box-shadow: 0 22px 44px rgba(0,0,0,0.48), 0 0 24px rgba(216, 180, 254, 0.32);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.16), transparent 34%),
+    linear-gradient(145deg, rgba(24, 10, 54, 0.98), rgba(67, 28, 127, 0.94) 58%, rgba(91, 33, 182, 0.9));
+  box-shadow: 0 22px 44px rgba(0,0,0,0.48), 0 0 24px rgba(216, 180, 254, 0.26);
 }
 
 .menu button:active {
@@ -287,19 +278,23 @@ header h1 {
 
 .menu button.admin-access {
   min-height: 128px;
-  background: linear-gradient(135deg, #111827, #7c2d12);
-  border-color: rgba(253, 186, 116, 0.48);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.1), transparent 34%),
+    linear-gradient(145deg, rgba(17, 7, 38, 0.96), rgba(74, 29, 92, 0.92));
+  border-color: rgba(253, 224, 71, 0.4);
 }
 
 .menu button.admin-access:hover {
-  background: linear-gradient(135deg, #1f2937, #ea580c);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.14), transparent 34%),
+    linear-gradient(145deg, rgba(28, 13, 58, 0.98), rgba(93, 35, 111, 0.95));
 }
 
 /* ===== ICON STYLING ===== */
 .menu svg {
   width: 40px;
   height: 40px;
-  fill: #fff;
+  fill: #f5f3ff;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
   transition: transform 0.3s ease;
 }
@@ -481,6 +476,24 @@ footer {
       0 0 10px rgba(216, 180, 254, 0.75);
     font-size: clamp(1.55rem, 8vw, 2.2rem);
     line-height: 1.12;
+  }
+}
+
+/* mobile-title-one-line */
+@media (max-width: 650px) {
+  header h1,
+  body > h1 {
+    -webkit-text-stroke: 0 !important;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.72) !important;
+    font-size: 1.32rem !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+    letter-spacing: 0 !important;
   }
 }
 </style>

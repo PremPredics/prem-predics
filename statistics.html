@@ -265,6 +265,24 @@ footer {
     line-height: 1.12;
   }
 }
+
+/* mobile-title-one-line */
+@media (max-width: 650px) {
+  header h1,
+  body > h1 {
+    -webkit-text-stroke: 0 !important;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.72) !important;
+    font-size: 1.32rem !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+    letter-spacing: 0 !important;
+  }
+}
 </style>
 </head>
 <body data-require-auth="true" data-require-league="true">
