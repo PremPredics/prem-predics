@@ -4570,6 +4570,46 @@ function gameweekHasStartedFromTime(kickoffAt) {
   return Boolean(kickoffAt) && Date.now() >= new Date(kickoffAt).getTime();
 }
 
+function isCurseRule(rule) {
+  return Boolean(rule?.cardId?.startsWith('curse_'));
+}
+
+function formatDeadlineForMessage(value) {
+  if (!value) return 'the deadline';
+  return new Date(value).toLocaleString('en-GB', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function cardPlayDeadline(rule, activeGameweek) {
+  if (!activeGameweek?.first_fixture_kickoff_at) {
+    return null;
+  }
+
+  if (isCurseRule(rule)) {
+    return new Date(new Date(activeGameweek.first_fixture_kickoff_at).getTime() - (24 * 60 * 60 * 1000)).toISOString();
+  }
+
+  return activeGameweek.star_man_locks_at || new Date(new Date(activeGameweek.first_fixture_kickoff_at).getTime() - (90 * 60 * 1000)).toISOString();
+}
+
+function assertCardPlayDeadline(rule, activeGameweek) {
+  const deadline = cardPlayDeadline(rule, activeGameweek);
+  if (!deadline || Date.now() < new Date(deadline).getTime()) {
+    return;
+  }
+
+  if (isCurseRule(rule)) {
+    throw new Error(`Curse cards must be played at least 24 hours before the gameweek starts. Deadline: ${formatDeadlineForMessage(deadline)}.`);
+  }
+
+  throw new Error(`Power and Super cards must be played before the 90-minute gameweek deadline. Deadline: ${formatDeadlineForMessage(deadline)}.`);
+}
+
 function shouldKeepPlayedCardInHand(activation) {
   return Boolean(activation?.card_instance_id)
     && !gameweekHasStartedFromTime(activation.first_fixture_kickoff_at);
@@ -5060,7 +5100,7 @@ async function initializeCardPage() {
       'Power of the Assist King': { cardId: 'power_assist_king', effectKey: 'power_assist_king', duration: 1, target: 'self' },
       'Power of the Late Scout': { cardId: 'power_late_scout', effectKey: 'power_late_scout', duration: 1, target: 'self' },
       'Power of the Snow': { cardId: 'power_snow', effectKey: 'power_snow', duration: 1, target: 'self' },
-      'Curse of the Hated': { cardId: 'curse_hated', effectKey: 'curse_hated', duration: 1, target: 'opponent', fixture: true, special: 'hated' },
+      'Curse of the Hated': { cardId: 'curse_hated', effectKey: 'curse_hated', duration: 1, target: 'opponent', special: 'hated' },
       'Curse of the Gambler': { cardId: 'curse_gambler', effectKey: 'curse_gambler', duration: 1, target: 'opponent', special: 'gambler' },
       'Curse of the Bench Warmer': { cardId: 'curse_bench_warmer', effectKey: 'curse_bench_warmer', duration: 1, target: 'opponent' },
       'Curse of the Alphabet (15+)': { cardId: 'curse_alphabet_15', effectKey: 'curse_alphabet_15', duration: 1, target: 'opponent' },
@@ -5412,12 +5452,7 @@ async function initializeCardPage() {
         if (!activeGameweek) {
           throw new Error('No active gameweek found.');
         }
-        const canPlayAfterStart = ['power_of_god', 'power_late_scout', 'super_sub', 'power_swap', 'power_veto', 'curse_thief', 'super_draw'].includes(rule.effectKey);
-        if (!canPlayAfterStart
-          && activeGameweek.first_fixture_kickoff_at
-          && Date.now() >= new Date(activeGameweek.first_fixture_kickoff_at).getTime()) {
-          throw new Error('This card must be played before the gameweek starts.');
-        }
+        assertCardPlayDeadline(rule, activeGameweek);
 
         if (rule.special === 'veto') {
           return playVeto(activeGameweek);
@@ -5434,7 +5469,14 @@ async function initializeCardPage() {
           targetUserId = (await chooseOpponentFromModal(opponents)).user_id;
         }
 
-        if (rule.fixture) {
+        if (rule.special === 'hated') {
+          if (!fixtures.length) {
+            throw new Error('No fixtures are available for this gameweek.');
+          }
+          const chosenFixture = fixtures[Math.floor(Math.random() * fixtures.length)];
+          fixtureId = chosenFixture.id;
+          payload.random_fixture = true;
+        } else if (rule.fixture) {
           fixtureId = chooseFromList('Choose the match this card affects:', fixtures, fixtureChoiceLabel).id;
         }
 

@@ -28,6 +28,12 @@ const predictionCurseKeys = new Set([
   'curse_gambler',
 ]);
 
+const hiddenUntilFixtureLockCurseKeys = new Set([
+  'curse_deleted_match',
+  'curse_hated',
+  'curse_gambler',
+]);
+
 const state = {
   user: null,
   league: null,
@@ -43,6 +49,7 @@ const state = {
   superScorePick: null,
   targetEffects: [],
   effectProfiles: new Map(),
+  curseOverridePredictions: new Map(),
   predictionParity: null,
   mode: 'edit',
 };
@@ -118,20 +125,44 @@ function curseAppliesToFixture(effect, fixture) {
   return true;
 }
 
+function curseRevealAllowed(effect, fixture) {
+  const key = effectKey(effect);
+  if (!hiddenUntilFixtureLockCurseKeys.has(key)) {
+    return isPast(fixture.prediction_locks_at);
+  }
+  return isPast(fixture.prediction_locks_at);
+}
+
 function predictionCursesForFixture(fixture) {
   return state.targetEffects
     .filter(isPredictionCurse)
     .filter((effect) => curseAppliesToFixture(effect, fixture));
 }
 
+function visiblePredictionCursesForFixture(fixture) {
+  return predictionCursesForFixture(fixture)
+    .filter((effect) => curseRevealAllowed(effect, fixture));
+}
+
 function renderCurseMarker(fixture) {
-  const curses = predictionCursesForFixture(fixture);
+  const curses = visiblePredictionCursesForFixture(fixture);
   if (!curses.length) {
     return '';
   }
 
   const label = curses.length === 1 ? 'View active curse' : `View ${curses.length} active curses`;
   return `<button class="curse-marker" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9760;</button>`;
+}
+
+function revealedCurseOverride(fixture) {
+  if (!isPast(fixture.prediction_locks_at)) {
+    return null;
+  }
+  return state.curseOverridePredictions.get(fixture.id) || null;
+}
+
+function displayPredictionForFixture(fixture) {
+  return revealedCurseOverride(fixture) || state.predictions.get(fixture.id) || null;
 }
 
 function cleanScoreInput(input) {
@@ -219,6 +250,46 @@ async function loadExistingPredictions() {
   }
 }
 
+async function loadCurseOverridePredictions() {
+  state.curseOverridePredictions = new Map();
+  if (!state.fixtures.length) {
+    return;
+  }
+
+  const fixtureIds = state.fixtures.map((fixture) => fixture.id);
+  const [hatedResult, gamblerResult] = await Promise.all([
+    supabase
+      .from('curse_hated_forced_predictions')
+      .select('fixture_id, home_goals, away_goals, card_effect_id')
+      .eq('competition_id', state.league.id)
+      .eq('target_user_id', state.user.id)
+      .in('fixture_id', fixtureIds),
+    supabase
+      .from('curse_gambler_rolls')
+      .select('fixture_id, home_goals, away_goals, card_effect_id')
+      .eq('competition_id', state.league.id)
+      .eq('target_user_id', state.user.id)
+      .in('fixture_id', fixtureIds),
+  ]);
+
+  if (hatedResult.error) {
+    throw hatedResult.error;
+  }
+  if (gamblerResult.error) {
+    throw gamblerResult.error;
+  }
+
+  [...(hatedResult.data || []), ...(gamblerResult.data || [])].forEach((row) => {
+    state.curseOverridePredictions.set(row.fixture_id, {
+      fixture_id: row.fixture_id,
+      home_goals: row.home_goals,
+      away_goals: row.away_goals,
+      prediction_slot: 'curse_override',
+      source_card_effect_id: row.card_effect_id,
+    });
+  });
+}
+
 function isEffectForCurrentGameweek(effect) {
   const gameweekId = Number(state.activeGameweek.gameweek_id);
   const directGameweek = !effect.gameweek_id || Number(effect.gameweek_id) === gameweekId;
@@ -296,14 +367,16 @@ function renderSummary() {
   fixturesContainer.innerHTML = `
     <div class="prediction-summary-list">
       ${state.fixtures.map((fixture) => {
-        const prediction = state.predictions.get(fixture.id);
+        const prediction = displayPredictionForFixture(fixture);
+        const curseOverride = revealedCurseOverride(fixture);
         return `
           <div class="summary-row">
             <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
-            <strong class="summary-score">${prediction?.home_goals ?? '-'}-${prediction?.away_goals ?? '-'} ${renderCurseMarker(fixture)}</strong>
+            <strong class="summary-score ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}-${prediction?.away_goals ?? '-'} ${renderCurseMarker(fixture)}</strong>
             <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
             ${state.hedgePrediction?.fixture_id === fixture.id ? `<small>Hedge: ${state.hedgePrediction.home_goals}-${state.hedgePrediction.away_goals}</small>` : ''}
             ${state.godPrediction?.fixture_id === fixture.id ? `<small>Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
+            ${curseOverride ? '<small>Curse override applied</small>' : ''}
           </div>
         `;
       }).join('')}
@@ -330,18 +403,19 @@ function renderEdit() {
   }
 
   fixturesContainer.innerHTML = `${renderSpecialPanels()}${renderTargetRestrictionPanel()}${state.fixtures.map((fixture) => {
-    const prediction = state.predictions.get(fixture.id);
+    const prediction = displayPredictionForFixture(fixture);
+    const curseOverride = revealedCurseOverride(fixture);
     const locked = isPast(fixture.prediction_locks_at);
     return `
-      <article class="fixture-row" data-fixture-id="${fixture.id}">
+      <article class="fixture-row ${curseOverride ? 'curse-override-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride ? 'true' : 'false'}">
         <span class="fixture-flags">
           <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
           ${renderCurseMarker(fixture)}
         </span>
         <span class="fixture-team home">${escapeHtml(teamName(fixture.home_team_id))}</span>
-        <input class="score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
+        <input class="score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
         <span class="score-separator">-</span>
-        <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
+        <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
         <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
         <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${locked ? 'Locked' : countdownText(fixture.prediction_locks_at)}</span>
       </article>
@@ -490,7 +564,7 @@ function updatePredictionCountdowns() {
 
     const row = element.closest('[data-fixture-id]');
     row?.querySelectorAll('[data-score-input]').forEach((input) => {
-      input.disabled = locked;
+      input.disabled = locked || row.dataset.curseOverride === 'true';
     });
   });
 
@@ -503,7 +577,7 @@ function openCurseModal(fixtureId) {
     return;
   }
 
-  const curses = predictionCursesForFixture(fixture);
+  const curses = visiblePredictionCursesForFixture(fixture);
   curseModalBody.innerHTML = curses.map((effect) => `
     <div class="curse-detail">
       <strong>${escapeHtml(effectName(effect))}</strong>
@@ -543,7 +617,19 @@ function render() {
 }
 
 function renderTargetRestrictionPanel() {
-  const restrictionNames = state.targetEffects
+  const visibleEffects = state.targetEffects.filter((effect) => {
+    if (!isPredictionCurse(effect)) {
+      return false;
+    }
+    if (!hiddenUntilFixtureLockCurseKeys.has(effectKey(effect))) {
+      return true;
+    }
+    return state.fixtures.some((fixture) => (
+      curseAppliesToFixture(effect, fixture) && curseRevealAllowed(effect, fixture)
+    ));
+  });
+
+  const restrictionNames = visibleEffects
     .map((effect) => (Array.isArray(effect.card_definitions) ? effect.card_definitions[0] : effect.card_definitions)?.name)
     .filter(Boolean);
 
@@ -566,7 +652,9 @@ async function saveAllPredictions() {
     return;
   }
 
-  const rows = state.fixtures.map((fixture) => {
+  const rows = state.fixtures
+    .filter((fixture) => !isPast(fixture.prediction_locks_at) && !revealedCurseOverride(fixture))
+    .map((fixture) => {
     const fixtureRow = fixturesContainer.querySelector(`[data-fixture-id="${fixture.id}"]`);
     const homeGoals = Number(fixtureRow.querySelector('[data-home-goals]').value);
     const awayGoals = Number(fixtureRow.querySelector('[data-away-goals]').value);
@@ -583,6 +671,12 @@ async function saveAllPredictions() {
     };
   });
 
+  if (!rows.length) {
+    state.mode = 'summary';
+    render();
+    return;
+  }
+
   setMessage('Saving predictions...', 'info');
   saveAllButton.disabled = true;
 
@@ -596,7 +690,7 @@ async function saveAllPredictions() {
     return;
   }
 
-  state.predictions = new Map(rows.map((prediction) => [prediction.fixture_id, prediction]));
+  rows.forEach((prediction) => state.predictions.set(prediction.fixture_id, prediction));
   state.mode = 'summary';
   render();
 }
@@ -803,6 +897,7 @@ async function boot() {
 
     await Promise.all([loadTeams(), loadFixtures(), loadActivePredictionEffects()]);
     await loadExistingPredictions();
+    await loadCurseOverridePredictions();
     leagueTitle.textContent = `Gameweek ${state.activeGameweek.gameweek_number} Predictions`;
     gameweekSummary.textContent = 'predictions lock 90 mins before kick-off.';
     render();

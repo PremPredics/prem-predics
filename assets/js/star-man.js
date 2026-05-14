@@ -459,6 +459,67 @@ function renderExistingSelections() {
   });
 }
 
+function randomItem(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+async function autoReplaceInvalidPrimaryPick() {
+  const existingPlayerId = state.existingPicks.get('primary');
+  if (!existingPlayerId) {
+    return;
+  }
+
+  const existingPlayer = state.players.find((item) => item.id === existingPlayerId);
+  if (!existingPlayer) {
+    return;
+  }
+
+  const existingCheck = evaluatePlayer(existingPlayer, 'primary');
+  if (existingCheck.allowed) {
+    return;
+  }
+
+  const candidates = state.players.filter((player) => evaluatePlayer(player, 'primary').allowed);
+  if (!candidates.length) {
+    return;
+  }
+
+  const replacement = randomItem(candidates);
+  const replacementCheck = evaluatePlayer(replacement, 'primary');
+
+  const { error } = await supabase.from('star_man_picks').upsert({
+    competition_id: state.league.id,
+    season_id: state.league.season_id,
+    gameweek_id: state.activeGameweek.gameweek_id,
+    user_id: state.user.id,
+    player_id: replacement.id,
+    pick_slot: 'primary',
+    source_card_effect_id: replacementCheck.sourceCardEffectId,
+  }, {
+    onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
+  });
+
+  if (error) {
+    return;
+  }
+
+  state.existingPicks.set('primary', replacement.id);
+  state.selected.primary = replacement;
+  const savedPick = {
+    player_id: replacement.id,
+    gameweek_id: state.activeGameweek.gameweek_id,
+    pick_slot: 'primary',
+  };
+  const existingIndex = state.seasonPicks.findIndex((pick) => (
+    String(pick.gameweek_id) === String(savedPick.gameweek_id) && pick.pick_slot === 'primary'
+  ));
+  if (existingIndex >= 0) {
+    state.seasonPicks[existingIndex] = savedPick;
+  } else {
+    state.seasonPicks.push(savedPick);
+  }
+}
+
 function renderSearch(slot) {
   const { input, results, selected } = slotElements(slot);
   const query = input.value.trim().toLowerCase();
@@ -638,6 +699,7 @@ async function boot() {
 
     await Promise.all([loadTeams(), loadPlayers(), loadFixtures(), loadPicks(), loadEffects()]);
     await loadRestrictionData();
+    await autoReplaceInvalidPrimaryPick();
 
     gameweekSummary.textContent = `Gameweek ${state.activeGameweek.gameweek_number} - Star Man Pick locks ${formatDateTime(state.activeGameweek.star_man_locks_at)}`;
     renderRestrictionSummary();

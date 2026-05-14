@@ -52,9 +52,10 @@ Prediction constraints:
 
 Curse prediction overrides:
 
-- Curse of the Hated stores the target user and the fixture chosen by the card player, then scores that target as an 8-2 prediction for that fixture.
+- Curse of the Hated stores the target user and a random fixture selected by the app, then scores that target as an 8-2 prediction for that fixture.
 - Curse of the Gambler stores three simulated dice-roll predictions. Rolls are 1-6, and a roll of 6 becomes 0 goals.
 - Curse-generated predictions override normal predictions for those fixtures.
+- Prediction-override curse details such as Hated, Gambler, and Deleted Match stay hidden from the target until the relevant fixture prediction deadline has passed.
 
 Star Man constraints:
 
@@ -65,6 +66,8 @@ Star Man constraints:
 - Curse of the Scoring Drought 5: opponent Star Man must have 0 goals in last 5 PL games.
 - Curse of the Random Roulette: opponent Star Man squad number is selected by roulette.
 - Curse of the Tiny Club: opponent cannot pick a Star Man from a top-10 club.
+- If a Star Man restriction is applied after the target has already submitted, the app auto-replaces an invalid current pick with a random eligible player when one exists.
+- If the target has not submitted yet, the selection stays blank and only the restrictions are displayed.
 
 Random Roulette:
 
@@ -74,6 +77,12 @@ Random Roulette:
 Card inventory:
 
 - Curse of the Thief: steal an opponent card, excluding Super Cards.
+
+Play timing:
+
+- Curse cards must be played at least 24 hours before the first fixture in the active gameweek.
+- Power and Super cards must be played before the 90-minute gameweek lock.
+- Power of the Veto therefore has a response window after the curse deadline and before the normal 90-minute lock.
 
 ## Super Cards
 
