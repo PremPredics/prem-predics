@@ -182,12 +182,16 @@ async function renderActualResults() {
   const select = document.querySelector('[data-actual-gameweek]');
   const list = document.querySelector('[data-actual-list]');
   const message = document.querySelector('[data-actual-message]');
+  const saveAllButton = document.querySelector('[data-save-all-results]');
   populateGameweekSelect(select);
 
   async function renderList() {
     const fixtures = state.fixtures.filter((fixture) => String(fixture.gameweek_id) === select.value);
     if (!fixtures.length) {
       list.innerHTML = '<p class="section-copy">No fixtures found.</p>';
+      if (saveAllButton) {
+        saveAllButton.disabled = true;
+      }
       return;
     }
 
@@ -210,40 +214,65 @@ async function renderActualResults() {
           <input data-home-goals type="number" min="0" max="99" value="${result?.home_goals ?? ''}" placeholder="Home">
           <input data-away-goals type="number" min="0" max="99" value="${result?.away_goals ?? ''}" placeholder="Away">
           <span>${escapeHtml(fixture.status)}</span>
-          <span></span>
-          <button type="button" data-save-result>Save</button>
+          <span>${result ? 'Saved' : 'Pending'}</span>
         </div>
       `;
     }).join('');
 
-    list.querySelectorAll('[data-save-result]').forEach((button) => {
-      button.addEventListener('click', () => saveActualResult(button.closest('[data-fixture-id]'), message));
-    });
+    if (saveAllButton) {
+      saveAllButton.disabled = fixtures.length === 0;
+    }
   }
 
   select.onchange = renderList;
+  if (saveAllButton) {
+    saveAllButton.onclick = () => saveVisibleActualResults(list, message, saveAllButton, renderList);
+  }
   await renderList();
 }
 
-async function saveActualResult(row, message) {
-  const fixtureId = row.dataset.fixtureId;
-  const homeGoals = numberOrZero(row.querySelector('[data-home-goals]').value);
-  const awayGoals = numberOrZero(row.querySelector('[data-away-goals]').value);
+async function saveVisibleActualResults(list, message, button, renderList) {
+  const rows = [...list.querySelectorAll('[data-fixture-id]')]
+    .filter((row) => row.querySelector('[data-home-goals]').value !== '' && row.querySelector('[data-away-goals]').value !== '');
 
-  const { error } = await supabase.from('match_results').upsert({
-    fixture_id: fixtureId,
-    home_goals: homeGoals,
-    away_goals: awayGoals,
-    entered_by: state.user.id,
-  });
-
-  if (error) {
-    setMessage(message, error.message, 'error');
+  if (!rows.length) {
+    setMessage(message, 'Enter at least one complete result before saving.', 'error');
     return;
   }
 
-  await supabase.from('fixtures').update({ status: 'final' }).eq('id', fixtureId);
-  setMessage(message, 'Actual result saved.', 'success');
+  setMessage(message, 'Saving results...', 'info');
+  button.disabled = true;
+
+  try {
+    for (const row of rows) {
+      const fixtureId = row.dataset.fixtureId;
+      const homeGoals = numberOrZero(row.querySelector('[data-home-goals]').value);
+      const awayGoals = numberOrZero(row.querySelector('[data-away-goals]').value);
+
+      const { error } = await supabase.from('match_results').upsert({
+        fixture_id: fixtureId,
+        home_goals: homeGoals,
+        away_goals: awayGoals,
+        entered_by: state.user.id,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const { error: fixtureError } = await supabase.from('fixtures').update({ status: 'final' }).eq('id', fixtureId);
+      if (fixtureError) {
+        throw fixtureError;
+      }
+    }
+
+    setMessage(message, `${rows.length} result${rows.length === 1 ? '' : 's'} saved.`, 'success');
+    await renderList();
+  } catch (error) {
+    setMessage(message, error.message || 'Could not save actual results.', 'error');
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function renderSchedule() {
@@ -446,20 +475,38 @@ async function renderPlayerStats() {
   ]);
 
   const statsByPlayer = new Map((stats || []).map((row) => [row.player_id, row]));
-  list.innerHTML = (players || []).map((player) => {
-    const row = statsByPlayer.get(player.id);
+  const teamOrder = [fixture.home_team_id, fixture.away_team_id];
+  list.innerHTML = teamOrder.map((teamId) => {
+    const teamPlayers = (players || []).filter((player) => player.team_id === teamId);
+    if (!teamPlayers.length) {
+      return '';
+    }
+
     return `
-      <div class="admin-row player-stats" data-player-id="${player.id}">
-        <strong>${escapeHtml(player.display_name)}<small>${escapeHtml(teamName(player.team_id))}</small></strong>
-        <input data-goals type="number" min="0" value="${row?.goals ?? 0}" title="Goals">
-        <input data-assists type="number" min="0" value="${row?.assists ?? 0}" title="Assists">
-        <input data-outside-goals type="number" min="0" value="${row?.outside_box_goals ?? 0}" title="Outside-box goals">
-        <input data-outside-assists type="number" min="0" value="${row?.outside_box_assists ?? 0}" title="Outside-box assists">
-        <input data-yellows type="number" min="0" value="${row?.yellow_cards ?? 0}" title="Yellow cards">
-        <input data-reds type="number" min="0" value="${row?.red_cards ?? 0}" title="Red cards">
-        <label><input data-started type="checkbox" ${row?.started ? 'checked' : ''}> Started</label>
-        <label><input data-subbed type="checkbox" ${row?.was_substituted ? 'checked' : ''}> Subbed</label>
-      </div>
+      <section class="player-team-group">
+        <h3 class="player-team-title">${escapeHtml(teamName(teamId))}</h3>
+        ${teamPlayers.map((player) => {
+          const row = statsByPlayer.get(player.id);
+          return `
+            <div class="admin-row player-stats" data-player-id="${player.id}">
+              <strong>${escapeHtml(player.display_name)}</strong>
+              <label class="stat-field"><span>G</span><input data-goals type="number" min="0" value="${row?.goals ?? 0}" title="Goals"></label>
+              <label class="stat-field"><span>A</span><input data-assists type="number" min="0" value="${row?.assists ?? 0}" title="Assists"></label>
+              <label class="stat-field"><span>OBG</span><input data-outside-goals type="number" min="0" value="${row?.outside_box_goals ?? 0}" title="Outside-box goals"></label>
+              <label class="stat-field"><span>OBA</span><input data-outside-assists type="number" min="0" value="${row?.outside_box_assists ?? 0}" title="Outside-box assists"></label>
+              <label class="stat-field"><span>YC</span><input data-yellows type="number" min="0" value="${row?.yellow_cards ?? 0}" title="Yellow cards"></label>
+              <label class="stat-field"><span>RC</span><input data-reds type="number" min="0" value="${row?.red_cards ?? 0}" title="Red cards"></label>
+              <div class="lineup-fields">
+                <label class="checkbox-label"><input data-started type="checkbox" ${row?.started ? 'checked' : ''}> Started</label>
+                <label class="checkbox-label"><input data-benched type="checkbox" ${row?.was_benched ? 'checked' : ''}> Unused Sub</label>
+                <label>Minutes<input data-minutes type="number" min="0" max="130" value="${row?.minutes_played ?? ''}" title="Minutes played"></label>
+                <label>Sub On<input data-sub-on type="number" min="0" max="130" value="${row?.substituted_on_minute ?? ''}" title="Substituted on minute"></label>
+                <label>Sub Off<input data-sub-off type="number" min="0" max="130" value="${row?.substituted_off_minute ?? ''}" title="Substituted off minute"></label>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </section>
     `;
   }).join('') || '<p class="section-copy">No players found for this fixture.</p>';
 }
@@ -495,7 +542,12 @@ async function savePlayerStats() {
       yellow_cards: numberOrZero(row.querySelector('[data-yellows]').value),
       red_cards: numberOrZero(row.querySelector('[data-reds]').value),
       started: row.querySelector('[data-started]').checked,
-      was_substituted: row.querySelector('[data-subbed]').checked,
+      was_benched: row.querySelector('[data-benched]').checked,
+      was_in_matchday_squad: row.querySelector('[data-started]').checked || row.querySelector('[data-minutes]').value !== '' || row.querySelector('[data-benched]').checked,
+      was_substituted: row.querySelector('[data-sub-on]').value !== '' || row.querySelector('[data-sub-off]').value !== '',
+      substituted_on_minute: row.querySelector('[data-sub-on]').value === '' ? null : numberOrZero(row.querySelector('[data-sub-on]').value),
+      substituted_off_minute: row.querySelector('[data-sub-off]').value === '' ? null : numberOrZero(row.querySelector('[data-sub-off]').value),
+      minutes_played: row.querySelector('[data-minutes]').value === '' ? null : numberOrZero(row.querySelector('[data-minutes]').value),
       entered_by: state.user.id,
     };
   }).filter((row) => row.team_id);
@@ -511,6 +563,8 @@ async function savePlayerStats() {
     yellow_cards: row.yellow_cards,
     red_cards: row.red_cards,
     started: row.started,
+    was_benched: row.was_benched,
+    minutes_played: row.minutes_played,
     entered_by: state.user.id,
   }));
 

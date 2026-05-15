@@ -1043,6 +1043,19 @@ button:disabled {
   box-shadow: 0 0 16px rgba(220, 38, 38, 0.35);
 }
 
+.notice-body {
+  margin: 0;
+  color: #f5f3ff;
+  text-align: center;
+  line-height: 1.45;
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.notice-modal .opponent-target-content {
+  width: min(500px, 100%);
+}
+
 .random-curse-content {
   width: min(760px, 100%);
 }
@@ -3416,6 +3429,14 @@ button:disabled {
     </div>
   </div>
 
+  <div class="opponent-target-modal notice-modal" id="siteNoticeModal" aria-hidden="true">
+    <div class="opponent-target-content" role="dialog" aria-modal="true" aria-labelledby="siteNoticeTitle">
+      <h3 class="opponent-target-title" id="siteNoticeTitle">Notice</h3>
+      <p class="notice-body" id="siteNoticeBody"></p>
+      <button class="opponent-target-cancel" type="button" id="siteNoticeClose">Close</button>
+    </div>
+  </div>
+
   <!-- Intro Section -->
   <div class="intro-wrapper" id="introWrapper">
     <div class="intro-section">
@@ -3430,11 +3451,11 @@ button:disabled {
       <div class="how-it-works-rule-list">
         <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-power">Power</span>, <span class="text-curse">Curse</span> and <span class="text-super">Super Cards</span> can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
         <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-game">Game Cards</span> (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 <span class="text-super">Super Medal</span>.</span></div>
-        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 <span class="text-power">Power Card</span> + 1 <span class="text-curse">Curse Card</span> from a 52-card Regular Deck.</span></div>
+        <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 <span class="text-power">Power Card</span> + 1 <span class="text-curse">Curse Card</span> from your league's Regular Deck.</span></div>
         <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127941;</span><span>Reach milestones to earn medals, each medal can be spent to draw 1 card from the Regular Deck.</span></div>
       </div>
       <div class="how-it-works-deck-notes">
-        <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 <span class="text-power">Power Cards</span> &amp; 22 <span class="text-curse">Curse Cards</span>) &mdash; Start with 1 of each</div>
+        <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> sized to the final league player count, keeping a balanced <span class="text-power">Power</span> and <span class="text-curse">Curse</span> mix.</div>
         <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 <span class="text-super">Super Cards</span> &mdash; Drawn by spending Super Medals won from &quot;<span class="text-game">Game Card</span>&quot; Minigames</div>
       </div>
       <p>Prem Predics is a private league prediction game where players predict every single match throughout an entire Premier League season (380 matches).</p>
@@ -3451,7 +3472,7 @@ button:disabled {
         <li>🎮 <strong>Game Cards</strong> - Best-of-5 Minigames for Super Medal rewards</li>
       </ul>
       
-      <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from a 52-card Regular Deck</p>
+      <p><strong>🎯 Start with 1 Power Card + 1 Curse Card</strong> from your league's Regular Deck</p>
       <p><strong>✨ Premium Deck:</strong> 7 Super Cards</p>
       <p><strong>🎮 Game Deck:</strong> 7 Game Cards</p>
     </div>
@@ -3473,7 +3494,7 @@ button:disabled {
     <div class="cards-shuffle-wrapper">
       <div class="shuffle-section">
         <div class="cards-shuffle-container" id="cardsShuffleContainer"></div>
-        <div class="shuffle-section-label">Regular Deck: 52 Cards</div>
+        <div class="shuffle-section-label">Regular Deck</div>
       </div>
       <div class="shuffle-section">
         <div class="cards-shuffle-container" id="premiumShuffleContainer"></div>
@@ -3566,11 +3587,11 @@ button:disabled {
         <div class="how-it-works-rule-list">
           <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-power">Power</span>, <span class="text-curse">Curse</span> and <span class="text-super">Super Cards</span> can help you or hinder your opponent. They add strategy and excitement to the game!</span></div>
           <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span><span class="text-game">Game Cards</span> (7 Total) are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 <span class="text-super">Super Medal</span>.</span></div>
-          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 <span class="text-power">Power Card</span> + 1 <span class="text-curse">Curse Card</span> from a 52-card Regular Deck.</span></div>
+          <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127924;</span><span>Start with 1 <span class="text-power">Power Card</span> + 1 <span class="text-curse">Curse Card</span> from your league's Regular Deck.</span></div>
           <div class="how-it-works-rule-item"><span class="how-it-works-rule-icon">&#127941;</span><span>Reach milestones to earn medals, each medal can be spent to draw 1 card from the Regular Deck.</span></div>
         </div>
         <div class="how-it-works-deck-notes">
-          <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> 52 cards (30 <span class="text-power">Power Cards</span> &amp; 22 <span class="text-curse">Curse Cards</span>) &mdash; Start with 1 of each</div>
+          <div class="how-it-works-deck-note"><strong>Regular Deck:</strong> sized to the final league player count, keeping a balanced <span class="text-power">Power</span> and <span class="text-curse">Curse</span> mix.</div>
           <div class="how-it-works-deck-note"><strong>Premium Deck:</strong> 7 <span class="text-super">Super Cards</span> &mdash; Drawn by spending Super Medals won from &quot;<span class="text-game">Game Card</span>&quot; Minigames</div>
         </div>
         <p>Prem Predics is a private league prediction game where players predict every single match throughout an entire Premier League season (380 matches).</p>
@@ -3599,6 +3620,50 @@ button:disabled {
 </div>
 
 <script>
+function showSiteNotice(message, title = 'Notice') {
+  const modal = document.getElementById('siteNoticeModal');
+  const titleEl = document.getElementById('siteNoticeTitle');
+  const bodyEl = document.getElementById('siteNoticeBody');
+  const closeButton = document.getElementById('siteNoticeClose');
+
+  if (!modal || !titleEl || !bodyEl || !closeButton) {
+    return;
+  }
+
+  titleEl.textContent = title;
+  bodyEl.textContent = String(message || '');
+
+  function close() {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('card-preview-open');
+    closeButton.removeEventListener('click', close);
+    modal.removeEventListener('click', modalClick);
+    document.removeEventListener('keydown', keydown);
+  }
+
+  function modalClick(event) {
+    if (event.target === modal) {
+      close();
+    }
+  }
+
+  function keydown(event) {
+    if (event.key === 'Escape') {
+      close();
+    }
+  }
+
+  closeButton.addEventListener('click', close);
+  modal.addEventListener('click', modalClick);
+  document.addEventListener('keydown', keydown);
+  document.body.classList.add('card-preview-open');
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+window.alert = (message) => showSiteNotice(message);
+
 // CARD DESCRIPTIONS DATABASE
 const cardDescriptions = {
   "Power of the Goal": "🃏 Power of the Goal\n• Valid for 1 Gameweek•\n\n🏆+1 Goal for Star Man this week for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
@@ -4188,7 +4253,7 @@ function setActiveGameCardPanel(cardName, rangeText, description) {
   const rangeElement = document.querySelector('[data-active-game-range]');
   const descriptionElement = document.querySelector('[data-active-game-description]');
 
-  if (nameElement) nameElement.textContent = cardName || 'No active game card';
+  if (nameElement) nameElement.textContent = cardName || 'No Active Game Card';
   if (rangeElement) rangeElement.textContent = rangeText || 'Game cards are generated at GW 1, 6, 11, 16, 21, 26 and 31.';
   if (descriptionElement) descriptionElement.textContent = description || '';
 }
@@ -5252,7 +5317,7 @@ async function initializeCardPage() {
       if (!activeRound) {
         gameState.activeGameCard = null;
         setActiveGameCardPanel(
-          'No active game card',
+          'No Active Game Card',
           activeGameweek ? `No scheduled game card covers Gameweek ${activeGameweek.gameweek_number}.` : 'No active gameweek found.',
           ''
         );
@@ -5314,16 +5379,70 @@ async function initializeCardPage() {
       if (!items.length) {
         throw new Error('There is nothing available to choose.');
       }
-      const optionsText = items.map((item, index) => `${index + 1}. ${labelFn(item)}`).join('\n');
-      const answer = window.prompt(`${title}\n\n${optionsText}`);
-      if (answer === null) {
-        throw new Error('Card play cancelled.');
-      }
-      const chosenIndex = Number(answer.trim()) - 1;
-      if (!Number.isInteger(chosenIndex) || !items[chosenIndex]) {
-        throw new Error('Choose a valid number from the list.');
-      }
-      return items[chosenIndex];
+
+      const modal = document.getElementById('opponentTargetModal');
+      const titleEl = document.getElementById('opponentTargetTitle');
+      const list = document.getElementById('opponentTargetList');
+      const cancelButton = document.getElementById('opponentTargetCancel');
+
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const originalTitle = titleEl.textContent;
+
+        function cleanup() {
+          titleEl.textContent = originalTitle;
+          modal.classList.remove('show');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('card-preview-open');
+          cancelButton.removeEventListener('click', cancel);
+          modal.removeEventListener('click', modalClick);
+          document.removeEventListener('keydown', keydown);
+        }
+
+        function finish(item) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          resolve(item);
+        }
+
+        function cancel() {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(new Error('Card play cancelled.'));
+        }
+
+        function modalClick(event) {
+          if (event.target === modal) {
+            cancel();
+          }
+        }
+
+        function keydown(event) {
+          if (event.key === 'Escape') {
+            cancel();
+          }
+        }
+
+        titleEl.textContent = title;
+        list.innerHTML = items.map((item, index) => `
+          <button class="opponent-target-btn" type="button" data-choice-index="${index}">
+            <span>${escapeHtml(labelFn(item))}</span>
+          </button>
+        `).join('');
+
+        list.querySelectorAll('[data-choice-index]').forEach((button) => {
+          button.addEventListener('click', () => finish(items[Number(button.dataset.choiceIndex)]));
+        });
+
+        cancelButton.addEventListener('click', cancel);
+        modal.addEventListener('click', modalClick);
+        document.addEventListener('keydown', keydown);
+        document.body.classList.add('card-preview-open');
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+      });
     }
 
     async function leagueMembers() {
@@ -5798,7 +5917,7 @@ async function initializeCardPage() {
 
       if (error) throw error;
       const curses = (data || []).filter((effect) => getNestedRecord(effect.card_definitions)?.category === 'curse');
-      const chosen = chooseFromList('Choose the curse to veto:', curses, (effect) => getNestedRecord(effect.card_definitions)?.name || effect.id);
+      const chosen = await chooseFromList('Choose the curse to veto:', curses, (effect) => getNestedRecord(effect.card_definitions)?.name || effect.id);
       const { error: updateError } = await supabase
         .from('active_card_effects')
         .update({ status: 'vetoed', resolved_at: new Date().toISOString() })
@@ -5926,7 +6045,7 @@ async function initializeCardPage() {
           fixtureId = chosenFixture.id;
           payload.random_fixture = true;
         } else if (rule.fixture) {
-          fixtureId = chooseFromList('Choose the match this card affects:', fixtures, fixtureChoiceLabel).id;
+          fixtureId = (await chooseFromList('Choose the match this card affects:', fixtures, fixtureChoiceLabel)).id;
         }
 
         if (rule.special === 'gambler') {

@@ -4,8 +4,7 @@
 update public.card_definitions
 set
   name = 'Curse Of The Microstate',
-  description = 'Valid for 1 Gameweek. Opponent Star Man nationality must be from a Country with a population of less than 1 million. Must be played at least 24 hours before the gameweek''s first KO time.',
-  updated_at = now()
+  description = 'Valid for 1 Gameweek. Opponent Star Man nationality must be from a Country with a population of less than 1 million. Must be played at least 24 hours before the gameweek''s first KO time.'
 where id = 'curse_random_roulette';
 
 -- Previous roulette numbers are no longer part of this card's effect.

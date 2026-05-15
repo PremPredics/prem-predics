@@ -1,0 +1,247 @@
+import {
+  escapeHtml,
+  leagueUrl,
+  loadLeagueContext,
+  normaliseNested,
+  shortTeamName,
+} from './league-context.js';
+import { loadActiveGameweek } from './gameweek-context.js';
+import { supabase } from './supabase-client.js';
+
+const title = document.querySelector('[data-view-title]');
+const subtitle = document.querySelector('[data-view-subtitle]');
+const currentGameweek = document.querySelector('[data-current-gameweek]');
+const previousButton = document.querySelector('[data-previous-gameweek]');
+const nextButton = document.querySelector('[data-next-gameweek]');
+const playerPills = document.querySelector('[data-player-pills]');
+const predictionList = document.querySelector('[data-prediction-list]');
+const leagueBackLink = document.querySelector('[data-league-back]');
+
+const state = {
+  user: null,
+  league: null,
+  teams: new Map(),
+  gameweeks: [],
+  fixturesByGameweek: new Map(),
+  members: [],
+  selectedGameweekIndex: 0,
+  selectedUserId: null,
+};
+
+function isPast(value) {
+  return value ? Date.now() >= new Date(value).getTime() : false;
+}
+
+function teamName(teamId) {
+  return shortTeamName(state.teams.get(teamId) || 'Team');
+}
+
+function memberName(userId) {
+  return state.members.find((member) => member.user_id === userId)?.display_name || 'Player';
+}
+
+function avatar(member) {
+  const imageUrl = member.profile_image_url?.startsWith('data:image/')
+    ? member.profile_image_url
+    : null;
+
+  if (imageUrl) {
+    return `<img src="${escapeHtml(imageUrl)}" alt="">`;
+  }
+
+  return escapeHtml((member.display_name || 'P').trim().charAt(0).toUpperCase() || 'P');
+}
+
+function selectedGameweek() {
+  return state.gameweeks[state.selectedGameweekIndex] || null;
+}
+
+function fixturesForGameweek(gameweekId) {
+  return state.fixturesByGameweek.get(String(gameweekId)) || [];
+}
+
+function gameweekIsLocked(gameweek) {
+  const fixtures = fixturesForGameweek(gameweek.gameweek_id).filter((fixture) => fixture.status !== 'postponed');
+  return fixtures.length > 0 && fixtures.every((fixture) => isPast(fixture.prediction_locks_at));
+}
+
+function mostRecentLockedIndex(activeGameweek) {
+  const lockedIndexes = state.gameweeks
+    .map((gameweek, index) => ({ gameweek, index }))
+    .filter(({ gameweek }) => gameweekIsLocked(gameweek));
+
+  if (lockedIndexes.length) {
+    return lockedIndexes[lockedIndexes.length - 1].index;
+  }
+
+  return Math.max(0, state.gameweeks.findIndex((gameweek) => gameweek.gameweek_id === activeGameweek?.gameweek_id));
+}
+
+function renderPlayers() {
+  playerPills.innerHTML = state.members.map((member) => `
+    <button class="player-pill ${member.user_id === state.selectedUserId ? 'active' : ''}" type="button" data-user-id="${member.user_id}" title="${escapeHtml(member.display_name)}">
+      ${avatar(member)}
+    </button>
+  `).join('');
+
+  playerPills.querySelectorAll('[data-user-id]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.selectedUserId = button.dataset.userId;
+      render();
+    });
+  });
+}
+
+async function loadPredictions(gameweek, fixtures) {
+  if (!fixtures.length) {
+    return new Map();
+  }
+
+  const { data, error } = await supabase
+    .from('predictions')
+    .select('fixture_id, home_goals, away_goals, prediction_slot')
+    .eq('competition_id', state.league.id)
+    .eq('user_id', state.selectedUserId)
+    .eq('prediction_slot', 'primary')
+    .in('fixture_id', fixtures.map((fixture) => fixture.id));
+
+  if (error) {
+    throw error;
+  }
+
+  return new Map((data || []).map((prediction) => [prediction.fixture_id, prediction]));
+}
+
+async function renderPredictionRows(gameweek) {
+  const fixtures = fixturesForGameweek(gameweek.gameweek_id)
+    .filter((fixture) => fixture.status !== 'postponed')
+    .sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at));
+
+  if (!fixtures.length) {
+    predictionList.innerHTML = '<p class="state-text">No fixtures found for this gameweek.</p>';
+    return;
+  }
+
+  const locked = gameweekIsLocked(gameweek);
+  if (!locked) {
+    predictionList.innerHTML = '<p class="state-text">Predictions unlock here once every match in this gameweek is locked.</p>';
+    return;
+  }
+
+  const predictions = await loadPredictions(gameweek, fixtures);
+  predictionList.innerHTML = fixtures.map((fixture) => {
+    const prediction = predictions.get(fixture.id);
+    return `
+      <div class="prediction-row">
+        <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
+        <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
+        <strong>${prediction ? `${prediction.home_goals}-${prediction.away_goals}` : '--'}</strong>
+        <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+async function render() {
+  const gameweek = selectedGameweek();
+  if (!gameweek) {
+    title.textContent = 'No predictions found';
+    subtitle.textContent = 'No gameweeks are available for this league.';
+    predictionList.innerHTML = '';
+    return;
+  }
+
+  const selectedName = memberName(state.selectedUserId);
+  title.textContent = `${selectedName}'s Predictions`;
+  subtitle.textContent = `Gameweek ${gameweek.gameweek_number}`;
+  currentGameweek.textContent = `GW${gameweek.gameweek_number}`;
+  previousButton.disabled = state.selectedGameweekIndex <= 0;
+  nextButton.disabled = state.selectedGameweekIndex >= state.gameweeks.length - 1;
+  renderPlayers();
+
+  try {
+    await renderPredictionRows(gameweek);
+  } catch (error) {
+    predictionList.innerHTML = `<p class="state-text">${escapeHtml(error.message || 'Could not load predictions.')}</p>`;
+  }
+}
+
+async function loadData(activeGameweek) {
+  const [teamsResponse, deadlinesResponse, fixturesResponse, membersResponse] = await Promise.all([
+    supabase.from('teams').select('id, name').order('name', { ascending: true }),
+    supabase
+      .from('gameweek_deadlines')
+      .select('gameweek_id, season_id, gameweek_number, first_fixture_kickoff_at, star_man_locks_at')
+      .eq('season_id', state.league.season_id)
+      .order('gameweek_number', { ascending: true }),
+    supabase
+      .from('fixtures')
+      .select('id, season_id, gameweek_id, home_team_id, away_team_id, kickoff_at, prediction_locks_at, status, sort_order')
+      .eq('season_id', state.league.season_id)
+      .order('kickoff_at', { ascending: true }),
+    supabase
+      .from('competition_members')
+      .select('user_id, joined_at, profiles(display_name, profile_image_url)')
+      .eq('competition_id', state.league.id)
+      .order('joined_at', { ascending: true }),
+  ]);
+
+  for (const response of [teamsResponse, deadlinesResponse, fixturesResponse, membersResponse]) {
+    if (response.error) {
+      throw response.error;
+    }
+  }
+
+  state.teams = new Map((teamsResponse.data || []).map((team) => [team.id, team.name]));
+  state.gameweeks = (deadlinesResponse.data || [])
+    .filter((gameweek) => Number(gameweek.gameweek_id) >= Number(state.league.starts_gameweek_id));
+  state.fixturesByGameweek = new Map();
+  (fixturesResponse.data || []).forEach((fixture) => {
+    const key = String(fixture.gameweek_id);
+    const group = state.fixturesByGameweek.get(key) || [];
+    group.push(fixture);
+    state.fixturesByGameweek.set(key, group);
+  });
+  state.members = (membersResponse.data || []).map((member) => {
+    const profile = normaliseNested(member.profiles);
+    return {
+      user_id: member.user_id,
+      display_name: profile?.display_name || 'Player',
+      profile_image_url: profile?.profile_image_url || null,
+    };
+  });
+
+  state.selectedUserId = state.user.id;
+  state.selectedGameweekIndex = mostRecentLockedIndex(activeGameweek);
+}
+
+previousButton.addEventListener('click', () => {
+  state.selectedGameweekIndex = Math.max(0, state.selectedGameweekIndex - 1);
+  render();
+});
+
+nextButton.addEventListener('click', () => {
+  state.selectedGameweekIndex = Math.min(state.gameweeks.length - 1, state.selectedGameweekIndex + 1);
+  render();
+});
+
+const context = await loadLeagueContext();
+if (context.error) {
+  title.textContent = 'Predictions unavailable';
+  subtitle.textContent = context.error;
+  predictionList.innerHTML = '';
+} else {
+  state.user = context.user;
+  state.league = context.league;
+  leagueBackLink.href = leagueUrl('league.html', state.league.id);
+
+  try {
+    const { activeGameweek } = await loadActiveGameweek(state.league);
+    await loadData(activeGameweek);
+    await render();
+  } catch (error) {
+    title.textContent = 'Predictions unavailable';
+    subtitle.textContent = error.message || 'Could not load predictions.';
+    predictionList.innerHTML = '';
+  }
+}

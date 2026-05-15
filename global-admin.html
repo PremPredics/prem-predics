@@ -150,7 +150,7 @@ input[type="checkbox"] {
 
 .admin-row {
   display: grid;
-  grid-template-columns: minmax(170px, 1.2fr) repeat(4, minmax(72px, 0.5fr)) 92px;
+  grid-template-columns: minmax(170px, 1.2fr) repeat(4, minmax(72px, 0.5fr));
   gap: 8px;
   align-items: center;
   padding: 10px;
@@ -168,7 +168,7 @@ input[type="checkbox"] {
 }
 
 .admin-row.player-stats {
-  grid-template-columns: minmax(180px, 1.2fr) repeat(6, minmax(66px, 0.45fr));
+  grid-template-columns: minmax(170px, 1.25fr) repeat(6, minmax(58px, 0.36fr)) minmax(230px, 0.95fr);
 }
 
 .admin-row.team-standing {
@@ -183,6 +183,54 @@ input[type="checkbox"] {
   display: block;
   color: #ddd6fe;
   margin-top: 2px;
+}
+
+.player-team-group {
+  display: grid;
+  gap: 8px;
+}
+
+.player-team-title {
+  margin: 8px 0 0;
+  color: #fff;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.stat-field {
+  display: grid;
+  gap: 3px;
+}
+
+.stat-field span {
+  color: #ddd6fe;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.lineup-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(54px, 1fr));
+  gap: 6px;
+  align-items: center;
+}
+
+.lineup-fields label {
+  display: grid;
+  gap: 3px;
+  color: #ddd6fe;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.lineup-fields label.checkbox-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 
 .message {
@@ -279,6 +327,7 @@ footer {
         <label>Gameweek<select data-actual-gameweek></select></label>
       </div>
       <div class="admin-list" data-actual-list></div>
+      <button class="primary" type="button" data-save-all-results>Save All Results On Screen</button>
       <p class="message" data-actual-message></p>
     </section>
 
@@ -303,13 +352,13 @@ footer {
     </section>
 
     <section class="panel admin-section" data-admin-section="player-stats" hidden>
-      <p class="section-copy">Enter player goals, assists, cards and starter/substitution details for a selected fixture.</p>
+      <p class="section-copy">Enter player goals, assists, cards and line-up details for a selected fixture. Sub On and Sub Off are minutes, so there is no ambiguity over substitutions.</p>
       <div class="controls">
         <label>Gameweek<select data-player-stats-gameweek></select></label>
         <label>Fixture<select data-player-stats-fixture></select></label>
       </div>
       <div class="admin-list" data-player-stats-list></div>
-      <button class="primary" type="button" data-save-player-stats>Save Player Stats</button>
+      <button class="primary" type="button" data-save-player-stats>Save All Player Stats On Screen</button>
       <p class="message" data-player-stats-message></p>
     </section>
 

@@ -185,7 +185,7 @@ main {
 
 .fixture-row {
   display: grid;
-  grid-template-columns: 72px minmax(110px, 1fr) 46px 14px 46px minmax(110px, 1fr) 112px;
+  grid-template-columns: 58px minmax(110px, 1fr) 46px 14px 46px minmax(110px, 1fr) minmax(118px, 0.72fr);
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -263,6 +263,14 @@ main {
   color: #fff;
   box-shadow: 0 0 14px rgba(249, 115, 22, 0.72), 0 0 22px rgba(250, 204, 21, 0.3);
   font-size: 12px;
+}
+
+.fixture-lock-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  min-width: 0;
 }
 
 .fixture-lock {
@@ -481,7 +489,7 @@ footer {
   }
 
   .fixture-row {
-    grid-template-columns: 58px minmax(72px, 1fr) 36px 10px 36px minmax(72px, 1fr);
+    grid-template-columns: 46px minmax(72px, 1fr) 36px 10px 36px minmax(72px, 1fr);
     min-height: 34px;
     padding: 4px 5px;
     gap: 4px;
@@ -503,9 +511,14 @@ footer {
     grid-column: 1 / -1;
   }
 
+  .fixture-lock-wrap {
+    grid-column: 1 / -1;
+    justify-content: center;
+    gap: 6px;
+  }
+
   .fixture-lock {
     display: block;
-    grid-column: 1 / -1;
     text-align: center;
     font-size: 11px;
   }

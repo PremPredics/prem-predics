@@ -192,6 +192,72 @@ header h1 {
   background: rgba(255,255,255,0.2);
 }
 
+.home-action-panel {
+  width: min(100%, 900px);
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(17, 7, 38, 0.44);
+  border: 1px solid rgba(216, 180, 254, 0.24);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+}
+
+.home-action-panel[hidden] {
+  display: none;
+}
+
+.home-action-title {
+  margin: 0;
+  text-align: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.home-action-list {
+  display: grid;
+  gap: 8px;
+}
+
+.home-action-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) repeat(2, minmax(132px, 0.45fr)) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(46, 16, 102, 0.5);
+  border: 1px solid rgba(216, 180, 254, 0.18);
+}
+
+.home-action-row strong {
+  color: #fff;
+}
+
+.home-action-status {
+  font-weight: 950;
+  text-align: center;
+}
+
+.home-action-status.complete {
+  color: #86efac;
+}
+
+.home-action-status.required {
+  color: #fca5a5;
+}
+
+.home-action-row a {
+  color: #fff;
+  font-weight: 900;
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.72);
+  text-align: center;
+}
+
 /* ===== MENU BUTTONS ===== */
 .menu {
   display: grid;
@@ -374,6 +440,11 @@ footer {
     justify-content: center;
   }
 
+  .home-action-row {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
   .menu {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -510,6 +581,10 @@ footer {
 <!-- ===== CONTAINER FOR CENTERED CONTENT ===== -->
 <div class="container">
   <div class="account-panel" data-auth-panel></div>
+  <section class="home-action-panel" data-home-action-panel hidden>
+    <h2 class="home-action-title">Current Actions</h2>
+    <div class="home-action-list" data-home-action-list></div>
+  </section>
 
   <!-- ===== MENU BUTTONS WITH ICONS ===== -->
   <div class="menu">
@@ -570,6 +645,7 @@ footer {
 </script>
 <script type="module" src="assets/js/site-auth.js"></script>
 <script type="module" src="assets/js/index-admin.js"></script>
+<script type="module" src="assets/js/index-actions.js"></script>
 
 </body>
 </html>

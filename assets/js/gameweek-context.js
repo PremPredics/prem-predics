@@ -45,7 +45,7 @@ export async function loadActiveGameweek(league) {
   const gameweekIds = eligibleGameweeks.map((gameweek) => gameweek.gameweek_id);
   const { data: fixtures, error: fixtureError } = await supabase
     .from('fixtures')
-    .select('id, gameweek_id, status, kickoff_at')
+    .select('id, gameweek_id, status, kickoff_at, prediction_locks_at')
     .eq('season_id', league.season_id)
     .in('gameweek_id', gameweekIds);
 

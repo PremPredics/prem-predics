@@ -3,7 +3,7 @@ import {
   leagueUrl,
   loadLeagueContext,
 } from './league-context.js';
-import { isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
+import { countdownText, isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
 import { supabase } from './supabase-client.js';
 
 const leagueName = document.querySelector('[data-league-name]');
@@ -12,8 +12,10 @@ const joinCode = document.querySelector('[data-join-code]');
 const copyJoinCodeButton = document.querySelector('[data-copy-join-code]');
 const gameweekLabel = document.querySelector('[data-gameweek-label]');
 const gameweekCountdown = document.querySelector('[data-gameweek-countdown]');
+const deadlineStrip = document.querySelector('[data-deadline-strip]');
 const playGrid = document.querySelector('[data-play-grid]');
 const profileLink = document.querySelector('[data-profile-link]');
+let deadlineTimer = null;
 
 function renderError(error) {
   leagueName.textContent = 'Private league unavailable';
@@ -24,6 +26,55 @@ function renderError(error) {
     memberCount.textContent = '';
   }
   playGrid.innerHTML = '';
+  if (deadlineStrip) {
+    deadlineStrip.innerHTML = '';
+  }
+}
+
+function earliestTime(values) {
+  return values
+    .filter(Boolean)
+    .map((value) => new Date(value).getTime())
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b)[0] || null;
+}
+
+function renderDeadlineCard(label, value) {
+  const locked = value && Date.now() >= new Date(value).getTime();
+  const text = value ? (locked ? 'Locked' : countdownText(value)) : 'Not set';
+  return `
+    <div class="deadline-card ${locked ? 'locked' : ''}">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(text)}</strong>
+    </div>
+  `;
+}
+
+function renderDeadlineStrip(activeGameweek, fixtures) {
+  if (!deadlineStrip) {
+    return;
+  }
+
+  if (deadlineTimer) {
+    window.clearInterval(deadlineTimer);
+    deadlineTimer = null;
+  }
+
+  const firstKickoffMs = earliestTime(fixtures.map((fixture) => fixture.kickoff_at));
+  const firstPredictionLockMs = earliestTime(fixtures.map((fixture) => fixture.prediction_locks_at));
+  const curseDeadlineMs = firstKickoffMs ? firstKickoffMs - (24 * 60 * 60 * 1000) : null;
+  const starDeadline = activeGameweek?.star_man_locks_at || null;
+
+  function update() {
+    deadlineStrip.innerHTML = [
+      renderDeadlineCard('Predictions Deadline', firstPredictionLockMs ? new Date(firstPredictionLockMs).toISOString() : null),
+      renderDeadlineCard('Star Man Deadline', starDeadline),
+      renderDeadlineCard('Curse Card Deadline', curseDeadlineMs ? new Date(curseDeadlineMs).toISOString() : null),
+    ].join('');
+  }
+
+  update();
+  deadlineTimer = window.setInterval(update, 1000);
 }
 
 async function copyJoinCode() {
@@ -44,11 +95,11 @@ async function copyJoinCode() {
 }
 
 async function renderLeague(league) {
-  const { activeGameweek } = await loadActiveGameweek(league);
+  const { activeGameweek, fixturesByGameweek } = await loadActiveGameweek(league);
   const gameweekNumber = activeGameweek?.gameweek_number || 'X';
   const pages = [
     {
-      page: 'predictions.html',
+      page: 'prediction-hub.html',
       title: 'Predictions',
       detail: `Submit your Score Predictions for Gameweek ${gameweekNumber}.`,
       accent: '#00e5ff',
@@ -120,6 +171,8 @@ async function renderLeague(league) {
   }
 
   if (activeGameweek) {
+    const activeFixtures = fixturesByGameweek.get(String(activeGameweek.gameweek_id)) || [];
+    renderDeadlineStrip(activeGameweek, activeFixtures.filter((fixture) => fixture.status !== 'postponed'));
     if (isGameweekStarted(activeGameweek)) {
       gameweekLabel.textContent = 'Current Gameweek';
       gameweekCountdown.textContent = `Gameweek ${activeGameweek.gameweek_number} Is Active`;
@@ -130,6 +183,9 @@ async function renderLeague(league) {
   } else {
     gameweekLabel.textContent = 'No active gameweek found';
     gameweekCountdown.textContent = '--d --h --m --s';
+    if (deadlineStrip) {
+      deadlineStrip.innerHTML = '';
+    }
   }
 
   const groupedPages = ['primary', 'game', 'reference'].map((tier) => pages.filter((item) => item.tier === tier));

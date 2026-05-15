@@ -394,7 +394,7 @@ function renderSummary() {
             <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
             ${state.hedgePrediction?.fixture_id === fixture.id ? `<small>Hedge: ${state.hedgePrediction.home_goals}-${state.hedgePrediction.away_goals}</small>` : ''}
             ${state.godPrediction?.fixture_id === fixture.id ? `<small>Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
-            ${curseOverride ? '<small>Curse override applied</small>' : ''}
+            ${curseOverride ? '<small>Cursed</small>' : ''}
           </div>
         `;
       }).join('')}
@@ -428,14 +428,16 @@ function renderEdit() {
       <article class="fixture-row ${curseOverride ? 'curse-override-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride ? 'true' : 'false'}">
         <span class="fixture-flags">
           <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
-          ${renderCurseMarker(fixture)}
         </span>
         <span class="fixture-team home">${escapeHtml(teamName(fixture.home_team_id))}</span>
         <input class="score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
         <span class="score-separator">-</span>
         <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
         <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
-        <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${locked ? 'Locked' : countdownText(fixture.prediction_locks_at)}</span>
+        <span class="fixture-lock-wrap">
+          ${renderCurseMarker(fixture)}
+          <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${locked ? 'Locked' : countdownText(fixture.prediction_locks_at)}</span>
+        </span>
       </article>
     `;
   }).join('')}`;

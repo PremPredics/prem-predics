@@ -166,6 +166,41 @@ main {
   letter-spacing: 0;
 }
 
+.deadline-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.deadline-card {
+  display: grid;
+  gap: 4px;
+  min-height: 70px;
+  align-content: center;
+  padding: 13px 14px;
+  border-radius: 8px;
+  background: rgba(17, 7, 38, 0.42);
+  border: 1px solid rgba(216, 180, 254, 0.22);
+  text-align: center;
+}
+
+.deadline-card span {
+  color: #ddd6fe;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.deadline-card strong {
+  color: #86efac;
+  font-size: 15px;
+}
+
+.deadline-card.locked strong {
+  color: #fecaca;
+}
+
 .copy-code-btn {
   margin-top: 8px;
   border: 0;
@@ -345,6 +380,11 @@ footer {
     text-align: center;
   }
 
+  .deadline-strip {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
   .play-group.primary,
   .play-group.game,
   .play-group.reference {
@@ -404,6 +444,8 @@ footer {
         <button class="copy-code-btn" type="button" data-copy-join-code>Copy</button>
       </div>
     </div>
+
+    <div class="deadline-strip" data-deadline-strip></div>
 
     <nav class="play-grid" data-play-grid aria-label="Private league pages"></nav>
   </section>

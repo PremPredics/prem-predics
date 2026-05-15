@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Player Predictions</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  color: #f3f4f6;
+  overflow-x: hidden;
+}
+header {
+  padding: 16px 14px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.42);
+}
+header h1 {
+  margin: 0;
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1.3px #05010c;
+  text-shadow:
+    -2px -2px 0 #05010c,
+    2px -2px 0 #05010c,
+    -2px 2px 0 #05010c,
+    2px 2px 0 #05010c,
+    0 0 12px rgba(216, 180, 254, 0.85);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 1.05;
+}
+main {
+  width: min(1050px, 100%);
+  margin: 0 auto;
+  padding: 10px 10px 18px;
+}
+.toolbar,
+.gameweek-controls,
+.player-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.toolbar { margin-bottom: 8px; }
+.toolbar a,
+.gameweek-controls button {
+  min-height: 34px;
+  color: #f3e8ff;
+  text-decoration: none;
+  font-weight: 900;
+  background: rgba(17, 7, 38, 0.68);
+  border: 1px solid rgba(216, 180, 254, 0.28);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.gameweek-controls button {
+  cursor: pointer;
+}
+.panel {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(46, 16, 102, 0.66);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.26);
+}
+.page-head {
+  text-align: center;
+  display: grid;
+  gap: 3px;
+}
+.page-head h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.9rem);
+}
+.page-head p {
+  margin: 0;
+  color: #ddd6fe;
+  font-weight: 800;
+}
+.player-pills {
+  padding: 4px 0;
+}
+.player-pill {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(216, 180, 254, 0.24);
+  border-radius: 999px;
+  background: rgba(17, 7, 38, 0.7);
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  overflow: hidden;
+}
+.player-pill.active {
+  border-color: #facc15;
+  box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
+}
+.player-pill img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fixtures {
+  display: grid;
+  gap: 4px;
+}
+.prediction-row {
+  min-height: 30px;
+  display: grid;
+  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr);
+  gap: 6px;
+  align-items: center;
+  padding: 5px 7px;
+  border-radius: 8px;
+  background: rgba(17, 7, 38, 0.44);
+  border: 1px solid rgba(216, 180, 254, 0.2);
+}
+.prediction-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 850;
+}
+.prediction-row span:nth-child(2) {
+  text-align: right;
+}
+.prediction-row strong {
+  text-align: center;
+  font-size: 16px;
+}
+.gw-badge {
+  justify-self: center;
+  color: #fde68a;
+  font-size: 11px;
+  font-weight: 950;
+}
+.state-text {
+  margin: 0;
+  color: #ddd6fe;
+  text-align: center;
+  line-height: 1.35;
+}
+footer {
+  text-align: center;
+  padding: 12px;
+  color: #d8b4fe;
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
+  font-size: 12px;
+}
+@media (max-width: 650px) {
+  header h1 {
+    -webkit-text-stroke: 0 !important;
+    text-shadow:
+      -1px -1px 0 #05010c,
+      1px -1px 0 #05010c,
+      -1px 1px 0 #05010c,
+      1px 1px 0 #05010c,
+      0 0 10px rgba(216, 180, 254, 0.72) !important;
+    font-size: 1.32rem !important;
+    white-space: nowrap !important;
+  }
+  main { padding: 7px; }
+  .panel { padding: 8px; gap: 6px; }
+  .player-pill { width: 40px; height: 40px; }
+  .prediction-row {
+    min-height: 28px;
+    grid-template-columns: 38px minmax(70px, 1fr) 44px minmax(70px, 1fr);
+    gap: 4px;
+    padding: 4px 5px;
+  }
+  .prediction-row span { font-size: 12px; }
+  .prediction-row strong { font-size: 14px; }
+}
+</style>
+</head>
+<body data-require-auth="true" data-require-league="true">
+<header>
+  <h1>Prem Predics - Player Predictions</h1>
+</header>
+
+<main>
+  <div class="toolbar">
+    <a data-league-back href="league.html">Back To League Hub</a>
+  </div>
+
+  <section class="panel">
+    <div class="page-head">
+      <h2 data-view-title>Loading predictions...</h2>
+      <p data-view-subtitle>Checking locked gameweeks.</p>
+    </div>
+    <div class="gameweek-controls">
+      <button type="button" data-previous-gameweek>Previous GW</button>
+      <strong data-current-gameweek>GW--</strong>
+      <button type="button" data-next-gameweek>Next GW</button>
+    </div>
+    <div class="player-pills" data-player-pills></div>
+    <div class="fixtures" data-prediction-list>
+      <p class="state-text">Loading...</p>
+    </div>
+  </section>
+</main>
+
+<footer>&copy; 2026 Prem Predics | Player Predictions</footer>
+<script type="module" src="assets/js/site-auth.js"></script>
+<script type="module" src="assets/js/all-predictions.js"></script>
+</body>
+</html>

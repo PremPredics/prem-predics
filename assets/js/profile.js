@@ -32,6 +32,45 @@ function setPasswordMessage(text, type = 'info') {
   passwordMessage.dataset.type = type;
 }
 
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[character]));
+}
+
+function confirmAction(text, confirmText = 'Yes') {
+  return new Promise((resolve) => {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px;background:rgba(8,3,20,.58);backdrop-filter:blur(7px);';
+    modal.innerHTML = `
+      <section style="width:min(460px,100%);display:grid;gap:16px;text-align:center;padding:22px;border-radius:12px;background:linear-gradient(135deg,rgba(46,16,102,.98),rgba(17,7,38,.98));border:2px solid rgba(216,180,254,.36);box-shadow:0 20px 52px rgba(0,0,0,.5);">
+        <h2 style="margin:0;color:#fff;">Are you sure?</h2>
+        <p style="margin:0;color:#f5f3ff;line-height:1.45;font-weight:800;">${escapeHtml(text)}</p>
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+          <button type="button" data-confirm style="min-width:120px;border:0;border-radius:999px;padding:11px 16px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-weight:950;cursor:pointer;">${escapeHtml(confirmText)}</button>
+          <button type="button" data-cancel style="min-width:120px;border:0;border-radius:999px;padding:11px 16px;background:linear-gradient(135deg,#dc2626,#7f1d1d);color:#fff;font-weight:950;cursor:pointer;">Cancel</button>
+        </div>
+      </section>
+    `;
+
+    function finish(value) {
+      modal.remove();
+      resolve(value);
+    }
+
+    modal.querySelector('[data-confirm]').addEventListener('click', () => finish(true));
+    modal.querySelector('[data-cancel]').addEventListener('click', () => finish(false));
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) finish(false);
+    });
+    document.body.appendChild(modal);
+  });
+}
+
 function getInitial(displayName) {
   return (displayName || 'P').trim().charAt(0).toUpperCase() || 'P';
 }
@@ -203,11 +242,7 @@ form.addEventListener('submit', async (event) => {
   }
 
   if (displayName !== originalDisplayName) {
-    const confirmed = window.confirm(
-      'Are you sure you want to change your username? You can only change it once per season.'
-    );
-
-    if (!confirmed) {
+    if (!(await confirmAction('Change your username? You can only change it once per season.', 'Change'))) {
       setMessage('Username change cancelled. No profile changes were saved.', 'info');
       return;
     }
