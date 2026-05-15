@@ -228,6 +228,10 @@ function restrictions() {
   ].includes(effectKey(effect)) && curseActiveNow());
 }
 
+function activeRestrictionSourceEffectId() {
+  return restrictions()[0]?.id || null;
+}
+
 function hasMicrostateNationality(player) {
   const normalised = normaliseText(player.nationality);
   return microstateNationalities.has(normalised);
@@ -308,7 +312,7 @@ function restrictionReasons(player) {
   return reasons;
 }
 
-function evaluatePlayer(player, slot) {
+function evaluatePlayer(player, slot, options = {}) {
   const reasons = [];
 
   if (state.usedStarManIds.has(player.id)) {
@@ -321,7 +325,9 @@ function evaluatePlayer(player, slot) {
 
   reasons.push(...restrictionReasons(player));
 
-  const deadline = deadlineCheck(player, slot);
+  const deadline = options.ignoreDeadline
+    ? { allowed: true, reason: '', sourceCardEffectId: null }
+    : deadlineCheck(player, slot);
   if (!deadline.allowed) {
     reasons.push(deadline.reason);
   }
@@ -329,7 +335,7 @@ function evaluatePlayer(player, slot) {
   return {
     allowed: reasons.length === 0,
     reasons,
-    sourceCardEffectId: deadline.sourceCardEffectId,
+    sourceCardEffectId: deadline.sourceCardEffectId || (options.ignoreDeadline ? activeRestrictionSourceEffectId() : null),
   };
 }
 
@@ -574,18 +580,18 @@ async function autoReplaceInvalidPrimaryPick() {
     return;
   }
 
-  const existingCheck = evaluatePlayer(existingPlayer, 'primary');
-  if (existingCheck.allowed) {
+  const activeRestrictionReasons = restrictionReasons(existingPlayer);
+  if (!activeRestrictionReasons.length) {
     return;
   }
 
-  const candidates = state.players.filter((player) => evaluatePlayer(player, 'primary').allowed);
+  const candidates = state.players.filter((player) => evaluatePlayer(player, 'primary', { ignoreDeadline: true }).allowed);
   if (!candidates.length) {
     return;
   }
 
   const replacement = randomItem(candidates);
-  const replacementCheck = evaluatePlayer(replacement, 'primary');
+  const replacementCheck = evaluatePlayer(replacement, 'primary', { ignoreDeadline: true });
 
   const { error } = await supabase.from('star_man_picks').upsert({
     competition_id: state.league.id,

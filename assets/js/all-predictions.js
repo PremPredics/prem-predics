@@ -60,18 +60,21 @@ function fixturesForGameweek(gameweekId) {
   return state.fixturesByGameweek.get(String(gameweekId)) || [];
 }
 
-function gameweekIsLocked(gameweek) {
+function gameweekPredictionsArePublic(gameweek) {
   const fixtures = fixturesForGameweek(gameweek.gameweek_id).filter((fixture) => fixture.status !== 'postponed');
-  return fixtures.length > 0 && fixtures.every((fixture) => isPast(fixture.prediction_locks_at));
+  return fixtures.length > 0 && (
+    isPast(gameweek.first_fixture_kickoff_at)
+    || fixtures.some((fixture) => isPast(fixture.kickoff_at))
+  );
 }
 
-function mostRecentLockedIndex(activeGameweek) {
-  const lockedIndexes = state.gameweeks
+function mostRecentPublicIndex(activeGameweek) {
+  const publicIndexes = state.gameweeks
     .map((gameweek, index) => ({ gameweek, index }))
-    .filter(({ gameweek }) => gameweekIsLocked(gameweek));
+    .filter(({ gameweek }) => gameweekPredictionsArePublic(gameweek));
 
-  if (lockedIndexes.length) {
-    return lockedIndexes[lockedIndexes.length - 1].index;
+  if (publicIndexes.length) {
+    return publicIndexes[publicIndexes.length - 1].index;
   }
 
   return Math.max(0, state.gameweeks.findIndex((gameweek) => gameweek.gameweek_id === activeGameweek?.gameweek_id));
@@ -122,9 +125,9 @@ async function renderPredictionRows(gameweek) {
     return;
   }
 
-  const locked = gameweekIsLocked(gameweek);
-  if (!locked) {
-    predictionList.innerHTML = '<p class="state-text">Predictions unlock here once every match in this gameweek is locked.</p>';
+  const publicNow = gameweekPredictionsArePublic(gameweek);
+  if (!publicNow) {
+    predictionList.innerHTML = '<p class="state-text">Predictions unlock here once this gameweek starts.</p>';
     return;
   }
 
@@ -212,7 +215,7 @@ async function loadData(activeGameweek) {
   });
 
   state.selectedUserId = state.user.id;
-  state.selectedGameweekIndex = mostRecentLockedIndex(activeGameweek);
+  state.selectedGameweekIndex = mostRecentPublicIndex(activeGameweek);
 }
 
 previousButton.addEventListener('click', () => {

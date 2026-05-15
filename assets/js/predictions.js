@@ -390,15 +390,16 @@ function renderSummary() {
         return `
           <div class="summary-row">
             <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
-            <strong class="summary-score ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}-${prediction?.away_goals ?? '-'} ${renderCurseMarker(fixture)}</strong>
+            <strong class="summary-score ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}-${prediction?.away_goals ?? '-'}</strong>
             <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
+            <span class="summary-status">${renderCurseMarker(fixture)}</span>
             ${state.hedgePrediction?.fixture_id === fixture.id ? `<small>Hedge: ${state.hedgePrediction.home_goals}-${state.hedgePrediction.away_goals}</small>` : ''}
             ${state.godPrediction?.fixture_id === fixture.id ? `<small>Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
             ${curseOverride ? '<small>Cursed</small>' : ''}
           </div>
         `;
       }).join('')}
-      ${state.superScorePick ? `<div class="summary-row special-summary"><span>Super Score</span><strong>${state.superScorePick.home_goals}-${state.superScorePick.away_goals}</strong><span>Scoreline Pick</span></div>` : ''}
+      ${state.superScorePick ? `<div class="summary-row special-summary"><span>Super Score</span><strong>${state.superScorePick.home_goals}-${state.superScorePick.away_goals}</strong><span>Scoreline Pick</span><span class="summary-status"></span></div>` : ''}
     </div>
   `;
   saveAllButton.hidden = true;

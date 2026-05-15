@@ -23,6 +23,12 @@ function setMessage(element, text, type = 'info') {
   element.dataset.type = type;
 }
 
+function setButtonsDisabled(buttons, disabled) {
+  buttons.forEach((button) => {
+    button.disabled = disabled;
+  });
+}
+
 function numberOrZero(value) {
   const number = Number(value);
   return Number.isFinite(number) && number >= 0 ? number : 0;
@@ -182,16 +188,14 @@ async function renderActualResults() {
   const select = document.querySelector('[data-actual-gameweek]');
   const list = document.querySelector('[data-actual-list]');
   const message = document.querySelector('[data-actual-message]');
-  const saveAllButton = document.querySelector('[data-save-all-results]');
+  const saveAllButtons = [...document.querySelectorAll('[data-save-all-results]')];
   populateGameweekSelect(select);
 
   async function renderList() {
     const fixtures = state.fixtures.filter((fixture) => String(fixture.gameweek_id) === select.value);
     if (!fixtures.length) {
       list.innerHTML = '<p class="section-copy">No fixtures found.</p>';
-      if (saveAllButton) {
-        saveAllButton.disabled = true;
-      }
+      setButtonsDisabled(saveAllButtons, true);
       return;
     }
 
@@ -219,19 +223,17 @@ async function renderActualResults() {
       `;
     }).join('');
 
-    if (saveAllButton) {
-      saveAllButton.disabled = fixtures.length === 0;
-    }
+    setButtonsDisabled(saveAllButtons, fixtures.length === 0);
   }
 
   select.onchange = renderList;
-  if (saveAllButton) {
-    saveAllButton.onclick = () => saveVisibleActualResults(list, message, saveAllButton, renderList);
-  }
+  saveAllButtons.forEach((button) => {
+    button.onclick = () => saveVisibleActualResults(list, message, saveAllButtons, renderList);
+  });
   await renderList();
 }
 
-async function saveVisibleActualResults(list, message, button, renderList) {
+async function saveVisibleActualResults(list, message, buttons, renderList) {
   const rows = [...list.querySelectorAll('[data-fixture-id]')]
     .filter((row) => row.querySelector('[data-home-goals]').value !== '' && row.querySelector('[data-away-goals]').value !== '');
 
@@ -241,7 +243,7 @@ async function saveVisibleActualResults(list, message, button, renderList) {
   }
 
   setMessage(message, 'Saving results...', 'info');
-  button.disabled = true;
+  setButtonsDisabled(buttons, true);
 
   try {
     for (const row of rows) {
@@ -271,7 +273,7 @@ async function saveVisibleActualResults(list, message, button, renderList) {
   } catch (error) {
     setMessage(message, error.message || 'Could not save actual results.', 'error');
   } finally {
-    button.disabled = false;
+    setButtonsDisabled(buttons, false);
   }
 }
 
@@ -279,7 +281,7 @@ function renderSchedule() {
   const select = document.querySelector('[data-schedule-filter]');
   const list = document.querySelector('[data-schedule-list]');
   const message = document.querySelector('[data-schedule-message]');
-  const saveAllButton = document.querySelector('[data-save-all-schedules]');
+  const saveAllButtons = [...document.querySelectorAll('[data-save-all-schedules]')];
   populateGameweekSelect(select, true);
 
   function renderList() {
@@ -299,19 +301,17 @@ function renderSchedule() {
       </div>
     `).join('') || '<p class="section-copy">No fixtures found.</p>';
 
-    if (saveAllButton) {
-      saveAllButton.disabled = fixtures.length === 0;
-    }
+    setButtonsDisabled(saveAllButtons, fixtures.length === 0);
   }
 
   select.onchange = renderList;
-  if (saveAllButton) {
-    saveAllButton.onclick = () => saveVisibleScheduleRows(list, message, saveAllButton, renderList);
-  }
+  saveAllButtons.forEach((button) => {
+    button.onclick = () => saveVisibleScheduleRows(list, message, saveAllButtons, renderList);
+  });
   renderList();
 }
 
-async function saveVisibleScheduleRows(list, message, button, renderList) {
+async function saveVisibleScheduleRows(list, message, buttons, renderList) {
   const rows = [...list.querySelectorAll('[data-fixture-id]')];
   if (!rows.length) {
     setMessage(message, 'No fixtures to save.', 'info');
@@ -319,7 +319,7 @@ async function saveVisibleScheduleRows(list, message, button, renderList) {
   }
 
   setMessage(message, 'Saving fixtures...', 'info');
-  button.disabled = true;
+  setButtonsDisabled(buttons, true);
 
   try {
     let changedCount = 0;
@@ -372,7 +372,7 @@ async function saveVisibleScheduleRows(list, message, button, renderList) {
   } catch (error) {
     setMessage(message, error.message || 'Could not save fixture schedule.', 'error');
   } finally {
-    button.disabled = list.querySelectorAll('[data-fixture-id]').length === 0;
+    setButtonsDisabled(buttons, list.querySelectorAll('[data-fixture-id]').length === 0);
   }
 }
 
@@ -396,8 +396,10 @@ async function renderFixtureStats() {
   const fixtureId = document.querySelector('[data-fixture-stats-fixture]').value;
   const list = document.querySelector('[data-fixture-stats-list]');
   const message = document.querySelector('[data-fixture-stats-message]');
+  const saveButtons = [...document.querySelectorAll('[data-save-fixture-stats]')];
   if (!fixtureId) {
     list.innerHTML = '<p class="section-copy">Choose a fixture.</p>';
+    setButtonsDisabled(saveButtons, true);
     return;
   }
 
@@ -413,14 +415,20 @@ async function renderFixtureStats() {
       <input data-stoppage-goals type="number" min="0" placeholder="90+ goals" value="${data?.stoppage_time_goals ?? ''}">
       <input data-pens type="number" min="0" placeholder="Pens scored" value="${data?.penalties_scored ?? ''}">
       <label><input data-heavy-snow type="checkbox" ${data?.played_in_heavy_snow ? 'checked' : ''}> Heavy snow</label>
-      <button type="button" data-save-fixture-stats>Save</button>
     </div>
   `;
-  list.querySelector('[data-save-fixture-stats]').addEventListener('click', () => saveFixtureStats(message));
+  setButtonsDisabled(saveButtons, false);
+  saveButtons.forEach((button) => {
+    button.onclick = () => saveFixtureStats(message);
+  });
 }
 
 async function saveFixtureStats(message) {
   const row = document.querySelector('[data-fixture-stats-list] [data-fixture-id]');
+  if (!row) {
+    setMessage(message, 'Choose a fixture before saving.', 'error');
+    return;
+  }
   const { error } = await supabase.from('fixture_game_stats').upsert({
     fixture_id: row.dataset.fixtureId,
     home_corners: numberOrZero(row.querySelector('[data-home-corners]').value),
@@ -450,7 +458,9 @@ function renderPlayerStatsControls() {
 
   gameweekSelect.onchange = syncFixtures;
   fixtureSelect.onchange = renderPlayerStats;
-  document.querySelector('[data-save-player-stats]').onclick = savePlayerStats;
+  document.querySelectorAll('[data-save-player-stats]').forEach((button) => {
+    button.onclick = savePlayerStats;
+  });
   syncFixtures();
 }
 
@@ -603,7 +613,9 @@ async function renderGameCardResults() {
 
   gameweekSelect.onchange = loadValue;
   cardSelect.onchange = loadValue;
-  document.querySelector('[data-save-game-card-result]').onclick = saveGameCardResult;
+  document.querySelectorAll('[data-save-game-card-result]').forEach((button) => {
+    button.onclick = saveGameCardResult;
+  });
   await loadValue();
 }
 

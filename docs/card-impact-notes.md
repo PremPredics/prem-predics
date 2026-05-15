@@ -81,7 +81,7 @@ Card inventory:
 Play timing:
 
 - Curse cards must be played at least 24 hours before the first fixture in the active gameweek.
-- Power and Super cards must be played before the 90-minute gameweek lock.
+- Power and Super cards must be played before the 90-minute gameweek lock, except Power of the Late Scout, which can still be played after that lock if the user has not already chosen a Star Man and at least one current-gameweek match has not kicked off.
 - Power of the Veto therefore has a response window after the curse deadline and before the normal 90-minute lock.
 
 ## Super Cards

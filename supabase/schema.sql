@@ -1495,6 +1495,33 @@ begin
     return new;
   end if;
 
+  if card_row.effect_key = 'power_late_scout' then
+    if exists (
+      select 1
+      from public.star_man_picks smp
+      where smp.competition_id = new.competition_id
+        and smp.season_id = new.season_id
+        and smp.gameweek_id = target_gameweek_id
+        and smp.user_id = new.played_by_user_id
+        and smp.pick_slot = 'primary'
+    ) then
+      raise exception 'Power of the Late Scout can only be played if you have not already chosen a Star Man for this gameweek.';
+    end if;
+
+    if not exists (
+      select 1
+      from public.fixtures f
+      where f.season_id = new.season_id
+        and f.gameweek_id = target_gameweek_id
+        and f.status <> 'postponed'
+        and now() < f.kickoff_at
+    ) then
+      raise exception 'Power of the Late Scout can only be played while at least one current gameweek match has not kicked off.';
+    end if;
+
+    return new;
+  end if;
+
   if card_row.category = 'curse' then
     play_deadline := first_kickoff - interval '24 hours';
   else
@@ -2613,10 +2640,16 @@ using (
   or (
     public.is_competition_member(competition_id)
     and exists (
-    select 1
-    from public.fixtures f
-    where f.id = predictions.fixture_id
-      and now() >= f.prediction_locks_at
+      select 1
+      from public.fixtures f
+      where f.id = predictions.fixture_id
+        and now() >= (
+          select min(gwf.kickoff_at)
+          from public.fixtures gwf
+          where gwf.season_id = f.season_id
+            and gwf.gameweek_id = f.gameweek_id
+            and gwf.status <> 'postponed'
+        )
     )
   )
 );

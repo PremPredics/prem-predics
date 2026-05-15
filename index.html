@@ -211,8 +211,15 @@ header h1 {
   margin: 0;
   text-align: center;
   color: #fff;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 950;
+  letter-spacing: 0;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9),
+    0 0 12px rgba(216, 180, 254, 0.6);
 }
 
 .home-action-list {
@@ -235,17 +242,33 @@ header h1 {
   color: #fff;
 }
 
+.home-action-status-line {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+}
+
+.home-action-status-line strong {
+  color: #fff;
+}
+
 .home-action-status {
   font-weight: 950;
   text-align: center;
 }
 
 .home-action-status.complete {
-  color: #86efac;
+  color: #19ff7a;
+  text-shadow: 0 0 10px rgba(34, 255, 136, 0.42);
 }
 
 .home-action-status.required {
-  color: #fca5a5;
+  color: #ff3b3b;
+  text-shadow: 0 0 10px rgba(255, 59, 59, 0.42);
 }
 
 .home-action-row a {
@@ -582,7 +605,7 @@ footer {
 <div class="container">
   <div class="account-panel" data-auth-panel></div>
   <section class="home-action-panel" data-home-action-panel hidden>
-    <h2 class="home-action-title">Current Actions</h2>
+    <h2 class="home-action-title">Gameweek Actions</h2>
     <div class="home-action-list" data-home-action-list></div>
   </section>
 

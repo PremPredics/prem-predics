@@ -13,6 +13,10 @@ function statusMarkup(completed) {
   return `<span class="home-action-status ${completed ? 'complete' : 'required'}">${completed ? 'Completed' : 'Action Required'}</span>`;
 }
 
+function actionStatus(label, completed) {
+  return `<span class="home-action-status-line"><strong>${escapeHtml(label)}:</strong> ${statusMarkup(completed)}</span>`;
+}
+
 async function predictionStatus(userId, league, activeGameweek) {
   const { data: fixtures, error: fixtureError } = await supabase
     .from('fixtures')
@@ -80,8 +84,8 @@ async function leagueRow(userId, league) {
   return `
     <div class="home-action-row">
       <strong>${escapeHtml(league.name)}<br><small>GW${escapeHtml(activeGameweek.gameweek_number)}</small></strong>
-      <span>Predictions ${statusMarkup(predictionsComplete)}</span>
-      <span>Star Man ${statusMarkup(starManComplete)}</span>
+      ${actionStatus('Predictions', predictionsComplete)}
+      ${actionStatus('Star Man', starManComplete)}
       <a href="${leagueUrl('league.html', league.id)}">Open</a>
     </div>
   `;

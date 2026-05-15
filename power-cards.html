@@ -4860,6 +4860,31 @@ function assertCardPlayDeadline(rule, activeGameweek) {
   throw new Error(`Power and Super cards must be played before the 90-minute gameweek deadline. Deadline: ${formatDeadlineForMessage(deadline)}.`);
 }
 
+async function assertLateScoutCanBePlayed(activeGameweek, fixtures, runtimeContext, client) {
+  const { data: existingPick, error } = await client
+    .from('star_man_picks')
+    .select('id')
+    .eq('competition_id', runtimeContext.league.id)
+    .eq('season_id', runtimeContext.league.season_id)
+    .eq('gameweek_id', activeGameweek.gameweek_id)
+    .eq('user_id', runtimeContext.user.id)
+    .eq('pick_slot', 'primary')
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  if (existingPick) {
+    throw new Error('Power of the Late Scout can only be played if you have not already chosen a Star Man for this gameweek.');
+  }
+
+  const openFixtures = (fixtures || []).filter((fixture) => fixture.status !== 'postponed' && !gameweekHasStartedFromTime(fixture.kickoff_at));
+  if (!openFixtures.length) {
+    throw new Error('Power of the Late Scout can only be played while at least one current gameweek match has not kicked off.');
+  }
+}
+
 function shouldKeepPlayedCardInHand(activation) {
   return Boolean(activation?.card_instance_id)
     && !gameweekHasStartedFromTime(activation.first_fixture_kickoff_at);
@@ -5804,7 +5829,7 @@ async function initializeCardPage() {
     async function currentGameweekFixtures(activeGameweek) {
       const { data, error } = await supabase
         .from('fixtures')
-        .select('id, home_team_id, away_team_id, kickoff_at')
+        .select('id, home_team_id, away_team_id, kickoff_at, status')
         .eq('season_id', context.league.season_id)
         .eq('gameweek_id', activeGameweek.gameweek_id)
         .order('kickoff_at', { ascending: true });
@@ -6019,7 +6044,12 @@ async function initializeCardPage() {
         if (!activeGameweek) {
           throw new Error('No active gameweek found.');
         }
-        assertCardPlayDeadline(rule, activeGameweek);
+        const fixtures = await currentGameweekFixtures(activeGameweek);
+        if (rule.effectKey === 'power_late_scout') {
+          await assertLateScoutCanBePlayed(activeGameweek, fixtures, context, supabase);
+        } else {
+          assertCardPlayDeadline(rule, activeGameweek);
+        }
 
         if (rule.special === 'veto') {
           return playVeto(activeGameweek);
@@ -6027,7 +6057,6 @@ async function initializeCardPage() {
 
         const members = await leagueMembers();
         const opponents = members.filter((member) => member.user_id !== context.user.id);
-        const fixtures = await currentGameweekFixtures(activeGameweek);
         let targetUserId = null;
         let fixtureId = null;
         let payload = {};

@@ -357,7 +357,7 @@ button:disabled {
 
 .summary-row {
   display: grid;
-  grid-template-columns: minmax(110px, 1fr) 64px minmax(110px, 1fr);
+  grid-template-columns: minmax(110px, 1fr) 64px minmax(110px, 1fr) 30px;
   align-items: center;
   min-height: 34px;
   padding: 6px 8px;
@@ -371,6 +371,13 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 7px;
+}
+
+.summary-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
 }
 
 .summary-row span {
@@ -559,7 +566,7 @@ footer {
   }
 
   .summary-row {
-    grid-template-columns: minmax(82px, 1fr) 58px minmax(82px, 1fr);
+    grid-template-columns: minmax(78px, 1fr) 54px minmax(78px, 1fr) 20px;
     min-height: 31px;
     font-size: 12px;
   }

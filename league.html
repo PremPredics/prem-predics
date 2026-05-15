@@ -186,19 +186,26 @@ main {
 }
 
 .deadline-card span {
-  color: #ddd6fe;
+  color: #fff;
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.82),
+    1px -1px 0 rgba(0,0,0,0.82),
+    -1px 1px 0 rgba(0,0,0,0.82),
+    1px 1px 0 rgba(0,0,0,0.82);
 }
 
 .deadline-card strong {
-  color: #86efac;
+  color: #19ff7a;
   font-size: 15px;
+  text-shadow: 0 0 10px rgba(34, 255, 136, 0.5);
 }
 
 .deadline-card.locked strong {
-  color: #fecaca;
+  color: #ff3b3b;
+  text-shadow: 0 0 10px rgba(255, 59, 59, 0.5);
 }
 
 .copy-code-btn {
