@@ -7,7 +7,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('power_swap', 'Power of the Swap', 'power', 'regular', 'power_swap', 'Discard this card and one other card, then draw 3 Regular Deck cards and keep 2.'),
     ('power_veto', 'Power of the Veto', 'power', 'regular', 'power_veto', 'Cancel an opponent Curse.'),
     ('power_laundrette', 'Power of the Laundrette', 'power', 'regular', 'power_laundrette', 'Double points for correct results with a clean sheet.'),
-    ('power_rocket_man', 'Power of the Rocket Man', 'power', 'regular', 'power_rocket_man', 'Outside-the-box Star Man goals and assists are doubled.'),
+    ('power_rocket_man', 'Power Of The Clean Sweep', 'power', 'regular', 'power_clean_sweep', 'Valid for 1 Gameweek. If you score a point in every game, earn bonus +5 UC pts. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_pessimist', 'Power of the Pessimist', 'power', 'regular', 'power_pessimist', 'Double all prediction points if no team scores 3+ goals in the gameweek.'),
     ('power_immigrants', 'Power of the Immigrants', 'power', 'regular', 'power_immigrants', 'Non-English Star Men score double points.'),
     ('power_lanky_crouch', 'Power of the Lanky Crouch', 'power', 'regular', 'power_lanky_crouch', 'Star Men 185cm or taller score double points.'),
@@ -20,7 +20,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
 
     ('curse_hated', 'Curse of the Hated', 'curse', 'regular', 'curse_hated', 'Valid for 1 Gameweek. Opponent must predict 8-2 in at least one game this gameweek. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_gambler', 'Curse of the Random', 'curse', 'regular', 'curse_gambler', 'Valid for 1 Gameweek. For 3 games, roll a dice to determine the score predictions of an opponent. Must be played at least 24 hours before the gameweek''s first KO time.'),
-    ('curse_bench_warmer', 'Curse of the Bench Warmer', 'curse', 'regular', 'curse_bench_warmer', 'Valid for 1 Gameweek. Opponent Star Man must have been benched in the previous gameweek. Must be played at least 24 hours before the gameweek''s first KO time.'),
+    ('curse_bench_warmer', 'Curse of the Furious', 'curse', 'regular', 'curse_furious', 'Valid for 1 Gameweek. If your opponent''s Star Man gets a yellow or red card, those minus points are doubled. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_alphabet_15', 'Curse of the Alphabet (15+)', 'curse', 'regular', 'curse_alphabet_15', 'Valid for 1 Gameweek. Opponent Star Man surname must have Scrabble score of 15+. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_alphabet_20', 'Curse of the Alphabet (20+)', 'curse', 'regular', 'curse_alphabet_20', 'Valid for 1 Gameweek. Opponent Star Man surname must have Scrabble score of 20+. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_scoring_drought_3', 'Curse of the Scoring Drought (3)', 'curse', 'regular', 'curse_scoring_drought_3', 'Valid for 1 Gameweek. Opponent Star Man must have 0 goals in their last 3 Premier League games. Must be played at least 24 hours before the gameweek''s first KO time.'),

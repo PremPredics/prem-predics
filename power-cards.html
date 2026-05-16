@@ -3670,7 +3670,7 @@ const cardDescriptions = {
   "Power of the Swap": "🃏 Power of the Swap\n• Discard 2, Draw 3, Pick 2•\n\n🏆Discard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand for the player playing this card🏆",
   "Power of the Veto": "🃏 Power of the Veto\n\n🏆Veto a Curse played by your opponent🏆",
   "Power of the Laundrette": "🃏 Power of the Laundrette\n• Valid for 1 Gameweek•\n\n🏆DOUBLE points for any Correct Result with a Clean Sheet for the player playing this card🏆",
-  "Power of the Rocket Man": "🃏 Power of the Rocket Man\n• Valid for 1 Gameweek•\n\n🏆Outside the Box Goals and Assists for Star Man are DOUBLE for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
+  "Power Of The Clean Sweep": "🃏 Power Of The Clean Sweep\n• Valid for 1 Gameweek•\n\n🏆If you score a point in every game this Gameweek, earn bonus +5 UC pts🏆\n\n*Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Pessimist": "🃏 Power of the Pessimist\n• Valid for 1 Gameweek•\n\n🏆 DOUBLE points for all Predictions if no team scores 3+ goals for the player playing this card🏆",
   "Power of the Immigrants": "🃏 Power of the Immigrants\n• Valid for 1 Gameweek•\n\n🏆Non-English Star Men score DOUBLE points for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
   "Power of the Lanky Crouch": "🃏 Power of the Lanky Crouch\n• Valid for 1 Gameweek•\n\n🏆 Star Men 6ft1 (185cm) or taller score DOUBLE points for the player playing this card🏆\n\n*Must be played before the start of a Gameweek",
@@ -3683,7 +3683,7 @@ const cardDescriptions = {
 
   "Curse of the Hated": "🃏 Curse of the Hated\n• Valid for 1 Gameweek•\n\n✖️Opponent must predict 8–2 in at least one game this Gameweek✖️\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Random": "🃏 Curse of the Random\n• Valid for 1 Gameweek•\n\n❌For 3 games, roll a dice to determine the score predictions of an opponent❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Bench Warmer": "🃏 Curse of the Bench Warmer\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have been benched in the previous GW❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Furious": "🃏 Curse of the Furious\n• Valid for 1 Gameweek•\n\n❌If your opponent's Star Man gets a Yellow or Red card, those -pts are doubled❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Alphabet (15+)": "🃏 Curse of the Alphabet\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man surname must have a Scrabble score of 15+❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Alphabet (20+)": "🃏 Curse of the Alphabet\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man surname must have a Scrabble score of 20+❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Scoring Drought (3)": "🃏 Curse of the Scoring Drought\n• Valid for 1 Gameweek•\n\n❌Opponent's Star Man must have 0 goals in their last 3 PL games❌\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
@@ -3714,6 +3714,8 @@ const cardDescriptions = {
 };
 cardDescriptions["Curse of the Gambler"] = cardDescriptions["Curse of the Random"];
 cardDescriptions["Curse of the Random Roulette"] = cardDescriptions["Curse Of The Microstate"];
+cardDescriptions["Power of the Rocket Man"] = cardDescriptions["Power Of The Clean Sweep"];
+cardDescriptions["Curse of the Bench Warmer"] = cardDescriptions["Curse of the Furious"];
 
 // POWER CARDS - 30 TOTAL
 const powerCards = [
@@ -3721,7 +3723,7 @@ const powerCards = [
   "Power of the Swap", "Power of the Swap", "Power of the Swap",
   "Power of the Veto", "Power of the Veto", "Power of the Veto",
   "Power of the Laundrette", "Power of the Laundrette",
-  "Power of the Rocket Man", "Power of the Rocket Man", "Power of the Rocket Man",
+  "Power Of The Clean Sweep", "Power Of The Clean Sweep", "Power Of The Clean Sweep",
   "Power of the Pessimist",
   "Power of the Immigrants", "Power of the Immigrants",
   "Power of the Lanky Crouch", "Power of the Lanky Crouch",
@@ -3737,7 +3739,7 @@ const powerCards = [
 const curseCards = [
   "Curse of the Hated", "Curse of the Hated",
   "Curse of the Random", "Curse of the Random",
-  "Curse of the Bench Warmer", "Curse of the Bench Warmer",
+  "Curse of the Furious", "Curse of the Furious",
   "Curse of the Alphabet (15+)",
   "Curse of the Alphabet (20+)",
   "Curse of the Scoring Drought (3)",
@@ -3828,6 +3830,8 @@ function normalizeCardName(cardName) {
   if (cardName === legacySuperScoreName) return "Super Score";
   if (cardName === "Curse of the Gambler") return "Curse of the Random";
   if (cardName === "Curse of the Random Roulette") return "Curse Of The Microstate";
+  if (cardName === "Power of the Rocket Man") return "Power Of The Clean Sweep";
+  if (cardName === "Curse of the Bench Warmer") return "Curse of the Furious";
   return cardName;
 }
 
@@ -5365,7 +5369,7 @@ async function initializeCardPage() {
       'Power of the Swap': { cardId: 'power_swap', effectKey: 'power_swap', duration: 1, target: 'self' },
       'Power of the Veto': { cardId: 'power_veto', effectKey: 'power_veto', special: 'veto' },
       'Power of the Laundrette': { cardId: 'power_laundrette', effectKey: 'power_laundrette', duration: 1, target: 'self' },
-      'Power of the Rocket Man': { cardId: 'power_rocket_man', effectKey: 'power_rocket_man', duration: 1, target: 'self' },
+      'Power Of The Clean Sweep': { cardId: 'power_rocket_man', effectKey: 'power_clean_sweep', duration: 1, target: 'self' },
       'Power of the Pessimist': { cardId: 'power_pessimist', effectKey: 'power_pessimist', duration: 1, target: 'self' },
       'Power of the Immigrants': { cardId: 'power_immigrants', effectKey: 'power_immigrants', duration: 1, target: 'self' },
       'Power of the Lanky Crouch': { cardId: 'power_lanky_crouch', effectKey: 'power_lanky_crouch', duration: 1, target: 'self' },
@@ -5377,7 +5381,7 @@ async function initializeCardPage() {
       'Power of the Snow': { cardId: 'power_snow', effectKey: 'power_snow', duration: 1, target: 'self' },
       'Curse of the Hated': { cardId: 'curse_hated', effectKey: 'curse_hated', duration: 1, target: 'opponent', special: 'hated' },
       'Curse of the Random': { cardId: 'curse_gambler', effectKey: 'curse_gambler', duration: 1, target: 'opponent', special: 'gambler' },
-      'Curse of the Bench Warmer': { cardId: 'curse_bench_warmer', effectKey: 'curse_bench_warmer', duration: 1, target: 'opponent' },
+      'Curse of the Furious': { cardId: 'curse_bench_warmer', effectKey: 'curse_furious', duration: 1, target: 'opponent' },
       'Curse of the Alphabet (15+)': { cardId: 'curse_alphabet_15', effectKey: 'curse_alphabet_15', duration: 1, target: 'opponent' },
       'Curse of the Alphabet (20+)': { cardId: 'curse_alphabet_20', effectKey: 'curse_alphabet_20', duration: 1, target: 'opponent' },
       'Curse of the Scoring Drought (3)': { cardId: 'curse_scoring_drought_3', effectKey: 'curse_scoring_drought_3', duration: 1, target: 'opponent' },
@@ -5399,6 +5403,8 @@ async function initializeCardPage() {
     };
     cardEffectRules['Curse of the Gambler'] = cardEffectRules['Curse of the Random'];
     cardEffectRules['Curse of the Random Roulette'] = cardEffectRules['Curse Of The Microstate'];
+    cardEffectRules['Power of the Rocket Man'] = cardEffectRules['Power Of The Clean Sweep'];
+    cardEffectRules['Curse of the Bench Warmer'] = cardEffectRules['Curse of the Furious'];
 
     function chooseFromList(title, items, labelFn) {
       if (!items.length) {

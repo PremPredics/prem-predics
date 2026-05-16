@@ -140,7 +140,7 @@ async function loadReferenceData() {
     supabase.from('teams').select('id, name').order('name', { ascending: true }),
     supabase.from('gameweeks').select('id, season_id, number, star_man_locks_at').order('number', { ascending: true }),
     supabase.from('fixtures').select('id, season_id, gameweek_id, original_gameweek_id, home_team_id, away_team_id, kickoff_at, status, sort_order').order('kickoff_at', { ascending: true }),
-    supabase.from('card_definitions').select('id, name, deck_type').eq('deck_type', 'game').order('name', { ascending: true }),
+    supabase.from('card_definitions').select('id, name, deck_type').order('name', { ascending: true }),
   ]);
 
   for (const response of [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, cardResponse]) {
@@ -158,7 +158,7 @@ async function loadReferenceData() {
   state.teamsById = new Map(state.teams.map((team) => [team.id, team]));
   state.gameweeks = (gameweekResponse.data || []).filter((gameweek) => gameweek.season_id === state.season?.id);
   state.fixtures = (fixtureResponse.data || []).filter((fixture) => fixture.season_id === state.season?.id);
-  state.cards = cardResponse.data || [];
+  state.cards = (cardResponse.data || []).filter((card) => card.deck_type === 'game' || card.id === 'super_pen');
 }
 
 function showSection(name) {
@@ -407,13 +407,6 @@ async function renderFixtureStats() {
   list.innerHTML = `
     <div class="admin-row fixture-stats" data-fixture-id="${fixtureId}">
       <strong>${escapeHtml(fixtureLabel(state.fixtures.find((fixture) => fixture.id === fixtureId)))}</strong>
-      <input data-home-corners type="number" min="0" placeholder="Home corners" value="${data?.home_corners ?? ''}">
-      <input data-away-corners type="number" min="0" placeholder="Away corners" value="${data?.away_corners ?? ''}">
-      <input data-home-yellows type="number" min="0" placeholder="Home yellows" value="${data?.home_yellow_cards ?? ''}">
-      <input data-away-yellows type="number" min="0" placeholder="Away yellows" value="${data?.away_yellow_cards ?? ''}">
-      <input data-early-goal type="number" min="0" placeholder="Earliest goal" value="${data?.earliest_goal_minute ?? ''}">
-      <input data-stoppage-goals type="number" min="0" placeholder="90+ goals" value="${data?.stoppage_time_goals ?? ''}">
-      <input data-pens type="number" min="0" placeholder="Pens scored" value="${data?.penalties_scored ?? ''}">
       <label><input data-heavy-snow type="checkbox" ${data?.played_in_heavy_snow ? 'checked' : ''}> Heavy snow</label>
     </div>
   `;
@@ -431,13 +424,6 @@ async function saveFixtureStats(message) {
   }
   const { error } = await supabase.from('fixture_game_stats').upsert({
     fixture_id: row.dataset.fixtureId,
-    home_corners: numberOrZero(row.querySelector('[data-home-corners]').value),
-    away_corners: numberOrZero(row.querySelector('[data-away-corners]').value),
-    home_yellow_cards: numberOrZero(row.querySelector('[data-home-yellows]').value),
-    away_yellow_cards: numberOrZero(row.querySelector('[data-away-yellows]').value),
-    earliest_goal_minute: row.querySelector('[data-early-goal]').value === '' ? null : numberOrZero(row.querySelector('[data-early-goal]').value),
-    stoppage_time_goals: numberOrZero(row.querySelector('[data-stoppage-goals]').value),
-    penalties_scored: numberOrZero(row.querySelector('[data-pens]').value),
     played_in_heavy_snow: row.querySelector('[data-heavy-snow]').checked,
     entered_by: state.user.id,
   });
@@ -502,17 +488,8 @@ async function renderPlayerStats() {
               <strong>${escapeHtml(player.display_name)}</strong>
               <label class="stat-field"><span>G</span><input data-goals type="number" min="0" value="${row?.goals ?? 0}" title="Goals"></label>
               <label class="stat-field"><span>A</span><input data-assists type="number" min="0" value="${row?.assists ?? 0}" title="Assists"></label>
-              <label class="stat-field"><span>OBG</span><input data-outside-goals type="number" min="0" value="${row?.outside_box_goals ?? 0}" title="Outside-box goals"></label>
-              <label class="stat-field"><span>OBA</span><input data-outside-assists type="number" min="0" value="${row?.outside_box_assists ?? 0}" title="Outside-box assists"></label>
               <label class="stat-field"><span>YC</span><input data-yellows type="number" min="0" value="${row?.yellow_cards ?? 0}" title="Yellow cards"></label>
               <label class="stat-field"><span>RC</span><input data-reds type="number" min="0" value="${row?.red_cards ?? 0}" title="Red cards"></label>
-              <div class="lineup-fields">
-                <label class="checkbox-label"><input data-started type="checkbox" ${row?.started ? 'checked' : ''}> Started</label>
-                <label class="checkbox-label"><input data-benched type="checkbox" ${row?.was_benched ? 'checked' : ''}> Unused Sub</label>
-                <label>Minutes<input data-minutes type="number" min="0" max="130" value="${row?.minutes_played ?? ''}" title="Minutes played"></label>
-                <label>Sub On<input data-sub-on type="number" min="0" max="130" value="${row?.substituted_on_minute ?? ''}" title="Substituted on minute"></label>
-                <label>Sub Off<input data-sub-off type="number" min="0" max="130" value="${row?.substituted_off_minute ?? ''}" title="Substituted off minute"></label>
-              </div>
             </div>
           `;
         }).join('')}
@@ -547,17 +524,17 @@ async function savePlayerStats() {
       was_home_team: isHome,
       goals: numberOrZero(row.querySelector('[data-goals]').value),
       assists: numberOrZero(row.querySelector('[data-assists]').value),
-      outside_box_goals: numberOrZero(row.querySelector('[data-outside-goals]').value),
-      outside_box_assists: numberOrZero(row.querySelector('[data-outside-assists]').value),
+      outside_box_goals: 0,
+      outside_box_assists: 0,
       yellow_cards: numberOrZero(row.querySelector('[data-yellows]').value),
       red_cards: numberOrZero(row.querySelector('[data-reds]').value),
-      started: row.querySelector('[data-started]').checked,
-      was_benched: row.querySelector('[data-benched]').checked,
-      was_in_matchday_squad: row.querySelector('[data-started]').checked || row.querySelector('[data-minutes]').value !== '' || row.querySelector('[data-benched]').checked,
-      was_substituted: row.querySelector('[data-sub-on]').value !== '' || row.querySelector('[data-sub-off]').value !== '',
-      substituted_on_minute: row.querySelector('[data-sub-on]').value === '' ? null : numberOrZero(row.querySelector('[data-sub-on]').value),
-      substituted_off_minute: row.querySelector('[data-sub-off]').value === '' ? null : numberOrZero(row.querySelector('[data-sub-off]').value),
-      minutes_played: row.querySelector('[data-minutes]').value === '' ? null : numberOrZero(row.querySelector('[data-minutes]').value),
+      started: null,
+      was_benched: null,
+      was_in_matchday_squad: null,
+      was_substituted: null,
+      substituted_on_minute: null,
+      substituted_off_minute: null,
+      minutes_played: null,
       entered_by: state.user.id,
     };
   }).filter((row) => row.team_id);
@@ -568,13 +545,13 @@ async function savePlayerStats() {
     player_id: row.player_id,
     goals: row.goals,
     assists: row.assists,
-    outside_box_goals: row.outside_box_goals,
-    outside_box_assists: row.outside_box_assists,
+    outside_box_goals: 0,
+    outside_box_assists: 0,
     yellow_cards: row.yellow_cards,
     red_cards: row.red_cards,
-    started: row.started,
-    was_benched: row.was_benched,
-    minutes_played: row.minutes_played,
+    started: null,
+    was_benched: null,
+    minutes_played: null,
     entered_by: state.user.id,
   }));
 
@@ -598,7 +575,65 @@ async function renderGameCardResults() {
   const cardSelect = document.querySelector('[data-game-card-card]');
   const valueInput = document.querySelector('[data-game-card-value]');
   populateGameweekSelect(gameweekSelect);
-  cardSelect.innerHTML = options(state.cards, 'id', (card) => card.name);
+  cardSelect.innerHTML = options(state.cards, 'id', (card) => (
+    card.id === 'super_pen' ? 'Weekly Penalties Scored (for Super Pen)' : card.name
+  ));
+
+  async function calculatedValue(cardId, gameweekId) {
+    if (cardId === 'game_goals') {
+      const fixtureIds = state.fixtures
+        .filter((fixture) => String(fixture.gameweek_id) === String(gameweekId))
+        .map((fixture) => fixture.id);
+
+      if (!fixtureIds.length) {
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('match_results')
+        .select('home_goals, away_goals')
+        .in('fixture_id', fixtureIds);
+
+      if (error || !data?.length) {
+        return null;
+      }
+
+      return data.reduce((total, row) => total + numberOrZero(row.home_goals) + numberOrZero(row.away_goals), 0);
+    }
+
+    if (cardId === 'game_goalhanger') {
+      const { data, error } = await supabase
+        .from('player_gameweek_stats')
+        .select('goals')
+        .eq('season_id', state.season.id)
+        .eq('gameweek_id', gameweekId)
+        .gte('goals', 2)
+        .range(0, 10000);
+
+      if (error) {
+        return null;
+      }
+
+      return (data || []).length;
+    }
+
+    if (cardId !== 'game_war') {
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('player_gameweek_stats')
+      .select('yellow_cards')
+      .eq('season_id', state.season.id)
+      .eq('gameweek_id', gameweekId)
+      .range(0, 10000);
+
+    if (error) {
+      return null;
+    }
+
+    return (data || []).reduce((total, row) => total + numberOrZero(row.yellow_cards), 0);
+  }
 
   async function loadValue() {
     const { data } = await supabase
@@ -608,7 +643,8 @@ async function renderGameCardResults() {
       .eq('gameweek_id', gameweekSelect.value)
       .eq('card_id', cardSelect.value)
       .maybeSingle();
-    valueInput.value = data?.actual_value ?? '';
+    const autoValue = await calculatedValue(cardSelect.value, gameweekSelect.value);
+    valueInput.value = data?.actual_value ?? autoValue ?? '';
   }
 
   gameweekSelect.onchange = loadValue;
@@ -640,7 +676,7 @@ async function saveGameCardResult() {
     onConflict: 'season_id,gameweek_id,card_id',
   });
 
-  setMessage(message, error ? error.message : 'Game Card actual result saved.', error ? 'error' : 'success');
+  setMessage(message, error ? error.message : 'Gameweek result saved.', error ? 'error' : 'success');
 }
 
 async function renderTeamStandings() {

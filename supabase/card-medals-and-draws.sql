@@ -1152,8 +1152,6 @@ star_rows as (
     smp.pick_slot,
     coalesce(pgs.goals, 0) as goals,
     coalesce(pgs.assists, 0) as assists,
-    coalesce(pgs.outside_box_goals, 0) as outside_box_goals,
-    coalesce(pgs.outside_box_assists, 0) as outside_box_assists,
     coalesce(pgs.yellow_cards, 0) as yellow_cards,
     coalesce(pgs.red_cards, 0) as red_cards,
     p.nationality,
@@ -1169,9 +1167,10 @@ star_rows as (
       select 1 from effect_windows ew
       where ew.competition_id = smp.competition_id
         and ew.played_by_user_id = smp.user_id
-        and ew.effect_key = 'power_rocket_man'
+        and ew.target_user_id = smp.user_id
+        and ew.effect_key = 'curse_furious'
         and gw.number between ew.start_number and ew.end_number
-    ) as rocket_man_applies,
+    ) as furious_applies,
     exists (
       select 1 from effect_windows ew
       where ew.competition_id = smp.competition_id
@@ -1237,10 +1236,9 @@ select
       (goals * 3)
       + assists
       + case when power_goal_applies then 3 else 0 end
-      + case when rocket_man_applies then (outside_box_goals * 3) + outside_box_assists else 0 end
       + case when assist_king_applies then assists else 0 end
-      - case when super_star_man_applies then 0 else yellow_cards end
-      - case when super_star_man_applies then 0 else red_cards * 3 end
+      - case when super_star_man_applies then 0 else yellow_cards * case when furious_applies then 2 else 1 end end
+      - case when super_star_man_applies then 0 else red_cards * 3 * case when furious_applies then 2 else 1 end end
     )
     * case when immigrants_applies then 2 else 1 end
     * case when lanky_applies then 2 else 1 end
@@ -1467,7 +1465,7 @@ begin
     'regular',
     'card_effect',
     ace.id,
-    'super_pen_' || ace.id::text || '_' || f.id::text || '_' || penalty_series.penalty_number::text
+    'super_pen_' || ace.id::text || '_' || fixture_gw.id::text || '_' || penalty_series.penalty_number::text
   from public.active_card_effects ace
   join public.card_definitions cd on cd.id = ace.card_id
   join public.gameweeks start_gw on start_gw.id = coalesce(ace.start_gameweek_id, ace.gameweek_id)
@@ -1475,11 +1473,11 @@ begin
   join public.gameweeks fixture_gw
     on fixture_gw.season_id = ace.season_id
     and fixture_gw.number between start_gw.number and end_gw.number
-  join public.fixtures f
-    on f.season_id = ace.season_id
-    and f.gameweek_id = fixture_gw.id
-  join public.fixture_game_stats fgs on fgs.fixture_id = f.id
-  cross join lateral generate_series(1, coalesce(fgs.penalties_scored, 0)) as penalty_series(penalty_number)
+  join public.game_card_actual_results gcar
+    on gcar.season_id = ace.season_id
+    and gcar.gameweek_id = fixture_gw.id
+    and gcar.card_id = 'super_pen'
+  cross join lateral generate_series(1, coalesce(gcar.actual_value, 0)::integer) as penalty_series(penalty_number)
   where ace.competition_id = target_competition_id
     and ace.played_by_user_id = target_user
     and ace.status = 'active'

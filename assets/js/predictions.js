@@ -183,26 +183,59 @@ function displayPredictionForFixture(fixture) {
 }
 
 function cleanScoreInput(input) {
-  const digits = input.value.replace(/\D/g, '').slice(0, 2);
-  const score = digits === '' ? '' : String(Math.min(Number(digits), 99));
+  const digits = input.value.replace(/\D/g, '').slice(0, 3);
+  const score = digits === '' ? '' : String(Math.min(Number(digits), 100));
   input.value = score;
 }
 
-function allScoresComplete() {
-  const inputs = [...fixturesContainer.querySelectorAll('[data-score-input]')];
-  return inputs.length === state.fixtures.length * 2
-    && inputs.every((input) => {
-      const value = Number(input.value);
-      const parityOk = !state.predictionParity
-        || (state.predictionParity === 'even' && value % 2 === 0)
-        || (state.predictionParity === 'odd' && value % 2 === 1);
-      return input.value !== '' && value >= 0 && value <= 99 && parityOk;
-    });
+function scoreInputState(input) {
+  const raw = input.value.trim();
+  if (raw === '') {
+    return { filled: false, value: null, valid: true, parityOk: true };
+  }
+
+  const value = Number(raw);
+  const valid = Number.isInteger(value) && value >= 0 && value <= 100;
+  const parityOk = !state.predictionParity
+    || (state.predictionParity === 'even' && value % 2 === 0)
+    || (state.predictionParity === 'odd' && value % 2 === 1);
+
+  return { filled: true, value, valid, parityOk };
+}
+
+function fixtureRowPredictionState(fixture) {
+  const fixtureRow = fixturesContainer.querySelector(`[data-fixture-id="${fixture.id}"]`);
+  if (!fixtureRow) {
+    return { status: 'missing' };
+  }
+
+  const home = scoreInputState(fixtureRow.querySelector('[data-home-goals]'));
+  const away = scoreInputState(fixtureRow.querySelector('[data-away-goals]'));
+
+  if (!home.filled && !away.filled) {
+    return { status: 'blank' };
+  }
+
+  if (home.filled !== away.filled) {
+    return { status: 'partial' };
+  }
+
+  if (!home.valid || !away.valid) {
+    return { status: 'invalid' };
+  }
+
+  if (!home.parityOk || !away.parityOk) {
+    return { status: 'parity' };
+  }
+
+  return { status: 'complete', home_goals: home.value, away_goals: away.value };
 }
 
 function setSaveButtonState() {
-  const unlockedFixtures = state.fixtures.filter((fixture) => !isPast(fixture.prediction_locks_at));
-  saveAllButton.disabled = !unlockedFixtures.length || !allScoresComplete();
+  const unlockedFixtures = state.fixtures.filter((fixture) => (
+    !isPast(fixture.prediction_locks_at) && !revealedCurseOverride(fixture)
+  ));
+  saveAllButton.disabled = !unlockedFixtures.length;
 }
 
 async function loadTeams() {
@@ -431,9 +464,9 @@ function renderEdit() {
           <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
         </span>
         <span class="fixture-team home">${escapeHtml(teamName(fixture.home_team_id))}</span>
-        <input class="score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
+        <input class="score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
         <span class="score-separator">-</span>
-        <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
+        <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
         <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
         <span class="fixture-lock-wrap">
           ${renderCurseMarker(fixture)}
@@ -487,9 +520,9 @@ function renderHedgePanel() {
           <option value="">Choose match</option>
           ${fixtureOptions}
         </select>
-        <input class="score-input" data-hedge-home type="text" inputmode="numeric" maxlength="2" value="${state.hedgePrediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Hedge home goals">
+        <input class="score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${state.hedgePrediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Hedge home goals">
         <span class="score-separator">-</span>
-        <input class="score-input" data-hedge-away type="text" inputmode="numeric" maxlength="2" value="${state.hedgePrediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Hedge away goals">
+        <input class="score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${state.hedgePrediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Hedge away goals">
         <button type="button" data-save-hedge ${locked ? 'disabled' : ''}>Save Hedge</button>
       </div>
     </section>
@@ -519,9 +552,9 @@ function renderGodPanel() {
           <option value="">Choose match</option>
           ${fixtureOptions}
         </select>
-        <input class="score-input" data-god-home type="text" inputmode="numeric" maxlength="2" value="${state.godPrediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God home goals">
+        <input class="score-input" data-god-home type="text" inputmode="numeric" maxlength="3" value="${state.godPrediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God home goals">
         <span class="score-separator">-</span>
-        <input class="score-input" data-god-away type="text" inputmode="numeric" maxlength="2" value="${state.godPrediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God away goals">
+        <input class="score-input" data-god-away type="text" inputmode="numeric" maxlength="3" value="${state.godPrediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God away goals">
         <button type="button" data-save-god ${locked ? 'disabled' : ''}>Save</button>
       </div>
       <p class="state-text">${selectedFixture ? `Deadline: ${countdownText(selectedFixture.second_half_deadline_at)}` : 'Pick a match to see the deadline.'}</p>
@@ -541,9 +574,9 @@ function renderSuperScorePanel() {
       <p class="state-text">Choose one scoreline. Every fixture that finishes with that exact home-away scoreline earns +3 UC pts.</p>
       <div class="hedge-controls scoreline-controls">
         <span class="scoreline-label">Scoreline</span>
-        <input class="score-input" data-super-score-home type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score home goals">
+        <input class="score-input" data-super-score-home type="text" inputmode="numeric" maxlength="3" value="${state.superScorePick?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score home goals">
         <span class="score-separator">-</span>
-        <input class="score-input" data-super-score-away type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score away goals">
+        <input class="score-input" data-super-score-away type="text" inputmode="numeric" maxlength="3" value="${state.superScorePick?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score away goals">
         <button type="button" data-save-super-score ${locked ? 'disabled' : ''}>Save</button>
       </div>
       <p class="state-text">${locked ? 'Super Score is locked for this gameweek.' : `Deadline: ${countdownText(state.activeGameweek.star_man_locks_at)}`}</p>
@@ -665,31 +698,53 @@ function renderTargetRestrictionPanel() {
 }
 
 async function saveAllPredictions() {
-  if (state.predictionParity && !allScoresComplete()) {
-    setMessage(`This curse means every score must be an ${state.predictionParity} number.`, 'error');
-    return;
-  }
+  const rows = [];
+  const deleteFixtureIds = [];
+  const unlockedFixtures = state.fixtures.filter((fixture) => (
+    !isPast(fixture.prediction_locks_at) && !revealedCurseOverride(fixture)
+  ));
 
-  const rows = state.fixtures
-    .filter((fixture) => !isPast(fixture.prediction_locks_at) && !revealedCurseOverride(fixture))
-    .map((fixture) => {
-    const fixtureRow = fixturesContainer.querySelector(`[data-fixture-id="${fixture.id}"]`);
-    const homeGoals = Number(fixtureRow.querySelector('[data-home-goals]').value);
-    const awayGoals = Number(fixtureRow.querySelector('[data-away-goals]').value);
+  for (const fixture of unlockedFixtures) {
+    const result = fixtureRowPredictionState(fixture);
+    if (result.status === 'blank') {
+      if (state.predictions.has(fixture.id)) {
+        deleteFixtureIds.push(fixture.id);
+      }
+      continue;
+    }
 
-    return {
+    if (result.status === 'partial') {
+      setMessage('Enter both scores for a fixture or leave both boxes blank.', 'error');
+      return;
+    }
+
+    if (result.status === 'invalid') {
+      setMessage('Predictions must be whole numbers from 0 to 100.', 'error');
+      return;
+    }
+
+    if (result.status === 'parity') {
+      setMessage(`This curse means every entered score must be an ${state.predictionParity} number.`, 'error');
+      return;
+    }
+
+    if (result.status !== 'complete') {
+      continue;
+    }
+
+    rows.push({
       competition_id: state.league.id,
       season_id: state.league.season_id,
       fixture_id: fixture.id,
       user_id: state.user.id,
       prediction_slot: 'primary',
-      home_goals: homeGoals,
-      away_goals: awayGoals,
+      home_goals: result.home_goals,
+      away_goals: result.away_goals,
       submitted_at: new Date().toISOString(),
-    };
-  });
+    });
+  }
 
-  if (!rows.length) {
+  if (!rows.length && !deleteFixtureIds.length) {
     state.mode = 'summary';
     render();
     return;
@@ -698,9 +753,25 @@ async function saveAllPredictions() {
   setMessage('Saving predictions...', 'info');
   saveAllButton.disabled = true;
 
-  const { error } = await supabase.from('predictions').upsert(rows, {
-    onConflict: 'competition_id,fixture_id,user_id,prediction_slot',
-  });
+  let error = null;
+
+  if (deleteFixtureIds.length) {
+    const result = await supabase
+      .from('predictions')
+      .delete()
+      .eq('competition_id', state.league.id)
+      .eq('user_id', state.user.id)
+      .eq('prediction_slot', 'primary')
+      .in('fixture_id', deleteFixtureIds);
+    error = result.error;
+  }
+
+  if (!error && rows.length) {
+    const result = await supabase.from('predictions').upsert(rows, {
+      onConflict: 'competition_id,fixture_id,user_id,prediction_slot',
+    });
+    error = result.error;
+  }
 
   if (error) {
     setMessage(error.message || 'Could not save predictions.', 'error');
@@ -709,6 +780,7 @@ async function saveAllPredictions() {
   }
 
   rows.forEach((prediction) => state.predictions.set(prediction.fixture_id, prediction));
+  deleteFixtureIds.forEach((fixtureId) => state.predictions.delete(fixtureId));
   state.mode = 'summary';
   render();
 }

@@ -383,15 +383,15 @@ Extra data needed for card effects:
 - player height for Power of the Lanky Crouch and Power of the Small and Mighty
 - player nationality for Curse Of The Microstate
 - `players.scrabble_name` and `players.surname_scrabble_score` for Curse of the Alphabet; the score is calculated automatically from the player's stored surname/last name
-- previous bench status and recent scoring history for Bench Warmer / Scoring Drought curses
+- recent scoring history for Scoring Drought curses
 - team standings by gameweek for Tiny Club and Underdog logic
 - player team assignments by gameweek for transfers and Star Man eligibility
-- fixture-level player stats for Bench Warmer, Scoring Drought, and historical player form
+- fixture-level player stats for Scoring Drought and historical player form
 - fixture corners, yellow cards, earliest goal minute, stoppage-time goals, penalties, and snow flag for Game Cards and related card effects
 
 Specific card data:
 
-- Super Pen uses `fixture_game_stats.penalties_scored`.
+- Super Pen uses the weekly `super_pen` value entered in Game Card Results.
 - Curse Of The Microstate uses the legacy `curse_random_roulette` card id and requires the target Star Man nationality to be in the under-1-million country list.
 - Curse of the Hated stores the selected target user and fixture, and creates an effective 8-2 prediction for scoring.
 - Curse of the Random stores up to three fixture dice rolls. Die rolls are 0-5 and become the forced goals directly.

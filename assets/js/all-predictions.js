@@ -60,18 +60,15 @@ function fixturesForGameweek(gameweekId) {
   return state.fixturesByGameweek.get(String(gameweekId)) || [];
 }
 
-function gameweekPredictionsArePublic(gameweek) {
+function gameweekHasLockedPredictions(gameweek) {
   const fixtures = fixturesForGameweek(gameweek.gameweek_id).filter((fixture) => fixture.status !== 'postponed');
-  return fixtures.length > 0 && (
-    isPast(gameweek.first_fixture_kickoff_at)
-    || fixtures.some((fixture) => isPast(fixture.kickoff_at))
-  );
+  return fixtures.some((fixture) => isPast(fixture.prediction_locks_at));
 }
 
 function mostRecentPublicIndex(activeGameweek) {
   const publicIndexes = state.gameweeks
     .map((gameweek, index) => ({ gameweek, index }))
-    .filter(({ gameweek }) => gameweekPredictionsArePublic(gameweek));
+    .filter(({ gameweek }) => gameweekHasLockedPredictions(gameweek));
 
   if (publicIndexes.length) {
     return publicIndexes[publicIndexes.length - 1].index;
@@ -125,20 +122,20 @@ async function renderPredictionRows(gameweek) {
     return;
   }
 
-  const publicNow = gameweekPredictionsArePublic(gameweek);
-  if (!publicNow) {
-    predictionList.innerHTML = '<p class="state-text">Predictions unlock here once this gameweek starts.</p>';
-    return;
-  }
-
   const predictions = await loadPredictions(gameweek, fixtures);
   predictionList.innerHTML = fixtures.map((fixture) => {
+    const locked = isPast(fixture.prediction_locks_at);
     const prediction = predictions.get(fixture.id);
+    const score = !locked
+      ? '-'
+      : prediction
+        ? `${prediction.home_goals}-${prediction.away_goals}`
+        : 'X-X';
     return `
-      <div class="prediction-row">
+      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${locked && !prediction ? 'missed' : ''}">
         <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
         <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
-        <strong>${prediction ? `${prediction.home_goals}-${prediction.away_goals}` : '--'}</strong>
+        <strong>${escapeHtml(score)}</strong>
         <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
       </div>
     `;

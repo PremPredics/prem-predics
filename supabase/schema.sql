@@ -2643,13 +2643,7 @@ using (
       select 1
       from public.fixtures f
       where f.id = predictions.fixture_id
-        and now() >= (
-          select min(gwf.kickoff_at)
-          from public.fixtures gwf
-          where gwf.season_id = f.season_id
-            and gwf.gameweek_id = f.gameweek_id
-            and gwf.status <> 'postponed'
-        )
+        and now() >= f.prediction_locks_at
     )
   )
 );

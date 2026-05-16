@@ -18,7 +18,10 @@ set
 where id = 'curse_gambler';
 
 update public.card_definitions
-set description = 'Valid for 1 Gameweek. Opponent Star Man must have been benched in the previous gameweek. Must be played at least 24 hours before the gameweek''s first KO time.'
+set
+  name = 'Curse of the Furious',
+  effect_key = 'curse_furious',
+  description = 'Valid for 1 Gameweek. If your opponent''s Star Man gets a yellow or red card, those minus points are doubled. Must be played at least 24 hours before the gameweek''s first KO time.'
 where id = 'curse_bench_warmer';
 
 update public.card_definitions

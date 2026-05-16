@@ -28,7 +28,6 @@ const state = {
   usedStarManIds: new Set(),
   activeEffects: [],
   targetEffectIds: new Set(),
-  previousBenchedIds: new Set(),
   drought3Ids: new Set(),
   drought5Ids: new Set(),
   top10TeamIds: new Set(),
@@ -220,7 +219,6 @@ function restrictions() {
   return effectsTargetingUser().filter((effect) => [
     'curse_alphabet_15',
     'curse_alphabet_20',
-    'curse_bench_warmer',
     'curse_scoring_drought_3',
     'curse_scoring_drought_5',
     'curse_tiny_club',
@@ -288,9 +286,6 @@ function restrictionReasons(player) {
     if (key === 'curse_alphabet_20' && Number(player.surname_scrabble_score || 0) < 20) {
       reasons.push('surname Scrabble score must be 20+');
     }
-    if (key === 'curse_bench_warmer' && !state.previousBenchedIds.has(player.id)) {
-      reasons.push('must have been benched last gameweek');
-    }
     if (key === 'curse_scoring_drought_3' && !state.drought3Ids.has(player.id)) {
       reasons.push('must have 0 goals in last 3 gameweeks');
     }
@@ -355,7 +350,7 @@ async function loadTeams() {
 async function loadPlayers() {
   const { data, error } = await supabase
     .from('players')
-    .select('id, display_name, first_name, last_name, surname, nationality, team_id, surname_scrabble_score, squad_number')
+    .select('id, display_name, first_name, last_name, surname, nationality, team_id, surname_scrabble_score')
     .eq('is_active', true)
     .not('team_id', 'is', null)
     .order('display_name', { ascending: true })
@@ -469,17 +464,6 @@ async function loadRestrictionData() {
     gameweek.gameweek_id,
   ]));
   const previousGameweekId = gameweeksByNumber.get(activeNumber - 1);
-
-  if (keys.has('curse_bench_warmer') && previousGameweekId) {
-    const { data } = await supabase
-      .from('player_fixture_stats')
-      .select('player_id, was_benched')
-      .eq('season_id', state.league.season_id)
-      .eq('gameweek_id', previousGameweekId)
-      .eq('was_benched', true)
-      .range(0, 1999);
-    state.previousBenchedIds = new Set((data || []).map((row) => row.player_id));
-  }
 
   if ((keys.has('curse_scoring_drought_3') || keys.has('curse_scoring_drought_5')) && previousGameweekId) {
     const recentGameweekIds = (relevantGameweeks || [])

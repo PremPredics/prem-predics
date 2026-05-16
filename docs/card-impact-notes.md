@@ -13,7 +13,7 @@ A user in multiple leagues may need different predictions in each league because
 Cards that mostly affect Star Man scoring:
 
 - Power of the Goal: adds 1 Star Man goal for the player using it.
-- Power of the Rocket Man: doubles outside-the-box goals and assists.
+- Power Of The Clean Sweep: awards +5 UC pts when the player scores at least 1 point in every fixture in the active gameweek.
 - Power of the Immigrants: doubles non-English Star Man points.
 - Power of the Lanky Crouch: doubles Star Man points for players 185cm+.
 - Power of the Small and Mighty: doubles Star Man points for players 175cm or shorter.
@@ -59,7 +59,7 @@ Curse prediction overrides:
 
 Star Man constraints:
 
-- Curse of the Bench Warmer: opponent Star Man must have been benched in previous GW.
+- Curse of the Furious: doubles Star Man yellow-card and red-card deductions for the affected opponent.
 - Curse of the Alphabet 15+: opponent Star Man surname Scrabble score must be 15+.
 - Curse of the Alphabet 20+: opponent Star Man surname Scrabble score must be 20+.
 - Curse of the Scoring Drought 3: opponent Star Man must have 0 goals in last 3 PL games.
@@ -109,7 +109,7 @@ Medals:
 - Super Cards are drawn by redeeming super medals.
 - Game Card winners earn super medals.
 - Accolades and draw-card effects can create regular medals.
-- Super Pen uses fixture-level `penalties_scored` totals to decide when Regular Deck draws are earned.
+- Super Pen uses the weekly `super_pen` value entered in Game Card Results to decide when Regular Deck draws are earned.
 
 Player name data:
 
@@ -163,7 +163,7 @@ League start:
 Fixture/player data:
 
 - Fixtures can be manually moved between gameweeks by the global admin.
-- Player fixture stats are required for player history, Bench Warmer, Scoring Drought, and team-at-the-time logic.
+- Player fixture stats are required for goals, assists, yellow cards, red cards, Scoring Drought, Star Man scoring, and team-at-the-time logic.
 
 Open decision:
 

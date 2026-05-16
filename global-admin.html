@@ -344,7 +344,7 @@ footer {
     </section>
 
     <section class="panel admin-section" data-admin-section="fixture-stats" hidden>
-      <p class="section-copy">Enter fixture-level stats needed for cards such as corners, penalties, yellow cards and late goals.</p>
+      <p class="section-copy">Enter fixture-level stats only where the exact match matters. Gameweek totals such as corners, penalties, yellow cards, earliest goal and 90+ goals belong in Game Card Results.</p>
       <div class="controls">
         <label>Gameweek<select data-fixture-stats-gameweek></select></label>
         <label>Fixture<select data-fixture-stats-fixture></select></label>
@@ -356,7 +356,7 @@ footer {
     </section>
 
     <section class="panel admin-section" data-admin-section="player-stats" hidden>
-      <p class="section-copy">Enter player goals, assists, cards and line-up details for a selected fixture. Sub On and Sub Off are minutes, so there is no ambiguity over substitutions.</p>
+      <p class="section-copy">Enter only the player stats needed for scoring: goals, assists, yellow cards and red cards.</p>
       <div class="controls">
         <label>Gameweek<select data-player-stats-gameweek></select></label>
         <label>Fixture<select data-player-stats-fixture></select></label>
@@ -368,14 +368,14 @@ footer {
     </section>
 
     <section class="panel admin-section" data-admin-section="game-card-results" hidden>
-      <p class="section-copy">Enter the global actual value for a Game Card. Every private league references this same result.</p>
+      <p class="section-copy">Enter global gameweek values. Game Cards and Super Pen use these same results across every private league.</p>
       <div class="controls">
         <label>Gameweek<select data-game-card-gameweek></select></label>
-        <label>Game Card<select data-game-card-card></select></label>
+        <label>Result Type<select data-game-card-card></select></label>
         <label>Actual Value<input data-game-card-value type="number" min="0" max="999" step="1"></label>
       </div>
-      <button class="primary" type="button" data-save-game-card-result>Save Game Card Result</button>
-      <button class="primary" type="button" data-save-game-card-result>Save Game Card Result</button>
+      <button class="primary" type="button" data-save-game-card-result>Save Gameweek Result</button>
+      <button class="primary" type="button" data-save-game-card-result>Save Gameweek Result</button>
       <p class="message" data-game-card-message></p>
     </section>
 
