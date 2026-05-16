@@ -3854,6 +3854,11 @@ function playerCountFromDeckVariant(deckVariantId) {
   return 2;
 }
 
+function deckVariantForMemberCount(memberCount) {
+  const clamped = Math.min(10, Math.max(2, Number(memberCount) || 2));
+  return `players_${clamped}`;
+}
+
 function superDrawCountForDeckVariant(deckVariantId) {
   const playerCount = playerCountFromDeckVariant(deckVariantId);
   if (playerCount >= 7) return 5;
@@ -5173,6 +5178,10 @@ async function initializeCardPage() {
         return new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime();
       });
 
+      if (!context.league.locked_deck_variant_id && !context.league.locked_member_count) {
+        currentDeckVariantId = deckVariantForMemberCount(sortedMembers.length);
+      }
+
       const nextPlayers = {};
       const nextPlayerNames = {};
       const nextPlayerColors = {};
@@ -5890,8 +5899,7 @@ async function initializeCardPage() {
     }
 
     function superDurationForLeague() {
-      const deckVariant = context.league.locked_deck_variant_id || (context.league.locked_member_count ? context.league.deck_variant_id : 'players_2');
-      return superDurationForDeckVariant(deckVariant);
+      return superDurationForDeckVariant(currentDeckVariantId);
     }
 
     function effectiveCardDuration(rule) {

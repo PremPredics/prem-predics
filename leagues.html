@@ -164,6 +164,7 @@ button {
   border-radius: 10px;
   background: rgba(17, 7, 38, 0.42);
   border: 1px solid rgba(216, 180, 254, 0.24);
+  min-width: 0;
 }
 
 .league-row h3 {
@@ -173,12 +174,19 @@ button {
   line-height: 1.1;
   font-weight: 900;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .league-row p,
 .state-text {
   margin: 0;
   color: #ddd6fe;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+.league-row > div {
+  min-width: 0;
 }
 
 .join-code {
@@ -226,6 +234,9 @@ button {
   min-height: 24px;
   margin: 2px 0 0;
   line-height: 1.45;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(0.88rem, 1.8vw, 1rem);
 }
 
 .message[data-type="success"] {

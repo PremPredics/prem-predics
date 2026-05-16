@@ -226,6 +226,12 @@ function restrictions() {
   ].includes(effectKey(effect)) && curseActiveNow());
 }
 
+function starManScoringCurses() {
+  return effectsTargetingUser().filter((effect) => [
+    'curse_furious',
+  ].includes(effectKey(effect)) && curseActiveNow());
+}
+
 function activeRestrictionSourceEffectId() {
   return restrictions()[0]?.id || null;
 }
@@ -522,6 +528,9 @@ async function loadRestrictionData() {
 
 function renderRestrictionSummary() {
   const activeRestrictions = restrictions();
+  const scoringCurses = starManScoringCurses().map((effect) => (
+    `${effectName(effect)} active: yellow-card and red-card deductions are doubled this Gameweek.`
+  ));
   const helpful = [
     ownEffect('power_late_scout') ? 'Power of the Late Scout available after the normal lock.' : '',
     ownEffect('super_sub') ? 'Super Sub lets you swap Star Man until the new player fixture kicks off.' : '',
@@ -529,7 +538,7 @@ function renderRestrictionSummary() {
   ].filter(Boolean);
 
   const boundaryText = activeRestrictions.map(effectName);
-  const lines = [...boundaryText, ...helpful];
+  const lines = [...boundaryText, ...scoringCurses, ...helpful];
   restrictionSummary.textContent = lines.length ? lines.join(' ') : 'No active Star Man restrictions.';
 }
 

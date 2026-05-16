@@ -207,6 +207,7 @@ as $$
 declare
   target_competition public.competitions;
   target_deck_variant text;
+  member_count integer;
 begin
   select *
     into target_competition
@@ -217,13 +218,23 @@ begin
     raise exception 'Competition not found.';
   end if;
 
-  if not (public.is_admin() or public.is_competition_member(target_competition_id)) then
+  if auth.uid() is not null
+    and not (public.is_admin() or public.is_competition_member(target_competition_id)) then
     raise exception 'You are not a member of this private league.';
   end if;
 
-  -- Before the league locks, use the original 52-card 2-player deck.
-  -- At lock time, top up to the exact deck for the final member count.
-  target_deck_variant := coalesce(target_competition.locked_deck_variant_id, 'players_2');
+  select count(*)
+    into member_count
+  from public.competition_members
+  where competition_id = target_competition_id;
+
+  -- Before lock, keep the live deck aligned to the current member count.
+  -- At lock time, freeze the exact deck for the final member count.
+  target_deck_variant := coalesce(
+    target_competition.locked_deck_variant_id,
+    public.deck_variant_for_member_count(least(10, greatest(2, member_count))),
+    'players_2'
+  );
 
   with desired as (
     select cdc.card_id, cdc.quantity
