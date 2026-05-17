@@ -189,6 +189,17 @@ input[type="checkbox"] {
   gap: 8px;
 }
 
+.player-search-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.player-search-box input {
+  width: 100%;
+}
+
 .fixture-picker-grid {
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 }
@@ -419,9 +430,12 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  [data-player-step="team"] .admin-picker-grid,
-  [data-player-step="player"] .admin-picker-grid {
+  [data-player-step="search"] .admin-picker-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .player-search-box {
+    grid-template-columns: 1fr;
   }
 
   .admin-picker-panel {
@@ -522,23 +536,23 @@ footer {
     </section>
 
     <section class="panel admin-section" data-admin-section="player-stats" hidden>
-      <p class="section-copy">Choose a team, then a player, then one of that team's 38 fixtures. Enter only goals, assists, yellow cards and red cards.</p>
+      <p class="section-copy">Search for a player, choose one of their 38 fixtures, then enter goals, assists, yellow cards and red cards.</p>
       <div class="admin-picker-stack">
-        <section class="admin-picker-panel" data-player-step="team">
-          <h3>1. Team</h3>
-          <div class="admin-picker-grid" data-player-stats-team-list></div>
-        </section>
-        <section class="admin-picker-panel" data-player-step="player">
-          <h3>2. Player</h3>
+        <section class="admin-picker-panel" data-player-step="search">
+          <h3>1. Search Player</h3>
+          <div class="player-search-box">
+            <input data-player-stats-search type="search" placeholder="Search player name" autocomplete="off">
+            <button class="primary" type="button" data-player-stats-confirm>Confirm Player</button>
+          </div>
           <div class="admin-picker-grid" data-player-stats-player-list></div>
         </section>
         <section class="admin-picker-panel" data-player-step="fixture">
-          <h3>3. Fixture</h3>
+          <h3>2. Fixture</h3>
           <div class="admin-picker-grid fixture-picker-grid" data-player-stats-fixture-list></div>
         </section>
       </div>
       <div class="player-stat-entry" data-player-stats-entry>
-        <p class="section-copy">Select a team to begin.</p>
+        <p class="section-copy">Search for a player to begin.</p>
       </div>
       <p class="message" data-player-stats-message></p>
     </section>
@@ -550,7 +564,6 @@ footer {
         <label>Result Type<select data-game-card-card></select></label>
         <label>Actual Value<input data-game-card-value type="number" min="0" max="999" step="1"></label>
       </div>
-      <button class="primary" type="button" data-save-game-card-result>Save Gameweek Result</button>
       <button class="primary" type="button" data-save-game-card-result>Save Gameweek Result</button>
       <p class="message" data-game-card-message></p>
     </section>

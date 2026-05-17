@@ -15,14 +15,14 @@ const state = {
   teams: [],
   teamsById: new Map(),
   fixtures: [],
+  players: [],
   cards: [],
 };
 
 const playerStatFlow = {
-  teamId: null,
+  query: '',
   playerId: null,
   fixtureId: null,
-  players: [],
 };
 
 function setMessage(element, text, type = 'info') {
@@ -65,6 +65,28 @@ function gameweekNumber(gameweekId) {
 
 function fixtureLabel(fixture) {
   return `GW${gameweekNumber(fixture.gameweek_id)} - ${teamName(fixture.home_team_id)} v ${teamName(fixture.away_team_id)}`;
+}
+
+function normaliseSearchText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function playerSearchText(player) {
+  return normaliseSearchText(`${player.display_name || ''} ${teamName(player.team_id)}`);
+}
+
+function playerMatchesSearch(player, query) {
+  const terms = normaliseSearchText(query).split(/\s+/).filter(Boolean);
+  if (!terms.length) {
+    return false;
+  }
+
+  const haystack = playerSearchText(player);
+  return terms.every((term) => haystack.includes(term));
 }
 
 function options(items, valueKey, labelFn, selectedValue = '') {
@@ -142,15 +164,16 @@ async function unlockAdmin() {
 }
 
 async function loadReferenceData() {
-  const [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, cardResponse] = await Promise.all([
+  const [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, playerResponse, cardResponse] = await Promise.all([
     supabase.from('seasons').select('id, name, starts_on, ends_on, is_active').order('starts_on', { ascending: false }),
     supabase.from('teams').select('id, name').order('name', { ascending: true }),
     supabase.from('gameweeks').select('id, season_id, number, star_man_locks_at').order('number', { ascending: true }),
     supabase.from('fixtures').select('id, season_id, gameweek_id, original_gameweek_id, home_team_id, away_team_id, kickoff_at, status, sort_order').order('kickoff_at', { ascending: true }),
+    supabase.from('players').select('id, display_name, team_id').eq('is_active', true).order('display_name', { ascending: true }).range(0, 2500),
     supabase.from('card_definitions').select('id, name, deck_type').order('name', { ascending: true }),
   ]);
 
-  for (const response of [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, cardResponse]) {
+  for (const response of [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, playerResponse, cardResponse]) {
     if (response.error) {
       throw response.error;
     }
@@ -165,6 +188,7 @@ async function loadReferenceData() {
   state.teamsById = new Map(state.teams.map((team) => [team.id, team]));
   state.gameweeks = (gameweekResponse.data || []).filter((gameweek) => gameweek.season_id === state.season?.id);
   state.fixtures = (fixtureResponse.data || []).filter((fixture) => fixture.season_id === state.season?.id);
+  state.players = playerResponse.data || [];
   state.cards = (cardResponse.data || []).filter((card) => card.deck_type === 'game' || card.id === 'super_pen');
 }
 
@@ -451,7 +475,7 @@ function sortedTeamFixtures(teamId) {
 }
 
 function selectedPlayerStatPlayer() {
-  return playerStatFlow.players.find((player) => player.id === playerStatFlow.playerId) || null;
+  return state.players.find((player) => player.id === playerStatFlow.playerId) || null;
 }
 
 function selectedPlayerStatFixture() {
@@ -464,13 +488,11 @@ function updatePlayerStatsStepVisibility() {
     return;
   }
 
-  const step = !playerStatFlow.teamId
-    ? 'team'
-    : !playerStatFlow.playerId
-      ? 'player'
-      : !playerStatFlow.fixtureId
-        ? 'fixture'
-        : 'entry';
+  const step = !playerStatFlow.playerId
+    ? 'search'
+    : !playerStatFlow.fixtureId
+      ? 'fixture'
+      : 'entry';
 
   section.querySelectorAll('[data-player-step]').forEach((panel) => {
     panel.hidden = panel.dataset.playerStep !== step;
@@ -488,114 +510,101 @@ function renderPlayerStatsControls() {
     setMessage(message, '', 'info');
   }
 
-  if (playerStatFlow.teamId && !state.teams.some((team) => team.id === playerStatFlow.teamId)) {
-    playerStatFlow.teamId = null;
+  if (playerStatFlow.playerId && !selectedPlayerStatPlayer()) {
     playerStatFlow.playerId = null;
     playerStatFlow.fixtureId = null;
   }
 
   updatePlayerStatsStepVisibility();
-  renderPlayerStatsTeamList();
-  renderPlayerStatsPlayerList();
+  renderPlayerStatsSearch();
   renderPlayerStatsFixtureList();
   renderPlayerStatsEntry();
 }
 
-function renderPlayerStatsTeamList() {
-  const list = document.querySelector('[data-player-stats-team-list]');
-  if (!list) {
-    return;
+function matchingPlayerStatsSearchResults() {
+  if (normaliseSearchText(playerStatFlow.query).length < 2) {
+    return [];
   }
 
-  list.innerHTML = state.teams.map((team) => `
-    <button class="admin-pick-card ${team.id === playerStatFlow.teamId ? 'active' : ''}" type="button" data-player-stats-team="${team.id}">
-      ${escapeHtml(shortTeamName(team.name))}
-    </button>
-  `).join('');
-
-  list.querySelectorAll('[data-player-stats-team]').forEach((button) => {
-    button.addEventListener('click', async () => {
-      playerStatFlow.teamId = button.dataset.playerStatsTeam;
-      playerStatFlow.playerId = null;
-      playerStatFlow.fixtureId = null;
-      playerStatFlow.players = [];
-      updatePlayerStatsStepVisibility();
-      renderPlayerStatsTeamList();
-      await renderPlayerStatsPlayerList();
-      renderPlayerStatsFixtureList();
-      renderPlayerStatsEntry();
-    });
-  });
+  return state.players
+    .filter((player) => playerMatchesSearch(player, playerStatFlow.query))
+    .slice(0, 24);
 }
 
-async function renderPlayerStatsPlayerList() {
+function choosePlayerForStats(playerId) {
+  playerStatFlow.playerId = playerId;
+  playerStatFlow.fixtureId = null;
+
+  const player = selectedPlayerStatPlayer();
+  if (player) {
+    playerStatFlow.query = player.display_name || '';
+  }
+
+  updatePlayerStatsStepVisibility();
+  renderPlayerStatsSearch();
+  renderPlayerStatsFixtureList();
+  renderPlayerStatsEntry();
+}
+
+function renderPlayerStatsSearch() {
   const list = document.querySelector('[data-player-stats-player-list]');
+  const input = document.querySelector('[data-player-stats-search]');
+  const confirmButton = document.querySelector('[data-player-stats-confirm]');
   if (!list) {
     return;
   }
 
-  if (!playerStatFlow.teamId) {
-    playerStatFlow.players = [];
-    list.innerHTML = '<p class="section-copy">Choose a team.</p>';
+  if (input && document.activeElement !== input) {
+    input.value = playerStatFlow.query;
+  }
+
+  const results = matchingPlayerStatsSearchResults();
+  if (confirmButton) {
+    confirmButton.disabled = !results.length && !selectedPlayerStatPlayer();
+    confirmButton.onclick = () => {
+      const selected = selectedPlayerStatPlayer();
+      choosePlayerForStats(selected?.id || results[0]?.id);
+    };
+  }
+
+  if (input) {
+    input.oninput = () => {
+      playerStatFlow.query = input.value;
+      playerStatFlow.playerId = null;
+      playerStatFlow.fixtureId = null;
+      updatePlayerStatsStepVisibility();
+      renderPlayerStatsSearch();
+      renderPlayerStatsFixtureList();
+      renderPlayerStatsEntry();
+    };
+
+    input.onkeydown = (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        if (results[0]) {
+          choosePlayerForStats(results[0].id);
+        }
+      }
+    };
+  }
+
+  if (normaliseSearchText(playerStatFlow.query).length < 2) {
+    list.innerHTML = '<p class="section-copy">Type at least 2 letters to search players.</p>';
     return;
   }
 
-  list.innerHTML = '<p class="section-copy">Loading players...</p>';
-  const { data: players, error } = await supabase
-    .from('players')
-    .select('id, display_name, team_id')
-    .eq('team_id', playerStatFlow.teamId)
-    .eq('is_active', true)
-    .order('display_name', { ascending: true })
-    .range(0, 250);
-
-  if (error) {
-    list.innerHTML = `<p class="section-copy">${escapeHtml(error.message)}</p>`;
-    return;
-  }
-
-  playerStatFlow.players = players || [];
-  if (playerStatFlow.playerId && !playerStatFlow.players.some((player) => player.id === playerStatFlow.playerId)) {
-    playerStatFlow.playerId = null;
-    playerStatFlow.fixtureId = null;
-  }
-
-  list.innerHTML = `
-    <div class="admin-step-actions">
-      <button class="admin-step-back" type="button" data-player-stats-back-team>Change Team</button>
-    </div>
-    ${playerStatFlow.players.map((player) => `
+  list.innerHTML = results.map((player) => `
     <button class="admin-pick-card ${player.id === playerStatFlow.playerId ? 'active' : ''}" type="button" data-player-stats-player="${player.id}">
       ${escapeHtml(player.display_name)}
+      <small>${escapeHtml(teamName(player.team_id))}</small>
     </button>
-  `).join('') || '<p class="section-copy">No active players found for this team.</p>'}
-  `;
-
-  list.querySelector('[data-player-stats-back-team]')?.addEventListener('click', () => {
-    playerStatFlow.teamId = null;
-    playerStatFlow.playerId = null;
-    playerStatFlow.fixtureId = null;
-    playerStatFlow.players = [];
-    updatePlayerStatsStepVisibility();
-    renderPlayerStatsTeamList();
-    renderPlayerStatsPlayerList();
-    renderPlayerStatsFixtureList();
-    renderPlayerStatsEntry();
-  });
+  `).join('') || '<p class="section-copy">No matching active players found.</p>';
 
   list.querySelectorAll('[data-player-stats-player]').forEach((button) => {
     button.addEventListener('click', () => {
-      playerStatFlow.playerId = button.dataset.playerStatsPlayer;
-      playerStatFlow.fixtureId = null;
-      updatePlayerStatsStepVisibility();
-      renderPlayerStatsPlayerList();
-      renderPlayerStatsFixtureList();
-      renderPlayerStatsEntry();
+      choosePlayerForStats(button.dataset.playerStatsPlayer);
     });
   });
-
-  renderPlayerStatsFixtureList();
-  renderPlayerStatsEntry();
 }
 
 function renderPlayerStatsFixtureList() {
@@ -604,17 +613,13 @@ function renderPlayerStatsFixtureList() {
     return;
   }
 
-  if (!playerStatFlow.teamId) {
-    list.innerHTML = '<p class="section-copy">Choose a team first.</p>';
+  const player = selectedPlayerStatPlayer();
+  if (!player) {
+    list.innerHTML = '<p class="section-copy">Search and choose a player first.</p>';
     return;
   }
 
-  if (!playerStatFlow.playerId) {
-    list.innerHTML = '<p class="section-copy">Choose a player to show this team\'s fixtures.</p>';
-    return;
-  }
-
-  const fixtures = sortedTeamFixtures(playerStatFlow.teamId);
+  const fixtures = sortedTeamFixtures(player.team_id);
   if (playerStatFlow.fixtureId && !fixtures.some((fixture) => fixture.id === playerStatFlow.fixtureId)) {
     playerStatFlow.fixtureId = null;
   }
@@ -623,6 +628,7 @@ function renderPlayerStatsFixtureList() {
     <div class="admin-step-actions">
       <button class="admin-step-back" type="button" data-player-stats-back-player>Change Player</button>
     </div>
+    <p class="section-copy">${escapeHtml(player.display_name)} - ${escapeHtml(teamName(player.team_id))}</p>
     ${fixtures.map((fixture) => `
     <button class="admin-pick-card ${fixture.id === playerStatFlow.fixtureId ? 'active' : ''}" type="button" data-player-stats-fixture="${fixture.id}">
       ${escapeHtml(fixtureLabel(fixture))}
@@ -635,7 +641,7 @@ function renderPlayerStatsFixtureList() {
     playerStatFlow.playerId = null;
     playerStatFlow.fixtureId = null;
     updatePlayerStatsStepVisibility();
-    renderPlayerStatsPlayerList();
+    renderPlayerStatsSearch();
     renderPlayerStatsFixtureList();
     renderPlayerStatsEntry();
   });
@@ -660,13 +666,8 @@ async function renderPlayerStatsEntry() {
   const player = selectedPlayerStatPlayer();
   const fixture = selectedPlayerStatFixture();
 
-  if (!playerStatFlow.teamId) {
-    entry.innerHTML = '<p class="section-copy">Select a team to begin.</p>';
-    return;
-  }
-
   if (!player) {
-    entry.innerHTML = '<p class="section-copy">Select a player.</p>';
+    entry.innerHTML = '<p class="section-copy">Search for a player to begin.</p>';
     return;
   }
 
@@ -714,10 +715,10 @@ async function renderPlayerStatsEntry() {
   });
 
   entry.querySelector('[data-player-stats-back-fixture]')?.addEventListener('click', () => {
-    playerStatFlow.fixtureId = null;
-    updatePlayerStatsStepVisibility();
-    renderPlayerStatsFixtureList();
-    renderPlayerStatsEntry();
+      playerStatFlow.fixtureId = null;
+      updatePlayerStatsStepVisibility();
+      renderPlayerStatsFixtureList();
+      renderPlayerStatsEntry();
   });
 }
 
@@ -727,7 +728,7 @@ async function saveSelectedPlayerStats(message) {
   const fixture = selectedPlayerStatFixture();
 
   if (!entry || !player || !fixture) {
-    setMessage(message, 'Choose a team, player and fixture before saving.', 'error');
+    setMessage(message, 'Choose a player and fixture before saving.', 'error');
     return;
   }
 
