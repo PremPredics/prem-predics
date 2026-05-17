@@ -131,8 +131,8 @@ main {
 
 .gameweek-card span {
   color: #ddd6fe;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: clamp(0.96rem, 1.75vw, 1.24rem);
+  font-weight: 900;
 }
 
 .gameweek-card strong {
@@ -400,14 +400,19 @@ footer {
     text-align: center;
   }
 
+  .league-summary > div:first-child {
+    order: 1;
+  }
+
   .gameweek-card {
+    order: 3;
     padding: 12px 10px;
     gap: 7px;
     min-height: 68px;
   }
 
   .gameweek-card span {
-    font-size: 12px;
+    font-size: clamp(0.92rem, 4.5vw, 1.15rem);
   }
 
   .gameweek-card strong {
@@ -429,6 +434,7 @@ footer {
   }
 
   .join-code {
+    order: 2;
     min-width: 0;
     width: min(220px, 100%);
     justify-self: center;

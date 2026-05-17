@@ -162,6 +162,19 @@ input[type="checkbox"] {
   border: 1px solid rgba(216, 180, 254, 0.22);
 }
 
+.admin-step-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.admin-step-back {
+  min-height: 34px;
+  padding: 7px 10px;
+  background: rgba(17, 7, 38, 0.72);
+  border: 1px solid rgba(216, 180, 254, 0.32);
+}
+
 .admin-picker-panel h3 {
   margin: 0;
   text-align: center;
@@ -215,7 +228,7 @@ input[type="checkbox"] {
 .player-stat-entry {
   display: grid;
   gap: 12px;
-  padding: 14px;
+  padding: 12px;
   border-radius: 10px;
   background: rgba(17, 7, 38, 0.48);
   border: 1px solid rgba(216, 180, 254, 0.24);
@@ -366,11 +379,31 @@ footer {
   .admin-row,
   .admin-row.schedule,
   .admin-row.fixture-stats,
-  .admin-row.player-stats,
-  .admin-row.team-standing {
+  .admin-row.player-stats {
     grid-template-columns: 1fr;
     text-align: center;
   }
+
+  .admin-row.team-standing {
+    grid-template-columns: 32px minmax(82px, 1.15fr) repeat(8, minmax(26px, 0.4fr));
+    gap: 3px;
+    padding: 6px 4px;
+    text-align: center;
+    font-size: 10px;
+  }
+
+  .admin-row.team-standing strong,
+  .admin-row.team-standing span {
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .admin-row.team-standing strong:nth-child(2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+  }
+
   .admin-picker-grid,
   .fixture-picker-grid,
   .player-stat-form {
@@ -384,6 +417,26 @@ footer {
   .fixture-picker-grid,
   .player-stat-form {
     grid-template-columns: 1fr;
+  }
+
+  [data-player-step="team"] .admin-picker-grid,
+  [data-player-step="player"] .admin-picker-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-picker-panel {
+    padding: 10px;
+  }
+
+  .admin-pick-card {
+    min-height: 38px;
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+
+  .admin-row.team-standing {
+    grid-template-columns: 28px minmax(74px, 1.2fr) repeat(8, minmax(22px, 0.35fr));
+    font-size: 9px;
   }
 }
 
@@ -457,7 +510,7 @@ footer {
     </section>
 
     <section class="panel admin-section" data-admin-section="fixture-stats" hidden>
-      <p class="section-copy">Enter fixture-level stats only where the exact match matters. Gameweek totals such as corners, penalties, yellow cards, earliest goal and 90+ goals belong in Game Card Results.</p>
+      <p class="section-copy">Mark whether an individual fixture was played in heavy snow. Gameweek totals such as corners, penalties, yellow cards, earliest goal and 90+ goals belong in Game Card Results.</p>
       <div class="controls">
         <label>Gameweek<select data-fixture-stats-gameweek></select></label>
         <label>Fixture<select data-fixture-stats-fixture></select></label>
@@ -471,15 +524,15 @@ footer {
     <section class="panel admin-section" data-admin-section="player-stats" hidden>
       <p class="section-copy">Choose a team, then a player, then one of that team's 38 fixtures. Enter only goals, assists, yellow cards and red cards.</p>
       <div class="admin-picker-stack">
-        <section class="admin-picker-panel">
+        <section class="admin-picker-panel" data-player-step="team">
           <h3>1. Team</h3>
           <div class="admin-picker-grid" data-player-stats-team-list></div>
         </section>
-        <section class="admin-picker-panel">
+        <section class="admin-picker-panel" data-player-step="player">
           <h3>2. Player</h3>
           <div class="admin-picker-grid" data-player-stats-player-list></div>
         </section>
-        <section class="admin-picker-panel">
+        <section class="admin-picker-panel" data-player-step="fixture">
           <h3>3. Fixture</h3>
           <div class="admin-picker-grid fixture-picker-grid" data-player-stats-fixture-list></div>
         </section>

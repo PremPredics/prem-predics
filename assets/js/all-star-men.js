@@ -1,4 +1,4 @@
-import {
+﻿import {
   escapeHtml,
   leagueUrl,
   loadLeagueContext,
@@ -55,8 +55,8 @@ function cardIcons(className, count) {
 
 function statIcons(stats) {
   const icons = [
-    repeatedIcon('⚽', stats.goals),
-    repeatedIcon('🎯', stats.assists),
+    repeatedIcon('&#9917;', stats.goals),
+    repeatedIcon('&#127919;', stats.assists),
     cardIcons('yellow', stats.yellow_cards),
     cardIcons('red', stats.red_cards),
   ].join('');
@@ -167,45 +167,33 @@ async function renderRows() {
   const picks = await loadPicks();
   const stats = await loadStats(picks);
 
-  starMenList.innerHTML = state.gameweeks.map((gameweek) => {
+  const rows = state.gameweeks.map((gameweek) => {
     const locked = isPast(gameweek.star_man_locks_at);
     const pick = picks.get(String(gameweek.gameweek_id));
 
-    if (!locked) {
-      return `
-        <div class="star-row unlocked">
-          <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
-          <span class="star-choice">Not locked yet</span>
-          <span class="star-icons"></span>
-        </div>
-      `;
-    }
-
-    if (!pick) {
-      return `
-        <div class="star-row empty">
-          <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
-          <span class="star-choice">No Star Man</span>
-          <span class="star-icons"></span>
-        </div>
-      `;
+    if (!locked || !pick) {
+      return '';
     }
 
     const statRow = stats.get(`${pick.gameweek_id}:${pick.player_id}`) || {};
     return `
       <div class="star-row">
         <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
-        <span class="star-choice">${escapeHtml(pick.player_name)}</span>
-        <span class="star-icons" aria-label="Goals, assists, yellow cards, red cards">${statIcons(statRow)}</span>
+        <span class="star-choice">
+          <span class="star-name">${escapeHtml(pick.player_name)}</span>
+          <span class="star-icons" aria-label="Goals, assists, yellow cards, red cards">${statIcons(statRow)}</span>
+        </span>
       </div>
     `;
-  }).join('');
+  }).filter(Boolean);
+
+  starMenList.innerHTML = rows.join('') || '<p class="state-text">No Star Men chosen yet.</p>';
 }
 
 async function render() {
   const selectedName = memberName(state.selectedUserId);
   title.textContent = `${selectedName}'s Star Men`;
-  subtitle.textContent = 'All 38 Gameweeks';
+  subtitle.textContent = 'Chosen Star Men';
   renderPlayers();
 
   try {
@@ -272,3 +260,4 @@ if (context.error) {
     starMenList.innerHTML = '';
   }
 }
+

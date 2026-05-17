@@ -458,6 +458,30 @@ function selectedPlayerStatFixture() {
   return state.fixtures.find((fixture) => fixture.id === playerStatFlow.fixtureId) || null;
 }
 
+function updatePlayerStatsStepVisibility() {
+  const section = document.querySelector('[data-admin-section="player-stats"]');
+  if (!section) {
+    return;
+  }
+
+  const step = !playerStatFlow.teamId
+    ? 'team'
+    : !playerStatFlow.playerId
+      ? 'player'
+      : !playerStatFlow.fixtureId
+        ? 'fixture'
+        : 'entry';
+
+  section.querySelectorAll('[data-player-step]').forEach((panel) => {
+    panel.hidden = panel.dataset.playerStep !== step;
+  });
+
+  const entry = section.querySelector('[data-player-stats-entry]');
+  if (entry) {
+    entry.hidden = step !== 'entry';
+  }
+}
+
 function renderPlayerStatsControls() {
   const message = document.querySelector('[data-player-stats-message]');
   if (message) {
@@ -470,6 +494,7 @@ function renderPlayerStatsControls() {
     playerStatFlow.fixtureId = null;
   }
 
+  updatePlayerStatsStepVisibility();
   renderPlayerStatsTeamList();
   renderPlayerStatsPlayerList();
   renderPlayerStatsFixtureList();
@@ -489,13 +514,14 @@ function renderPlayerStatsTeamList() {
   `).join('');
 
   list.querySelectorAll('[data-player-stats-team]').forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       playerStatFlow.teamId = button.dataset.playerStatsTeam;
       playerStatFlow.playerId = null;
       playerStatFlow.fixtureId = null;
       playerStatFlow.players = [];
+      updatePlayerStatsStepVisibility();
       renderPlayerStatsTeamList();
-      renderPlayerStatsPlayerList();
+      await renderPlayerStatsPlayerList();
       renderPlayerStatsFixtureList();
       renderPlayerStatsEntry();
     });
@@ -534,16 +560,34 @@ async function renderPlayerStatsPlayerList() {
     playerStatFlow.fixtureId = null;
   }
 
-  list.innerHTML = playerStatFlow.players.map((player) => `
+  list.innerHTML = `
+    <div class="admin-step-actions">
+      <button class="admin-step-back" type="button" data-player-stats-back-team>Change Team</button>
+    </div>
+    ${playerStatFlow.players.map((player) => `
     <button class="admin-pick-card ${player.id === playerStatFlow.playerId ? 'active' : ''}" type="button" data-player-stats-player="${player.id}">
       ${escapeHtml(player.display_name)}
     </button>
-  `).join('') || '<p class="section-copy">No active players found for this team.</p>';
+  `).join('') || '<p class="section-copy">No active players found for this team.</p>'}
+  `;
+
+  list.querySelector('[data-player-stats-back-team]')?.addEventListener('click', () => {
+    playerStatFlow.teamId = null;
+    playerStatFlow.playerId = null;
+    playerStatFlow.fixtureId = null;
+    playerStatFlow.players = [];
+    updatePlayerStatsStepVisibility();
+    renderPlayerStatsTeamList();
+    renderPlayerStatsPlayerList();
+    renderPlayerStatsFixtureList();
+    renderPlayerStatsEntry();
+  });
 
   list.querySelectorAll('[data-player-stats-player]').forEach((button) => {
     button.addEventListener('click', () => {
       playerStatFlow.playerId = button.dataset.playerStatsPlayer;
       playerStatFlow.fixtureId = null;
+      updatePlayerStatsStepVisibility();
       renderPlayerStatsPlayerList();
       renderPlayerStatsFixtureList();
       renderPlayerStatsEntry();
@@ -575,16 +619,31 @@ function renderPlayerStatsFixtureList() {
     playerStatFlow.fixtureId = null;
   }
 
-  list.innerHTML = fixtures.map((fixture) => `
+  list.innerHTML = `
+    <div class="admin-step-actions">
+      <button class="admin-step-back" type="button" data-player-stats-back-player>Change Player</button>
+    </div>
+    ${fixtures.map((fixture) => `
     <button class="admin-pick-card ${fixture.id === playerStatFlow.fixtureId ? 'active' : ''}" type="button" data-player-stats-fixture="${fixture.id}">
       ${escapeHtml(fixtureLabel(fixture))}
       <small>${escapeHtml(new Date(fixture.kickoff_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }))}</small>
     </button>
-  `).join('') || '<p class="section-copy">No fixtures found for this team.</p>';
+  `).join('') || '<p class="section-copy">No fixtures found for this team.</p>'}
+  `;
+
+  list.querySelector('[data-player-stats-back-player]')?.addEventListener('click', () => {
+    playerStatFlow.playerId = null;
+    playerStatFlow.fixtureId = null;
+    updatePlayerStatsStepVisibility();
+    renderPlayerStatsPlayerList();
+    renderPlayerStatsFixtureList();
+    renderPlayerStatsEntry();
+  });
 
   list.querySelectorAll('[data-player-stats-fixture]').forEach((button) => {
     button.addEventListener('click', () => {
       playerStatFlow.fixtureId = button.dataset.playerStatsFixture;
+      updatePlayerStatsStepVisibility();
       renderPlayerStatsFixtureList();
       renderPlayerStatsEntry();
     });
@@ -634,6 +693,9 @@ async function renderPlayerStatsEntry() {
       <span>${escapeHtml(fixtureLabel(fixture))}</span>
     </div>
     <div class="player-stat-save-row">
+      <button class="admin-step-back" type="button" data-player-stats-back-fixture>Change Fixture</button>
+    </div>
+    <div class="player-stat-save-row">
       <button class="primary" type="button" data-save-selected-player-stat>Save Player Stats</button>
     </div>
     <div class="player-stat-form">
@@ -649,6 +711,13 @@ async function renderPlayerStatsEntry() {
 
   entry.querySelectorAll('[data-save-selected-player-stat]').forEach((button) => {
     button.addEventListener('click', () => saveSelectedPlayerStats(message));
+  });
+
+  entry.querySelector('[data-player-stats-back-fixture]')?.addEventListener('click', () => {
+    playerStatFlow.fixtureId = null;
+    updatePlayerStatsStepVisibility();
+    renderPlayerStatsFixtureList();
+    renderPlayerStatsEntry();
   });
 }
 

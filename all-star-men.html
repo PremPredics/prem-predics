@@ -112,7 +112,7 @@ main {
 .star-row {
   min-height: 28px;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-columns: 44px minmax(0, 1fr);
   gap: 6px;
   align-items: center;
   padding: 4px 7px;
@@ -131,17 +131,27 @@ main {
   font-weight: 950;
 }
 .star-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
   font-size: 13px;
   font-weight: 900;
+}
+.star-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .star-icons {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 2px;
-  min-width: 20px;
+  flex: 0 0 auto;
   font-size: 13px;
 }
 .card-icon {
@@ -190,7 +200,7 @@ footer {
   .player-pill { width: 40px; height: 40px; }
   .star-row {
     min-height: 25px;
-    grid-template-columns: 38px minmax(0, 1fr) auto;
+    grid-template-columns: 38px minmax(0, 1fr);
     gap: 4px;
     padding: 3px 5px;
   }
