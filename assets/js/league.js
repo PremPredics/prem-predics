@@ -39,18 +39,116 @@ function earliestTime(values) {
     .sort((a, b) => a - b)[0] || null;
 }
 
-function renderDeadlineCard(label, value) {
-  const locked = value && Date.now() >= new Date(value).getTime();
-  const text = value ? (locked ? 'Locked' : countdownText(value)) : 'Not set';
+function isoFromMs(value) {
+  return value ? new Date(value).toISOString() : null;
+}
+
+function deadlineDisplay(value, options = {}) {
+  if (!value) {
+    return {
+      className: 'unset',
+      countdown: '',
+      status: 'Not set',
+    };
+  }
+
+  if (Date.now() >= new Date(value).getTime()) {
+    return {
+      className: 'locked',
+      countdown: '',
+      status: 'Locked',
+    };
+  }
+
+  if (options.type === 'curse') {
+    return {
+      className: 'playable',
+      countdown: countdownText(value),
+      status: 'Playable',
+    };
+  }
+
+  if (options.completed) {
+    return {
+      className: 'complete',
+      countdown: countdownText(value),
+      status: 'Completed',
+    };
+  }
+
+  return {
+    className: 'action',
+    countdown: countdownText(value),
+    status: 'Action Required',
+  };
+}
+
+function renderDeadlineCard(label, value, options = {}) {
+  const display = deadlineDisplay(value, options);
+  const body = display.countdown
+    ? `
+      <span class="deadline-countdown">${escapeHtml(display.countdown)}</span>
+      <strong class="deadline-status">${escapeHtml(display.status)}</strong>
+    `
+    : `<strong class="deadline-status">${escapeHtml(display.status)}</strong>`;
+
   return `
-    <div class="deadline-card ${locked ? 'locked' : ''}">
-      <span>${escapeHtml(label)}</span>
-      <strong>${escapeHtml(text)}</strong>
+    <div class="deadline-card ${escapeHtml(display.className)}">
+      <span class="deadline-title">${escapeHtml(label)}</span>
+      <div class="deadline-body">${body}</div>
     </div>
   `;
 }
 
-function renderDeadlineStrip(activeGameweek, fixtures) {
+async function loadPredictionCompletion(league, user, fixtures) {
+  const activeFixtures = fixtures.filter((fixture) => fixture.status !== 'postponed');
+  if (!activeFixtures.length) {
+    return false;
+  }
+
+  const { data, error } = await supabase
+    .from('predictions')
+    .select('fixture_id, home_goals, away_goals')
+    .eq('competition_id', league.id)
+    .eq('season_id', league.season_id)
+    .eq('user_id', user.id)
+    .eq('prediction_slot', 'primary')
+    .in('fixture_id', activeFixtures.map((fixture) => fixture.id));
+
+  if (error) {
+    return false;
+  }
+
+  const completedFixtureIds = new Set((data || [])
+    .filter((prediction) => Number.isFinite(Number(prediction.home_goals)) && Number.isFinite(Number(prediction.away_goals)))
+    .map((prediction) => prediction.fixture_id));
+
+  return activeFixtures.every((fixture) => completedFixtureIds.has(fixture.id));
+}
+
+async function loadStarManCompletion(league, user, activeGameweek) {
+  if (!activeGameweek) {
+    return false;
+  }
+
+  const { data, error } = await supabase
+    .from('star_man_picks')
+    .select('id')
+    .eq('competition_id', league.id)
+    .eq('season_id', league.season_id)
+    .eq('gameweek_id', activeGameweek.gameweek_id)
+    .eq('user_id', user.id)
+    .eq('pick_slot', 'primary')
+    .maybeSingle();
+
+  if (error) {
+    return false;
+  }
+
+  return Boolean(data?.id);
+}
+
+async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
   if (!deadlineStrip) {
     return;
   }
@@ -61,15 +159,19 @@ function renderDeadlineStrip(activeGameweek, fixtures) {
   }
 
   const firstKickoffMs = earliestTime(fixtures.map((fixture) => fixture.kickoff_at));
-  const firstPredictionLockMs = earliestTime(fixtures.map((fixture) => fixture.prediction_locks_at));
+  const predictionDeadlineMs = firstKickoffMs ? firstKickoffMs - (90 * 60 * 1000) : earliestTime(fixtures.map((fixture) => fixture.prediction_locks_at));
   const curseDeadlineMs = firstKickoffMs ? firstKickoffMs - (24 * 60 * 60 * 1000) : null;
-  const starDeadline = activeGameweek?.star_man_locks_at || null;
+  const starDeadline = activeGameweek?.star_man_locks_at || isoFromMs(predictionDeadlineMs);
+  const [predictionsCompleted, starManCompleted] = await Promise.all([
+    loadPredictionCompletion(league, user, fixtures),
+    loadStarManCompletion(league, user, activeGameweek),
+  ]);
 
   function update() {
     deadlineStrip.innerHTML = [
-      renderDeadlineCard('Predictions Deadline', firstPredictionLockMs ? new Date(firstPredictionLockMs).toISOString() : null),
-      renderDeadlineCard('Star Man Deadline', starDeadline),
-      renderDeadlineCard('Curse Card Deadline', curseDeadlineMs ? new Date(curseDeadlineMs).toISOString() : null),
+      renderDeadlineCard('Predictions Deadline', isoFromMs(predictionDeadlineMs), { completed: predictionsCompleted }),
+      renderDeadlineCard('Star Man Deadline', starDeadline, { completed: starManCompleted }),
+      renderDeadlineCard('Curse Card Deadline', isoFromMs(curseDeadlineMs), { type: 'curse' }),
     ].join('');
   }
 
@@ -94,7 +196,7 @@ async function copyJoinCode() {
   }
 }
 
-async function renderLeague(league) {
+async function renderLeague(league, user) {
   const { activeGameweek, fixturesByGameweek } = await loadActiveGameweek(league);
   const gameweekNumber = activeGameweek?.gameweek_number || 'X';
   const pages = [
@@ -106,7 +208,7 @@ async function renderLeague(league) {
       tier: 'primary',
     },
     {
-      page: 'star-man.html',
+      page: 'star-man-hub.html',
       title: 'Star Man',
       detail: `Submit your Star Man for Gameweek ${gameweekNumber}.`,
       accent: '#facc15',
@@ -172,7 +274,7 @@ async function renderLeague(league) {
 
   if (activeGameweek) {
     const activeFixtures = fixturesByGameweek.get(String(activeGameweek.gameweek_id)) || [];
-    renderDeadlineStrip(activeGameweek, activeFixtures.filter((fixture) => fixture.status !== 'postponed'));
+    await renderDeadlineStrip(activeGameweek, activeFixtures.filter((fixture) => fixture.status !== 'postponed'), league, user);
     if (isGameweekStarted(activeGameweek)) {
       gameweekLabel.textContent = 'Current Gameweek';
       gameweekCountdown.textContent = `Gameweek ${activeGameweek.gameweek_number} Is Active`;
@@ -206,7 +308,7 @@ if (context.error) {
   renderError(context.error);
 } else {
   try {
-    await renderLeague(context.league);
+    await renderLeague(context.league, context.user);
   } catch (error) {
     renderError(error.message || 'Could not load this private league.');
   }

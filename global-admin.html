@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -11,13 +11,13 @@ body {
   min-height: 100vh;
   margin: 0;
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  background: linear-gradient(135deg, #6f45bd 0%, #b579ee 48%, #e7b0ff 100%);
   color: #f3f4f6;
 }
 
 header {
   padding: 24px 16px;
-  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  background: linear-gradient(90deg, #6f49bd 0%, #a067d9 52%, #dc9df2 100%);
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
 }
 
@@ -148,6 +148,106 @@ input[type="checkbox"] {
   gap: 8px;
 }
 
+.admin-picker-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-picker-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(17, 7, 38, 0.42);
+  border: 1px solid rgba(216, 180, 254, 0.22);
+}
+
+.admin-picker-panel h3 {
+  margin: 0;
+  text-align: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.admin-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 8px;
+}
+
+.fixture-picker-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.admin-pick-card {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px;
+  border-radius: 9px;
+  background: rgba(46, 16, 102, 0.7);
+  border: 1px solid rgba(216, 180, 254, 0.28);
+  color: #fff;
+  text-align: center;
+  line-height: 1.15;
+  box-shadow: none;
+}
+
+.admin-pick-card:hover {
+  transform: translateY(-1px);
+  background: rgba(76, 29, 149, 0.78);
+}
+
+.admin-pick-card.active {
+  background: linear-gradient(135deg, #7c3aed, #c084fc);
+  border-color: rgba(255,255,255,0.58);
+  box-shadow: 0 0 18px rgba(216, 180, 254, 0.28);
+}
+
+.admin-pick-card small {
+  display: block;
+  margin-top: 4px;
+  color: #ede9fe;
+  font-size: 11px;
+}
+
+.player-stat-entry {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  background: rgba(17, 7, 38, 0.48);
+  border: 1px solid rgba(216, 180, 254, 0.24);
+}
+
+.player-stat-summary {
+  text-align: center;
+  line-height: 1.35;
+}
+
+.player-stat-summary strong {
+  display: block;
+  color: #fff;
+  font-size: 20px;
+}
+
+.player-stat-summary span {
+  color: #ddd6fe;
+  font-weight: 800;
+}
+
+.player-stat-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(90px, 1fr));
+  gap: 10px;
+}
+
+.player-stat-save-row {
+  display: flex;
+  justify-content: center;
+}
+
 .admin-row {
   display: grid;
   grid-template-columns: minmax(170px, 1.2fr) repeat(4, minmax(72px, 0.5fr));
@@ -271,7 +371,20 @@ footer {
     grid-template-columns: 1fr;
     text-align: center;
   }
+  .admin-picker-grid,
+  .fixture-picker-grid,
+  .player-stat-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .toolbar a { flex: 1; text-align: center; }
+}
+
+@media (max-width: 520px) {
+  .admin-picker-grid,
+  .fixture-picker-grid,
+  .player-stat-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* mobile-title-one-line */
@@ -356,14 +469,24 @@ footer {
     </section>
 
     <section class="panel admin-section" data-admin-section="player-stats" hidden>
-      <p class="section-copy">Enter only the player stats needed for scoring: goals, assists, yellow cards and red cards.</p>
-      <div class="controls">
-        <label>Gameweek<select data-player-stats-gameweek></select></label>
-        <label>Fixture<select data-player-stats-fixture></select></label>
+      <p class="section-copy">Choose a team, then a player, then one of that team's 38 fixtures. Enter only goals, assists, yellow cards and red cards.</p>
+      <div class="admin-picker-stack">
+        <section class="admin-picker-panel">
+          <h3>1. Team</h3>
+          <div class="admin-picker-grid" data-player-stats-team-list></div>
+        </section>
+        <section class="admin-picker-panel">
+          <h3>2. Player</h3>
+          <div class="admin-picker-grid" data-player-stats-player-list></div>
+        </section>
+        <section class="admin-picker-panel">
+          <h3>3. Fixture</h3>
+          <div class="admin-picker-grid fixture-picker-grid" data-player-stats-fixture-list></div>
+        </section>
       </div>
-      <button class="primary" type="button" data-save-player-stats>Save All Player Stats On Screen</button>
-      <div class="admin-list" data-player-stats-list></div>
-      <button class="primary" type="button" data-save-player-stats>Save All Player Stats On Screen</button>
+      <div class="player-stat-entry" data-player-stats-entry>
+        <p class="section-copy">Select a team to begin.</p>
+      </div>
       <p class="message" data-player-stats-message></p>
     </section>
 
@@ -396,3 +519,4 @@ footer {
 <script type="module" src="assets/js/global-admin.js"></script>
 </body>
 </html>
+

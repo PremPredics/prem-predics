@@ -211,6 +211,9 @@ select
 from public.clean_sweep_bonus_points_by_user_gameweek
 group by competition_id, season_id, user_id;
 
+grant select on public.clean_sweep_bonus_points_by_user_gameweek to authenticated;
+grant select on public.clean_sweep_bonus_totals to authenticated;
+
 create or replace view public.leaderboard
 with (security_invoker = true)
 as

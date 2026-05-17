@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prem Predics - Player Predictions</title>
+<title>Prem Predics - Player Star Men</title>
 <style>
 * { box-sizing: border-box; }
 body {
@@ -34,12 +34,11 @@ header h1 {
   line-height: 1.05;
 }
 main {
-  width: min(1050px, 100%);
+  width: min(920px, 100%);
   margin: 0 auto;
   padding: 10px 10px 18px;
 }
 .toolbar,
-.gameweek-controls,
 .player-pills {
   display: flex;
   align-items: center;
@@ -48,8 +47,7 @@ main {
   flex-wrap: wrap;
 }
 .toolbar { margin-bottom: 8px; }
-.toolbar a,
-.gameweek-controls button {
+.toolbar a {
   min-height: 34px;
   color: #f3e8ff;
   text-decoration: none;
@@ -58,9 +56,6 @@ main {
   border: 1px solid rgba(216, 180, 254, 0.28);
   border-radius: 8px;
   padding: 7px 10px;
-}
-.gameweek-controls button {
-  cursor: pointer;
 }
 .panel {
   display: grid;
@@ -110,54 +105,60 @@ main {
   height: 100%;
   object-fit: cover;
 }
-.fixtures {
+.star-list {
   display: grid;
   gap: 4px;
 }
-.prediction-row {
-  min-height: 30px;
+.star-row {
+  min-height: 28px;
   display: grid;
-  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr) auto;
   gap: 6px;
   align-items: center;
-  padding: 5px 7px;
+  padding: 4px 7px;
   border-radius: 8px;
   background: rgba(17, 7, 38, 0.44);
   border: 1px solid rgba(216, 180, 254, 0.2);
-}
-.prediction-row span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 850;
 }
-.prediction-row span:nth-child(2) {
-  text-align: right;
-}
-.prediction-row strong {
-  text-align: center;
-  font-size: 16px;
-}
-
-.prediction-row.unlocked {
-  opacity: 0.76;
-}
-
-.prediction-row.unlocked strong {
-  color: #ddd6fe;
-  letter-spacing: 0;
-}
-
-.prediction-row.missed strong {
-  color: #fecaca;
-  text-shadow: 0 0 10px rgba(248, 113, 113, 0.38);
+.star-row span {
+  min-width: 0;
 }
 .gw-badge {
   justify-self: center;
   color: #fde68a;
   font-size: 11px;
   font-weight: 950;
+}
+.star-choice {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 900;
+}
+.star-icons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  min-width: 20px;
+  font-size: 13px;
+}
+.card-icon {
+  width: 0.74em;
+  height: 1em;
+  display: inline-block;
+  border: 1px solid rgba(0,0,0,0.7);
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.28);
+}
+.card-icon.yellow { background: #facc15; }
+.card-icon.red { background: #ef4444; }
+.star-row.unlocked {
+  opacity: 0.74;
+}
+.star-row.empty .star-choice {
+  color: #ddd6fe;
 }
 .state-text {
   margin: 0;
@@ -187,20 +188,20 @@ footer {
   main { padding: 7px; }
   .panel { padding: 8px; gap: 6px; }
   .player-pill { width: 40px; height: 40px; }
-  .prediction-row {
-    min-height: 28px;
-    grid-template-columns: 38px minmax(70px, 1fr) 44px minmax(70px, 1fr);
+  .star-row {
+    min-height: 25px;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
     gap: 4px;
-    padding: 4px 5px;
+    padding: 3px 5px;
   }
-  .prediction-row span { font-size: 12px; }
-  .prediction-row strong { font-size: 14px; }
+  .star-choice { font-size: 11px; }
+  .star-icons { font-size: 11px; }
 }
 </style>
 </head>
 <body data-require-auth="true" data-require-league="true">
 <header>
-  <h1>Prem Predics - Player Predictions</h1>
+  <h1>Prem Predics - Player Star Men</h1>
 </header>
 
 <main>
@@ -210,24 +211,18 @@ footer {
 
   <section class="panel">
     <div class="page-head">
-      <h2 data-view-title>Loading predictions...</h2>
+      <h2 data-view-title>Loading Star Men...</h2>
       <p data-view-subtitle>Checking locked gameweeks.</p>
     </div>
-    <div class="gameweek-controls">
-      <button type="button" data-previous-gameweek>Previous GW</button>
-      <strong data-current-gameweek>GW--</strong>
-      <button type="button" data-next-gameweek>Next GW</button>
-    </div>
     <div class="player-pills" data-player-pills></div>
-    <div class="fixtures" data-prediction-list>
+    <div class="star-list" data-star-men-list>
       <p class="state-text">Loading...</p>
     </div>
   </section>
 </main>
 
-<footer>&copy; 2026 Prem Predics | Player Predictions</footer>
+<footer>&copy; 2026 Prem Predics | Player Star Men</footer>
 <script type="module" src="assets/js/site-auth.js"></script>
-<script type="module" src="assets/js/all-predictions.js"></script>
+<script type="module" src="assets/js/all-star-men.js"></script>
 </body>
 </html>
-

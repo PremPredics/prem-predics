@@ -58,7 +58,7 @@ function blockedLeaguePage(user, message = 'You need to choose a private league 
       place-items: center;
       padding: 24px;
       color: #f3f4f6;
-      background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+      background: linear-gradient(135deg, #6f45bd 0%, #b579ee 48%, #e7b0ff 100%);
       font-family: 'Segoe UI', Arial, sans-serif;
       text-align: center;
     ">

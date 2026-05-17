@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prem Predics - Predictions</title>
+<title>Prem Predics - Star Man</title>
 <style>
 * { box-sizing: border-box; }
 body {
@@ -16,7 +16,7 @@ body {
 header {
   padding: 24px 16px;
   background: linear-gradient(90deg, #6f49bd 0%, #a067d9 52%, #dc9df2 100%);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.42);
 }
 header h1 {
   margin: 0;
@@ -89,9 +89,10 @@ main {
     linear-gradient(135deg, rgba(17, 7, 38, 0.94), rgba(49, 18, 91, 0.9));
   border: 1px solid rgba(216, 180, 254, 0.3);
   box-shadow: 0 14px 28px rgba(0,0,0,0.28);
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
-.choice-card:first-child { border-left: 7px solid #00e5ff; }
-.choice-card:last-child { border-left: 7px solid #facc15; }
+.choice-card:first-child { border-left: 7px solid #facc15; }
+.choice-card:last-child { border-left: 7px solid #22d3ee; }
 .choice-card strong {
   font-size: 24px;
   font-weight: 950;
@@ -130,7 +131,7 @@ footer {
 </head>
 <body data-require-auth="true" data-require-league="true">
 <header>
-  <h1>Prem Predics - Predictions</h1>
+  <h1>Prem Predics - Star Man</h1>
 </header>
 
 <main>
@@ -138,24 +139,23 @@ footer {
     <a data-league-back href="league.html">Back To League Hub</a>
   </div>
   <section class="panel">
-    <h2 data-prediction-hub-title>Predictions</h2>
-    <p data-prediction-hub-copy>Choose what you want to do.</p>
+    <h2 data-star-hub-title>Star Man</h2>
+    <p data-star-hub-copy>Choose what you want to do.</p>
     <div class="choice-grid">
-      <a class="choice-card" data-make-predictions href="predictions.html">
-        <strong>Make Predictions</strong>
-        <span>Submit or edit your current gameweek score predictions.</span>
+      <a class="choice-card" data-pick-star-man href="star-man.html">
+        <strong>Pick Star Man</strong>
+        <span>Submit or edit your current gameweek Star Man pick.</span>
       </a>
-      <a class="choice-card" data-view-predictions href="all-predictions.html">
-        <strong>View All Player Predictions</strong>
-        <span>Compare locked predictions across your private league.</span>
+      <a class="choice-card" data-view-star-men href="all-star-men.html">
+        <strong>View All Player Star Men</strong>
+        <span>View locked Star Man picks across your private league.</span>
       </a>
     </div>
   </section>
 </main>
 
-<footer>&copy; 2026 Prem Predics | Predictions</footer>
+<footer>&copy; 2026 Prem Predics | Star Man</footer>
 <script type="module" src="assets/js/site-auth.js"></script>
-<script type="module" src="assets/js/prediction-hub.js"></script>
+<script type="module" src="assets/js/star-man-hub.js"></script>
 </body>
 </html>
-

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -13,14 +13,14 @@ body {
   min-height: 100vh;
   margin: 0;
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  background: linear-gradient(135deg, #6f45bd 0%, #b579ee 48%, #e7b0ff 100%);
   color: #f3f4f6;
   overflow-x: hidden;
 }
 
 header {
   padding: 16px 14px;
-  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  background: linear-gradient(90deg, #6f49bd 0%, #a067d9 52%, #dc9df2 100%);
   box-shadow: 0 8px 20px rgba(0,0,0,0.42);
 }
 
@@ -185,7 +185,7 @@ main {
 
 .fixture-row {
   display: grid;
-  grid-template-columns: 58px minmax(110px, 1fr) 46px 14px 46px minmax(110px, 1fr) minmax(118px, 0.72fr);
+  grid-template-columns: minmax(118px, 0.72fr) 58px minmax(110px, 1fr) 46px 14px 46px minmax(110px, 1fr) minmax(118px, 0.72fr);
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -193,6 +193,11 @@ main {
   border-radius: 8px;
   background: rgba(17, 7, 38, 0.44);
   border: 1px solid rgba(216, 180, 254, 0.2);
+  position: relative;
+}
+
+.fixture-row::before {
+  content: '';
 }
 
 .fixture-flags {
@@ -266,9 +271,10 @@ main {
 }
 
 .fixture-lock-wrap {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 7px;
   min-width: 0;
 }
@@ -502,6 +508,11 @@ footer {
     gap: 4px;
   }
 
+  .fixture-row::before {
+    display: none;
+    content: none;
+  }
+
   .hedge-controls {
     grid-template-columns: 1fr 36px 10px 36px;
   }
@@ -522,6 +533,14 @@ footer {
     grid-column: 1 / -1;
     justify-content: center;
     gap: 6px;
+    min-height: 18px;
+  }
+
+  .fixture-lock-wrap .curse-marker {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .fixture-lock {
@@ -653,3 +672,4 @@ footer {
 <script type="module" src="assets/js/predictions.js"></script>
 </body>
 </html>
+

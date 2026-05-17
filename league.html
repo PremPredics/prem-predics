@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -13,13 +13,13 @@ body {
   min-height: 100vh;
   margin: 0;
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #4c1d95, #7c3aed, #1e0f3d);
+  background: linear-gradient(135deg, #6f45bd 0%, #b579ee 48%, #e7b0ff 100%);
   color: #f3f4f6;
 }
 
 header {
   padding: 25px 20px;
-  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  background: linear-gradient(90deg, #6f49bd 0%, #a067d9 52%, #dc9df2 100%);
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
 }
 
@@ -174,18 +174,33 @@ main {
 }
 
 .deadline-card {
+  --deadline-color: #ddd6fe;
   display: grid;
-  gap: 4px;
+  gap: 8px;
   min-height: 70px;
   align-content: center;
-  padding: 13px 14px;
+  padding: 12px 14px;
   border-radius: 8px;
-  background: rgba(17, 7, 38, 0.42);
-  border: 1px solid rgba(216, 180, 254, 0.22);
+  background: rgba(17, 7, 38, 0.48);
+  border: 2px solid color-mix(in srgb, var(--deadline-color) 72%, rgba(255,255,255,0.2));
   text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 20px rgba(0,0,0,0.16);
 }
 
-.deadline-card span {
+.deadline-card.action {
+  --deadline-color: #ffd43b;
+}
+
+.deadline-card.complete,
+.deadline-card.playable {
+  --deadline-color: #24ff82;
+}
+
+.deadline-card.locked {
+  --deadline-color: #ff3b3b;
+}
+
+.deadline-title {
   color: #fff;
   font-size: 12px;
   font-weight: 900;
@@ -197,15 +212,43 @@ main {
     1px 1px 0 rgba(0,0,0,0.82);
 }
 
-.deadline-card strong {
-  color: #19ff7a;
-  font-size: 15px;
-  text-shadow: 0 0 10px rgba(34, 255, 136, 0.5);
+.deadline-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
 }
 
-.deadline-card.locked strong {
-  color: #ff3b3b;
-  text-shadow: 0 0 10px rgba(255, 59, 59, 0.5);
+.deadline-card.locked .deadline-body,
+.deadline-card.unset .deadline-body {
+  grid-template-columns: 1fr;
+}
+
+.deadline-countdown {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 950;
+  text-align: left;
+  white-space: nowrap;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.7),
+    1px -1px 0 rgba(0,0,0,0.7),
+    -1px 1px 0 rgba(0,0,0,0.7),
+    1px 1px 0 rgba(0,0,0,0.7);
+}
+
+.deadline-status {
+  color: var(--deadline-color);
+  font-size: 15px;
+  font-weight: 950;
+  text-align: right;
+  white-space: nowrap;
+  text-shadow: 0 0 10px color-mix(in srgb, var(--deadline-color) 55%, transparent);
+}
+
+.deadline-card.locked .deadline-status,
+.deadline-card.unset .deadline-status {
+  text-align: center;
 }
 
 .copy-code-btn {
@@ -393,6 +436,20 @@ footer {
     gap: 9px;
   }
 
+  .deadline-card {
+    min-height: 62px;
+    padding: 10px 12px;
+  }
+
+  .deadline-body {
+    gap: 8px;
+  }
+
+  .deadline-countdown,
+  .deadline-status {
+    font-size: 13px;
+  }
+
   .play-group.primary,
   .play-group.game,
   .play-group.reference {
@@ -465,3 +522,4 @@ footer {
 <script type="module" src="assets/js/league.js"></script>
 </body>
 </html>
+

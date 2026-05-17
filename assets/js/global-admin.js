@@ -18,6 +18,13 @@ const state = {
   cards: [],
 };
 
+const playerStatFlow = {
+  teamId: null,
+  playerId: null,
+  fixtureId: null,
+  players: [],
+};
+
 function setMessage(element, text, type = 'info') {
   element.textContent = text;
   element.dataset.type = type;
@@ -431,143 +438,311 @@ async function saveFixtureStats(message) {
   setMessage(message, error ? error.message : 'Fixture stats saved.', error ? 'error' : 'success');
 }
 
-function renderPlayerStatsControls() {
-  const gameweekSelect = document.querySelector('[data-player-stats-gameweek]');
-  const fixtureSelect = document.querySelector('[data-player-stats-fixture]');
-  populateGameweekSelect(gameweekSelect);
-
-  function syncFixtures() {
-    const fixtures = state.fixtures.filter((fixture) => String(fixture.gameweek_id) === gameweekSelect.value);
-    fixtureSelect.innerHTML = fixtureOptions(fixtures);
-    renderPlayerStats();
-  }
-
-  gameweekSelect.onchange = syncFixtures;
-  fixtureSelect.onchange = renderPlayerStats;
-  document.querySelectorAll('[data-save-player-stats]').forEach((button) => {
-    button.onclick = savePlayerStats;
-  });
-  syncFixtures();
+function sortedTeamFixtures(teamId) {
+  return state.fixtures
+    .filter((fixture) => fixture.home_team_id === teamId || fixture.away_team_id === teamId)
+    .sort((a, b) => {
+      const gameweekDiff = Number(gameweekNumber(a.gameweek_id)) - Number(gameweekNumber(b.gameweek_id));
+      if (gameweekDiff) {
+        return gameweekDiff;
+      }
+      return new Date(a.kickoff_at || 0).getTime() - new Date(b.kickoff_at || 0).getTime();
+    });
 }
 
-async function renderPlayerStats() {
-  const fixtureId = document.querySelector('[data-player-stats-fixture]').value;
-  const list = document.querySelector('[data-player-stats-list]');
-  if (!fixtureId) {
-    list.innerHTML = '<p class="section-copy">Choose a fixture.</p>';
+function selectedPlayerStatPlayer() {
+  return playerStatFlow.players.find((player) => player.id === playerStatFlow.playerId) || null;
+}
+
+function selectedPlayerStatFixture() {
+  return state.fixtures.find((fixture) => fixture.id === playerStatFlow.fixtureId) || null;
+}
+
+function renderPlayerStatsControls() {
+  const message = document.querySelector('[data-player-stats-message]');
+  if (message) {
+    setMessage(message, '', 'info');
+  }
+
+  if (playerStatFlow.teamId && !state.teams.some((team) => team.id === playerStatFlow.teamId)) {
+    playerStatFlow.teamId = null;
+    playerStatFlow.playerId = null;
+    playerStatFlow.fixtureId = null;
+  }
+
+  renderPlayerStatsTeamList();
+  renderPlayerStatsPlayerList();
+  renderPlayerStatsFixtureList();
+  renderPlayerStatsEntry();
+}
+
+function renderPlayerStatsTeamList() {
+  const list = document.querySelector('[data-player-stats-team-list]');
+  if (!list) {
     return;
   }
 
-  const fixture = state.fixtures.find((item) => item.id === fixtureId);
-  const [{ data: players }, { data: stats }] = await Promise.all([
-    supabase
-      .from('players')
-      .select('id, display_name, team_id')
-      .in('team_id', [fixture.home_team_id, fixture.away_team_id])
-      .eq('is_active', true)
-      .order('display_name', { ascending: true })
-      .range(0, 200),
-    supabase.from('player_fixture_stats').select('*').eq('fixture_id', fixtureId),
-  ]);
+  list.innerHTML = state.teams.map((team) => `
+    <button class="admin-pick-card ${team.id === playerStatFlow.teamId ? 'active' : ''}" type="button" data-player-stats-team="${team.id}">
+      ${escapeHtml(shortTeamName(team.name))}
+    </button>
+  `).join('');
 
-  const statsByPlayer = new Map((stats || []).map((row) => [row.player_id, row]));
-  const teamOrder = [fixture.home_team_id, fixture.away_team_id];
-  list.innerHTML = teamOrder.map((teamId) => {
-    const teamPlayers = (players || []).filter((player) => player.team_id === teamId);
-    if (!teamPlayers.length) {
-      return '';
-    }
-
-    return `
-      <section class="player-team-group">
-        <h3 class="player-team-title">${escapeHtml(teamName(teamId))}</h3>
-        ${teamPlayers.map((player) => {
-          const row = statsByPlayer.get(player.id);
-          return `
-            <div class="admin-row player-stats" data-player-id="${player.id}">
-              <strong>${escapeHtml(player.display_name)}</strong>
-              <label class="stat-field"><span>G</span><input data-goals type="number" min="0" value="${row?.goals ?? 0}" title="Goals"></label>
-              <label class="stat-field"><span>A</span><input data-assists type="number" min="0" value="${row?.assists ?? 0}" title="Assists"></label>
-              <label class="stat-field"><span>YC</span><input data-yellows type="number" min="0" value="${row?.yellow_cards ?? 0}" title="Yellow cards"></label>
-              <label class="stat-field"><span>RC</span><input data-reds type="number" min="0" value="${row?.red_cards ?? 0}" title="Red cards"></label>
-            </div>
-          `;
-        }).join('')}
-      </section>
-    `;
-  }).join('') || '<p class="section-copy">No players found for this fixture.</p>';
+  list.querySelectorAll('[data-player-stats-team]').forEach((button) => {
+    button.addEventListener('click', () => {
+      playerStatFlow.teamId = button.dataset.playerStatsTeam;
+      playerStatFlow.playerId = null;
+      playerStatFlow.fixtureId = null;
+      playerStatFlow.players = [];
+      renderPlayerStatsTeamList();
+      renderPlayerStatsPlayerList();
+      renderPlayerStatsFixtureList();
+      renderPlayerStatsEntry();
+    });
+  });
 }
 
-async function savePlayerStats() {
-  const message = document.querySelector('[data-player-stats-message]');
-  const fixtureId = document.querySelector('[data-player-stats-fixture]').value;
-  const fixture = state.fixtures.find((item) => item.id === fixtureId);
-  const rows = [...document.querySelectorAll('[data-player-stats-list] [data-player-id]')];
+async function renderPlayerStatsPlayerList() {
+  const list = document.querySelector('[data-player-stats-player-list]');
+  if (!list) {
+    return;
+  }
 
-  const playersById = new Map();
-  const { data: players } = await supabase
+  if (!playerStatFlow.teamId) {
+    playerStatFlow.players = [];
+    list.innerHTML = '<p class="section-copy">Choose a team.</p>';
+    return;
+  }
+
+  list.innerHTML = '<p class="section-copy">Loading players...</p>';
+  const { data: players, error } = await supabase
     .from('players')
-    .select('id, team_id')
-    .in('id', rows.map((row) => row.dataset.playerId));
-  (players || []).forEach((player) => playersById.set(player.id, player));
+    .select('id, display_name, team_id')
+    .eq('team_id', playerStatFlow.teamId)
+    .eq('is_active', true)
+    .order('display_name', { ascending: true })
+    .range(0, 250);
 
-  const fixtureStats = rows.map((row) => {
-    const player = playersById.get(row.dataset.playerId);
-    const isHome = player?.team_id === fixture.home_team_id;
-    return {
-      season_id: state.season.id,
-      fixture_id: fixtureId,
-      gameweek_id: fixture.gameweek_id,
-      player_id: row.dataset.playerId,
-      team_id: player?.team_id,
-      opponent_team_id: isHome ? fixture.away_team_id : fixture.home_team_id,
-      was_home_team: isHome,
-      goals: numberOrZero(row.querySelector('[data-goals]').value),
-      assists: numberOrZero(row.querySelector('[data-assists]').value),
-      outside_box_goals: 0,
-      outside_box_assists: 0,
-      yellow_cards: numberOrZero(row.querySelector('[data-yellows]').value),
-      red_cards: numberOrZero(row.querySelector('[data-reds]').value),
-      started: null,
-      was_benched: null,
-      was_in_matchday_squad: null,
-      was_substituted: null,
-      substituted_on_minute: null,
-      substituted_off_minute: null,
-      minutes_played: null,
-      entered_by: state.user.id,
-    };
-  }).filter((row) => row.team_id);
+  if (error) {
+    list.innerHTML = `<p class="section-copy">${escapeHtml(error.message)}</p>`;
+    return;
+  }
 
-  const gameweekStats = fixtureStats.map((row) => ({
-    season_id: row.season_id,
-    gameweek_id: row.gameweek_id,
-    player_id: row.player_id,
-    goals: row.goals,
-    assists: row.assists,
+  playerStatFlow.players = players || [];
+  if (playerStatFlow.playerId && !playerStatFlow.players.some((player) => player.id === playerStatFlow.playerId)) {
+    playerStatFlow.playerId = null;
+    playerStatFlow.fixtureId = null;
+  }
+
+  list.innerHTML = playerStatFlow.players.map((player) => `
+    <button class="admin-pick-card ${player.id === playerStatFlow.playerId ? 'active' : ''}" type="button" data-player-stats-player="${player.id}">
+      ${escapeHtml(player.display_name)}
+    </button>
+  `).join('') || '<p class="section-copy">No active players found for this team.</p>';
+
+  list.querySelectorAll('[data-player-stats-player]').forEach((button) => {
+    button.addEventListener('click', () => {
+      playerStatFlow.playerId = button.dataset.playerStatsPlayer;
+      playerStatFlow.fixtureId = null;
+      renderPlayerStatsPlayerList();
+      renderPlayerStatsFixtureList();
+      renderPlayerStatsEntry();
+    });
+  });
+
+  renderPlayerStatsFixtureList();
+  renderPlayerStatsEntry();
+}
+
+function renderPlayerStatsFixtureList() {
+  const list = document.querySelector('[data-player-stats-fixture-list]');
+  if (!list) {
+    return;
+  }
+
+  if (!playerStatFlow.teamId) {
+    list.innerHTML = '<p class="section-copy">Choose a team first.</p>';
+    return;
+  }
+
+  if (!playerStatFlow.playerId) {
+    list.innerHTML = '<p class="section-copy">Choose a player to show this team\'s fixtures.</p>';
+    return;
+  }
+
+  const fixtures = sortedTeamFixtures(playerStatFlow.teamId);
+  if (playerStatFlow.fixtureId && !fixtures.some((fixture) => fixture.id === playerStatFlow.fixtureId)) {
+    playerStatFlow.fixtureId = null;
+  }
+
+  list.innerHTML = fixtures.map((fixture) => `
+    <button class="admin-pick-card ${fixture.id === playerStatFlow.fixtureId ? 'active' : ''}" type="button" data-player-stats-fixture="${fixture.id}">
+      ${escapeHtml(fixtureLabel(fixture))}
+      <small>${escapeHtml(new Date(fixture.kickoff_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }))}</small>
+    </button>
+  `).join('') || '<p class="section-copy">No fixtures found for this team.</p>';
+
+  list.querySelectorAll('[data-player-stats-fixture]').forEach((button) => {
+    button.addEventListener('click', () => {
+      playerStatFlow.fixtureId = button.dataset.playerStatsFixture;
+      renderPlayerStatsFixtureList();
+      renderPlayerStatsEntry();
+    });
+  });
+}
+
+async function renderPlayerStatsEntry() {
+  const entry = document.querySelector('[data-player-stats-entry]');
+  const message = document.querySelector('[data-player-stats-message]');
+  if (!entry) {
+    return;
+  }
+
+  const player = selectedPlayerStatPlayer();
+  const fixture = selectedPlayerStatFixture();
+
+  if (!playerStatFlow.teamId) {
+    entry.innerHTML = '<p class="section-copy">Select a team to begin.</p>';
+    return;
+  }
+
+  if (!player) {
+    entry.innerHTML = '<p class="section-copy">Select a player.</p>';
+    return;
+  }
+
+  if (!fixture) {
+    entry.innerHTML = '<p class="section-copy">Select a fixture.</p>';
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('player_fixture_stats')
+    .select('goals, assists, yellow_cards, red_cards')
+    .eq('fixture_id', fixture.id)
+    .eq('player_id', player.id)
+    .maybeSingle();
+
+  if (error) {
+    entry.innerHTML = `<p class="section-copy">${escapeHtml(error.message)}</p>`;
+    return;
+  }
+
+  entry.innerHTML = `
+    <div class="player-stat-summary">
+      <strong>${escapeHtml(player.display_name)}</strong>
+      <span>${escapeHtml(fixtureLabel(fixture))}</span>
+    </div>
+    <div class="player-stat-save-row">
+      <button class="primary" type="button" data-save-selected-player-stat>Save Player Stats</button>
+    </div>
+    <div class="player-stat-form">
+      <label class="stat-field"><span>Goals</span><input data-goals type="number" min="0" max="20" value="${data?.goals ?? 0}"></label>
+      <label class="stat-field"><span>Assists</span><input data-assists type="number" min="0" max="20" value="${data?.assists ?? 0}"></label>
+      <label class="stat-field"><span>Yellow Cards</span><input data-yellows type="number" min="0" max="2" value="${data?.yellow_cards ?? 0}"></label>
+      <label class="stat-field"><span>Red Cards</span><input data-reds type="number" min="0" max="2" value="${data?.red_cards ?? 0}"></label>
+    </div>
+    <div class="player-stat-save-row">
+      <button class="primary" type="button" data-save-selected-player-stat>Save Player Stats</button>
+    </div>
+  `;
+
+  entry.querySelectorAll('[data-save-selected-player-stat]').forEach((button) => {
+    button.addEventListener('click', () => saveSelectedPlayerStats(message));
+  });
+}
+
+async function saveSelectedPlayerStats(message) {
+  const entry = document.querySelector('[data-player-stats-entry]');
+  const player = selectedPlayerStatPlayer();
+  const fixture = selectedPlayerStatFixture();
+
+  if (!entry || !player || !fixture) {
+    setMessage(message, 'Choose a team, player and fixture before saving.', 'error');
+    return;
+  }
+
+  const isHome = player.team_id === fixture.home_team_id;
+  const fixtureStats = {
+    season_id: state.season.id,
+    fixture_id: fixture.id,
+    gameweek_id: fixture.gameweek_id,
+    player_id: player.id,
+    team_id: player.team_id,
+    opponent_team_id: isHome ? fixture.away_team_id : fixture.home_team_id,
+    was_home_team: isHome,
+    goals: numberOrZero(entry.querySelector('[data-goals]').value),
+    assists: numberOrZero(entry.querySelector('[data-assists]').value),
     outside_box_goals: 0,
     outside_box_assists: 0,
-    yellow_cards: row.yellow_cards,
-    red_cards: row.red_cards,
+    yellow_cards: numberOrZero(entry.querySelector('[data-yellows]').value),
+    red_cards: numberOrZero(entry.querySelector('[data-reds]').value),
     started: null,
     was_benched: null,
+    was_in_matchday_squad: null,
+    was_substituted: null,
+    substituted_on_minute: null,
+    substituted_off_minute: null,
     minutes_played: null,
     entered_by: state.user.id,
-  }));
+  };
 
-  const { error: fixtureError } = await supabase.from('player_fixture_stats').upsert(fixtureStats, {
-    onConflict: 'fixture_id,player_id',
-  });
+  setMessage(message, 'Saving player stats...', 'info');
+
+  const { error: fixtureError } = await supabase
+    .from('player_fixture_stats')
+    .upsert(fixtureStats, { onConflict: 'fixture_id,player_id' });
+
   if (fixtureError) {
     setMessage(message, fixtureError.message, 'error');
     return;
   }
 
-  const { error: gameweekError } = await supabase.from('player_gameweek_stats').upsert(gameweekStats, {
+  const { data: fixtureRows, error: totalsError } = await supabase
+    .from('player_fixture_stats')
+    .select('goals, assists, yellow_cards, red_cards')
+    .eq('season_id', state.season.id)
+    .eq('gameweek_id', fixture.gameweek_id)
+    .eq('player_id', player.id)
+    .range(0, 100);
+
+  if (totalsError) {
+    setMessage(message, totalsError.message, 'error');
+    return;
+  }
+
+  const totals = (fixtureRows || []).reduce((sum, row) => ({
+    goals: sum.goals + numberOrZero(row.goals),
+    assists: sum.assists + numberOrZero(row.assists),
+    yellow_cards: sum.yellow_cards + numberOrZero(row.yellow_cards),
+    red_cards: sum.red_cards + numberOrZero(row.red_cards),
+  }), { goals: 0, assists: 0, yellow_cards: 0, red_cards: 0 });
+
+  const { error: gameweekError } = await supabase.from('player_gameweek_stats').upsert({
+    season_id: state.season.id,
+    gameweek_id: fixture.gameweek_id,
+    player_id: player.id,
+    goals: totals.goals,
+    assists: totals.assists,
+    outside_box_goals: 0,
+    outside_box_assists: 0,
+    yellow_cards: totals.yellow_cards,
+    red_cards: totals.red_cards,
+    started: null,
+    was_benched: null,
+    minutes_played: null,
+    entered_by: state.user.id,
+  }, {
     onConflict: 'season_id,gameweek_id,player_id',
   });
 
-  setMessage(message, gameweekError ? gameweekError.message : 'Player stats saved.', gameweekError ? 'error' : 'success');
+  if (gameweekError) {
+    setMessage(message, gameweekError.message, 'error');
+    return;
+  }
+
+  setMessage(message, 'Player stats saved.', 'success');
+  await renderPlayerStatsEntry();
 }
 
 async function renderGameCardResults() {
