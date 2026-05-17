@@ -299,6 +299,35 @@ input[type="checkbox"] {
   grid-template-columns: 58px minmax(180px, 1.2fr) repeat(8, minmax(56px, 0.45fr));
 }
 
+.admin-row.league-overview {
+  grid-template-columns: minmax(190px, 1.2fr) 100px minmax(120px, 0.6fr) 92px;
+  text-align: center;
+}
+
+.admin-row.user-overview {
+  grid-template-columns: 54px minmax(140px, 1fr) minmax(120px, 0.8fr);
+  text-align: left;
+}
+
+.admin-avatar {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8e7ff, #c084fc);
+  color: #2e1065;
+  border: 2px solid rgba(255,255,255,0.7);
+  font-weight: 950;
+}
+
+.admin-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .admin-row strong {
   color: #fff;
 }
@@ -370,7 +399,7 @@ input[type="checkbox"] {
 footer {
   text-align: center;
   padding: 20px;
-  color: #d8b4fe;
+  color: #4c1d95;
   border-top: 1px solid rgba(167, 139, 250, 0.3);
 }
 
@@ -390,7 +419,9 @@ footer {
   .admin-row,
   .admin-row.schedule,
   .admin-row.fixture-stats,
-  .admin-row.player-stats {
+  .admin-row.player-stats,
+  .admin-row.league-overview,
+  .admin-row.user-overview {
     grid-template-columns: 1fr;
     text-align: center;
   }
@@ -499,6 +530,8 @@ footer {
       <button type="button" data-admin-tab="player-stats">Player Stats</button>
       <button type="button" data-admin-tab="game-card-results">Game Card Results</button>
       <button type="button" data-admin-tab="team-standings">Premier League Table</button>
+      <button type="button" data-admin-tab="league-overview">Active Leagues</button>
+      <button type="button" data-admin-tab="user-overview">Users</button>
     </nav>
 
     <section class="panel admin-section" data-admin-section="actual-results">
@@ -575,6 +608,18 @@ footer {
       </div>
       <div class="admin-list" data-standings-list></div>
       <p class="message" data-standings-message></p>
+    </section>
+
+    <section class="panel admin-section" data-admin-section="league-overview" hidden>
+      <p class="section-copy">Active private leagues and current member counts.</p>
+      <div class="admin-list" data-league-overview-list></div>
+      <p class="message" data-league-overview-message></p>
+    </section>
+
+    <section class="panel admin-section" data-admin-section="user-overview" hidden>
+      <p class="section-copy">Registered users, profile pictures and first names.</p>
+      <div class="admin-list" data-user-overview-list></div>
+      <p class="message" data-user-overview-message></p>
     </section>
   </section>
 </main>

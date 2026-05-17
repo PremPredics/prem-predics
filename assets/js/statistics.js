@@ -27,13 +27,13 @@ function avatar(profile, displayName) {
 
 const statVisuals = {
   uc: '',
-  cs: '<span class="symbol tick-green">✓</span>',
-  cr: '<span class="symbol tick-amber">✓</span>',
-  smp: '<span class="symbol star">★</span>',
-  smg: '<span class="symbol star">★</span><span class="symbol ball">⚽</span>',
-  sma: '<span class="symbol star">★</span><span class="symbol target">➶</span>',
-  smy: '<span class="symbol star">★</span><span class="symbol card yellow"></span>',
-  smr: '<span class="symbol star">★</span><span class="symbol card red"></span>',
+  cs: '<span class="symbol tick-green">&#10003;</span>',
+  cr: '<span class="symbol tick-amber">&#10003;</span>',
+  smp: '<span class="symbol star">&#9733;</span>',
+  smg: '<span class="symbol star">&#9733;</span><span class="symbol ball">&#9917;</span>',
+  sma: '<span class="symbol star">&#9733;</span><span class="symbol target">&#10166;</span>',
+  smy: '<span class="symbol star">&#9733;</span><span class="symbol card yellow"></span>',
+  smr: '<span class="symbol star">&#9733;</span><span class="symbol card red"></span>',
 };
 
 function statClass(key) {

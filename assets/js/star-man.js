@@ -360,7 +360,7 @@ async function loadPlayers() {
     .eq('is_active', true)
     .not('team_id', 'is', null)
     .order('display_name', { ascending: true })
-    .range(0, 1999);
+    .range(0, 4999);
 
   if (error) {
     throw error;

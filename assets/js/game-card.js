@@ -62,6 +62,18 @@ function cardInstruction(cardName) {
   return instructions[cardName] || 'Submit the numeric prediction for this Game Card.';
 }
 
+function hasEncodingArtifacts(value) {
+  return /[\u00f0\u0178\u00e2\ufffd]/.test(String(value || ''));
+}
+
+function cardDescription(definition) {
+  const cardName = definition?.name || 'Game Card';
+  const description = definition?.description || '';
+  return description && !hasEncodingArtifacts(description)
+    ? description
+    : cardInstruction(cardName);
+}
+
 function predictionKey(roundId, gameweekId) {
   return `${roundId}:${gameweekId}`;
 }
@@ -269,7 +281,7 @@ function renderRound(round) {
         <div class="game-card-visual">${escapeHtml(cardName)}</div>
         <div class="card-copy">
           <h2>${escapeHtml(cardName)}</h2>
-          <p>${escapeHtml(definition?.description || cardInstruction(cardName))}</p>
+          <p>${escapeHtml(cardDescription(definition))}</p>
           <span class="range-pill">Active Gameweeks ${startNumber} to ${endNumber}</span>
           <p>${escapeHtml(cardInstruction(cardName))}</p>
         </div>

@@ -15,6 +15,7 @@ const gameweekCountdown = document.querySelector('[data-gameweek-countdown]');
 const deadlineStrip = document.querySelector('[data-deadline-strip]');
 const playGrid = document.querySelector('[data-play-grid]');
 const profileLink = document.querySelector('[data-profile-link]');
+const profileAvatar = document.querySelector('[data-profile-avatar]');
 let deadlineTimer = null;
 
 function renderError(error) {
@@ -28,6 +29,35 @@ function renderError(error) {
   playGrid.innerHTML = '';
   if (deadlineStrip) {
     deadlineStrip.innerHTML = '';
+  }
+}
+
+function renderProfileAvatar(profile, user) {
+  if (!profileAvatar) {
+    return;
+  }
+
+  const imageUrl = profile?.profile_image_url || '';
+  if (imageUrl) {
+    profileAvatar.innerHTML = `<img src="${escapeHtml(imageUrl)}" alt="">`;
+    return;
+  }
+
+  const fallback = profile?.display_name || user?.email || 'P';
+  profileAvatar.textContent = fallback.trim().charAt(0).toUpperCase() || 'P';
+}
+
+async function loadOwnProfile(user) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('display_name, profile_image_url')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (!error) {
+    renderProfileAvatar(data, user);
+  } else {
+    renderProfileAvatar(null, user);
   }
 }
 
@@ -271,18 +301,22 @@ async function renderLeague(league, user) {
   if (profileLink) {
     profileLink.href = leagueUrl('profile.html', league.id);
   }
+  await loadOwnProfile(user);
 
   if (activeGameweek) {
     const activeFixtures = fixturesByGameweek.get(String(activeGameweek.gameweek_id)) || [];
     await renderDeadlineStrip(activeGameweek, activeFixtures.filter((fixture) => fixture.status !== 'postponed'), league, user);
+    gameweekCountdown.classList.remove('active-gameweek');
     if (isGameweekStarted(activeGameweek)) {
-      gameweekLabel.textContent = 'Current Gameweek';
+      gameweekLabel.textContent = 'Current Gameweek:';
       gameweekCountdown.textContent = `Gameweek ${activeGameweek.gameweek_number} Is Active`;
+      gameweekCountdown.classList.add('active-gameweek');
     } else {
       gameweekLabel.textContent = `Next Gameweek ${activeGameweek.gameweek_number}`;
       startCountdown(gameweekCountdown, activeGameweek);
     }
   } else {
+    gameweekCountdown.classList.remove('active-gameweek');
     gameweekLabel.textContent = 'No active gameweek found';
     gameweekCountdown.textContent = '--d --h --m --s';
     if (deadlineStrip) {

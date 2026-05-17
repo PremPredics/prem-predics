@@ -79,26 +79,26 @@ button:disabled {
 
 /* Back to Home Button - Fixed */
 .back-home-btn {
-  position: fixed !important;
+  position: absolute;
   top: 15px;
   right: 15px;
   padding: 10px 16px;
   font-size: 0.9rem;
   font-weight: bold;
   border-radius: 8px;
-  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  background: rgba(17, 7, 38, 0.72);
   color: #fff;
-  border: none;
+  border: 1px solid rgba(216, 180, 254, 0.32);
   cursor: pointer;
   transition: 0.3s;
   z-index: 1200;
   transform: translate3d(0, 0, 0);
   will-change: transform;
-  box-shadow: 0 4px 15px rgba(123, 63, 248, 0.4);
+  box-shadow: 0 4px 15px rgba(17, 7, 38, 0.22);
 }
 
 .back-home-btn:hover {
-  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+  background: rgba(46, 16, 102, 0.92);
   transform: scale(1.08);
   box-shadow: 0 6px 20px rgba(123, 63, 248, 0.6);
 }
@@ -109,7 +109,7 @@ button:disabled {
 
 @media (max-width: 768px) {
   .back-home-btn {
-    position: fixed;
+    position: absolute;
     top: 10px;
     right: 10px;
     width: 118px;
@@ -1043,6 +1043,10 @@ button:disabled {
   font-weight: 950;
   cursor: pointer;
   box-shadow: 0 0 16px rgba(220, 38, 38, 0.35);
+}
+
+.card-preview-modal.detail-over-modal {
+  z-index: 2800;
 }
 
 .notice-body {
@@ -2357,23 +2361,18 @@ button:disabled {
   }
 }
 
-/* ===== FIXED FOOTER ===== */
+/* ===== FOOTER ACTION ===== */
 .fixed-footer {
-  position: fixed !important;
-  bottom: 0;
-  left: 0;
+  position: static;
   width: 100%;
-  background: linear-gradient(180deg, rgba(76, 29, 149, 0.9), rgba(124, 58, 237, 0.95));
-  border-top: 2px solid rgba(196, 132, 252, 0.3);
-  padding: 12px 15px;
-  z-index: 1200;
+  background: transparent;
+  border-top: 0;
+  padding: 14px 15px 24px;
   display: flex;
   gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
-  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .fixed-footer button {
@@ -2814,7 +2813,7 @@ button:disabled {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .back-home-btn {
-    position: fixed !important;
+    position: absolute;
     top: 8px;
     right: 8px;
     width: 118px;
@@ -2825,9 +2824,7 @@ button:disabled {
   }
 
   .fixed-footer {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
+    position: static;
   }
 
   h1 {
@@ -3340,9 +3337,9 @@ button:disabled {
 </head>
 <body data-require-auth="true" data-require-league="true">
 
-<button class="back-home-btn" onclick="window.location.href='index.html'">â† Home</button>
+<button class="back-home-btn" onclick="window.location.href='league.html' + window.location.search">Back To League Hub</button>
 
-<h1>ðŸƒ Prem Predics - Cards ðŸƒ</h1>
+<h1>Prem Predics - Cards</h1>
 
 <div class="mobile-fixed-actions" id="mobileFixedActions">
   <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()">View All Decks</button>
@@ -3466,7 +3463,7 @@ button:disabled {
   </div>
 
   <!-- Intro Section -->
-  <div class="intro-wrapper" id="introWrapper">
+  <div class="intro-wrapper hidden" id="introWrapper">
     <div class="intro-section">
       <div class="how-it-works-modal-title">How To Play</div>
       <div class="how-it-works-summary">There are 4 types of Card:</div>
@@ -3491,18 +3488,18 @@ button:disabled {
       <p><strong>The Goal</strong></p>
       <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
       
-      <p><strong>ðŸŽ´ Playing Power, Curse & Super Cards</strong></p>
+      <p><strong>Playing Power, Curse & Super Cards</strong></p>
       <p>There are 4 types of Card:</p>
       <ul>
-        <li>ðŸ’ª <strong>Power Cards (Regular Deck)</strong> - Help you or hinder your opponent</li>
-        <li>ðŸ–¤ <strong>Curse Cards (Regular Deck)</strong> - Negative effects for your opponent</li>
-        <li>âœ¨ <strong>Super Cards (Premium Deck)</strong> - Powerful premium abilities</li>
-        <li>ðŸŽ® <strong>Game Cards</strong> - Best-of-5 Minigames for Super Medal rewards</li>
+        <li><strong>Power Cards (Regular Deck)</strong> - Help you or hinder your opponent</li>
+        <li><strong>Curse Cards (Regular Deck)</strong> - Negative effects for your opponent</li>
+        <li><strong>Super Cards (Premium Deck)</strong> - Powerful premium abilities</li>
+        <li><strong>Game Cards</strong> - Best-of-5 Minigames for Super Medal rewards</li>
       </ul>
       
-      <p><strong>ðŸŽ¯ Start with 1 Power Card + 1 Curse Card</strong> from your league's Regular Deck</p>
-      <p><strong>âœ¨ Premium Deck:</strong> 7 Super Cards</p>
-      <p><strong>ðŸŽ® Game Deck:</strong> 7 Game Cards</p>
+      <p><strong>Start with 1 Power Card + 1 Curse Card</strong> from your league's Regular Deck</p>
+      <p><strong>Premium Deck:</strong> 7 Super Cards</p>
+      <p><strong>Game Deck:</strong> 7 Game Cards</p>
     </div>
 
   <div class="start-season-wrapper" id="startSeasonWrapper">
@@ -3532,7 +3529,7 @@ button:disabled {
   </div>
 
   <!-- Main Game Layout -->
-  <div class="main-game-layout" id="mainGameLayout">
+  <div class="main-game-layout show" id="mainGameLayout">
     <!-- LEFT PANEL - CONTROLS / PENDING / DISCARD -->
     <div class="left-panel">
       <div class="side-actions" id="primarySideActions">
@@ -3559,7 +3556,7 @@ button:disabled {
       </div>
 
       <!-- Pending Swap / Steal -->
-      <div class="card-section" id="swapSection">
+      <div class="card-section show" id="swapSection">
         <h2>Pending Swap/Steal</h2>
         <div id="pendingSwap" class="pending-swap"></div>
         <div class="action-buttons">
@@ -3570,7 +3567,7 @@ button:disabled {
       </div>
 
       <!-- Discard Pile -->
-      <div class="discard-action" id="discardSection">
+      <div class="discard-action show" id="discardSection">
         <button class="side-action-btn discard-btn" onclick="openDiscardPile()">
           <span>View Discarded/Played Cards</span>
           <span class="discard-count-badge" id="discardCountBadge">0</span>
@@ -3582,16 +3579,16 @@ button:disabled {
     <div class="center-panel">
       <!-- Drawn Card Section -->
       <div id="drawnCardSection">
-        <h2>ðŸŽ¯ Drawn Card</h2>
+        <h2>Drawn Card</h2>
         <div id="drawnCardDisplay"></div>
         <div id="drawnCardAssignButtons">
           <button class="player-select-btn vas-btn" onclick="assignCard(getCurrentPlayerKey())">Keep Card</button>
-          <button onclick="discardLastCard()">âœ— Discard</button>
+          <button onclick="discardLastCard()">Discard</button>
         </div>
       </div>
 
       <!-- Player Hands -->
-      <div class="players-row" id="playersRow">
+      <div class="players-row show" id="playersRow">
         <div class="state-text">Loading league players...</div>
       </div>
     </div>
@@ -3627,12 +3624,12 @@ button:disabled {
     <p><strong>The Goal</strong></p>
     <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion.</p>
     
-    <p><strong>ðŸŽ´ Playing Power, Curse & Super Cards</strong></p>
+    <p><strong>Playing Power, Curse & Super Cards</strong></p>
     <ul>
-      <li>ðŸ’ª <strong>Power Cards</strong> - Help you or hinder your opponent</li>
-      <li>ðŸ–¤ <strong>Curse Cards</strong> - Negative effects for your opponent</li>
-      <li>âœ¨ <strong>Super Cards</strong> - Powerful premium abilities</li>
-      <li>ðŸŽ® <strong>Game Cards</strong> - Best-of-5 Minigames for Super Medal rewards</li>
+      <li><strong>Power Cards</strong> - Help you or hinder your opponent</li>
+      <li><strong>Curse Cards</strong> - Negative effects for your opponent</li>
+      <li><strong>Super Cards</strong> - Powerful premium abilities</li>
+      <li><strong>Game Cards</strong> - Best-of-5 Minigames for Super Medal rewards</li>
     </ul>
         <div class="card-preview-buttons how-it-works-close-row">
           <button class="card-preview-btn back" style="max-width: 220px;" onclick="closeHowItWorks()">Close</button>
@@ -3644,7 +3641,7 @@ button:disabled {
 
 <!-- Fixed Footer -->
 <div class="fixed-footer" id="fixedFooter">
-  <button class="how-it-works-btn" onclick="toggleHowItWorks()">ðŸ“– How It Works</button>
+  <button class="how-it-works-btn" onclick="toggleHowItWorks()">How It Works</button>
 </div>
 
 <script>
@@ -3694,35 +3691,35 @@ window.alert = (message) => showSiteNotice(message);
 
 // CARD DESCRIPTIONS DATABASE
 const cardDescriptions = {
-  "Power of the Goal": "ðŸƒ Power of the Goal\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ†+1 Goal for Star Man this week for the player playing this cardðŸ†\n\n*Must be played before the start of a Gameweek",
-  "Power of the Swap": "ðŸƒ Power of the Swap\nâ€¢ Discard 2, Draw 3, Pick 2â€¢\n\nðŸ†Discard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand for the player playing this cardðŸ†",
-  "Power of the Veto": "ðŸƒ Power of the Veto\n\nðŸ†Veto a Curse played by your opponentðŸ†",
-  "Power of the Laundrette": "ðŸƒ Power of the Laundrette\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ†DOUBLE points for any Correct Result with a Clean Sheet for the player playing this cardðŸ†",
-  "Power Of The Clean Sweep": "ðŸƒ Power Of The Clean Sweep\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ†If you score a point in every game this Gameweek, earn bonus +5 UC ptsðŸ†\n\n*Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Pessimist": "ðŸƒ Power of the Pessimist\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ† DOUBLE points for all Predictions if no team scores 3+ goals for the player playing this cardðŸ†",
-  "Power of the Immigrants": "ðŸƒ Power of the Immigrants\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ†Non-English Star Men score DOUBLE points for the player playing this cardðŸ†\n\n*Must be played before the start of a Gameweek",
-  "Power of the Lanky Crouch": "ðŸƒ Power of the Lanky Crouch\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ† Star Men 6ft1 (185cm) or taller score DOUBLE points for the player playing this cardðŸ†\n\n*Must be played before the start of a Gameweek",
-  "Power of the Small and Mighty": "ðŸƒ Power of the Small and Mighty\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ† Star Men 5ft9 (175cm) or shorter score DOUBLE points for the player playing this cardðŸ†\n\n*Must be played before the start of a Gameweek",
-  "Power of God": "ðŸƒ Power of God\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ†Change ONE match prediction before the start of the 2nd Half for the player playing this cardðŸ†",
-  "Power of the Hedge": "ðŸƒ Power of the Hedge\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ†Predict TWO scorelines for one match, best result counts for the player playing this cardðŸ†\n\n*Must be played before the start of a Gameweek",
-  "Power of the Assist King": "ðŸƒ Power of the Assist King\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ†Star Man assists score DOUBLE points for the player playing this cardðŸ†",
-  "Power of the Late Scout": "ðŸƒ Power of the Late Scout\nâ€¢ Valid for 1 Gameweekâ€¢\n\nðŸ†You may choose your Star Man AFTER line-ups are announced for one matchðŸ†\n\n*Must be played before Star Man's Kick-Off",
-  "Power of the Snow": "ðŸƒ Power of the Snow\nâ€¢ Valid for 1 Gameweek\n\nðŸ†Any Predicted match played in heavy snow scores DOUBLE pointsðŸ†\n\n*Must be played before the start of a Gameweek",
+  "Power of the Goal": "Power of the Goal\nValid for 1 Gameweek.\n\n+1 Goal for your Star Man this week.\n\nMust be played before the start of a Gameweek.",
+  "Power of the Swap": "Power of the Swap\nDiscard 2, Draw 3, Pick 2.\n\nDiscard this card and one other card, then draw 3 cards from the Regular Deck and pick 2 to keep.",
+  "Power of the Veto": "Power of the Veto\n\nVeto a Curse played by your opponent.",
+  "Power of the Laundrette": "Power of the Laundrette\nValid for 1 Gameweek.\n\nDouble points for any Correct Result with a Clean Sheet.",
+  "Power Of The Clean Sweep": "Power Of The Clean Sweep\nValid for 1 Gameweek.\n\nIf you score a point in every game this Gameweek, earn bonus +5 UC pts.\n\nMust be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Pessimist": "Power of the Pessimist\nValid for 1 Gameweek.\n\nDouble points for all Predictions if no team scores 3+ goals.",
+  "Power of the Immigrants": "Power of the Immigrants\nValid for 1 Gameweek.\n\nNon-English Star Men score double points.\n\nMust be played before the start of a Gameweek.",
+  "Power of the Lanky Crouch": "Power of the Lanky Crouch\nValid for 1 Gameweek.\n\nStar Men 6ft1 (185cm) or taller score double points.\n\nMust be played before the start of a Gameweek.",
+  "Power of the Small and Mighty": "Power of the Small and Mighty\nValid for 1 Gameweek.\n\nStar Men 5ft9 (175cm) or shorter score double points.\n\nMust be played before the start of a Gameweek.",
+  "Power of God": "Power of God\nValid for 1 Gameweek.\n\nChange one match prediction before the start of the 2nd Half.",
+  "Power of the Hedge": "Power of the Hedge\nValid for 1 Gameweek.\n\nPredict two scorelines for one match. Best result counts.\n\nMust be played before the start of a Gameweek.",
+  "Power of the Assist King": "Power of the Assist King\nValid for 1 Gameweek.\n\nStar Man assists score double points.",
+  "Power of the Late Scout": "Power of the Late Scout\nValid for 1 Gameweek.\n\nYou may choose your Star Man after line-ups are announced for one match.\n\nMust be played before that Star Man's kick-off.",
+  "Power of the Snow": "Power of the Snow\nValid for 1 Gameweek.\n\nAny predicted match played in heavy snow scores double points.\n\nMust be played before the start of a Gameweek.",
 
-  "Curse of the Hated": "ðŸƒ Curse of the Hated\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâœ–ï¸Opponent must predict 8â€“2 in at least one game this Gameweekâœ–ï¸\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Random": "ðŸƒ Curse of the Random\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâŒFor 3 games, roll a dice to determine the score predictions of an opponentâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Furious": "ðŸƒ Curse of the Furious\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâŒIf your opponent's Star Man gets a Yellow or Red card, those -pts are doubledâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Alphabet (15+)": "ðŸƒ Curse of the Alphabet\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâŒOpponent's Star Man surname must have a Scrabble score of 15+âŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Alphabet (20+)": "ðŸƒ Curse of the Alphabet\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâŒOpponent's Star Man surname must have a Scrabble score of 20+âŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Scoring Drought (3)": "ðŸƒ Curse of the Scoring Drought\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâŒOpponent's Star Man must have 0 goals in their last 3 PL gamesâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Scoring Drought (5)": "ðŸƒ Curse of the Scoring Drought\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâŒOpponent's Star Man must have 0 goals in their last 5 PL gamesâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Hated": "Curse of the Hated\nValid for 1 Gameweek.\n\nOpponent must predict 8-2 in at least one game this Gameweek.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Random": "Curse of the Random\nValid for 1 Gameweek.\n\nFor 3 games, roll dice to determine the score predictions of an opponent.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Furious": "Curse of the Furious\nValid for 1 Gameweek.\n\nIf your opponent's Star Man gets a Yellow or Red card, those negative points are doubled.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Alphabet (15+)": "Curse of the Alphabet\nValid for 1 Gameweek.\n\nOpponent's Star Man surname must have a Scrabble score of 15+.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Alphabet (20+)": "Curse of the Alphabet\nValid for 1 Gameweek.\n\nOpponent's Star Man surname must have a Scrabble score of 20+.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Scoring Drought (3)": "Curse of the Scoring Drought\nValid for 1 Gameweek.\n\nOpponent's Star Man must have 0 goals in their last 3 PL games.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Scoring Drought (5)": "Curse of the Scoring Drought\nValid for 1 Gameweek.\n\nOpponent's Star Man must have 0 goals in their last 5 PL games.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
   "Curse Of The Microstate": "Curse Of The Microstate\nValid for 1 Gameweek.\n\nOpponent's Star Man's nationality must be from a Country with a population of less than 1 million.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Glasses": "ðŸƒ Curse of the Glasses\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâŒAny 0â€“0 prediction that the Opponent makes scores NOTHINGâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Deleted Match": "ðŸƒ Curse of the Deleted Match\nâ€¢ Valid for 1 Gameweekâ€¢\n\nâŒ Choose ONE of the Opponents Predictions, Opponent cannot earn points from this gameâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Tiny Club": "ðŸƒ Curse of the Tiny Club\nâ€¢ Valid for 1 Gameweek â€¢\n\nâŒOpponent may NOT pick a Star Man from a Top 10 clubâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Thief": "ðŸƒ Curse of the Thief\n\nâŒSteal a card from your OpponentâŒ\n\n*Cannot steal Super Cards, *Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Even Number": "ðŸƒ Curse of the Even Number\nâ€¢ Valid for 1 Gameweek â€¢\n\nâŒOpponent can only Predict an Even number of goals for all teamsâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time, *Cannot be picked whilst Curse of The Random is active",
-  "Curse of the Odd Number": "ðŸƒ Curse of the Odd Number\nâ€¢ Valid for 1 Gameweek â€¢\n\nâŒOpponent can only Predict an Odd number of goals for all teamsâŒ\n\n*Must be played at least 24 hours before the gameweek's first KO time, *Cannot be picked whilst Curse of The Random is active",
+  "Curse of the Glasses": "Curse of the Glasses\nValid for 1 Gameweek.\n\nAny 0-0 prediction that the opponent makes scores nothing.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Deleted Match": "Curse of the Deleted Match\nValid for 1 Gameweek.\n\nChoose one opponent prediction. The opponent cannot earn points from this game.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Tiny Club": "Curse of the Tiny Club\nValid for 1 Gameweek.\n\nOpponent may not pick a Star Man from a Top 10 club.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Thief": "Curse of the Thief\n\nSteal a card from your opponent.\n\nCannot steal Super Cards. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Even Number": "Curse of the Even Number\nValid for 1 Gameweek.\n\nOpponent can only predict an even number of goals for all teams.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Odd Number": "Curse of the Odd Number\nValid for 1 Gameweek.\n\nOpponent can only predict an odd number of goals for all teams.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
 
   "Super Star Man": "Super Star Man\nValid for {SUPER_DURATION}.\n\nStar Man points are TRIPLED for the player playing this card.\n\nYellow and Red cards are 0pts.",
   "Super Golden Gameweek": "Super Golden Gameweek\nValid for {SUPER_DURATION}.\n\nPrediction League points for all games are DOUBLED for the player playing this card.",
@@ -3732,13 +3729,13 @@ const cardDescriptions = {
   "Super Duo": "Super Duo\nValid for {SUPER_DURATION}.\n\nTwo Star Men can be chosen during the active range for the player playing this card.\n\nMust choose both players before the relevant Gameweek starts.",
   "Super Pen": "Super Pen\nValid for {SUPER_DURATION}.\n\nDraw a card from the Regular Deck any time a penalty is scored during the active range for the player playing this card.",
 
-  "Game of Goals": "ðŸƒ Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of Corners": "ðŸƒ Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of The Underdog": "ðŸƒ Game of The Underdog\n\nBest of 5 Gameweeks, closest answer wins, predict how many teams will beat a team above them in the league in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of The Goalhanger": "ðŸƒ Game of The Goalhanger\n\nBest of 5 Gameweeks, closest answer wins, predict how many players score 2+ goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of War": "ðŸƒ Game of War\n\nBest of 5 Gameweeks, closest answer wins, predict Total Yellow Cards in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of The Early Worm": "ðŸƒ Game of The Early Worm\n\nBest of 5 Gameweeks, closest answer wins, predict in which minute the earliest goal in each Gameweek is scored.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of Time": "ðŸƒ Game of Time\n\nBest of 5 Gameweeks, closest answer wins, predict Total 90'+ min goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick."
+  "Game of Goals": "Game of Goals\n\nBest of 5 Gameweeks. Closest answer wins. Predict the Total Goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of Corners": "Game of Corners\n\nBest of 5 Gameweeks. Closest answer wins. Predict the Total Corners in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of The Underdog": "Game of The Underdog\n\nBest of 5 Gameweeks. Closest answer wins. Predict how many teams will beat a team above them in the league in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of The Goalhanger": "Game of The Goalhanger\n\nBest of 5 Gameweeks. Closest answer wins. Predict how many players score 2+ goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of War": "Game of War\n\nBest of 5 Gameweeks. Closest answer wins. Predict Total Yellow Cards in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of The Early Worm": "Game of The Early Worm\n\nBest of 5 Gameweeks. Closest answer wins. Predict the minute of the earliest goal in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
+  "Game of Time": "Game of Time\n\nBest of 5 Gameweeks. Closest answer wins. Predict Total 90+ minute goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick."
 };
 cardDescriptions["Curse of the Gambler"] = cardDescriptions["Curse of the Random"];
 cardDescriptions["Curse of the Random Roulette"] = cardDescriptions["Curse Of The Microstate"];
@@ -3966,25 +3963,15 @@ function shouldUseMobileFixedActions() {
 }
 
 function syncFixedChrome() {
-  const isMobile = window.innerWidth <= 768;
   const homeBtn = document.querySelector('.back-home-btn');
   const footer = document.getElementById('fixedFooter');
 
   if (homeBtn) {
-    homeBtn.style.position = 'fixed';
-    homeBtn.style.top = isMobile ? '8px' : '15px';
-    homeBtn.style.right = isMobile ? '8px' : '15px';
-    homeBtn.style.zIndex = '1200';
-    homeBtn.style.transform = 'translate3d(0, 0, 0)';
+    homeBtn.removeAttribute('style');
   }
 
   if (footer) {
-    footer.style.position = 'fixed';
-    footer.style.left = '0';
-    footer.style.bottom = '0';
-    footer.style.width = '100%';
-    footer.style.zIndex = '1200';
-    footer.style.transform = 'translate3d(0, 0, 0)';
+    footer.removeAttribute('style');
   }
 }
 
@@ -4101,7 +4088,7 @@ function showCountdown() {
         numberEl.textContent = count;
         count--;
       } else {
-        numberEl.textContent = 'ðŸ†';
+        numberEl.textContent = 'Ready';
         numberEl.style.animation = 'none';
         numberEl.style.fontSize = 'clamp(3rem, 15vw, 8rem)';
         clearInterval(interval);
@@ -4109,7 +4096,7 @@ function showCountdown() {
         playWhistleSound();
         
         setTimeout(() => {
-          numberEl.innerHTML = '<span style="display: block;">Kick-Off!</span> âš½';
+          numberEl.innerHTML = '<span style="display: block;">Kick-Off!</span>';
           numberEl.style.fontSize = 'clamp(2rem, 10vw, 5rem)';
           numberEl.style.animation = 'kickoffPulse 1.5s ease-out';
           
@@ -4289,10 +4276,11 @@ function setActiveGameCardPanel(cardName, rangeText, description) {
   const nameElement = document.querySelector('[data-active-game-name]');
   const rangeElement = document.querySelector('[data-active-game-range]');
   const descriptionElement = document.querySelector('[data-active-game-description]');
+  const cleanDescription = /[\u00f0\u0178\u00e2\ufffd]/.test(String(description || '')) ? cardDescriptionFor(cardName) : description;
 
   if (nameElement) nameElement.textContent = cardName || 'No Active Game Card';
   if (rangeElement) rangeElement.textContent = rangeText || 'Game cards are generated at GW 1, 6, 11, 16, 21, 26 and 31.';
-  if (descriptionElement) descriptionElement.textContent = description || '';
+  if (descriptionElement) descriptionElement.textContent = cleanDescription || '';
 }
 
 function syncHandFromDatabase() {
@@ -4578,6 +4566,7 @@ function showCardPreview(cardName, player, index) {
 
 function showReadOnlyCardPreview(cardName) {
   const modal = document.getElementById('cardPreviewModal');
+  const discardModal = document.getElementById('discardPileModal');
   const content = document.getElementById('cardPreviewContent');
   const question = modal.querySelector('.card-preview-question');
   const playButton = document.getElementById('playCardBtn');
@@ -4593,6 +4582,7 @@ function showReadOnlyCardPreview(cardName) {
   descEl.textContent = cardDescriptionFor(cardName);
 
   document.body.classList.add('card-preview-open');
+  modal.classList.toggle('detail-over-modal', Boolean(discardModal?.classList.contains('show')));
   modal.classList.add('show');
   fitPreviewText(nameEl, descEl);
 }
@@ -4602,6 +4592,7 @@ function closeCardPreview() {
   const question = modal.querySelector('.card-preview-question');
   const playButton = document.getElementById('playCardBtn');
   modal.classList.remove('show');
+  modal.classList.remove('detail-over-modal');
   question.textContent = "Are you sure you'd like to play this card?";
   playButton.hidden = false;
   if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show')) {
@@ -5100,7 +5091,7 @@ function render() {
   const swapSection = document.getElementById("swapSection");
   swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.stealMode));
   if (gameState.pendingSwap) {
-    let html = `<strong>âš¡ Power of the Swap Active!</strong>`;
+    let html = `<strong>Power of the Swap Active!</strong>`;
     if (gameState.pendingSwap.drawn.length === 0) {
       html += `<p>Choose 1 card from your hand to discard.</p>`;
     } else {
@@ -5171,12 +5162,7 @@ function render() {
 }
 
 function applyCardPageVisibility() {
-  if (!gameState.seasonStarted) {
-  document.body.classList.remove('season-started');
-  document.body.classList.remove('controls-ready');
-  syncMobileFixedActions();
-  render();
-  } else {
+  gameState.seasonStarted = true;
   document.body.classList.add('season-started');
   document.body.classList.add('controls-ready');
   document.getElementById('introWrapper').classList.add('hidden');
@@ -5186,7 +5172,6 @@ function applyCardPageVisibility() {
   document.getElementById('discardSection').classList.add('show');
   syncMobileFixedActions();
   render();
-  }
 }
 
 function getNestedRecord(value) {

@@ -112,6 +112,44 @@ async function loadPredictions(gameweek, fixtures) {
   return new Map((data || []).map((prediction) => [prediction.fixture_id, prediction]));
 }
 
+async function loadResults(fixtures) {
+  if (!fixtures.length) {
+    return new Map();
+  }
+
+  const { data, error } = await supabase
+    .from('match_results')
+    .select('fixture_id, home_goals, away_goals')
+    .in('fixture_id', fixtures.map((fixture) => fixture.id));
+
+  if (error) {
+    throw error;
+  }
+
+  return new Map((data || []).map((result) => [result.fixture_id, result]));
+}
+
+function predictionClass(prediction, result, locked) {
+  if (!locked || !prediction || !result) {
+    return '';
+  }
+
+  const predictedHome = Number(prediction.home_goals);
+  const predictedAway = Number(prediction.away_goals);
+  const actualHome = Number(result.home_goals);
+  const actualAway = Number(result.away_goals);
+
+  if (predictedHome === actualHome && predictedAway === actualAway) {
+    return 'correct-score';
+  }
+
+  if (Math.sign(predictedHome - predictedAway) === Math.sign(actualHome - actualAway)) {
+    return 'correct-result';
+  }
+
+  return 'incorrect';
+}
+
 async function renderPredictionRows(gameweek) {
   const fixtures = fixturesForGameweek(gameweek.gameweek_id)
     .filter((fixture) => fixture.status !== 'postponed')
@@ -122,17 +160,22 @@ async function renderPredictionRows(gameweek) {
     return;
   }
 
-  const predictions = await loadPredictions(gameweek, fixtures);
+  const [predictions, results] = await Promise.all([
+    loadPredictions(gameweek, fixtures),
+    loadResults(fixtures),
+  ]);
   predictionList.innerHTML = fixtures.map((fixture) => {
     const locked = isPast(fixture.prediction_locks_at);
     const prediction = predictions.get(fixture.id);
+    const result = results.get(fixture.id);
+    const resultClass = predictionClass(prediction, result, locked);
     const score = !locked
       ? '-'
       : prediction
         ? `${prediction.home_goals}-${prediction.away_goals}`
         : 'X-X';
     return `
-      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${locked && !prediction ? 'missed' : ''}">
+      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${locked && !prediction ? 'missed' : ''} ${resultClass}">
         <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
         <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
         <strong>${escapeHtml(score)}</strong>

@@ -79,11 +79,13 @@ main {
 }
 
 .player-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
   align-items: center;
   justify-content: center;
   gap: 12px;
   text-align: center;
+  min-width: 0;
 }
 
 .avatar {
@@ -111,6 +113,9 @@ main {
   margin: 0;
   color: #fff;
   font-size: 1.35rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.1;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.9),
     1px -1px 0 rgba(0,0,0,0.9),
@@ -191,12 +196,13 @@ main {
 .symbol.card.red { background: #ef4444; }
 
 .stat.uc-stat .stat-label {
-  color: #fde68a;
+  color: #ffd700;
   font-size: 13px;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
 }
 
 .stat.uc-stat .stat-label > span:last-child {
-  color: #fde68a;
+  color: #ffd700;
 }
 
 .stat.gold-stat .stat-label {
@@ -222,8 +228,9 @@ main {
 }
 
 .stat.uc-stat strong {
-  color: #fde68a;
+  color: #ffd700;
   font-size: 1.65rem;
+  text-shadow: 0 0 14px rgba(255, 215, 0, 0.52);
 }
 
 .stat.game-won-stat {
@@ -242,7 +249,7 @@ main {
 footer {
   text-align: center;
   padding: 20px;
-  color: #d8b4fe;
+  color: #4c1d95;
   border-top: 1px solid rgba(167, 139, 250, 0.3);
 }
 

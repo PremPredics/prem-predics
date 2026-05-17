@@ -76,7 +76,14 @@ function normaliseSearchText(value) {
 }
 
 function playerSearchText(player) {
-  return normaliseSearchText(`${player.display_name || ''} ${teamName(player.team_id)}`);
+  return normaliseSearchText([
+    player.display_name,
+    player.first_name,
+    player.last_name,
+    player.surname,
+    player.nationality,
+    teamName(player.team_id),
+  ].filter(Boolean).join(' '));
 }
 
 function playerMatchesSearch(player, query) {
@@ -87,6 +94,16 @@ function playerMatchesSearch(player, query) {
 
   const haystack = playerSearchText(player);
   return terms.every((term) => haystack.includes(term));
+}
+
+function adminAvatar(profile) {
+  const imageUrl = profile?.profile_image_url || '';
+  if (imageUrl) {
+    return `<span class="admin-avatar"><img src="${escapeHtml(imageUrl)}" alt=""></span>`;
+  }
+
+  const fallback = profile?.display_name || profile?.first_name || 'P';
+  return `<span class="admin-avatar">${escapeHtml(fallback.trim().charAt(0).toUpperCase() || 'P')}</span>`;
 }
 
 function options(items, valueKey, labelFn, selectedValue = '') {
@@ -169,7 +186,7 @@ async function loadReferenceData() {
     supabase.from('teams').select('id, name').order('name', { ascending: true }),
     supabase.from('gameweeks').select('id, season_id, number, star_man_locks_at').order('number', { ascending: true }),
     supabase.from('fixtures').select('id, season_id, gameweek_id, original_gameweek_id, home_team_id, away_team_id, kickoff_at, status, sort_order').order('kickoff_at', { ascending: true }),
-    supabase.from('players').select('id, display_name, team_id').eq('is_active', true).order('display_name', { ascending: true }).range(0, 2500),
+    supabase.from('players').select('id, display_name, first_name, last_name, surname, nationality, team_id').eq('is_active', true).order('display_name', { ascending: true }).range(0, 4999),
     supabase.from('card_definitions').select('id, name, deck_type').order('name', { ascending: true }),
   ]);
 
@@ -207,12 +224,101 @@ function showSection(name) {
   if (name === 'player-stats') renderPlayerStatsControls();
   if (name === 'game-card-results') renderGameCardResults();
   if (name === 'team-standings') renderTeamStandings();
+  if (name === 'league-overview') renderLeagueOverview();
+  if (name === 'user-overview') renderUserOverview();
 }
 
 function wireAdminPanels() {
   document.querySelectorAll('[data-admin-tab]').forEach((button) => {
     button.addEventListener('click', () => showSection(button.dataset.adminTab));
   });
+}
+
+async function renderLeagueOverview() {
+  const list = document.querySelector('[data-league-overview-list]');
+  const message = document.querySelector('[data-league-overview-message]');
+  list.innerHTML = '<p class="section-copy">Loading leagues...</p>';
+  setMessage(message, '', 'info');
+
+  const { data: leagues, error } = await supabase
+    .from('competitions')
+    .select('id, name, join_code, season_id, member_lock_at, accepts_new_members')
+    .eq('season_id', state.season.id)
+    .order('name', { ascending: true });
+
+  if (error) {
+    list.innerHTML = '';
+    setMessage(message, error.message || 'Could not load leagues.', 'error');
+    return;
+  }
+
+  const leagueIds = (leagues || []).map((league) => league.id);
+  let counts = new Map();
+  if (leagueIds.length) {
+    const { data: members, error: memberError } = await supabase
+      .from('competition_members')
+      .select('competition_id, user_id')
+      .in('competition_id', leagueIds);
+
+    if (memberError) {
+      setMessage(message, memberError.message || 'Could not load league members.', 'error');
+    } else {
+      counts = (members || []).reduce((map, member) => {
+        map.set(member.competition_id, (map.get(member.competition_id) || 0) + 1);
+        return map;
+      }, new Map());
+    }
+  }
+
+  if (!leagues?.length) {
+    list.innerHTML = '<p class="section-copy">No active leagues found.</p>';
+    return;
+  }
+
+  list.innerHTML = leagues.map((league) => {
+    const lockTime = league.member_lock_at ? new Date(league.member_lock_at).getTime() : null;
+    const open = league.accepts_new_members && (!lockTime || Date.now() < lockTime);
+    return `
+      <div class="admin-row league-overview">
+        <strong>${escapeHtml(league.name)}</strong>
+        <span>${counts.get(league.id) || 0} members</span>
+        <span>${escapeHtml(league.join_code || '-')}</span>
+        <span>${open ? 'Open' : 'Locked'}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+async function renderUserOverview() {
+  const list = document.querySelector('[data-user-overview-list]');
+  const message = document.querySelector('[data-user-overview-message]');
+  list.innerHTML = '<p class="section-copy">Loading users...</p>';
+  setMessage(message, '', 'info');
+
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('id, display_name, first_name, profile_image_url')
+    .order('display_name', { ascending: true })
+    .range(0, 999);
+
+  if (error) {
+    list.innerHTML = '';
+    setMessage(message, error.message || 'Could not load users.', 'error');
+    return;
+  }
+
+  if (!profiles?.length) {
+    list.innerHTML = '<p class="section-copy">No users found.</p>';
+    return;
+  }
+
+  list.innerHTML = profiles.map((profile) => `
+    <div class="admin-row user-overview">
+      ${adminAvatar(profile)}
+      <strong>${escapeHtml(profile.display_name || 'Player')}</strong>
+      <span>${escapeHtml(profile.first_name || '-')}</span>
+    </div>
+  `).join('');
 }
 
 async function renderActualResults() {

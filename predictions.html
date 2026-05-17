@@ -185,7 +185,7 @@ main {
 
 .fixture-row {
   display: grid;
-  grid-template-columns: minmax(118px, 0.72fr) 58px minmax(110px, 1fr) 46px 14px 46px minmax(110px, 1fr) minmax(118px, 0.72fr);
+  grid-template-columns: 82px minmax(110px, 1fr) 46px 18px 46px minmax(110px, 1fr) 82px;
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -197,7 +197,8 @@ main {
 }
 
 .fixture-row::before {
-  content: '';
+  display: none;
+  content: none;
 }
 
 .fixture-flags {
@@ -315,6 +316,7 @@ main {
 
 .score-separator {
   text-align: center;
+  justify-self: center;
   color: #ddd6fe;
   font-weight: 900;
 }
@@ -474,7 +476,7 @@ button:disabled {
 footer {
   text-align: center;
   padding: 12px;
-  color: #d8b4fe;
+  color: #4c1d95;
   border-top: 1px solid rgba(167, 139, 250, 0.3);
   font-size: 12px;
 }
@@ -502,7 +504,7 @@ footer {
   }
 
   .fixture-row {
-    grid-template-columns: 46px minmax(72px, 1fr) 36px 10px 36px minmax(72px, 1fr);
+    grid-template-columns: 42px minmax(72px, 1fr) 36px 12px 36px minmax(72px, 1fr) 42px;
     min-height: 34px;
     padding: 4px 5px;
     gap: 4px;
@@ -530,17 +532,14 @@ footer {
   }
 
   .fixture-lock-wrap {
-    grid-column: 1 / -1;
     justify-content: center;
     gap: 6px;
     min-height: 18px;
   }
 
   .fixture-lock-wrap .curse-marker {
-    position: absolute;
-    right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
+    position: static;
+    transform: none;
   }
 
   .fixture-lock {
