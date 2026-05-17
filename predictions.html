@@ -278,6 +278,14 @@ main {
   justify-content: center;
   gap: 7px;
   min-width: 0;
+  overflow: visible;
+}
+
+.fixture-lock-wrap .curse-marker {
+  position: absolute;
+  right: -7px;
+  top: -9px;
+  z-index: 2;
 }
 
 .fixture-lock {
@@ -297,6 +305,10 @@ main {
 
 .fixture-team.home {
   text-align: right;
+}
+
+.fixture-team.away {
+  text-align: left;
 }
 
 .score-input {
@@ -504,7 +516,7 @@ footer {
   }
 
   .fixture-row {
-    grid-template-columns: 42px minmax(72px, 1fr) 36px 12px 36px minmax(72px, 1fr) 42px;
+    grid-template-columns: 38px minmax(68px, 1fr) 36px 12px 36px minmax(68px, 1fr) 38px;
     min-height: 34px;
     padding: 4px 5px;
     gap: 4px;
@@ -533,12 +545,14 @@ footer {
 
   .fixture-lock-wrap {
     justify-content: center;
-    gap: 6px;
     min-height: 18px;
+    gap: 0;
   }
 
   .fixture-lock-wrap .curse-marker {
-    position: static;
+    position: absolute;
+    right: -5px;
+    top: -8px;
     transform: none;
   }
 
@@ -559,6 +573,11 @@ footer {
     text-overflow: clip;
     white-space: normal;
     line-height: 1.05;
+  }
+
+  .fixture-team.home,
+  .fixture-team.away {
+    text-align: center;
   }
 
   .score-input {

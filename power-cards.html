@@ -118,6 +118,10 @@ button:disabled {
     line-height: 1.05;
     z-index: 1200;
   }
+
+  .back-home-btn + h1 {
+    margin-top: 48px;
+  }
 }
 
 /* ===== TOP BUTTONS BAR ===== */
@@ -4283,10 +4287,17 @@ function setActiveGameCardPanel(cardName, rangeText, description) {
   if (descriptionElement) descriptionElement.textContent = cleanDescription || '';
 }
 
-function syncHandFromDatabase() {
-  if (cardRuntime?.refreshHands) {
-    cardRuntime.refreshHands().catch(() => {});
+function syncHandFromDatabase(options = {}) {
+  const force = Boolean(options.force);
+  if (!force && (gameState.pendingSwap || gameState.stealMode)) {
+    return Promise.resolve();
   }
+
+  if (cardRuntime?.refreshHands) {
+    return cardRuntime.refreshHands({ force }).catch(() => {});
+  }
+
+  return Promise.resolve();
 }
 
 function discardDatabaseCard(playerKey, cardName, cardInstanceId = null) {
@@ -4755,7 +4766,7 @@ function pickSwapKeep(index) {
   render();
 }
 
-function confirmPick() {
+async function confirmPick() {
   const swap = gameState.pendingSwap;
   if (swap.selectedIndices.length !== 2) {
     alert("Select exactly 2 cards to keep");
@@ -4764,18 +4775,20 @@ function confirmPick() {
 
   swap.selectedIndices.sort((a, b) => b - a)
     .forEach(i => gameState.players[swap.player].hand.push(cardNameFromDrawn(swap.drawn.splice(i, 1)[0])));
+  const discardTasks = [];
   swap.drawn.forEach(c => {
     const cardName = cardNameFromDrawn(c);
     const cardInstanceId = cardInstanceFromDrawn(c);
     gameState.discardPile.push(cardName);
     if (cardInstanceId && cardRuntime?.discardCardInstance) {
-      cardRuntime.discardCardInstance(cardInstanceId).catch(() => {});
+      discardTasks.push(cardRuntime.discardCardInstance(cardInstanceId));
     }
   });
+  await Promise.allSettled(discardTasks);
 
   gameState.pendingSwap = null;
   document.getElementById("confirmPickBtn").style.display = "none";
-  syncHandFromDatabase();
+  await syncHandFromDatabase({ force: true });
   render();
 }
 
@@ -5218,7 +5231,11 @@ async function initializeCardPage() {
       updateMedalDisplays();
     }
 
-    async function refreshHands() {
+    async function refreshHands(options = {}) {
+      if (!options.force && (gameState.pendingSwap || gameState.stealMode)) {
+        return;
+      }
+
       const { data: memberRows, error: memberError } = await supabase
         .from('competition_members')
         .select('user_id, role, joined_at, profiles(id, display_name, profile_image_url, favorite_color)')
