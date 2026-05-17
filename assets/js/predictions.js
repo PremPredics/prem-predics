@@ -468,11 +468,13 @@ function renderEdit() {
         <span class="fixture-flags">
           <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
         </span>
-        <span class="fixture-team home">${escapeHtml(teamName(fixture.home_team_id))}</span>
-        <input class="score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
-        <span class="score-separator">-</span>
-        <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
-        <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
+        <span class="fixture-main">
+          <span class="fixture-team home">${escapeHtml(teamName(fixture.home_team_id))}</span>
+          <input class="score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
+          <span class="score-separator">-</span>
+          <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
+          <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
+        </span>
         <span class="fixture-lock-wrap">
           ${renderCurseMarker(fixture)}
           <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${locked ? 'Locked' : countdownText(fixture.prediction_locks_at)}</span>

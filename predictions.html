@@ -185,7 +185,7 @@ main {
 
 .fixture-row {
   display: grid;
-  grid-template-columns: 82px minmax(110px, 1fr) 46px 18px 46px minmax(110px, 1fr) 82px;
+  grid-template-columns: 82px minmax(0, 1fr) 82px;
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -194,6 +194,15 @@ main {
   background: rgba(17, 7, 38, 0.44);
   border: 1px solid rgba(216, 180, 254, 0.2);
   position: relative;
+}
+
+.fixture-main {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) 46px 18px 46px minmax(110px, 1fr);
+  gap: 6px;
+  align-items: center;
+  justify-self: stretch;
+  min-width: 0;
 }
 
 .fixture-row::before {
@@ -292,6 +301,10 @@ main {
   color: #ddd6fe;
   font-size: 12px;
   font-weight: 800;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
 }
 
 .fixture-team {
@@ -516,9 +529,14 @@ footer {
   }
 
   .fixture-row {
-    grid-template-columns: 38px minmax(68px, 1fr) 36px 12px 36px minmax(68px, 1fr) 38px;
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
     min-height: 34px;
     padding: 4px 5px;
+    gap: 4px;
+  }
+
+  .fixture-main {
+    grid-template-columns: minmax(56px, 1fr) 36px 12px 36px minmax(56px, 1fr);
     gap: 4px;
   }
 
@@ -560,6 +578,7 @@ footer {
     display: block;
     text-align: center;
     font-size: 11px;
+    max-width: 34px;
   }
 
   .fixture-gameweek {
