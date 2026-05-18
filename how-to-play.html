@@ -205,79 +205,106 @@
         /* ===== CARD GRID ===== */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(94px, 112px));
+            gap: 12px;
             margin-top: 20px;
+            justify-content: center;
+            justify-items: center;
         }
         
         .card-item {
-            min-height: 220px;
-            border-radius: 8px;
-            padding: 0;
+            width: 104px;
+            height: 144px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            padding: 8px 6px;
             overflow: hidden;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.2s, background 0.3s;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             position: relative;
-            display: grid;
-            place-items: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            flex-direction: column;
+            color: #fff;
+            text-align: center;
+            text-shadow:
+                -1px -1px 0 rgba(0,0,0,0.92),
+                1px -1px 0 rgba(0,0,0,0.92),
+                -1px 1px 0 rgba(0,0,0,0.92),
+                1px 1px 0 rgba(0,0,0,0.92),
+                0 2px 5px rgba(0,0,0,0.78);
         }
         
         .card-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(123, 63, 248, 0.5);
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 0 8px 20px rgba(255,255,255,0.72);
+        }
+
+        .card-item:focus-visible {
+            outline: 3px solid rgba(255,255,255,0.92);
+            outline-offset: 3px;
+        }
+
+        .card-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 24% 16%, rgba(255,255,255,0.24), transparent 18%),
+                linear-gradient(42deg, rgba(255,255,255,0.12) 0 12%, transparent 12% 27%, rgba(255,255,255,0.09) 27% 38%, transparent 38% 100%);
+            pointer-events: none;
+            border-radius: inherit;
         }
         
         /* ===== POWER CARDS ===== */
         .card-item.power {
-            background:
-                radial-gradient(circle at 28% 18%, rgba(255,255,255,0.42), transparent 18%),
-                linear-gradient(155deg, #06b6d4, #0891b2 52%, #1e3a8a);
-            border: 2px solid #06d6d4;
+            background: linear-gradient(135deg, #082f49 0%, #075985 26%, #38bdf8 48%, #0ea5e9 66%, #e0f2fe 100%);
+            border-color: #7dd3fc;
+            box-shadow: 0 0 18px rgba(125, 211, 252, 0.58), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255,255,255,0.16);
         }
         
         .card-item.power:hover {
-            border-color: #22d3ee;
-            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.5);
+            border-color: #bae6fd;
+            box-shadow: 0 0 24px rgba(125, 211, 252, 0.86), 0 8px 20px rgba(0,0,0,0.4), inset 0 0 14px rgba(255,255,255,0.18);
         }
         
         /* ===== CURSE CARDS ===== */
         .card-item.curse {
-            background:
-                radial-gradient(circle at 28% 18%, rgba(255,255,255,0.26), transparent 18%),
-                linear-gradient(155deg, #7f1d1d, #b91c1c 54%, #450a0a);
-            border: 2px solid #dc2626;
+            background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+            border-color: #fb7185;
+            box-shadow: 0 0 18px rgba(251, 113, 133, 0.58), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255,255,255,0.14);
         }
         
         .card-item.curse:hover {
-            border-color: #ef4444;
-            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.5);
+            border-color: #fecdd3;
+            box-shadow: 0 0 24px rgba(251, 113, 133, 0.86), 0 8px 20px rgba(0,0,0,0.4), inset 0 0 14px rgba(255,255,255,0.16);
         }
         
         /* ===== SUPER CARDS ===== */
         .card-item.super {
-            background:
-                radial-gradient(circle at 28% 18%, rgba(255,255,255,0.45), transparent 18%),
-                linear-gradient(155deg, #92400e, #f59e0b 54%, #facc15);
-            border: 2px solid #fbbf24;
+            background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
+            border-color: #f8d568;
+            box-shadow: 0 0 22px rgba(248, 213, 104, 0.82), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 16px rgba(255,255,255,0.22);
         }
         
         .card-item.super:hover {
-            border-color: #fcd34d;
-            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5);
+            border-color: #fff8dc;
+            box-shadow: 0 0 28px rgba(248, 213, 104, 0.96), 0 8px 20px rgba(0,0,0,0.42), inset 0 0 16px rgba(255,255,255,0.24);
         }
         
         /* ===== GAME CARDS ===== */
         .card-item.game {
-            background:
-                radial-gradient(circle at 28% 18%, rgba(255,255,255,0.35), transparent 18%),
-                linear-gradient(155deg, #065f46, #10b981 54%, #22c55e);
-            border: 2px solid #34d399;
+            background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+            border-color: #6ee7b7;
+            box-shadow: 0 0 18px rgba(110, 231, 183, 0.58), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 12px rgba(255,255,255,0.14);
         }
         
         .card-item.game:hover {
-            border-color: #6ee7b7;
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+            border-color: #d1fae5;
+            box-shadow: 0 0 24px rgba(110, 231, 183, 0.86), 0 8px 20px rgba(0,0,0,0.4), inset 0 0 14px rgba(255,255,255,0.16);
         }
         
         .card-count {
@@ -297,16 +324,20 @@
         
         .card-header {
             width: 100%;
-            padding: 28px 15px;
-            font-weight: 950;
+            padding: 0;
+            font-weight: 900;
             color: white;
             cursor: pointer;
-            display: grid;
-            place-items: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            font-size: 18px;
-            line-height: 1.12;
+            font-size: clamp(0.62rem, 1.18vw, 0.78rem);
+            line-height: 1.06;
             position: relative;
+            z-index: 1;
+            overflow-wrap: anywhere;
+            word-break: break-word;
             text-shadow:
                 -1px -1px 0 rgba(0,0,0,0.9),
                 1px -1px 0 rgba(0,0,0,0.9),
@@ -316,7 +347,7 @@
         }
         
         .card-header::after {
-            content: 'â–¼';
+            content: '';
             font-size: 12px;
             transition: transform 0.3s ease;
             position: absolute;
@@ -409,7 +440,7 @@
             inset: 0;
             display: none;
             place-items: center;
-            padding: 20px;
+            padding: 20px 20px 86px;
             background: rgba(8, 3, 20, 0.54);
             backdrop-filter: blur(8px);
             z-index: 1000;
@@ -424,39 +455,89 @@
         }
 
         .card-view-panel {
-            width: min(430px, 100%);
-            min-height: 560px;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            gap: 18px;
-            border-radius: 10px;
-            padding: 24px;
+            width: min(330px, 100%);
+            height: min(430px, calc(100vh - 116px));
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border-radius: 18px;
+            padding: 24px 20px;
             text-align: center;
-            border: 2px solid rgba(255,255,255,0.32);
-            box-shadow: 0 24px 58px rgba(0,0,0,0.54);
+            border: 3px solid rgba(196, 132, 252, 0.5);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.16);
             color: #fff;
+            position: relative;
+            overflow: visible;
+            animation: cardZoomIn 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-shadow:
+                -1px -1px 0 rgba(0,0,0,0.92),
+                1px -1px 0 rgba(0,0,0,0.92),
+                -1px 1px 0 rgba(0,0,0,0.92),
+                1px 1px 0 rgba(0,0,0,0.92),
+                0 2px 5px rgba(0,0,0,0.78);
+        }
+
+        @keyframes cardZoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.64);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .card-view-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 28%),
+                linear-gradient(42deg, rgba(255,255,255,0.12) 0 12%, transparent 12% 27%, rgba(255,255,255,0.09) 27% 38%, transparent 38% 100%);
+            pointer-events: none;
         }
 
         .card-view-panel.power {
-            background: linear-gradient(155deg, #06b6d4, #0891b2 52%, #1e3a8a);
+            background: linear-gradient(135deg, #082f49 0%, #075985 26%, #38bdf8 48%, #0ea5e9 66%, #e0f2fe 100%);
+            border-color: #7dd3fc;
+            box-shadow: 0 0 28px rgba(125, 211, 252, 0.62), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.18);
         }
 
         .card-view-panel.curse {
-            background: linear-gradient(155deg, #7f1d1d, #b91c1c 54%, #450a0a);
+            background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+            border-color: #fb7185;
+            box-shadow: 0 0 28px rgba(251, 113, 133, 0.62), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.16);
         }
 
         .card-view-panel.super {
-            background: linear-gradient(155deg, #92400e, #f59e0b 54%, #facc15);
+            background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
+            border-color: #f8d568;
+            box-shadow: 0 0 38px rgba(248, 213, 104, 0.95), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 26px rgba(255,255,255,0.22);
         }
 
         .card-view-panel.game {
-            background: linear-gradient(155deg, #065f46, #10b981 54%, #22c55e);
+            background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+            border-color: #6ee7b7;
+            box-shadow: 0 0 28px rgba(110, 231, 183, 0.62), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.16);
         }
 
         .card-view-panel h2 {
             margin: 0;
-            font-size: clamp(1.7rem, 8vw, 2.35rem);
-            line-height: 1.05;
+            font-size: clamp(1.18rem, 2.6vw, 1.46rem);
+            line-height: 1.18;
+            flex: 0 0 20%;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0 2px 8px;
+            position: relative;
+            z-index: 1;
+            color: #fff;
             text-shadow:
                 -1px -1px 0 rgba(0,0,0,0.95),
                 1px -1px 0 rgba(0,0,0,0.95),
@@ -466,26 +547,57 @@
         }
 
         .card-view-panel p {
-            align-self: center;
             margin: 0;
-            padding: 18px;
-            border-radius: 9px;
-            background: rgba(0,0,0,0.22);
+            padding: 0 2px;
+            border-radius: 0;
+            background: transparent;
             color: #fff;
-            font-size: 1.05rem;
+            font-size: clamp(0.78rem, 1.45vw, 0.95rem);
             font-weight: 800;
-            line-height: 1.52;
+            line-height: 1.35;
+            flex: 1 1 80%;
+            min-height: 0;
+            overflow-y: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            position: relative;
+            z-index: 1;
         }
 
         .card-view-back {
+            position: absolute;
+            left: 50%;
+            bottom: -62px;
+            transform: translateX(-50%);
+            width: min(220px, 100%);
             min-height: 42px;
             border: 0;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 10px 16px;
-            background: rgba(17, 7, 38, 0.72);
+            background:
+                radial-gradient(circle at 24% 16%, rgba(255,255,255,0.88), transparent 20%),
+                linear-gradient(135deg, #6d28d9 0%, #8b5cf6 30%, #c084fc 64%, #f3e8ff 100%);
             color: #fff;
             font-weight: 950;
             cursor: pointer;
+            border: 3px solid rgba(245, 208, 254, 0.98);
+            z-index: 2;
+            box-shadow: 0 12px 30px rgba(123, 63, 248, 0.64), 0 0 30px rgba(216, 180, 254, 0.62), inset 0 2px 0 rgba(255,255,255,0.42);
+            text-shadow:
+                -1px -1px 0 rgba(0,0,0,0.95),
+                1px -1px 0 rgba(0,0,0,0.95),
+                -1px 1px 0 rgba(0,0,0,0.95),
+                1px 1px 0 rgba(0,0,0,0.95);
+        }
+
+        .card-view-back:hover {
+            background:
+                radial-gradient(circle at 24% 16%, rgba(255,255,255,0.95), transparent 20%),
+                linear-gradient(135deg, #7c3aed 0%, #a78bfa 32%, #d8b4fe 66%, #fff 100%);
+            transform: translateX(-50%) translateY(-3px);
         }
         
         /* ===== FOOTER BUTTONS ===== */
@@ -547,20 +659,58 @@
             }
             
             .card-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 12px;
+                grid-template-columns: repeat(auto-fit, minmax(78px, 96px));
+                gap: 10px;
             }
 
             .card-item {
-                min-height: 178px;
+                width: 88px;
+                height: 122px;
+                min-height: 0;
+                border-radius: 9px;
+                font-size: 0.68rem;
             }
 
             .card-view-panel {
-                min-height: min(560px, 82vh);
+                width: min(310px, calc(100vw - 40px));
+                height: min(410px, calc(100vh - 120px));
             }
             
             .medal-list {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-grid {
+                grid-template-columns: repeat(auto-fit, minmax(68px, 78px));
+                gap: 8px;
+            }
+
+            .card-item {
+                width: 74px;
+                height: 104px;
+                border-radius: 8px;
+                padding: 7px 5px;
+            }
+
+            .card-header {
+                font-size: clamp(0.48rem, 2.25vw, 0.58rem);
+                line-height: 1.04;
+            }
+
+            .card-view-modal {
+                padding: 14px 14px 82px;
+            }
+
+            .card-view-panel {
+                width: min(292px, calc(100vw - 34px));
+                height: min(392px, calc(100vh - 124px));
+                padding: 22px 18px;
+            }
+
+            .card-view-back {
+                bottom: -58px;
             }
         }
 @media (max-width: 650px) {
@@ -864,6 +1014,9 @@
         function createCardElement(card, type) {
             const cardItem = document.createElement('div');
             cardItem.className = `card-item ${type}`;
+            cardItem.setAttribute('role', 'button');
+            cardItem.setAttribute('tabindex', '0');
+            cardItem.setAttribute('aria-label', `View ${card.name}`);
             cardItem.innerHTML = `
                 <div class="card-header">${card.name}</div>
                 <div class="card-content"><p>${card.description}</p></div>
@@ -872,6 +1025,13 @@
             cardItem.addEventListener('click', function(e) {
                 e.stopPropagation();
                 openCardView(card, type);
+            });
+
+            cardItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openCardView(card, type);
+                }
             });
             
             return cardItem;
