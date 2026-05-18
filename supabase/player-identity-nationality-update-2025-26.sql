@@ -1593,6 +1593,58 @@ values
   ('Wolverhampton', 'u21', 46, 'Ashton Harley Williams', 'Ashton Williams', 'Ashton Williams', 'Ashton', 'Williams', 'A', 'W', 'England', true),
   ('Wolverhampton', 'u21', 47, 'Bin Xu', 'Bin Xu', 'Bin Xu', 'Bin', 'Xu', 'B', 'X', 'China', false);
 
+-- Repair step: restore any players that were missing before applying the clean identity update.
+-- Earlier versions of this file only reported missing rows at the end, which meant a partial
+-- player database stayed partial unless the base seed had been run separately first.
+insert into public.players (
+  display_name,
+  first_name,
+  last_name,
+  first_initial,
+  last_initial,
+  surname,
+  scrabble_name,
+  nationality,
+  is_home_nation,
+  team_id,
+  squad_status,
+  is_active
+)
+select
+  seed.full_name,
+  seed.first_name,
+  seed.last_name,
+  seed.first_initial,
+  seed.last_initial,
+  seed.last_name,
+  seed.last_name,
+  seed.nationality,
+  seed.is_home_nation,
+  t.id,
+  seed.squad_status,
+  true
+from player_identity_seed seed
+join public.teams t
+  on t.name = seed.team_name
+where not exists (
+  select 1
+  from public.players existing
+  where existing.team_id = t.id
+    and existing.display_name in (seed.old_display_name, seed.current_display_name, seed.full_name)
+)
+on conflict (display_name, team_id) do update
+set
+  first_name = excluded.first_name,
+  last_name = excluded.last_name,
+  first_initial = excluded.first_initial,
+  last_initial = excluded.last_initial,
+  surname = excluded.surname,
+  scrabble_name = excluded.scrabble_name,
+  nationality = excluded.nationality,
+  is_home_nation = excluded.is_home_nation,
+  squad_status = excluded.squad_status,
+  is_active = true;
+
 update public.players p
 set
   display_name = seed.full_name,
@@ -1608,7 +1660,84 @@ from player_identity_seed seed
 join public.teams t
   on t.name = seed.team_name
 where p.team_id = t.id
-  and p.display_name in (seed.old_display_name, seed.current_display_name, seed.full_name);
+  and p.display_name in (seed.old_display_name, seed.current_display_name, seed.full_name)
+  and (
+    p.display_name = seed.full_name
+    or not exists (
+      select 1
+      from public.players canonical
+      where canonical.team_id = p.team_id
+        and canonical.display_name = seed.full_name
+        and canonical.id <> p.id
+    )
+  );
+
+-- If both a legacy long-name row and the cleaned row exist, keep the cleaned row active
+-- and hide the duplicate legacy row from Star Man/global-admin searches.
+update public.players p
+set is_active = false
+from player_identity_seed seed
+join public.teams t
+  on t.name = seed.team_name
+where p.team_id = t.id
+  and p.display_name in (seed.old_display_name, seed.current_display_name)
+  and p.display_name <> seed.full_name
+  and exists (
+    select 1
+    from public.players canonical
+    where canonical.team_id = p.team_id
+      and canonical.display_name = seed.full_name
+      and canonical.id <> p.id
+  );
+
+with target_season as (
+  select id
+  from public.seasons
+  where name = 'Premier League 2025-26'
+  order by created_at desc
+  limit 1
+),
+resolved_seed as (
+  select
+    p.id as player_id,
+    t.id as team_id,
+    target_season.id as season_id,
+    start_gw.id as starts_gameweek_id
+  from player_identity_seed seed
+  cross join target_season
+  join public.teams t
+    on t.name = seed.team_name
+  join public.players p
+    on p.team_id = t.id
+   and p.display_name = seed.full_name
+  join public.gameweeks start_gw
+    on start_gw.season_id = target_season.id
+   and start_gw.number = 1
+)
+insert into public.player_team_assignments (
+  season_id,
+  player_id,
+  team_id,
+  starts_gameweek_id,
+  ends_gameweek_id
+)
+select
+  resolved_seed.season_id,
+  resolved_seed.player_id,
+  resolved_seed.team_id,
+  resolved_seed.starts_gameweek_id,
+  null
+from resolved_seed
+where resolved_seed.season_id is not null
+  and not exists (
+    select 1
+    from public.player_team_assignments existing
+    where existing.season_id = resolved_seed.season_id
+      and existing.player_id = resolved_seed.player_id
+      and existing.team_id = resolved_seed.team_id
+      and existing.starts_gameweek_id = resolved_seed.starts_gameweek_id
+      and existing.ends_gameweek_id is null
+  );
 
 select
   seed.team_name,

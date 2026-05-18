@@ -16,7 +16,9 @@ const state = {
   teamsById: new Map(),
   fixtures: [],
   players: [],
+  rosterPlayers: [],
   cards: [],
+  rosterQueue: [],
 };
 
 const playerStatFlow = {
@@ -181,16 +183,17 @@ async function unlockAdmin() {
 }
 
 async function loadReferenceData() {
-  const [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, playerResponse, cardResponse] = await Promise.all([
+  const [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, playerResponse, rosterPlayerResponse, cardResponse] = await Promise.all([
     supabase.from('seasons').select('id, name, starts_on, ends_on, is_active').order('starts_on', { ascending: false }),
     supabase.from('teams').select('id, name').order('name', { ascending: true }),
     supabase.from('gameweeks').select('id, season_id, number, star_man_locks_at').order('number', { ascending: true }),
     supabase.from('fixtures').select('id, season_id, gameweek_id, original_gameweek_id, home_team_id, away_team_id, kickoff_at, status, sort_order').order('kickoff_at', { ascending: true }),
-    supabase.from('players').select('id, display_name, first_name, last_name, surname, nationality, team_id').eq('is_active', true).order('display_name', { ascending: true }).range(0, 4999),
+    supabase.from('players').select('id, display_name, first_name, last_name, surname, nationality, team_id, height_cm, squad_status, is_active').eq('is_active', true).order('display_name', { ascending: true }).range(0, 4999),
+    supabase.from('players').select('id, display_name, first_name, last_name, surname, nationality, team_id, height_cm, squad_status, is_active').order('display_name', { ascending: true }).range(0, 9999),
     supabase.from('card_definitions').select('id, name, deck_type').order('name', { ascending: true }),
   ]);
 
-  for (const response of [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, playerResponse, cardResponse]) {
+  for (const response of [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, playerResponse, rosterPlayerResponse, cardResponse]) {
     if (response.error) {
       throw response.error;
     }
@@ -206,6 +209,7 @@ async function loadReferenceData() {
   state.gameweeks = (gameweekResponse.data || []).filter((gameweek) => gameweek.season_id === state.season?.id);
   state.fixtures = (fixtureResponse.data || []).filter((fixture) => fixture.season_id === state.season?.id);
   state.players = playerResponse.data || [];
+  state.rosterPlayers = rosterPlayerResponse.data || [];
   state.cards = (cardResponse.data || []).filter((card) => card.deck_type === 'game' || card.id === 'super_pen');
 }
 
@@ -226,6 +230,7 @@ function showSection(name) {
   if (name === 'team-standings') renderTeamStandings();
   if (name === 'league-overview') renderLeagueOverview();
   if (name === 'user-overview') renderUserOverview();
+  if (name === 'roster-review') renderRosterReview();
 }
 
 function wireAdminPanels() {
@@ -319,6 +324,347 @@ async function renderUserOverview() {
       <span>${escapeHtml(profile.first_name || '-')}</span>
     </div>
   `).join('');
+}
+
+function populateRosterSelects() {
+  const teamSelect = document.querySelector('[data-roster-team]');
+  const startSelect = document.querySelector('[data-roster-start-gw]');
+  const endSelect = document.querySelector('[data-roster-end-gw]');
+
+  if (teamSelect) {
+    teamSelect.innerHTML = options(state.teams, 'id', (team) => team.name);
+  }
+
+  if (startSelect) {
+    startSelect.innerHTML = options(state.gameweeks, 'id', (gameweek) => `Gameweek ${gameweek.number}`);
+  }
+
+  if (endSelect) {
+    endSelect.innerHTML = `<option value="">No end GW</option>${options(state.gameweeks, 'id', (gameweek) => `Gameweek ${gameweek.number}`)}`;
+  }
+}
+
+function deriveRosterNameParts(displayName) {
+  const tokens = String(displayName || '').trim().split(/\s+/).filter(Boolean);
+  if (!tokens.length) {
+    return { firstName: '', lastName: '' };
+  }
+
+  const surnameParticles = new Set(['al', 'da', 'de', 'del', 'den', 'der', 'di', 'dos', 'du', 'la', 'le', 'van', 'von']);
+  let lastStartIndex = Math.max(tokens.length - 1, 0);
+
+  for (let index = tokens.length - 2; index >= 1; index -= 1) {
+    if (surnameParticles.has(tokens[index].toLowerCase())) {
+      lastStartIndex = index;
+    }
+  }
+
+  return {
+    firstName: tokens[0],
+    lastName: tokens.slice(lastStartIndex).join(' '),
+  };
+}
+
+function parseRosterLine(rawLine) {
+  const cleanedLine = String(rawLine || '')
+    .replace(/^\s*(?:\d+[\).\s-]+|[-*]\s*)/, '')
+    .trim();
+
+  if (!cleanedLine) {
+    return null;
+  }
+
+  const parts = cleanedLine.split(/\s+-\s+|\t|,/).map((part) => part.trim()).filter(Boolean);
+  const displayName = parts.shift();
+  if (!displayName) {
+    return null;
+  }
+
+  let nationality = '';
+  let heightCm = null;
+  parts.forEach((part) => {
+    if (/^\d{2,3}$/.test(part)) {
+      heightCm = Number(part);
+    } else if (!nationality) {
+      nationality = part;
+    }
+  });
+
+  const nameParts = deriveRosterNameParts(displayName);
+  return {
+    rawLine,
+    displayName,
+    firstName: nameParts.firstName,
+    lastName: nameParts.lastName,
+    nationality,
+    heightCm,
+  };
+}
+
+function rosterPlayerKey(value) {
+  return normaliseSearchText(value).replace(/[^a-z0-9]/g, '');
+}
+
+function findExistingRosterPlayer(teamId, displayName) {
+  const key = rosterPlayerKey(displayName);
+  return state.rosterPlayers.find((player) => player.team_id === teamId && rosterPlayerKey(player.display_name) === key)
+    || state.rosterPlayers.find((player) => rosterPlayerKey(player.display_name) === key)
+    || null;
+}
+
+function rosterActionLabel(action) {
+  return {
+    add_player: 'Add Player',
+    update_player: 'Update Player',
+    reactivate_player: 'Reactivate Player',
+    end_assignment: 'End Assignment',
+    deactivate_player: 'Deactivate Player',
+  }[action] || action;
+}
+
+async function renderRosterReview() {
+  const message = document.querySelector('[data-roster-review-message]');
+  const stageButton = document.querySelector('[data-stage-roster-changes]');
+  const refreshButton = document.querySelector('[data-refresh-roster-queue]');
+
+  populateRosterSelects();
+  setMessage(message, '', 'info');
+
+  if (stageButton) {
+    stageButton.onclick = stageRosterChanges;
+  }
+
+  if (refreshButton) {
+    refreshButton.onclick = renderRosterQueue;
+  }
+
+  await renderRosterQueue();
+}
+
+async function renderRosterQueue() {
+  const list = document.querySelector('[data-roster-review-list]');
+  const message = document.querySelector('[data-roster-review-message]');
+
+  if (!list) {
+    return;
+  }
+
+  list.innerHTML = '<p class="section-copy">Loading roster queue...</p>';
+
+  const { data, error } = await supabase
+    .from('roster_change_queue')
+    .select(`
+      id,
+      action,
+      status,
+      display_name,
+      nationality,
+      height_cm,
+      squad_status,
+      starts_gameweek_id,
+      ends_gameweek_id,
+      created_at,
+      notes,
+      team:teams(name),
+      player:players(display_name)
+    `)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+    .range(0, 199);
+
+  if (error) {
+    list.innerHTML = '<p class="section-copy">Run supabase/roster-review-queue.sql in Supabase, then refresh this page.</p>';
+    setMessage(message, error.message || 'Could not load roster queue.', 'error');
+    return;
+  }
+
+  state.rosterQueue = data || [];
+  setMessage(message, '', 'info');
+
+  if (!state.rosterQueue.length) {
+    list.innerHTML = '<p class="section-copy">No pending roster changes.</p>';
+    return;
+  }
+
+  list.innerHTML = state.rosterQueue.map((change) => {
+    const team = normaliseNested(change.team)?.name || 'Team';
+    const player = normaliseNested(change.player)?.display_name;
+    const startGameweek = change.starts_gameweek_id ? `Starts GW${gameweekNumber(change.starts_gameweek_id)}` : '';
+    const endGameweek = change.ends_gameweek_id ? `Ends GW${gameweekNumber(change.ends_gameweek_id)}` : '';
+    const details = [
+      change.nationality,
+      change.height_cm ? `${change.height_cm}cm` : '',
+      change.squad_status === 'u21' ? 'U21' : 'Squad',
+      startGameweek,
+      endGameweek,
+    ].filter(Boolean).join(' - ');
+
+    return `
+      <div class="admin-row roster-change" data-roster-change-id="${change.id}">
+        <strong>
+          ${escapeHtml(change.display_name)}
+          <small>${escapeHtml(player ? `Matched: ${player}` : 'New or unmatched player')}</small>
+        </strong>
+        <span>${escapeHtml(rosterActionLabel(change.action))}</span>
+        <span>${escapeHtml(team)}</span>
+        <span>${escapeHtml(details || '-')}</span>
+        <span class="roster-change-actions">
+          <button class="primary" type="button" data-approve-roster-change="${change.id}">Approve</button>
+          <button type="button" data-ignore-roster-change="${change.id}">Ignore</button>
+        </span>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('[data-approve-roster-change]').forEach((button) => {
+    button.addEventListener('click', () => approveRosterChange(button.dataset.approveRosterChange));
+  });
+
+  list.querySelectorAll('[data-ignore-roster-change]').forEach((button) => {
+    button.addEventListener('click', () => ignoreRosterChange(button.dataset.ignoreRosterChange));
+  });
+}
+
+async function stageRosterChanges() {
+  const message = document.querySelector('[data-roster-review-message]');
+  const teamId = document.querySelector('[data-roster-team]')?.value;
+  const selectedAction = document.querySelector('[data-roster-action]')?.value;
+  const squadStatus = document.querySelector('[data-roster-squad-status]')?.value || 'squad_player';
+  const startsGameweekId = document.querySelector('[data-roster-start-gw]')?.value || null;
+  const endsGameweekId = document.querySelector('[data-roster-end-gw]')?.value || null;
+  const fullSquadMode = document.querySelector('[data-roster-full-squad]')?.checked;
+  const text = document.querySelector('[data-roster-paste]')?.value || '';
+
+  if (!teamId) {
+    setMessage(message, 'Choose a team before staging roster changes.', 'error');
+    return;
+  }
+
+  const parsedPlayers = text
+    .split(/\r?\n/)
+    .map(parseRosterLine)
+    .filter(Boolean);
+
+  if (!parsedPlayers.length) {
+    setMessage(message, 'Paste at least one player line before staging changes.', 'error');
+    return;
+  }
+
+  if ((selectedAction === 'end_assignment' || fullSquadMode) && !endsGameweekId) {
+    setMessage(message, 'Choose an Ends GW when staging outgoing players.', 'error');
+    return;
+  }
+
+  const stagedRows = [];
+  const pastedKeys = new Set();
+
+  parsedPlayers.forEach((player) => {
+    const existingPlayer = findExistingRosterPlayer(teamId, player.displayName);
+    const playerKey = rosterPlayerKey(player.displayName);
+    pastedKeys.add(playerKey);
+
+    let action = selectedAction;
+    if (selectedAction === 'add_update') {
+      action = existingPlayer ? 'update_player' : 'add_player';
+    }
+
+    stagedRows.push({
+      provider: 'manual_paste',
+      action,
+      season_id: state.season.id,
+      team_id: teamId,
+      player_id: existingPlayer?.id || null,
+      display_name: player.displayName,
+      first_name: player.firstName,
+      last_name: player.lastName,
+      nationality: player.nationality || existingPlayer?.nationality || null,
+      height_cm: player.heightCm || existingPlayer?.height_cm || null,
+      squad_status: squadStatus,
+      starts_gameweek_id: action === 'end_assignment' || action === 'deactivate_player' ? null : startsGameweekId,
+      ends_gameweek_id: action === 'add_player' || action === 'update_player' || action === 'reactivate_player' ? null : endsGameweekId,
+      source_payload: { raw_line: player.rawLine },
+      created_by: state.user.id,
+    });
+  });
+
+  if (fullSquadMode && selectedAction === 'add_update') {
+    state.players
+      .filter((player) => player.team_id === teamId)
+      .filter((player) => !pastedKeys.has(rosterPlayerKey(player.display_name)))
+      .forEach((player) => {
+        stagedRows.push({
+          provider: 'manual_paste',
+          action: 'end_assignment',
+          season_id: state.season.id,
+          team_id: teamId,
+          player_id: player.id,
+          display_name: player.display_name,
+          first_name: player.first_name,
+          last_name: player.last_name,
+          nationality: player.nationality,
+          height_cm: player.height_cm,
+          squad_status: player.squad_status || 'squad_player',
+          starts_gameweek_id: null,
+          ends_gameweek_id: endsGameweekId,
+          source_payload: { reason: 'Missing from full squad paste' },
+          created_by: state.user.id,
+        });
+      });
+  }
+
+  setMessage(message, 'Staging roster changes...', 'info');
+
+  const { error } = await supabase
+    .from('roster_change_queue')
+    .insert(stagedRows);
+
+  if (error) {
+    setMessage(message, error.message || 'Could not stage roster changes.', 'error');
+    return;
+  }
+
+  setMessage(message, `${stagedRows.length} roster change${stagedRows.length === 1 ? '' : 's'} staged for review.`, 'success');
+  await renderRosterQueue();
+}
+
+async function approveRosterChange(changeId) {
+  const message = document.querySelector('[data-roster-review-message]');
+  setMessage(message, 'Approving roster change...', 'info');
+
+  const { error } = await supabase.rpc('approve_roster_change', {
+    target_change_id: changeId,
+  });
+
+  if (error) {
+    setMessage(message, error.message || 'Could not approve roster change.', 'error');
+    return;
+  }
+
+  await loadReferenceData();
+  setMessage(message, 'Roster change approved.', 'success');
+  await renderRosterReview();
+}
+
+async function ignoreRosterChange(changeId) {
+  const message = document.querySelector('[data-roster-review-message]');
+  setMessage(message, 'Ignoring roster change...', 'info');
+
+  const { error } = await supabase
+    .from('roster_change_queue')
+    .update({
+      status: 'ignored',
+      reviewed_by: state.user.id,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq('id', changeId);
+
+  if (error) {
+    setMessage(message, error.message || 'Could not ignore roster change.', 'error');
+    return;
+  }
+
+  setMessage(message, 'Roster change ignored.', 'success');
+  await renderRosterQueue();
 }
 
 async function renderActualResults() {

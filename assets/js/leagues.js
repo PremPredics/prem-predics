@@ -151,7 +151,7 @@ async function loadLeagues() {
         <div class="league-actions">
           <a class="play-action" href="${leagueUrl('league.html', league.id)}">Play</a>
           <div class="join-code">
-            <span>Join code</span>
+            <span>Join Code:</span>
             <strong>${escapeHtml(league.join_code)}</strong>
             <button class="copy-code-btn" type="button" data-copy-code="${escapeHtml(league.join_code)}">Copy</button>
           </div>
