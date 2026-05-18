@@ -34,6 +34,10 @@ begin
     return new;
   end if;
 
+  if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god') then
+    return new;
+  end if;
+
   if card_row.effect_key = 'power_late_scout' then
     if exists (
       select 1

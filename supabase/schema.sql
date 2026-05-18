@@ -1495,6 +1495,10 @@ begin
     return new;
   end if;
 
+  if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god') then
+    return new;
+  end if;
+
   if card_row.effect_key = 'power_late_scout' then
     if exists (
       select 1
@@ -1545,6 +1549,50 @@ $$;
 create trigger active_card_effects_enforce_card_play_deadline
 before insert on public.active_card_effects
 for each row execute function public.enforce_card_play_deadline();
+
+create or replace function public.veto_my_active_curse(
+  target_competition_id uuid,
+  target_card_effect_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  target_user uuid := auth.uid();
+  effect_row record;
+begin
+  if target_user is null then
+    raise exception 'You must be logged in.';
+  end if;
+
+  if not public.is_competition_member(target_competition_id) then
+    raise exception 'You are not a member of this league.';
+  end if;
+
+  select ace.id, ace.target_user_id, ace.status, cd.category
+    into effect_row
+  from public.active_card_effects ace
+  join public.card_definitions cd on cd.id = ace.card_id
+  where ace.id = target_card_effect_id
+    and ace.competition_id = target_competition_id;
+
+  if effect_row.id is null then
+    raise exception 'Curse not found.';
+  end if;
+
+  if effect_row.category <> 'curse' or effect_row.status <> 'active' or effect_row.target_user_id <> target_user then
+    raise exception 'Power of the Veto can only cancel an active Curse targeting you.';
+  end if;
+
+  update public.active_card_effects
+  set status = 'vetoed',
+      resolved_at = now()
+  where id = target_card_effect_id
+    and competition_id = target_competition_id;
+end;
+$$;
 
 create table public.card_effect_targets (
   card_effect_id uuid not null references public.active_card_effects(id) on delete cascade,
@@ -3452,6 +3500,7 @@ grant execute on function public.sync_competition_member_lock(uuid) to authentic
 grant execute on function public.update_my_profile(text, text, text, text, uuid, text, text) to authenticated;
 grant execute on function public.star_man_lock_at_for_gameweek(uuid, bigint) to authenticated;
 grant execute on function public.scrabble_score(text) to authenticated;
+grant execute on function public.veto_my_active_curse(uuid, uuid) to authenticated;
 
 grant insert, update, delete on
   public.profile_nationalities,

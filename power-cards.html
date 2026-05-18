@@ -1016,6 +1016,61 @@ button:disabled {
   box-shadow: 0 0 18px rgba(248, 113, 113, 0.32);
 }
 
+.opponent-target-btn.selected,
+.veto-curse-btn.selected {
+  border-color: rgba(250, 204, 21, 0.95);
+  box-shadow: 0 0 22px rgba(250, 204, 21, 0.35);
+  background: rgba(46, 16, 102, 0.86);
+}
+
+.veto-curse-list {
+  grid-template-columns: 1fr;
+}
+
+.veto-curse-btn {
+  min-height: auto;
+  align-items: start;
+  justify-items: stretch;
+  gap: 6px;
+  text-align: left;
+}
+
+.veto-curse-name {
+  display: block;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 950;
+  text-align: center;
+}
+
+.veto-curse-meta,
+.veto-curse-description {
+  display: block;
+  color: #ddd6fe;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.opponent-target-confirm {
+  justify-self: center;
+  min-width: 190px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #16a34a, #166534);
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.32);
+}
+
+.opponent-target-confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .opponent-target-avatar {
   width: 68px;
   height: 68px;
@@ -3695,51 +3750,51 @@ window.alert = (message) => showSiteNotice(message);
 
 // CARD DESCRIPTIONS DATABASE
 const cardDescriptions = {
-  "Power of the Goal": "Power of the Goal\nValid for 1 Gameweek.\n\n+1 Goal for your Star Man this week.\n\nMust be played before the start of a Gameweek.",
-  "Power of the Swap": "Power of the Swap\nDiscard 2, Draw 3, Pick 2.\n\nDiscard this card and one other card, then draw 3 cards from the Regular Deck and pick 2 to keep.",
+  "Power of the Goal": "Power of the Goal\n\nValid for 1 Gameweek. +1 Goal for Star Man this week. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Swap": "Power of the Swap\n\nDiscard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand.",
   "Power of the Veto": "Power of the Veto\n\nVeto a Curse played by your opponent.",
-  "Power of the Laundrette": "Power of the Laundrette\nValid for 1 Gameweek.\n\nDouble points for any Correct Result with a Clean Sheet.",
+  "Power of the Laundrette": "Power of the Laundrette\n\nValid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power Of The Clean Sweep": "Power Of The Clean Sweep\nValid for 1 Gameweek.\n\nIf you score a point in every game this Gameweek, earn bonus +5 UC pts.\n\nMust be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Pessimist": "Power of the Pessimist\nValid for 1 Gameweek.\n\nDouble points for all Predictions if no team scores 3+ goals.",
-  "Power of the Immigrants": "Power of the Immigrants\nValid for 1 Gameweek.\n\nNon-English Star Men score double points.\n\nMust be played before the start of a Gameweek.",
-  "Power of the Lanky Crouch": "Power of the Lanky Crouch\nValid for 1 Gameweek.\n\nStar Men 6ft1 (185cm) or taller score double points.\n\nMust be played before the start of a Gameweek.",
-  "Power of the Small and Mighty": "Power of the Small and Mighty\nValid for 1 Gameweek.\n\nStar Men 5ft9 (175cm) or shorter score double points.\n\nMust be played before the start of a Gameweek.",
-  "Power of God": "Power of God\nValid for 1 Gameweek.\n\nChange one match prediction before the start of the 2nd Half.",
-  "Power of the Hedge": "Power of the Hedge\nValid for 1 Gameweek.\n\nPredict two scorelines for one match. Best result counts.\n\nMust be played before the start of a Gameweek.",
-  "Power of the Assist King": "Power of the Assist King\nValid for 1 Gameweek.\n\nStar Man assists score double points.",
-  "Power of the Late Scout": "Power of the Late Scout\nValid for 1 Gameweek.\n\nYou may choose your Star Man after line-ups are announced for one match.\n\nMust be played before that Star Man's kick-off.",
-  "Power of the Snow": "Power of the Snow\nValid for 1 Gameweek.\n\nAny predicted match played in heavy snow scores double points.\n\nMust be played before the start of a Gameweek.",
+  "Power of the Pessimist": "Power of the Pessimist\n\nValid for 1 Gameweek. DOUBLE points for all Predictions if no team scores 3+ goals. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Immigrants": "Power of the Immigrants\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Lanky Crouch": "Power of the Lanky Crouch\n\nValid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Small and Mighty": "Power of the Small and Mighty\n\nValid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of God": "Power of God\n\nValid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.",
+  "Power of the Hedge": "Power of the Hedge\n\nValid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Assist King": "Power of the Assist King\n\nValid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Late Scout": "Power of the Late Scout\n\nValid for 1 Gameweek. Choose your Star Man AFTER line-ups are announced for one match. Must be played before Star Man's Kick-Off.",
+  "Power of the Snow": "Power of the Snow\n\nValid for 1 Gameweek. Any Predicted match played in heavy snow scores DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
 
-  "Curse of the Hated": "Curse of the Hated\nValid for 1 Gameweek.\n\nOpponent must predict 8-2 in at least one game this Gameweek.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Random": "Curse of the Random\nValid for 1 Gameweek.\n\nFor 3 games, roll dice to determine the score predictions of an opponent.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Furious": "Curse of the Furious\nValid for 1 Gameweek.\n\nIf your opponent's Star Man gets a Yellow or Red card, those negative points are doubled.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Alphabet (15+)": "Curse of the Alphabet\nValid for 1 Gameweek.\n\nOpponent's Star Man surname must have a Scrabble score of 15+.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Alphabet (20+)": "Curse of the Alphabet\nValid for 1 Gameweek.\n\nOpponent's Star Man surname must have a Scrabble score of 20+.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Scoring Drought (3)": "Curse of the Scoring Drought\nValid for 1 Gameweek.\n\nOpponent's Star Man must have 0 goals in their last 3 PL games.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Scoring Drought (5)": "Curse of the Scoring Drought\nValid for 1 Gameweek.\n\nOpponent's Star Man must have 0 goals in their last 5 PL games.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse Of The Microstate": "Curse Of The Microstate\nValid for 1 Gameweek.\n\nOpponent's Star Man's nationality must be from a Country with a population of less than 1 million.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Glasses": "Curse of the Glasses\nValid for 1 Gameweek.\n\nAny 0-0 prediction that the opponent makes scores nothing.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Deleted Match": "Curse of the Deleted Match\nValid for 1 Gameweek.\n\nChoose one opponent prediction. The opponent cannot earn points from this game.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Tiny Club": "Curse of the Tiny Club\nValid for 1 Gameweek.\n\nOpponent may not pick a Star Man from a Top 10 club.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Thief": "Curse of the Thief\n\nSteal a card from your opponent.\n\nCannot steal Super Cards. Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Even Number": "Curse of the Even Number\nValid for 1 Gameweek.\n\nOpponent can only predict an even number of goals for all teams.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Odd Number": "Curse of the Odd Number\nValid for 1 Gameweek.\n\nOpponent can only predict an odd number of goals for all teams.\n\nMust be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Hated": "Curse of the Hated\n\nValid for 1 Gameweek. Opponent must predict 8-2 in at least one game this Gameweek. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Random": "Curse of the Random\n\nValid for 1 Gameweek. For 3 games, roll a dice to determine the score predictions of an opponent. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Furious": "Curse of the Furious\n\nValid for 1 Gameweek. If your opponent's Star Man gets a Yellow or Red card, those -pts are doubled. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Alphabet (15+)": "Curse of the Alphabet (15+)\n\nValid for 1 Gameweek. Opponent's Star Man surname must have a Scrabble score of 15+. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Alphabet (20+)": "Curse of the Alphabet (20+)\n\nValid for 1 Gameweek. Opponent's Star Man surname must have a Scrabble score of 20+. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Scoring Drought (3)": "Curse of the Scoring Drought (3)\n\nValid for 1 Gameweek. Opponent's Star Man must have 0 goals in their last 3 Premier League games. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Scoring Drought (5)": "Curse of the Scoring Drought (5)\n\nValid for 1 Gameweek. Opponent's Star Man must have 0 goals in their last 5 Premier League games. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse Of The Microstate": "Curse Of The Microstate\n\nValid for 1 Gameweek. Opponent's Star Man's nationality must be from a Country with a population of less than 1 million. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Glasses": "Curse of the Glasses\n\nValid for 1 Gameweek. Any 0-0 prediction that the Opponent makes scores NOTHING. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Deleted Match": "Curse of the Deleted Match\n\nValid for 1 Gameweek. Choose ONE of the Opponent's Predictions, Opponent cannot earn points from this game. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Tiny Club": "Curse of the Tiny Club\n\nValid for 1 Gameweek. Opponent may NOT pick a Star Man from a Top 10 club. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Thief": "Curse of the Thief\n\nSteal a card from your Opponent. Cannot steal Super Cards. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Even Number": "Curse of the Even Number\n\nValid for 1 Gameweek. Opponent can only Predict an Even number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time. Cannot be picked whilst Curse of The Random is active.",
+  "Curse of the Odd Number": "Curse of the Odd Number\n\nValid for 1 Gameweek. Opponent can only Predict an Odd number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time. Cannot be picked whilst Curse of The Random is active.",
 
-  "Super Star Man": "Super Star Man\nValid for {SUPER_DURATION}.\n\nStar Man points are TRIPLED for the player playing this card.\n\nYellow and Red cards are 0pts.",
-  "Super Golden Gameweek": "Super Golden Gameweek\nValid for {SUPER_DURATION}.\n\nPrediction League points for all games are DOUBLED for the player playing this card.",
-  "Super Sub": "Super Sub\nValid for {SUPER_DURATION}.\n\nStar Man can be swapped at any time for any other Star Man for the player playing this card.\n\nNew Star Man's match must have NOT kicked off within the same Gameweek.",
-  "Super Score": "Super Score\nValid for {SUPER_DURATION}.\n\nChoose one scoreline for the active range. Each time that exact scoreline happens, +3 UC pts for the player playing this card.\n\nMust be played before the start of a Gameweek.",
-  "Super Draw": "Super Draw\n\nDraw {SUPER_DRAW_COUNT} Regular Deck cards for the player playing this card.",
-  "Super Duo": "Super Duo\nValid for {SUPER_DURATION}.\n\nTwo Star Men can be chosen during the active range for the player playing this card.\n\nMust choose both players before the relevant Gameweek starts.",
-  "Super Pen": "Super Pen\nValid for {SUPER_DURATION}.\n\nDraw a card from the Regular Deck any time a penalty is scored during the active range for the player playing this card.",
+  "Super Star Man": "Super Star Man\n\nStar Man points are TRIPLED. Yellow and Red cards are 0pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Golden Gameweek": "Super Golden Gameweek\n\nPrediction League points for all games are DOUBLED. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Sub": "Super Sub\n\nStar Man can be swapped at any time for any other Star Man whose match has not kicked off within the same Gameweek. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Score": "Super Score\n\nChoose one scoreline, for example 0-0, 1-0, or 1-2. Each time that exact scoreline happens, earn +3 UC pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Draw": "Super Draw\n\nDraw Regular Deck cards. Draw count: 3 cards in 2-3 player leagues, 4 cards in 4-6 player leagues, and 5 cards in 7-10 player leagues.",
+  "Super Duo": "Super Duo\n\nTwo Star Men can be chosen during the active range. Must choose both players before the relevant Gameweek starts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Pen": "Super Pen\n\nDraw a card from the Regular Deck any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
 
-  "Game of Goals": "Game of Goals\n\nBest of 5 Gameweeks. Closest answer wins. Predict the Total Goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of Corners": "Game of Corners\n\nBest of 5 Gameweeks. Closest answer wins. Predict the Total Corners in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of The Underdog": "Game of The Underdog\n\nBest of 5 Gameweeks. Closest answer wins. Predict how many teams will beat a team above them in the league in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of The Goalhanger": "Game of The Goalhanger\n\nBest of 5 Gameweeks. Closest answer wins. Predict how many players score 2+ goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of War": "Game of War\n\nBest of 5 Gameweeks. Closest answer wins. Predict Total Yellow Cards in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of The Early Worm": "Game of The Early Worm\n\nBest of 5 Gameweeks. Closest answer wins. Predict the minute of the earliest goal in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick.",
-  "Game of Time": "Game of Time\n\nBest of 5 Gameweeks. Closest answer wins. Predict Total 90+ minute goals in each Gameweek.\n\nWinner gets +1 UC point and earns 1 Super Medal.\n\nTie-break: lowest total difference, then lowest UC points, then random pick."
+  "Game of Goals": "Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
+  "Game of Corners": "Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
+  "Game of The Underdog": "Game of The Underdog\n\nBest of 5 Gameweeks, closest answer wins, predict how many teams will beat a team above them in the league in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
+  "Game of The Goalhanger": "Game of The Goalhanger\n\nBest of 5 Gameweeks, closest answer wins, predict how many players score 2+ goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
+  "Game of War": "Game of War\n\nBest of 5 Gameweeks, closest answer wins, predict Total Yellow Cards in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
+  "Game of The Early Worm": "Game of The Early Worm\n\nBest of 5 Gameweeks, closest answer wins, predict in which minute the earliest goal in each Gameweek is scored. Winner gets +1 UC point and earns 1 Super Medal.",
+  "Game of Time": "Game of Time\n\nBest of 5 Gameweeks, closest answer wins, predict Total 90'+ min goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal."
 };
 cardDescriptions["Curse of the Gambler"] = cardDescriptions["Curse of the Random"];
 cardDescriptions["Curse of the Random Roulette"] = cardDescriptions["Curse Of The Microstate"];
@@ -4654,6 +4709,9 @@ async function confirmCardPlay() {
       activation = await cardRuntime.activateCardEffect(card, player, selectedCardInstanceId);
     } catch (error) {
       if (error.message === 'Card play cancelled.') {
+        if (card === 'Power of the Veto') {
+          showCardPreview(card, player, index);
+        }
         return;
       }
       alert(error.message || "Could not activate this card effect.");
@@ -5449,15 +5507,15 @@ async function initializeCardPage() {
 
     const cardEffectRules = {
       'Power of the Goal': { cardId: 'power_goal', effectKey: 'power_goal', duration: 1, target: 'self' },
-      'Power of the Swap': { cardId: 'power_swap', effectKey: 'power_swap', duration: 1, target: 'self' },
-      'Power of the Veto': { cardId: 'power_veto', effectKey: 'power_veto', special: 'veto' },
+      'Power of the Swap': { cardId: 'power_swap', effectKey: 'power_swap', duration: 1, target: 'self', deadlineExempt: true },
+      'Power of the Veto': { cardId: 'power_veto', effectKey: 'power_veto', special: 'veto', deadlineExempt: true },
       'Power of the Laundrette': { cardId: 'power_laundrette', effectKey: 'power_laundrette', duration: 1, target: 'self' },
       'Power Of The Clean Sweep': { cardId: 'power_rocket_man', effectKey: 'power_clean_sweep', duration: 1, target: 'self' },
       'Power of the Pessimist': { cardId: 'power_pessimist', effectKey: 'power_pessimist', duration: 1, target: 'self' },
       'Power of the Immigrants': { cardId: 'power_immigrants', effectKey: 'power_immigrants', duration: 1, target: 'self' },
       'Power of the Lanky Crouch': { cardId: 'power_lanky_crouch', effectKey: 'power_lanky_crouch', duration: 1, target: 'self' },
       'Power of the Small and Mighty': { cardId: 'power_small_and_mighty', effectKey: 'power_small_and_mighty', duration: 1, target: 'self' },
-      'Power of God': { cardId: 'power_of_god', effectKey: 'power_of_god', duration: 1, target: 'self' },
+      'Power of God': { cardId: 'power_of_god', effectKey: 'power_of_god', duration: 1, target: 'self', deadlineExempt: true },
       'Power of the Hedge': { cardId: 'power_hedge', effectKey: 'power_hedge', duration: 1, target: 'self' },
       'Power of the Assist King': { cardId: 'power_assist_king', effectKey: 'power_assist_king', duration: 1, target: 'self' },
       'Power of the Late Scout': { cardId: 'power_late_scout', effectKey: 'power_late_scout', duration: 1, target: 'self' },
@@ -5551,6 +5609,112 @@ async function initializeCardPage() {
         });
 
         cancelButton.addEventListener('click', cancel);
+        modal.addEventListener('click', modalClick);
+        document.addEventListener('keydown', keydown);
+        document.body.classList.add('card-preview-open');
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+      });
+    }
+
+    function chooseCurseToVetoFromModal(curses, playerNameById) {
+      if (!curses.length) {
+        throw new Error('Power of the Veto can only be played when you have an active Curse on you.');
+      }
+
+      const modal = document.getElementById('opponentTargetModal');
+      const titleEl = document.getElementById('opponentTargetTitle');
+      const list = document.getElementById('opponentTargetList');
+      const backButton = document.getElementById('opponentTargetCancel');
+      const confirmButton = document.createElement('button');
+
+      confirmButton.className = 'opponent-target-confirm';
+      confirmButton.type = 'button';
+      confirmButton.textContent = 'Confirm Veto';
+      confirmButton.disabled = true;
+
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        let selectedIndex = null;
+        const originalTitle = titleEl.textContent;
+        const originalBackText = backButton.textContent;
+        const originalListClass = list.className;
+
+        function cleanup() {
+          titleEl.textContent = originalTitle;
+          backButton.textContent = originalBackText;
+          list.className = originalListClass;
+          confirmButton.remove();
+          modal.classList.remove('show');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('card-preview-open');
+          backButton.removeEventListener('click', cancel);
+          confirmButton.removeEventListener('click', confirm);
+          modal.removeEventListener('click', modalClick);
+          document.removeEventListener('keydown', keydown);
+        }
+
+        function cancel() {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(new Error('Card play cancelled.'));
+        }
+
+        function confirm() {
+          if (settled || selectedIndex === null) return;
+          settled = true;
+          const chosen = curses[selectedIndex];
+          cleanup();
+          resolve(chosen);
+        }
+
+        function modalClick(event) {
+          if (event.target === modal) {
+            cancel();
+          }
+        }
+
+        function keydown(event) {
+          if (event.key === 'Escape') {
+            cancel();
+          }
+        }
+
+        function renderChoices() {
+          list.innerHTML = curses.map((effect, index) => {
+            const definition = getNestedRecord(effect.card_definitions);
+            const curseName = definition?.name || 'Curse Card';
+            const playedBy = playerNameById.get(effect.played_by_user_id) || 'Opponent';
+            const gameweekLabel = effect.gameweek_number
+              ? `GW${effect.gameweek_number}`
+              : 'Current Gameweek';
+            return `
+              <button class="opponent-target-btn veto-curse-btn ${selectedIndex === index ? 'selected' : ''}" type="button" data-veto-index="${index}" aria-pressed="${selectedIndex === index ? 'true' : 'false'}">
+                <span class="veto-curse-name">${escapeHtml(curseName)}</span>
+                <span class="veto-curse-meta">Played by ${escapeHtml(playedBy)} - ${escapeHtml(gameweekLabel)}</span>
+                <span class="veto-curse-description">${escapeHtml(cardDescriptionFor(curseName).replace(curseName, '').trim())}</span>
+              </button>
+            `;
+          }).join('');
+
+          list.querySelectorAll('[data-veto-index]').forEach((button) => {
+            button.addEventListener('click', () => {
+              selectedIndex = Number(button.dataset.vetoIndex);
+              confirmButton.disabled = false;
+              renderChoices();
+            });
+          });
+        }
+
+        titleEl.textContent = 'Choose Which Curse To Veto';
+        backButton.textContent = 'Back';
+        list.className = `${originalListClass} veto-curse-list`;
+        renderChoices();
+        backButton.before(confirmButton);
+
+        backButton.addEventListener('click', cancel);
+        confirmButton.addEventListener('click', confirm);
         modal.addEventListener('click', modalClick);
         document.addEventListener('keydown', keydown);
         document.body.classList.add('card-preview-open');
@@ -6014,30 +6178,53 @@ async function initializeCardPage() {
       };
     }
 
-    async function playVeto(activeGameweek) {
-      const curseActivationDeadline = cardPlayDeadline({ cardId: 'curse_veto_window' }, activeGameweek);
-      if (!curseActivationDeadline || Date.now() < new Date(curseActivationDeadline).getTime()) {
-        throw new Error(`Power of the Veto opens once curses activate, 24 hours before the gameweek's first KO time. Opens: ${formatDeadlineForMessage(curseActivationDeadline)}.`);
+    async function vetoActiveCurse(effectId) {
+      const { error } = await supabase.rpc('veto_my_active_curse', {
+        target_competition_id: context.league.id,
+        target_card_effect_id: effectId,
+      });
+
+      if (!error) {
+        return;
       }
 
-      const { data, error } = await supabase
-        .from('active_card_effects')
-        .select('id, played_by_user_id, card_definitions(name, category)')
-        .eq('competition_id', context.league.id)
-        .eq('season_id', context.league.season_id)
-        .eq('target_user_id', context.user.id)
-        .eq('status', 'active');
+      const functionMissing = error.code === '42883' || String(error.message || '').toLowerCase().includes('veto_my_active_curse');
+      if (!functionMissing) {
+        throw error;
+      }
 
-      if (error) throw error;
-      const curses = (data || []).filter((effect) => getNestedRecord(effect.card_definitions)?.category === 'curse');
-      const chosen = await chooseFromList('Choose the curse to veto:', curses, (effect) => getNestedRecord(effect.card_definitions)?.name || effect.id);
       const { error: updateError } = await supabase
         .from('active_card_effects')
         .update({ status: 'vetoed', resolved_at: new Date().toISOString() })
-        .eq('id', chosen.id);
+        .eq('id', effectId)
+        .eq('target_user_id', context.user.id)
+        .eq('status', 'active');
 
-      if (updateError) throw updateError;
-      alert('Curse vetoed.');
+      if (updateError) {
+        throw updateError;
+      }
+    }
+
+    async function playVeto(activeGameweek) {
+      const { data, error } = await supabase
+        .from('active_card_effects')
+        .select('id, played_by_user_id, gameweek_id, start_gameweek_id, card_definitions(name, category)')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('target_user_id', context.user.id)
+        .eq('status', 'active')
+        .eq('gameweek_id', activeGameweek.gameweek_id);
+
+      if (error) throw error;
+      const curses = (data || []).filter((effect) => getNestedRecord(effect.card_definitions)?.category === 'curse');
+      const members = await leagueMembers();
+      const playerNameById = new Map(members.map((member) => [member.user_id, member.display_name]));
+      const chosen = await chooseCurseToVetoFromModal(
+        curses.map((effect) => ({ ...effect, gameweek_number: activeGameweek.gameweek_number })),
+        playerNameById
+      );
+      await vetoActiveCurse(chosen.id);
+      showSiteNotice('Curse vetoed.');
       return { id: chosen.id, vetoed: true, activeGameweek };
     }
 
@@ -6135,7 +6322,7 @@ async function initializeCardPage() {
         const fixtures = await currentGameweekFixtures(activeGameweek);
         if (rule.effectKey === 'power_late_scout') {
           await assertLateScoutCanBePlayed(activeGameweek, fixtures, context, supabase);
-        } else {
+        } else if (!rule.deadlineExempt) {
           assertCardPlayDeadline(rule, activeGameweek);
         }
 
