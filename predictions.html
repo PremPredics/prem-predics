@@ -232,10 +232,10 @@ main {
 }
 
 .curse-marker {
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
   display: inline-grid;
   place-items: center;
   border: 1px solid rgba(254, 202, 202, 0.82);
@@ -246,7 +246,7 @@ main {
     linear-gradient(135deg, #7f1d1d, #dc2626 54%, #fb7185);
   color: #fff;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.95),
@@ -312,8 +312,8 @@ main {
 
 .fixture-lock-wrap .curse-marker {
   position: absolute;
-  right: -7px;
-  top: -9px;
+  right: -9px;
+  top: -11px;
   z-index: 2;
 }
 
@@ -454,6 +454,19 @@ button:disabled {
   color: #bbf7d0;
   text-align: center;
   font-weight: 900;
+}
+
+.summary-row small.summary-cursed-label {
+  grid-column: 2;
+  color: #ff1f1f;
+  text-align: center;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 10px rgba(255, 31, 31, 0.9),
+    0 0 18px rgba(249, 115, 22, 0.58);
 }
 
 .curse-modal {
@@ -669,8 +682,8 @@ footer {
 
   .fixture-lock-wrap .curse-marker {
     position: absolute;
-    right: -5px;
-    top: -8px;
+    right: -7px;
+    top: -10px;
     transform: none;
   }
 
@@ -714,15 +727,15 @@ footer {
   }
 
   .curse-marker {
-    width: 16px;
-    min-width: 16px;
-    height: 16px;
-    min-height: 16px;
-    font-size: 10px;
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    min-height: 20px;
+    font-size: 12px;
   }
 
   .summary-row {
-    grid-template-columns: minmax(78px, 1fr) 54px minmax(78px, 1fr) 20px;
+    grid-template-columns: minmax(78px, 1fr) 54px minmax(78px, 1fr) 24px;
     min-height: 31px;
     font-size: 12px;
   }

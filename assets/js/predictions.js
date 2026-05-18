@@ -433,7 +433,7 @@ function renderSummary() {
             <span class="summary-status">${renderCurseMarker(fixture)}</span>
             ${state.hedgePrediction?.fixture_id === fixture.id ? `<small>Hedge: ${state.hedgePrediction.home_goals}-${state.hedgePrediction.away_goals}</small>` : ''}
             ${state.godPrediction?.fixture_id === fixture.id ? `<small>Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
-            ${curseOverride ? '<small>Cursed</small>' : ''}
+            ${curseOverride ? '<small class="summary-cursed-label">Cursed</small>' : ''}
           </div>
         `;
       }).join('')}

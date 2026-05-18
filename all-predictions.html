@@ -89,6 +89,35 @@ main {
   color: #ddd6fe;
   font-weight: 800;
 }
+.prediction-key {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(17, 7, 38, 0.34);
+  border: 1px solid rgba(216, 180, 254, 0.18);
+  text-align: center;
+  font-weight: 950;
+}
+.prediction-key span {
+  white-space: nowrap;
+}
+.prediction-key .key-correct-score {
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.62), 0 0 18px rgba(250, 204, 21, 0.34);
+}
+.prediction-key .key-correct-result {
+  color: #6ee7b7;
+  text-shadow: 0 0 12px rgba(34, 197, 94, 0.45);
+}
+.prediction-key .key-incorrect {
+  color: #ff7b7b;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
+}
 .player-pills {
   padding: 4px 0;
 }
@@ -211,6 +240,12 @@ footer {
   }
   main { padding: 7px; }
   .panel { padding: 8px; gap: 6px; }
+  .prediction-key {
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
   .player-pill { width: 40px; height: 40px; }
   .prediction-row {
     min-height: 28px;
@@ -237,6 +272,11 @@ footer {
     <div class="page-head">
       <h2 data-view-title>Loading predictions...</h2>
       <p data-view-subtitle>Checking locked gameweeks.</p>
+    </div>
+    <div class="prediction-key" aria-label="Prediction result key">
+      <span class="key-correct-score">Correct Score</span>
+      <span class="key-correct-result">Correct Result</span>
+      <span class="key-incorrect">Incorrect Result</span>
     </div>
     <div class="gameweek-controls">
       <button type="button" data-previous-gameweek>Previous GW</button>
