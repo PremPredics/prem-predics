@@ -61,16 +61,27 @@
         /* ===== INTRO TEXT ===== */
         .intro-text {
             background:
-                linear-gradient(135deg, rgba(255,255,255,0.08), transparent 36%),
-                rgba(46, 16, 102, 0.7);
-            border: 2px solid rgba(196, 132, 252, 0.3);
-            border-radius: 10px;
-            padding: 26px;
+                radial-gradient(circle at 12% 10%, rgba(255,255,255,0.16), transparent 22%),
+                linear-gradient(135deg, rgba(91, 33, 182, 0.82), rgba(46, 16, 102, 0.78));
+            border: 2px solid rgba(233, 213, 255, 0.42);
+            border-radius: 14px;
+            padding: clamp(22px, 4vw, 34px);
             margin-bottom: 30px;
-            line-height: 1.8;
+            line-height: 1.72;
             font-size: 16px;
             text-align: center;
-            box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+            box-shadow: 0 18px 42px rgba(25, 10, 54, 0.34), inset 0 1px 0 rgba(255,255,255,0.13);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .intro-text::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            transform: translateX(-62%);
         }
         
         .intro-text p {
@@ -79,6 +90,85 @@
         
         .intro-text strong {
             color: #f0abfc;
+        }
+
+        .intro-kicker {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            padding: 8px 14px;
+            border: 1px solid rgba(255,255,255,0.28);
+            border-radius: 999px;
+            background: rgba(17, 7, 38, 0.42);
+            color: #fff;
+            font-size: 0.76rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .intro-lead {
+            max-width: 820px;
+            margin: 0 auto 18px auto;
+            color: #fff;
+            font-size: clamp(1rem, 2.1vw, 1.2rem);
+            font-weight: 750;
+        }
+
+        .goal-card {
+            max-width: 760px;
+            margin: 20px auto 0 auto;
+            padding: 18px;
+            border-radius: 12px;
+            background: rgba(17, 7, 38, 0.46);
+            border: 1px solid rgba(216, 180, 254, 0.34);
+        }
+
+        .goal-card-title {
+            display: block;
+            margin-bottom: 8px;
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 950;
+            text-shadow: 0 0 12px rgba(216, 180, 254, 0.48);
+        }
+
+        .keyword {
+            font-weight: 950;
+            white-space: nowrap;
+        }
+
+        .text-power { color: #67e8f9; }
+        .text-curse { color: #fb7185; }
+        .text-super { color: #facc15; }
+        .text-game { color: #34d399; }
+        .text-star { color: #fef3c7; }
+        .text-uc { color: #fde68a; }
+
+        .card-type-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin: 16px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .card-type-list li {
+            padding: 11px 12px;
+            border-radius: 10px;
+            background: rgba(17, 7, 38, 0.34);
+            border: 1px solid rgba(216, 180, 254, 0.22);
+            font-weight: 850;
+        }
+
+        .deck-note {
+            margin-top: 20px;
+            padding: 16px;
+            border-top: 1px solid rgba(196, 132, 252, 0.3);
+            border-radius: 10px;
+            background: rgba(17, 7, 38, 0.26);
         }
         
         /* ===== COLLAPSIBLE SECTION ===== */
@@ -758,10 +848,14 @@
         
         <!-- ===== INTRO TEXT ===== -->
         <div class="intro-text">
-            <p>Prem Predics is a 1v1 prediction game where two players predict every single match throughout an entire Premier League season (380 matches).</p>
-            
-            <p><strong>The Goal</strong></p>
-            <p>The Player with the most Ultimate Champion Points (UC pts) becomes the Prem Predics Ultimate Champion. Earn more Ultimate Champion Points (UC pts) than your opponent by:</p>
+            <span class="intro-kicker">Private Premier League Prediction Game</span>
+            <p class="intro-lead">Prem Predics lets you create a private league for 2-10 players and predict every Premier League match across the full 380-game season.</p>
+            <p>Alongside score predictions, players use <span class="keyword text-power">Power Cards</span>, play <span class="keyword text-curse">Curse Cards</span> against opponents, spend <span class="keyword text-super">Super Cards</span>, compete in <span class="keyword text-game">Game Cards</span>, and choose one footballer each gameweek as their <span class="keyword text-star">Star Man</span>.</p>
+
+            <div class="goal-card">
+                <span class="goal-card-title">The Goal</span>
+                <p>The player with the most <span class="keyword text-uc">Ultimate Champion Points (UC pts)</span> becomes the Prem Predics Ultimate Champion. Earn UC pts through accurate score predictions, smart Star Man picks, card strategy, and Game Card wins.</p>
+            </div>
         </div>
         
         <!-- ===== COLLAPSIBLE BUTTONS ===== -->
@@ -780,7 +874,7 @@
                 <span class="coin-badge">+1 pt</span> Correct Result (correct outcome, wrong score)
             </div>
             
-            <p style="margin-top: 20px; color: #d8b4fe;"><em>Note: Power, Curse & Super Cards can modify these points (multipliers, bonuses, penalties).</em></p>
+            <p style="margin-top: 20px; color: #d8b4fe;"><em>Note: <span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span> can modify these points with multipliers, bonuses or penalties.</em></p>
         </div>
         
         <!-- SELECTING STAR MAN -->
@@ -806,26 +900,26 @@
                 <span class="coin-badge">-3 pts</span> Per Red Card
             </div>
             
-            <p style="margin-top: 20px; color: #d8b4fe;"><em>Note: Power, Curse & Super Cards can modify these points (multipliers, bonuses, penalties).</em></p>
+            <p style="margin-top: 20px; color: #d8b4fe;"><em>Note: <span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span> can modify these points with multipliers, bonuses or penalties.</em></p>
         </div>
         
         <!-- PLAYING CARDS -->
         <button class="collapsible-btn" onclick="toggleCollapsible(this)">Playing Power, Curse & Super Cards</button>
         <div class="collapsible-content">
             <p><strong>There are 4 types of Card:</strong></p>
-            <ul style="margin: 15px 0; padding-left: 25px;">
-                <li>Power Cards (Regular Deck)</li>
-                <li>Curse Cards (Regular Deck)</li>
-                <li>Super Cards (Premium Deck)</li>
-                <li>Game Cards (Minigames)</li>
+            <ul class="card-type-list">
+                <li><span class="keyword text-power">Power Cards</span> (Regular Deck)</li>
+                <li><span class="keyword text-curse">Curse Cards</span> (Regular Deck)</li>
+                <li><span class="keyword text-super">Super Cards</span> (Premium Deck)</li>
+                <li><span class="keyword text-game">Game Cards</span> (Minigames)</li>
             </ul>
             
-            <p><strong>Power, Curse and Super Cards</strong> can help you or hinder your opponent. They add strategy and excitement to the game!</p>
-            <p><strong>Game Cards (7 Total)</strong> are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 Super Medal.</p>
-            <p><strong>Start with 1 Power Card + 1 Curse Card</strong> from your league's Regular Deck.</p>
+            <p><strong><span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span></strong> can help you or hinder your opponent. They add strategy and excitement to the game.</p>
+            <p><strong><span class="keyword text-game">Game Cards</span> (7 Total)</strong> are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 Super Medal.</p>
+            <p><strong>Start with 1 <span class="keyword text-power">Power Card</span> + 1 <span class="keyword text-curse">Curse Card</span></strong> from your league's Regular Deck.</p>
             <p><strong>Reach milestones</strong> to earn medals. Each medal can be spent to draw 1 card from the Regular Deck.</p>
             
-            <p style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(196, 132, 252, 0.3);"><strong>Regular Deck:</strong> sized to the final number of active league players, with a balanced Power and Curse mix<br><strong>Premium Deck:</strong> 7 Super Cards are Drawn by spending Super Medals won from "Game Card" Minigames</p>
+            <p class="deck-note"><strong>Regular Deck:</strong> sized to the final number of active league players, with a balanced <span class="keyword text-power">Power</span> and <span class="keyword text-curse">Curse</span> mix<br><strong>Premium Deck:</strong> 7 <span class="keyword text-super">Super Cards</span> are Drawn by spending Super Medals won from "<span class="keyword text-game">Game Card</span>" Minigames</p>
             
             <button class="show-cards-btn" onclick="toggleCardsDisplay(this)">Show All Cards</button>
             
