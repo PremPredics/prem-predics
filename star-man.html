@@ -65,11 +65,13 @@ main {
 }
 
 .panel {
-  background: rgba(46, 16, 102, 0.66);
-  border: 2px solid rgba(196, 132, 252, 0.32);
+  background:
+    linear-gradient(135deg, rgba(76, 29, 149, 0.78), rgba(46, 16, 102, 0.68) 48%, rgba(17, 7, 38, 0.58)),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16), transparent 34%);
+  border: 2px solid rgba(216, 180, 254, 0.42);
   border-radius: 10px;
   padding: 18px;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.26);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .star-man-layout {
@@ -84,8 +86,10 @@ main {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: rgba(46, 16, 102, 0.66);
-  border: 2px solid rgba(196, 132, 252, 0.32);
+  background:
+    linear-gradient(135deg, rgba(46, 16, 102, 0.74), rgba(17, 7, 38, 0.58)),
+    radial-gradient(circle at 50% 0%, rgba(253, 230, 138, 0.12), transparent 38%);
+  border: 2px solid rgba(216, 180, 254, 0.38);
   border-radius: 10px;
   padding: 18px;
   box-shadow: 0 12px 28px rgba(0,0,0,0.26);
@@ -133,7 +137,7 @@ main {
 .page-head {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 14px;
   margin-bottom: 16px;
   text-align: center;
@@ -147,6 +151,13 @@ main {
   margin: 0 0 6px;
   font-size: clamp(1.4rem, 3.5vw, 2rem);
   text-align: center;
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 16px rgba(216, 180, 254, 0.74);
 }
 
 .state-text,
@@ -164,12 +175,17 @@ main {
 
 .restrictions {
   min-width: 220px;
-  max-width: 340px;
+  max-width: 370px;
   padding: 12px;
   border-radius: 8px;
-  background: rgba(17, 7, 38, 0.46);
-  border: 1px solid rgba(216, 180, 254, 0.24);
+  background:
+    linear-gradient(135deg, rgba(69, 10, 10, 0.56), rgba(17, 7, 38, 0.58)),
+    radial-gradient(circle at 50% 0%, rgba(248, 113, 113, 0.18), transparent 45%);
+  border: 1px solid rgba(248, 113, 113, 0.36);
   text-align: center;
+  display: grid;
+  gap: 8px;
+  align-content: start;
 }
 
 .restrictions strong {
@@ -184,6 +200,49 @@ main {
     0 0 14px rgba(248, 38, 38, 0.8);
 }
 
+.restriction-summary {
+  display: grid;
+  gap: 9px;
+}
+
+.restriction-summary .state-text {
+  margin: 0;
+}
+
+.restriction-cards {
+  display: grid;
+  gap: 8px;
+}
+
+.restriction-card-button {
+  width: 100%;
+  min-height: 74px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  padding: 10px;
+  border: 2px solid #fb7185;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255,255,255,0.2), transparent 26%),
+    linear-gradient(135deg, #4c0519 0%, #991b1b 28%, #ef4444 54%, #be123c 74%, #fecaca 100%);
+  color: #fff;
+  font-weight: 950;
+  line-height: 1.08;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 0 18px rgba(251, 113, 133, 0.46), inset 0 0 14px rgba(255,255,255,0.14);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95);
+}
+
+.restriction-card-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(251, 113, 133, 0.62), inset 0 0 14px rgba(255,255,255,0.18);
+}
+
 .pick-grid {
   display: grid;
   gap: 14px;
@@ -192,11 +251,14 @@ main {
 .pick-card {
   display: grid;
   gap: 10px;
-  padding: 14px;
-  border-radius: 9px;
-  background: rgba(17, 7, 38, 0.42);
-  border: 1px solid rgba(216, 180, 254, 0.24);
+  padding: 16px;
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(17, 7, 38, 0.64), rgba(46, 16, 102, 0.38)),
+    radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.12), transparent 42%);
+  border: 1px solid rgba(125, 211, 252, 0.34);
   text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .pick-card[hidden] {
@@ -206,6 +268,13 @@ main {
 .pick-card h3 {
   margin: 0;
   font-size: 20px;
+  color: #fef3c7;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 12px rgba(250, 204, 21, 0.46);
 }
 
 label {
@@ -226,6 +295,12 @@ input {
   font: inherit;
 }
 
+input:focus {
+  outline: none;
+  border-color: rgba(125, 211, 252, 0.82);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.18), 0 0 18px rgba(34, 211, 238, 0.22);
+}
+
 .results {
   display: grid;
   gap: 6px;
@@ -242,6 +317,11 @@ input {
   text-align: center;
   font-weight: 800;
   cursor: pointer;
+}
+
+.result-button:not(:disabled):hover {
+  border-color: rgba(125, 211, 252, 0.7);
+  background: rgba(14, 165, 233, 0.18);
 }
 
 .result-button span {
@@ -285,6 +365,122 @@ button.save {
   color: #fff;
   font-weight: 900;
   cursor: pointer;
+}
+
+.star-curse-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 20px 20px 86px;
+  background: rgba(8, 3, 20, 0.54);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+.star-curse-modal.show {
+  display: grid;
+}
+
+body.card-modal-open {
+  overflow: hidden;
+}
+
+.star-curse-panel {
+  width: min(330px, 100%);
+  height: min(430px, calc(100vh - 116px));
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  padding: 24px 20px;
+  text-align: center;
+  border: 3px solid #fb7185;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  box-shadow: 0 0 30px rgba(251, 113, 133, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.16);
+  color: #fff;
+  position: relative;
+  overflow: visible;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 2px 5px rgba(0,0,0,0.78);
+}
+
+.star-curse-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 28%),
+    linear-gradient(42deg, rgba(255,255,255,0.12) 0 12%, transparent 12% 27%, rgba(255,255,255,0.09) 27% 38%, transparent 38% 100%);
+  pointer-events: none;
+}
+
+.star-curse-panel h2,
+.star-curse-panel p,
+.star-curse-panel small {
+  position: relative;
+  z-index: 1;
+}
+
+.star-curse-panel h2 {
+  min-height: 0;
+  flex: 0 0 22%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 2px 8px;
+  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
+  line-height: 1.18;
+}
+
+.star-curse-panel p {
+  flex: 1 1 68%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  font-weight: 850;
+  line-height: 1.35;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.star-curse-panel small {
+  color: #fff;
+  font-weight: 950;
+}
+
+.star-curse-back {
+  position: absolute;
+  left: 50%;
+  bottom: -62px;
+  transform: translateX(-50%);
+  width: min(220px, 100%);
+  min-height: 42px;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #7f1d1d, #ef4444);
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  border: 3px solid rgba(254, 202, 202, 0.98);
+  z-index: 2;
+  box-shadow: 0 12px 30px rgba(127, 29, 29, 0.64), 0 0 30px rgba(248, 113, 113, 0.5);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95);
 }
 
 button.save:disabled {
@@ -384,7 +580,9 @@ footer {
         </div>
         <div class="restrictions">
           <strong>Restrictions</strong>
-          <p class="state-text" data-restriction-summary>Loading...</p>
+          <div class="restriction-summary" data-restriction-summary>
+            <p class="state-text">Loading...</p>
+          </div>
         </div>
       </div>
 
@@ -422,6 +620,15 @@ footer {
     </aside>
   </div>
 </main>
+
+<div class="star-curse-modal" data-star-curse-modal aria-hidden="true">
+  <article class="star-curse-panel" role="dialog" aria-modal="true" aria-label="Active Star Man curse">
+    <h2 data-star-curse-title>Curse Card</h2>
+    <p data-star-curse-description></p>
+    <small data-star-curse-player></small>
+    <button class="star-curse-back" type="button" data-close-star-curse>Back</button>
+  </article>
+</div>
 
 <footer>&copy; 2026 Prem Predics | Star Man</footer>
 

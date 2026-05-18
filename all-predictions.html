@@ -59,6 +59,10 @@ main {
   border-radius: 8px;
   padding: 7px 10px;
 }
+.toolbar a[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.62;
+}
 .gameweek-controls button {
   cursor: pointer;
 }
@@ -226,7 +230,7 @@ footer {
 
 <main>
   <div class="toolbar">
-    <a data-league-back href="league.html">Back To League Hub</a>
+    <a data-league-back href="#" aria-disabled="true">Back To League Hub</a>
   </div>
 
   <section class="panel">

@@ -14,6 +14,11 @@ const gameweekSummary = document.querySelector('[data-gameweek-summary]');
 const restrictionSummary = document.querySelector('[data-restriction-summary]');
 const leagueBackLink = document.querySelector('[data-league-back]');
 const historyList = document.querySelector('[data-star-man-history]');
+const starCurseModal = document.querySelector('[data-star-curse-modal]');
+const starCurseTitle = document.querySelector('[data-star-curse-title]');
+const starCurseDescription = document.querySelector('[data-star-curse-description]');
+const starCursePlayer = document.querySelector('[data-star-curse-player]');
+const closeStarCurseButton = document.querySelector('[data-close-star-curse]');
 
 const state = {
   user: null,
@@ -28,6 +33,7 @@ const state = {
   usedStarManIds: new Set(),
   activeEffects: [],
   targetEffectIds: new Set(),
+  effectProfiles: new Map(),
   drought3Ids: new Set(),
   drought5Ids: new Set(),
   top10TeamIds: new Set(),
@@ -193,6 +199,14 @@ function effectKey(effect) {
 function effectName(effect) {
   const key = effectKey(effect);
   return effectNameOverrides[key] || normaliseNested(effect.card_definitions)?.name || effect.card_id;
+}
+
+function effectDescription(effect) {
+  return normaliseNested(effect.card_definitions)?.description || 'This curse affects your Star Man pick this Gameweek.';
+}
+
+function playedByName(effect) {
+  return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
 }
 
 function isEffectForCurrentGameweek(effect) {
@@ -432,7 +446,7 @@ async function loadPicks() {
 async function loadEffects() {
   const { data: effects, error: effectsError } = await supabase
     .from('active_card_effects')
-    .select('id, card_id, season_id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_by_user_id, target_user_id, payload, card_definitions(effect_key, name)')
+    .select('id, card_id, season_id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_by_user_id, target_user_id, payload, card_definitions(effect_key, name, description, category)')
     .eq('competition_id', state.league.id)
     .eq('season_id', state.league.season_id)
     .eq('status', 'active');
@@ -453,6 +467,17 @@ async function loadEffects() {
 
   state.activeEffects = activeEffects;
   state.targetEffectIds = new Set((targets || []).map((target) => target.card_effect_id));
+
+  const targetEffects = effectsTargetingUser();
+  const playedByUserIds = [...new Set(targetEffects.map((effect) => effect.played_by_user_id).filter(Boolean))];
+  state.effectProfiles = new Map();
+  if (playedByUserIds.length) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('id', playedByUserIds);
+    state.effectProfiles = new Map((profiles || []).map((profile) => [profile.id, profile]));
+  }
 }
 
 async function loadRestrictionData() {
@@ -528,18 +553,63 @@ async function loadRestrictionData() {
 
 function renderRestrictionSummary() {
   const activeRestrictions = restrictions();
-  const scoringCurses = starManScoringCurses().map((effect) => (
-    `${effectName(effect)} active: yellow-card and red-card deductions are doubled this Gameweek.`
-  ));
+  const scoringCurses = starManScoringCurses();
   const helpful = [
     ownEffect('power_late_scout') ? 'Power of the Late Scout available after the normal lock.' : '',
     ownEffect('super_sub') ? 'Super Sub lets you swap Star Man until the new player fixture kicks off.' : '',
     ownEffect('super_duo') ? 'Super Duo allows a second Star Man before the gameweek lock.' : '',
   ].filter(Boolean);
 
+  const curseEffects = [...activeRestrictions, ...scoringCurses];
   const boundaryText = activeRestrictions.map(effectName);
-  const lines = [...boundaryText, ...scoringCurses, ...helpful];
-  restrictionSummary.textContent = lines.length ? lines.join(' ') : 'No active Star Man restrictions.';
+  const scoringText = scoringCurses.map((effect) => (
+    `${effectName(effect)} active: yellow-card and red-card deductions are doubled this Gameweek.`
+  ));
+  const lines = [...boundaryText, ...scoringText, ...helpful];
+
+  restrictionSummary.innerHTML = `
+    <p class="state-text">${escapeHtml(lines.length ? lines.join(' ') : 'No active Star Man restrictions.')}</p>
+    ${curseEffects.length ? `
+      <div class="restriction-cards" aria-label="Active Star Man curse cards">
+        ${curseEffects.map((effect) => `
+          <button class="restriction-card-button" type="button" data-star-curse-effect="${escapeHtml(effect.id)}">
+            ${escapeHtml(effectName(effect))}
+          </button>
+        `).join('')}
+      </div>
+    ` : ''}
+  `;
+  wireRestrictionCards();
+}
+
+function openStarCurseModal(effectId) {
+  const effect = state.activeEffects.find((item) => String(item.id) === String(effectId));
+  if (!effect || !starCurseModal || !starCurseTitle || !starCurseDescription || !starCursePlayer) {
+    return;
+  }
+
+  starCurseTitle.textContent = effectName(effect);
+  starCurseDescription.textContent = effectDescription(effect);
+  starCursePlayer.textContent = `Played by ${playedByName(effect)}`;
+  starCurseModal.classList.add('show');
+  starCurseModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('card-modal-open');
+}
+
+function closeStarCurseModal() {
+  if (!starCurseModal) {
+    return;
+  }
+
+  starCurseModal.classList.remove('show');
+  starCurseModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('card-modal-open');
+}
+
+function wireRestrictionCards() {
+  restrictionSummary.querySelectorAll('[data-star-curse-effect]').forEach((button) => {
+    button.addEventListener('click', () => openStarCurseModal(button.dataset.starCurseEffect));
+  });
 }
 
 function renderExistingSelections() {
@@ -816,5 +886,17 @@ async function boot() {
     restrictionSummary.textContent = 'Could not check active card effects.';
   }
 }
+
+closeStarCurseButton?.addEventListener('click', closeStarCurseModal);
+starCurseModal?.addEventListener('click', (event) => {
+  if (event.target === starCurseModal) {
+    closeStarCurseModal();
+  }
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeStarCurseModal();
+  }
+});
 
 boot();

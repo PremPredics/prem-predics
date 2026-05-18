@@ -640,10 +640,12 @@ function openCurseModal(fixtureId) {
 
   const curses = visiblePredictionCursesForFixture(fixture);
   curseModalBody.innerHTML = curses.map((effect) => `
-    <div class="curse-detail">
-      <strong>${escapeHtml(effectName(effect))}</strong>
-      <span>Played by ${escapeHtml(playedByName(effect))}</span>
-      <p>${escapeHtml(effectDescription(effect))}</p>
+    <div class="curse-card-wrap">
+      <div class="curse-card-played-by">Played by ${escapeHtml(playedByName(effect))}</div>
+      <article class="curse-detail-card">
+        <strong>${escapeHtml(effectName(effect))}</strong>
+        <p>${escapeHtml(effectDescription(effect))}</p>
+      </article>
     </div>
   `).join('');
 

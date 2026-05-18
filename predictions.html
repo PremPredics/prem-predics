@@ -257,8 +257,28 @@ main {
 }
 
 .curse-score {
-  color: #fecaca;
-  text-shadow: 0 0 10px rgba(248, 113, 113, 0.55);
+  color: #ff1f1f;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 10px rgba(255, 31, 31, 0.95),
+    0 0 20px rgba(249, 115, 22, 0.72);
+}
+
+.curse-override-row .score-input {
+  opacity: 1;
+  color: #ff1f1f;
+  border-color: rgba(255, 31, 31, 0.72);
+  background: rgba(69, 10, 10, 0.72);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 12px rgba(255, 31, 31, 0.88);
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.28);
 }
 
 .curse-override-row {
@@ -452,44 +472,124 @@ button:disabled {
 }
 
 .curse-panel {
-  width: min(560px, 100%);
+  width: min(720px, 100%);
   display: grid;
-  gap: 12px;
-  border-radius: 12px;
-  padding: 20px;
-  background: linear-gradient(135deg, rgba(76, 5, 25, 0.98), rgba(17, 7, 38, 0.98));
-  border: 2px solid rgba(251, 113, 133, 0.54);
-  box-shadow: 0 20px 52px rgba(0,0,0,0.5), 0 0 30px rgba(239, 68, 68, 0.22);
+  gap: 16px;
+  justify-items: center;
+  border-radius: 16px;
+  padding: 18px 14px 24px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   text-align: center;
 }
 
 .curse-panel h2 {
   margin: 0;
   color: #fff;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 16px rgba(248, 113, 113, 0.82);
 }
 
-.curse-detail {
+.curse-card-list {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.curse-card-wrap {
   display: grid;
-  gap: 6px;
-  padding: 12px;
-  border-radius: 9px;
-  background: rgba(17, 7, 38, 0.46);
-  border: 1px solid rgba(254, 202, 202, 0.24);
+  gap: 9px;
+  justify-items: center;
 }
 
-.curse-detail strong {
-  color: #fecaca;
-}
-
-.curse-detail span {
+.curse-card-played-by {
   color: #fff;
-  font-weight: 900;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 12px rgba(251, 113, 133, 0.7);
 }
 
-.curse-detail p {
+.curse-detail-card {
+  width: min(330px, calc(100vw - 40px));
+  height: min(430px, calc(100vh - 170px));
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 18px;
+  padding: 24px 20px;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #fb7185;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  box-shadow: 0 0 30px rgba(251, 113, 133, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.16);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 2px 5px rgba(0,0,0,0.78);
+}
+
+.curse-detail-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 28%),
+    linear-gradient(42deg, rgba(255,255,255,0.12) 0 12%, transparent 12% 27%, rgba(255,255,255,0.09) 27% 38%, transparent 38% 100%);
+  pointer-events: none;
+}
+
+.curse-detail-card strong,
+.curse-detail-card p {
+  position: relative;
+  z-index: 1;
+}
+
+.curse-detail-card strong {
+  min-height: 0;
+  flex: 0 0 22%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
-  color: #f5f3ff;
-  line-height: 1.45;
+  padding: 0 2px 8px;
+  color: #fff;
+  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
+  line-height: 1.18;
+  font-weight: 950;
+}
+
+.curse-detail-card p {
+  flex: 1 1 78%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 2px;
+  color: #fff;
+  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  font-weight: 850;
+  line-height: 1.35;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .curse-close {
@@ -698,7 +798,7 @@ footer {
 <div class="curse-modal" data-curse-modal aria-hidden="true">
   <div class="curse-panel" role="dialog" aria-modal="true" aria-label="Active prediction curse">
     <h2>Active Curse</h2>
-    <div data-curse-modal-body></div>
+    <div class="curse-card-list" data-curse-modal-body></div>
     <button class="curse-close" type="button" data-close-curse>Close</button>
   </div>
 </div>

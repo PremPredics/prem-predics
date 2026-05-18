@@ -104,6 +104,11 @@ main {
   transform: translateY(-2px);
   border-color: rgba(255,255,255,0.5);
 }
+.toolbar a[aria-disabled="true"],
+.choice-card[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.62;
+}
 footer {
   text-align: center;
   padding: 20px;
@@ -135,17 +140,17 @@ footer {
 
 <main>
   <div class="toolbar">
-    <a data-league-back href="league.html">Back To League Hub</a>
+    <a data-league-back href="#" aria-disabled="true">Back To League Hub</a>
   </div>
   <section class="panel">
     <h2 data-prediction-hub-title>Predictions</h2>
     <p data-prediction-hub-copy>Choose what you want to do.</p>
     <div class="choice-grid">
-      <a class="choice-card" data-make-predictions href="predictions.html">
+      <a class="choice-card" data-make-predictions href="#" aria-disabled="true">
         <strong>Make Predictions</strong>
         <span>Submit or edit your current gameweek score predictions.</span>
       </a>
-      <a class="choice-card" data-view-predictions href="all-predictions.html">
+      <a class="choice-card" data-view-predictions href="#" aria-disabled="true">
         <strong>View All Player Predictions</strong>
         <span>Compare locked predictions across your private league.</span>
       </a>

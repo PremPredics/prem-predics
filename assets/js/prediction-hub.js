@@ -19,6 +19,9 @@ if (context.error) {
   makeLink.href = leagueUrl('predictions.html', league.id);
   viewLink.href = leagueUrl('all-predictions.html', league.id);
   backLink.href = leagueUrl('league.html', league.id);
+  makeLink.removeAttribute('aria-disabled');
+  viewLink.removeAttribute('aria-disabled');
+  backLink.removeAttribute('aria-disabled');
 
   try {
     const { activeGameweek } = await loadActiveGameweek(league);

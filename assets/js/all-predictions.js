@@ -277,6 +277,7 @@ if (context.error) {
   state.user = context.user;
   state.league = context.league;
   leagueBackLink.href = leagueUrl('league.html', state.league.id);
+  leagueBackLink.removeAttribute('aria-disabled');
 
   try {
     const { activeGameweek } = await loadActiveGameweek(state.league);

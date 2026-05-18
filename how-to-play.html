@@ -65,7 +65,7 @@
                 linear-gradient(135deg, rgba(91, 33, 182, 0.82), rgba(46, 16, 102, 0.78));
             border: 2px solid rgba(233, 213, 255, 0.42);
             border-radius: 14px;
-            padding: clamp(22px, 4vw, 34px);
+            padding: clamp(30px, 5vw, 46px);
             margin-bottom: 30px;
             line-height: 1.72;
             font-size: 16px;
@@ -92,28 +92,36 @@
             color: #f0abfc;
         }
 
+        .outlined-white {
+            color: #fff;
+            text-shadow:
+                -1px -1px 0 #05010c,
+                1px -1px 0 #05010c,
+                -1px 1px 0 #05010c,
+                1px 1px 0 #05010c,
+                0 0 12px rgba(216, 180, 254, 0.55);
+        }
+
         .intro-kicker {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 14px;
-            padding: 8px 14px;
-            border: 1px solid rgba(255,255,255,0.28);
+            margin-bottom: 18px;
+            padding: 12px 20px;
+            border: 1px solid rgba(255,255,255,0.34);
             border-radius: 999px;
             background: rgba(17, 7, 38, 0.42);
-            color: #fff;
-            font-size: 0.76rem;
+            font-size: clamp(1.15rem, 3.4vw, 1.9rem);
             font-weight: 950;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            letter-spacing: 0;
         }
 
         .intro-lead {
             max-width: 820px;
             margin: 0 auto 18px auto;
-            color: #fff;
+            text-align: center;
             font-size: clamp(1rem, 2.1vw, 1.2rem);
-            font-weight: 750;
+            font-weight: 850;
         }
 
         .goal-card {
@@ -169,6 +177,13 @@
             border-top: 1px solid rgba(196, 132, 252, 0.3);
             border-radius: 10px;
             background: rgba(17, 7, 38, 0.26);
+        }
+
+        .how-to-earn-title {
+            margin: 8px 0 18px;
+            text-align: center;
+            font-size: clamp(1.35rem, 4vw, 2.1rem);
+            font-weight: 950;
         }
         
         /* ===== COLLAPSIBLE SECTION ===== */
@@ -702,19 +717,20 @@
             padding: 12px 24px;
             margin: 10px;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 850;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            background: linear-gradient(135deg, #2e1065, #4c1d95);
             color: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 14px rgba(17, 7, 38, 0.42);
             transition: all 0.3s ease;
             display: inline-block;
+            border: 1px solid rgba(216, 180, 254, 0.26);
         }
         
         .back-btn:hover, .faq-btn:hover {
-            background: linear-gradient(135deg, #a78bfa, #c4b5fd);
+            background: linear-gradient(135deg, #4c1d95, #6d28d9);
             transform: translateY(-2px);
         }
         
@@ -848,8 +864,8 @@
         
         <!-- ===== INTRO TEXT ===== -->
         <div class="intro-text">
-            <span class="intro-kicker">Private Premier League Prediction Game</span>
-            <p class="intro-lead">Prem Predics lets you create a private league for 2-10 players and predict every Premier League match across the full 380-game season.</p>
+            <span class="intro-kicker outlined-white">How It Works</span>
+            <p class="intro-lead outlined-white">Prem Predics lets you create a private league for 2-10 players and predict every Premier League match across the full 380-game season.</p>
             <p>Alongside score predictions, players use <span class="keyword text-power">Power Cards</span>, play <span class="keyword text-curse">Curse Cards</span> against opponents, spend <span class="keyword text-super">Super Cards</span>, compete in <span class="keyword text-game">Game Cards</span>, and choose one footballer each gameweek as their <span class="keyword text-star">Star Man</span>.</p>
 
             <div class="goal-card">
@@ -859,6 +875,7 @@
         </div>
         
         <!-- ===== COLLAPSIBLE BUTTONS ===== -->
+        <h2 class="how-to-earn-title outlined-white">How To Earn UC Points</h2>
         
         <!-- PREDICTING MATCHES -->
         <button class="collapsible-btn" onclick="toggleCollapsible(this)">Predicting Matches Correctly</button>
@@ -963,7 +980,7 @@
         <!-- ===== FOOTER BUTTONS ===== -->
         <div class="button-group">
             <button class="faq-btn" onclick="window.location.href='faq.html'">Frequently Asked Questions</button>
-            <button class="back-btn" onclick="window.location.href='index.html'">Back to Home</button>
+            <button class="back-btn" onclick="window.location.href='index.html'">Back To Home</button>
         </div>
     </div>
 

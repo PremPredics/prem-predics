@@ -205,6 +205,11 @@ async function boot() {
   if (requiresLeague) {
     const competitionId = getCompetitionIdFromUrl();
     if (!competitionId) {
+      const lastCompetitionId = localStorage.getItem('premPredicsLastCompetitionId');
+      if (lastCompetitionId) {
+        window.location.replace(`${currentPageName()}?competition_id=${encodeURIComponent(lastCompetitionId)}`);
+        return;
+      }
       blockedLeaguePage(user, 'Choose a private league from your Leagues page first.');
       return;
     }
