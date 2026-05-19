@@ -869,6 +869,12 @@ function renderSearch(slot) {
   renderSelectedPlayer(slot, selectedPlayer);
   updateSaveButton(slot);
 
+  if (selectedPlayer && normaliseText(query) === normaliseText(playerLabel(selectedPlayer))) {
+    results.classList.remove('player-card-results');
+    results.innerHTML = '';
+    return;
+  }
+
   if (query.length < 2) {
     setResultsMessage(results, 'Type at least 2 letters.');
     return;
