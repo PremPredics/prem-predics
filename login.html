@@ -21,16 +21,20 @@ body {
 
 header {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 25px 20px;
+  gap: 8px;
+  padding: 22px 20px 18px;
   background: linear-gradient(90deg, #7354ca 0%, #9677e2 54%, #bda9f5 100%);
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
 }
 
 header img {
-  height: 58px;
+  width: clamp(92px, 14vw, 148px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(46, 16, 102, 0.32));
 }
 
 header h1 {
@@ -192,18 +196,15 @@ footer {
 
 @media (max-width: 560px) {
   header {
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 18px 14px;
+    gap: 6px;
+    padding: 16px 14px 14px;
   }
 
   header img {
-    height: 42px;
+    width: min(34vw, 108px);
   }
 
   header h1 {
-    flex-basis: 100%;
-    order: 2;
     -webkit-text-stroke: 0;
     text-shadow:
       -1px -1px 0 #05010c,
@@ -255,9 +256,8 @@ footer {
 </head>
 <body>
 <header>
-  <img src="logo-left.png" alt="Left Logo">
+  <img src="logo-left.png" alt="Prem Predics Logo">
   <h1>Prem Predics</h1>
-  <img src="logo-right.png" alt="Right Logo">
 </header>
 
 <main>
