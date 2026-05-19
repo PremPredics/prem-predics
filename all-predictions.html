@@ -118,6 +118,12 @@ main {
   color: #ff7b7b;
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
 }
+.prediction-key .key-uc {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+}
 .player-pills {
   padding: 4px 0;
 }
@@ -150,7 +156,7 @@ main {
 .prediction-row {
   min-height: 30px;
   display: grid;
-  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr);
+  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 34px;
   gap: 6px;
   align-items: center;
   padding: 5px 7px;
@@ -207,6 +213,28 @@ main {
   font-size: 18px;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.62), 0 0 18px rgba(250, 204, 21, 0.34);
 }
+.uc-point-cell {
+  display: flex;
+  justify-content: flex-end;
+}
+.uc-point-badge {
+  width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: radial-gradient(circle at 34% 28%, #fff7ad 0%, #facc15 42%, #d97706 78%, #78350f 100%);
+  border: 1px solid rgba(255, 247, 173, 0.86);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.82),
+    1px -1px 0 rgba(0,0,0,0.82),
+    -1px 1px 0 rgba(0,0,0,0.82),
+    1px 1px 0 rgba(0,0,0,0.82);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.55), inset 0 0 5px rgba(255,255,255,0.22);
+}
 .gw-badge {
   justify-self: center;
   color: #fde68a;
@@ -249,12 +277,17 @@ footer {
   .player-pill { width: 40px; height: 40px; }
   .prediction-row {
     min-height: 28px;
-    grid-template-columns: 38px minmax(70px, 1fr) 44px minmax(70px, 1fr);
+    grid-template-columns: 36px minmax(60px, 1fr) 42px minmax(60px, 1fr) 26px;
     gap: 4px;
     padding: 4px 5px;
   }
   .prediction-row span { font-size: 12px; }
   .prediction-row strong { font-size: 14px; }
+  .uc-point-badge {
+    width: 21px;
+    height: 21px;
+    font-size: 12px;
+  }
 }
 </style>
 </head>
@@ -277,6 +310,7 @@ footer {
       <span class="key-correct-score">Correct Score</span>
       <span class="key-correct-result">Correct Result</span>
       <span class="key-incorrect">Incorrect Result</span>
+      <span class="key-uc"><span class="uc-point-badge">3</span>/<span class="uc-point-badge">1</span> = UC Point</span>
     </div>
     <div class="gameweek-controls">
       <button type="button" data-previous-gameweek>Previous GW</button>

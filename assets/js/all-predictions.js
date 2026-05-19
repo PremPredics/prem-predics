@@ -150,6 +150,18 @@ function predictionClass(prediction, result, locked) {
   return 'incorrect';
 }
 
+function predictionPoints(resultClass) {
+  if (resultClass === 'correct-score') {
+    return 3;
+  }
+
+  if (resultClass === 'correct-result') {
+    return 1;
+  }
+
+  return 0;
+}
+
 async function renderPredictionRows(gameweek) {
   const fixtures = fixturesForGameweek(gameweek.gameweek_id)
     .filter((fixture) => fixture.status !== 'postponed')
@@ -169,6 +181,7 @@ async function renderPredictionRows(gameweek) {
     const prediction = predictions.get(fixture.id);
     const result = results.get(fixture.id);
     const resultClass = predictionClass(prediction, result, locked);
+    const points = predictionPoints(resultClass);
     const score = !locked
       ? '-'
       : prediction
@@ -180,6 +193,7 @@ async function renderPredictionRows(gameweek) {
         <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
         <strong>${escapeHtml(score)}</strong>
         <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
+        <span class="uc-point-cell">${points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}</span>
       </div>
     `;
   }).join('');

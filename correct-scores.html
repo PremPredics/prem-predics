@@ -68,6 +68,108 @@ main {
   gap: 14px;
 }
 
+.correct-panel {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(46, 16, 102, 0.68);
+  border: 2px solid rgba(196, 132, 252, 0.32);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.player-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.player-pill {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(216, 180, 254, 0.28);
+  border-radius: 999px;
+  background: rgba(17, 7, 38, 0.72);
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.player-pill.active {
+  border-color: #facc15;
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.48);
+}
+
+.player-pill img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.correct-score-title {
+  margin: 0;
+  text-align: center;
+  color: #ffd700;
+  font-size: clamp(1.25rem, 3vw, 1.9rem);
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 0 14px rgba(250, 204, 21, 0.5);
+}
+
+.correct-score-list {
+  display: grid;
+  gap: 6px;
+}
+
+.correct-score-row {
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(17, 7, 38, 0.5);
+  border: 1px solid rgba(250, 204, 21, 0.34);
+}
+
+.correct-fixture {
+  min-width: 0;
+  text-align: center;
+  color: #ffd700;
+  font-size: 14px;
+  font-weight: 950;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.42);
+}
+
+.correct-gw-pill {
+  min-width: 48px;
+  justify-self: end;
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: rgba(120, 53, 15, 0.72);
+  border: 1px solid rgba(250, 204, 21, 0.72);
+  color: #fde68a;
+  font-size: 12px;
+  font-weight: 950;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.22);
+}
+
 .player-card {
   display: grid;
   gap: 12px;
@@ -160,6 +262,27 @@ footer {
   .toolbar a { flex: 1; text-align: center; }
   .scores-grid { grid-template-columns: 1fr; }
   .score-row { grid-template-columns: 54px minmax(0, 1fr) 58px; }
+  .correct-panel {
+    padding: 10px;
+    gap: 10px;
+  }
+  .player-pill {
+    width: 40px;
+    height: 40px;
+  }
+  .correct-score-row {
+    min-height: 31px;
+    padding: 5px 6px;
+    gap: 5px;
+  }
+  .correct-fixture {
+    font-size: 12px;
+  }
+  .correct-gw-pill {
+    min-width: 42px;
+    padding: 3px 6px;
+    font-size: 11px;
+  }
 }
 @media (max-width: 650px) {
   header h1,
@@ -205,8 +328,12 @@ footer {
     <a data-league-link href="league.html">Back To League Hub</a>
   </div>
 
-  <section class="scores-grid" data-correct-scores>
-    <p class="empty">Loading correct scores...</p>
+  <section class="correct-panel">
+    <div class="player-pills" data-player-pills></div>
+    <h2 class="correct-score-title" data-correct-score-title>Correct Scores</h2>
+    <div class="correct-score-list" data-correct-scores>
+      <p class="empty">Loading correct scores...</p>
+    </div>
   </section>
 </main>
 

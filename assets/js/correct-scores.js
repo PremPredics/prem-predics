@@ -9,56 +9,73 @@ import {
 
 const container = document.querySelector('[data-correct-scores]');
 const leagueLink = document.querySelector('[data-league-link]');
+const playerPills = document.querySelector('[data-player-pills]');
+const title = document.querySelector('[data-correct-score-title]');
 
-function avatarMarkup(profile, displayName) {
-  const imageUrl = profile?.profile_image_url;
-  if (imageUrl?.startsWith('data:image/')) {
-    return `<span class="avatar"><img src="${escapeHtml(imageUrl)}" alt=""></span>`;
+const state = {
+  user: null,
+  league: null,
+  members: [],
+  scoresByUser: new Map(),
+  selectedUserId: null,
+};
+
+function avatarMarkup(member) {
+  const imageUrl = member.profile_image_url?.startsWith('data:image/')
+    ? member.profile_image_url
+    : null;
+
+  if (imageUrl) {
+    return `<img src="${escapeHtml(imageUrl)}" alt="">`;
   }
 
-  const initial = (displayName || 'P').trim().charAt(0).toUpperCase() || 'P';
-  return `<span class="avatar">${escapeHtml(initial)}</span>`;
+  return escapeHtml((member.display_name || 'P').trim().charAt(0).toUpperCase() || 'P');
 }
 
-function safeProfileColor(color) {
-  return /^#[0-9a-f]{6}$/i.test(String(color || '')) ? color : '#ffffff';
+function selectedMember() {
+  return state.members.find((member) => member.user_id === state.selectedUserId) || state.members[0] || null;
 }
 
-function render(members, scoresByUser, currentUserId) {
-  if (!members.length) {
+function renderPlayerPills() {
+  playerPills.innerHTML = state.members.map((member) => `
+    <button class="player-pill ${member.user_id === state.selectedUserId ? 'active' : ''}" type="button" data-user-id="${member.user_id}" title="${escapeHtml(member.display_name)}">
+      ${avatarMarkup(member)}
+    </button>
+  `).join('');
+
+  playerPills.querySelectorAll('[data-user-id]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.selectedUserId = button.dataset.userId;
+      render();
+    });
+  });
+}
+
+function render() {
+  if (!state.members.length) {
+    title.textContent = 'Correct Scores';
     container.innerHTML = '<p class="empty">No league members found.</p>';
     return;
   }
 
-  const orderedMembers = [...members].sort((a, b) => {
-    if (a.user_id === currentUserId) return -1;
-    if (b.user_id === currentUserId) return 1;
-    const profileA = normaliseNested(a.profiles);
-    const profileB = normaliseNested(b.profiles);
-    return String(profileA?.display_name || 'Player').localeCompare(String(profileB?.display_name || 'Player'), 'en-GB');
-  });
+  const member = selectedMember();
+  const scores = state.scoresByUser.get(member.user_id) || [];
 
-  container.innerHTML = orderedMembers.map((member) => {
-    const profile = normaliseNested(member.profiles);
-    const displayName = profile?.display_name || 'Player';
-    const scores = scoresByUser.get(member.user_id) || [];
+  renderPlayerPills();
+  title.textContent = `${member.display_name}'s Correct Scores`;
 
+  if (!scores.length) {
+    container.innerHTML = '<p class="empty">No Correct Scores</p>';
+    return;
+  }
+
+  container.innerHTML = scores.map((score) => {
+    const fixture = `${shortTeamName(score.home_team)} ${score.actual_home_goals}-${score.actual_away_goals} ${shortTeamName(score.away_team)}`;
     return `
-      <article class="player-card">
-        <div class="player-head">
-          ${avatarMarkup(profile, displayName)}
-          <h2 style="color: ${safeProfileColor(profile?.favorite_color)}">${escapeHtml(displayName)}</h2>
-        </div>
-        <div class="score-list">
-          ${scores.length ? scores.map((score) => `
-            <div class="score-row">
-              <strong>GW${escapeHtml(score.gameweek_number)}</strong>
-              <span>${escapeHtml(shortTeamName(score.home_team))} v ${escapeHtml(shortTeamName(score.away_team))}</span>
-              <strong>${escapeHtml(score.actual_home_goals)}-${escapeHtml(score.actual_away_goals)}</strong>
-            </div>
-          `).join('') : '<p class="empty">No Correct Scores</p>'}
-        </div>
-      </article>
+      <div class="correct-score-row">
+        <span class="correct-fixture">${escapeHtml(fixture)}</span>
+        <span class="correct-gw-pill">GW${escapeHtml(score.gameweek_number)}</span>
+      </div>
     `;
   }).join('');
 }
@@ -70,6 +87,8 @@ async function loadCorrectScores() {
     return;
   }
 
+  state.user = context.user;
+  state.league = context.league;
   leagueLink.href = leagueUrl('league.html', context.league.id);
 
   const [{ data: members, error: memberError }, { data: scores, error: scoreError }] = await Promise.all([
@@ -90,7 +109,23 @@ async function loadCorrectScores() {
     return;
   }
 
-  const scoresByUser = new Map();
+  state.members = (members || [])
+    .map((member) => {
+      const profile = normaliseNested(member.profiles);
+      return {
+        user_id: member.user_id,
+        joined_at: member.joined_at,
+        display_name: profile?.display_name || 'Player',
+        profile_image_url: profile?.profile_image_url || null,
+      };
+    })
+    .sort((a, b) => {
+      if (a.user_id === context.user.id) return -1;
+      if (b.user_id === context.user.id) return 1;
+      return String(a.display_name).localeCompare(String(b.display_name), 'en-GB');
+    });
+
+  state.scoresByUser = new Map();
   const seen = new Set();
   (scores || []).forEach((score) => {
     const key = `${score.user_id}:${score.fixture_id}`;
@@ -98,12 +133,13 @@ async function loadCorrectScores() {
       return;
     }
     seen.add(key);
-    const group = scoresByUser.get(score.user_id) || [];
+    const group = state.scoresByUser.get(score.user_id) || [];
     group.push(score);
-    scoresByUser.set(score.user_id, group);
+    state.scoresByUser.set(score.user_id, group);
   });
 
-  render(members || [], scoresByUser, context.user.id);
+  state.selectedUserId = context.user.id;
+  render();
 }
 
 loadCorrectScores();
