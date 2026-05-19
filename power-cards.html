@@ -3398,11 +3398,16 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
+  body {
+    padding: 8px 8px 12px;
+  }
+
   .back-home-btn {
     top: 8px;
     right: 8px;
     width: auto;
     min-width: 126px;
+    min-height: 32px;
     padding: 8px 9px;
     font-size: 0.66rem;
     line-height: 1;
@@ -3410,8 +3415,11 @@ button:disabled {
   }
 
   body > h1 {
-    margin: 2px 0 7px;
-    padding: 0 138px 0 4px !important;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    margin: 0 0 6px !important;
+    padding: 0 138px 0 2px !important;
     text-align: left !important;
     font-size: clamp(1.18rem, 5.2vw, 1.46rem) !important;
     line-height: 1.05 !important;

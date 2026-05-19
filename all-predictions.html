@@ -156,7 +156,7 @@ main {
 .prediction-row {
   min-height: 30px;
   display: grid;
-  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 34px;
+  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 58px;
   gap: 6px;
   align-items: center;
   padding: 5px 7px;
@@ -213,9 +213,13 @@ main {
   font-size: 18px;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.62), 0 0 18px rgba(250, 204, 21, 0.34);
 }
-.uc-point-cell {
+.row-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 5px;
+  min-width: 0;
+  overflow: visible !important;
 }
 .uc-point-badge {
   width: 24px;
@@ -235,6 +239,36 @@ main {
     1px 1px 0 rgba(0,0,0,0.82);
   box-shadow: 0 0 12px rgba(250, 204, 21, 0.55), inset 0 0 5px rgba(255,255,255,0.22);
 }
+.curse-marker {
+  width: 25px;
+  height: 25px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid rgba(254, 202, 202, 0.9);
+  background: radial-gradient(circle at 34% 22%, #fecaca 0%, #ff1f1f 40%, #7f1d1d 100%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1;
+  cursor: pointer;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92);
+  box-shadow: 0 0 12px rgba(255, 31, 31, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
+}
+.curse-marker:hover {
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 0 16px rgba(255, 31, 31, 0.82), inset 0 0 7px rgba(255,255,255,0.28);
+}
+.dice-curse-marker {
+  background: radial-gradient(circle at 34% 22%, #fff7ed 0%, #f97316 42%, #7c2d12 100%);
+  border-color: rgba(254, 215, 170, 0.92);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
+}
 .gw-badge {
   justify-self: center;
   color: #fde68a;
@@ -246,6 +280,152 @@ main {
   color: #ddd6fe;
   text-align: center;
   line-height: 1.35;
+}
+.curse-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 18px;
+  background: rgba(8, 3, 20, 0.54);
+  backdrop-filter: blur(7px);
+  z-index: 1000;
+}
+.curse-modal.show {
+  display: grid;
+}
+.curse-panel {
+  width: min(720px, 100%);
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  border-radius: 16px;
+  padding: 18px 14px 24px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  text-align: center;
+}
+.curse-panel h2 {
+  margin: 0;
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 16px rgba(248, 113, 113, 0.82);
+}
+.curse-card-list {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.curse-card-wrap {
+  display: grid;
+  gap: 9px;
+  justify-items: center;
+}
+.curse-card-played-by {
+  color: #fff;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 12px rgba(251, 113, 133, 0.7);
+}
+.curse-detail-card {
+  width: min(330px, calc(100vw - 40px));
+  height: min(430px, calc(100vh - 170px));
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  padding: 24px 20px;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #fb7185;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  box-shadow: 0 0 30px rgba(251, 113, 133, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.16);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 2px 5px rgba(0,0,0,0.78);
+}
+.curse-detail-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 28%),
+    linear-gradient(42deg, rgba(255,255,255,0.12) 0 12%, transparent 12% 27%, rgba(255,255,255,0.09) 27% 38%, transparent 38% 100%);
+  pointer-events: none;
+}
+.curse-detail-card strong,
+.curse-detail-card p {
+  position: relative;
+  z-index: 1;
+}
+.curse-detail-card strong {
+  flex: 0 0 22%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 2px 8px;
+  color: #fff;
+  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
+  line-height: 1.18;
+  font-weight: 950;
+}
+.curse-detail-card p {
+  flex: 1 1 78%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 2px;
+  color: #fff;
+  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  font-weight: 850;
+  line-height: 1.35;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.curse-close {
+  justify-self: center;
+  min-width: 120px;
+  min-height: 42px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #2e1065, #4c1d95);
+  color: #fff;
+  border: 1px solid rgba(216, 180, 254, 0.26);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(17, 7, 38, 0.42);
+  transition: all 0.3s ease;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92);
+}
+.curse-close:hover {
+  background: linear-gradient(135deg, #4c1d95, #6d28d9);
+  transform: translateY(-2px);
 }
 footer {
   text-align: center;
@@ -277,7 +457,7 @@ footer {
   .player-pill { width: 40px; height: 40px; }
   .prediction-row {
     min-height: 28px;
-    grid-template-columns: 36px minmax(60px, 1fr) 42px minmax(60px, 1fr) 26px;
+    grid-template-columns: 36px minmax(60px, 1fr) 42px minmax(60px, 1fr) 48px;
     gap: 4px;
     padding: 4px 5px;
   }
@@ -287,6 +467,11 @@ footer {
     width: 21px;
     height: 21px;
     font-size: 12px;
+  }
+  .curse-marker {
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
   }
 }
 </style>
@@ -323,6 +508,14 @@ footer {
     </div>
   </section>
 </main>
+
+<div class="curse-modal" data-curse-modal aria-hidden="true">
+  <div class="curse-panel" role="dialog" aria-modal="true" aria-label="Prediction curse">
+    <h2>Active Curse</h2>
+    <div class="curse-card-list" data-curse-modal-body></div>
+    <button class="curse-close" type="button" data-close-curse>Close</button>
+  </div>
+</div>
 
 <footer>&copy; 2026 Prem Predics | Player Predictions</footer>
 <script type="module" src="assets/js/site-auth.js"></script>

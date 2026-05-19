@@ -335,7 +335,12 @@ async function loadCurseOverridePredictions() {
     throw gamblerResult.error;
   }
 
+  const activeEffectIds = new Set(state.targetEffects.map((effect) => String(effect.id)));
   [...(hatedResult.data || []), ...(gamblerResult.data || [])].forEach((row) => {
+    if (!activeEffectIds.has(String(row.card_effect_id))) {
+      return;
+    }
+
     state.curseOverridePredictions.set(row.fixture_id, {
       fixture_id: row.fixture_id,
       home_goals: row.home_goals,

@@ -690,12 +690,16 @@ button:disabled {
   justify-self: center;
   min-width: 120px;
   min-height: 42px;
-  background:
-    radial-gradient(circle at 24% 16%, rgba(255, 255, 255, 0.32), transparent 20%),
-    linear-gradient(135deg, rgba(17, 7, 38, 0.95), rgba(76, 29, 149, 0.94));
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #2e1065, #4c1d95);
   color: #fff;
-  border: 1px solid rgba(216, 180, 254, 0.5);
-  box-shadow: 0 8px 18px rgba(17, 7, 38, 0.34), 0 0 14px rgba(216, 180, 254, 0.24);
+  border: 1px solid rgba(216, 180, 254, 0.26);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(17, 7, 38, 0.42);
+  transition: all 0.3s ease;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.92),
     1px -1px 0 rgba(0,0,0,0.92),
@@ -704,10 +708,8 @@ button:disabled {
 }
 
 .curse-close:hover {
-  background:
-    radial-gradient(circle at 24% 16%, rgba(255, 255, 255, 0.38), transparent 20%),
-    linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(91, 33, 182, 0.94));
-  box-shadow: 0 10px 22px rgba(17, 7, 38, 0.42), 0 0 18px rgba(216, 180, 254, 0.32);
+  background: linear-gradient(135deg, #4c1d95, #6d28d9);
+  transform: translateY(-2px);
 }
 
 footer {

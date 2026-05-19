@@ -11,12 +11,31 @@ const subtitle = document.querySelector('[data-view-subtitle]');
 const playerPills = document.querySelector('[data-player-pills]');
 const starMenList = document.querySelector('[data-star-men-list]');
 const leagueBackLink = document.querySelector('[data-league-back]');
+const starCurseModal = document.querySelector('[data-star-curse-modal]');
+const starCurseModalBody = document.querySelector('[data-star-curse-modal-body]');
+const closeStarCurseButton = document.querySelector('[data-close-star-curse]');
+
+const starManCurseKeys = new Set([
+  'curse_alphabet_15',
+  'curse_alphabet_20',
+  'curse_scoring_drought_3',
+  'curse_scoring_drought_5',
+  'curse_random_roulette',
+  'curse_tiny_club',
+  'curse_furious',
+]);
+
+const effectNameOverrides = {
+  curse_random_roulette: 'Curse Of The Microstate',
+};
 
 const state = {
   user: null,
   league: null,
   gameweeks: [],
   members: [],
+  effectProfiles: new Map(),
+  visibleEffectsByGameweek: new Map(),
   selectedUserId: null,
 };
 
@@ -26,6 +45,31 @@ function isPast(value) {
 
 function memberName(userId) {
   return state.members.find((member) => member.user_id === userId)?.display_name || 'Player';
+}
+
+function effectDefinition(effect) {
+  return normaliseNested(effect?.card_definitions) || {};
+}
+
+function effectKey(effect) {
+  return effectDefinition(effect).effect_key;
+}
+
+function effectName(effect) {
+  const key = effectKey(effect);
+  return effectNameOverrides[key] || effectDefinition(effect).name || 'Curse Card';
+}
+
+function effectDescription(effect) {
+  return effectDefinition(effect).description || 'This curse affects this Star Man pick.';
+}
+
+function playedByName(effect) {
+  return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
+}
+
+function isStarManCurse(effect) {
+  return starManCurseKeys.has(effectKey(effect));
 }
 
 function avatar(member) {
@@ -163,9 +207,107 @@ async function loadStats(picks) {
   return merged;
 }
 
+function isEffectForGameweek(effect, gameweek) {
+  const gameweekId = Number(gameweek.gameweek_id);
+  const directGameweek = !effect.gameweek_id || Number(effect.gameweek_id) === gameweekId;
+  const startsOk = !effect.start_gameweek_id || Number(effect.start_gameweek_id) <= gameweekId;
+  const endsOk = !effect.end_gameweek_id || Number(effect.end_gameweek_id) >= gameweekId;
+  return directGameweek && startsOk && endsOk;
+}
+
+async function loadStarManEffects() {
+  const { data, error } = await supabase
+    .from('active_card_effects')
+    .select('id, card_id, season_id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_by_user_id, target_user_id, status, payload, card_definitions(effect_key, name, description, category)')
+    .eq('competition_id', state.league.id)
+    .eq('season_id', state.league.season_id)
+    .eq('target_user_id', state.selectedUserId)
+    .in('status', ['active', 'resolved']);
+
+  if (error) {
+    throw error;
+  }
+
+  const effects = (data || [])
+    .filter(isStarManCurse)
+    .filter((effect) => state.gameweeks.some((gameweek) => isEffectForGameweek(effect, gameweek)));
+
+  const playedByUserIds = [...new Set(effects.map((effect) => effect.played_by_user_id).filter(Boolean))];
+  state.effectProfiles = new Map();
+  if (playedByUserIds.length) {
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('id', playedByUserIds);
+
+    if (profilesError) {
+      throw profilesError;
+    }
+
+    state.effectProfiles = new Map((profiles || []).map((profile) => [profile.id, profile]));
+  }
+
+  return effects;
+}
+
+function starManCursesForGameweek(gameweek, effects) {
+  return effects.filter((effect) => isEffectForGameweek(effect, gameweek));
+}
+
+function renderCurseMarker(gameweek, curses) {
+  if (!curses.length) {
+    return '<span aria-hidden="true"></span>';
+  }
+
+  const label = curses.length === 1 ? 'View active curse' : `View ${curses.length} active curses`;
+  return `<button class="curse-marker" type="button" data-star-curse-gameweek="${gameweek.gameweek_id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9760;</button>`;
+}
+
+function curseCardDetailMarkup(effect) {
+  return `
+    <div class="curse-card-wrap">
+      <div class="curse-card-played-by">Played by ${escapeHtml(playedByName(effect))}</div>
+      <article class="curse-detail-card">
+        <strong>${escapeHtml(effectName(effect))}</strong>
+        <p>${escapeHtml(effectDescription(effect))}</p>
+      </article>
+    </div>
+  `;
+}
+
+function openStarCurseModal(gameweekId) {
+  const effects = state.visibleEffectsByGameweek.get(String(gameweekId)) || [];
+  if (!starCurseModal || !starCurseModalBody || !effects.length) {
+    return;
+  }
+
+  starCurseModalBody.innerHTML = effects.map(curseCardDetailMarkup).join('');
+  starCurseModal.classList.add('show');
+  starCurseModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeStarCurseModal() {
+  if (!starCurseModal) {
+    return;
+  }
+
+  starCurseModal.classList.remove('show');
+  starCurseModal.setAttribute('aria-hidden', 'true');
+}
+
+function wireStarCurseMarkers() {
+  starMenList.querySelectorAll('[data-star-curse-gameweek]').forEach((button) => {
+    button.addEventListener('click', () => openStarCurseModal(button.dataset.starCurseGameweek));
+  });
+}
+
 async function renderRows() {
-  const picks = await loadPicks();
+  const [picks, starManEffects] = await Promise.all([
+    loadPicks(),
+    loadStarManEffects(),
+  ]);
   const stats = await loadStats(picks);
+  state.visibleEffectsByGameweek = new Map();
 
   const rows = state.gameweeks.map((gameweek) => {
     const locked = isPast(gameweek.star_man_locks_at);
@@ -176,6 +318,8 @@ async function renderRows() {
     }
 
     const statRow = stats.get(`${pick.gameweek_id}:${pick.player_id}`) || {};
+    const curses = starManCursesForGameweek(gameweek, starManEffects);
+    state.visibleEffectsByGameweek.set(String(gameweek.gameweek_id), curses);
     return `
       <div class="star-row">
         <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
@@ -183,11 +327,13 @@ async function renderRows() {
           <span class="star-name">${escapeHtml(pick.player_name)}</span>
           <span class="star-icons" aria-label="Goals, assists, yellow cards, red cards">${statIcons(statRow)}</span>
         </span>
+        ${renderCurseMarker(gameweek, curses)}
       </div>
     `;
   }).filter(Boolean);
 
   starMenList.innerHTML = rows.join('') || '<p class="state-text">No Star Men chosen yet.</p>';
+  wireStarCurseMarkers();
 }
 
 async function render() {
@@ -240,6 +386,13 @@ async function loadData() {
   ));
   state.selectedUserId = state.user.id;
 }
+
+closeStarCurseButton?.addEventListener('click', closeStarCurseModal);
+starCurseModal?.addEventListener('click', (event) => {
+  if (event.target === starCurseModal) {
+    closeStarCurseModal();
+  }
+});
 
 const context = await loadLeagueContext();
 if (context.error) {
