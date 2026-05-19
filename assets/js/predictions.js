@@ -99,7 +99,8 @@ function countdownText(value) {
   const totalMinutes = Math.floor(remainingMs / 60000);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  return `${hours}h ${minutes}m Remaining`;
+  const isCompact = window.matchMedia?.('(max-width: 720px)').matches;
+  return isCompact ? `${hours}hr ${minutes}m` : `${hours}hr ${minutes}m Remaining`;
 }
 
 function teamName(teamId) {
@@ -632,14 +633,8 @@ function updatePredictionCountdowns() {
   setSaveButtonState();
 }
 
-function openCurseModal(fixtureId) {
-  const fixture = state.fixtures.find((item) => item.id === fixtureId);
-  if (!fixture || !curseModal || !curseModalBody) {
-    return;
-  }
-
-  const curses = visiblePredictionCursesForFixture(fixture);
-  curseModalBody.innerHTML = curses.map((effect) => `
+function curseCardDetailMarkup(effect) {
+  return `
     <div class="curse-card-wrap">
       <div class="curse-card-played-by">Played by ${escapeHtml(playedByName(effect))}</div>
       <article class="curse-detail-card">
@@ -647,11 +642,37 @@ function openCurseModal(fixtureId) {
         <p>${escapeHtml(effectDescription(effect))}</p>
       </article>
     </div>
-  `).join('');
+  `;
+}
+
+function openCurseEffectsModal(effects) {
+  if (!curseModal || !curseModalBody || !effects.length) {
+    return;
+  }
+
+  curseModalBody.innerHTML = effects.map(curseCardDetailMarkup).join('');
 
   document.body.classList.add('card-preview-open');
   curseModal.classList.add('show');
   curseModal.setAttribute('aria-hidden', 'false');
+}
+
+function openCurseModal(fixtureId) {
+  const fixture = state.fixtures.find((item) => item.id === fixtureId);
+  if (!fixture) {
+    return;
+  }
+
+  openCurseEffectsModal(visiblePredictionCursesForFixture(fixture));
+}
+
+function openCurseEffectModal(effectId) {
+  const effect = state.targetEffects.find((item) => item.id === effectId);
+  if (!effect) {
+    return;
+  }
+
+  openCurseEffectsModal([effect]);
 }
 
 function closeCurseModal() {
@@ -667,6 +688,10 @@ function closeCurseModal() {
 function wireCurseMarkers() {
   fixturesContainer.querySelectorAll('[data-curse-fixture]').forEach((button) => {
     button.addEventListener('click', () => openCurseModal(button.dataset.curseFixture));
+  });
+
+  fixturesContainer.querySelectorAll('[data-prediction-curse-effect]').forEach((button) => {
+    button.addEventListener('click', () => openCurseEffectModal(button.dataset.predictionCurseEffect));
   });
 }
 
@@ -689,19 +714,24 @@ function renderTargetRestrictionPanel() {
     ));
   });
 
-  const restrictionNames = visibleEffects
-    .map(effectName)
-    .filter(Boolean);
-
-  if (!restrictionNames.length) {
+  if (!visibleEffects.length) {
     return '';
   }
 
-  const parityText = state.predictionParity ? ` All score boxes must be ${state.predictionParity} numbers.` : '';
   return `
     <section class="hedge-panel restriction-panel">
-      <h3>Active Prediction Restrictions</h3>
-      <p class="state-text">${escapeHtml(restrictionNames.join(', '))}.${escapeHtml(parityText)} Curse overrides and deleted matches are applied automatically when points are calculated.</p>
+      <h3>Active Prediction Restrictions:</h3>
+      <div class="prediction-restriction-cards" aria-label="Active prediction curse cards">
+        ${visibleEffects.map((effect) => `
+          <div class="prediction-restriction-card-wrap">
+            <button class="prediction-restriction-card" type="button" data-prediction-curse-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}">
+              <span class="prediction-restriction-card-icon" aria-hidden="true">&#9760;</span>
+              <span class="prediction-restriction-card-name">${escapeHtml(effectName(effect))}</span>
+            </button>
+            <span class="prediction-restriction-played-by">Played by ${escapeHtml(playedByName(effect))}</span>
+          </div>
+        `).join('')}
+      </div>
     </section>
   `;
 }

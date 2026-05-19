@@ -148,12 +148,92 @@ main {
 }
 
 .restriction-panel {
-  background: rgba(220, 38, 38, 0.18);
-  border-color: rgba(252, 165, 165, 0.42);
+  gap: 12px;
+  background:
+    linear-gradient(135deg, rgba(46, 16, 102, 0.72), rgba(17, 7, 38, 0.62)),
+    radial-gradient(circle at 50% 0%, rgba(248, 113, 113, 0.18), transparent 52%);
+  border: 1px solid rgba(251, 113, 133, 0.52);
+  box-shadow: inset 0 0 0 1px rgba(216, 180, 254, 0.08), 0 8px 20px rgba(17, 7, 38, 0.2);
 }
 
 .restriction-panel h3 {
-  color: #fecaca;
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9),
+    0 0 12px rgba(251, 113, 133, 0.62);
+}
+
+.prediction-restriction-cards {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.prediction-restriction-card-wrap {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.prediction-restriction-card {
+  width: 118px;
+  min-height: 152px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  border: 2px solid rgba(254, 202, 202, 0.86);
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255,255,255,0.24), transparent 24%),
+    linear-gradient(135deg, #4c0519 0%, #991b1b 30%, #ef4444 62%, #fb7185 100%);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.42), 0 12px 22px rgba(17, 7, 38, 0.34);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92);
+}
+
+.prediction-restriction-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px rgba(255, 47, 47, 0.58), 0 14px 26px rgba(17, 7, 38, 0.42);
+}
+
+.prediction-restriction-card-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(127, 29, 29, 0.72);
+  border: 1px solid rgba(254, 202, 202, 0.7);
+  font-size: 23px;
+  line-height: 1;
+}
+
+.prediction-restriction-card-name {
+  font-size: 13px;
+  line-height: 1.12;
+  font-weight: 950;
+}
+
+.prediction-restriction-played-by {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9);
 }
 
 .hedge-controls {
@@ -185,7 +265,7 @@ main {
 
 .fixture-row {
   display: grid;
-  grid-template-columns: 82px minmax(0, 1fr) 82px;
+  grid-template-columns: 82px minmax(0, 1fr) 136px;
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -321,10 +401,11 @@ main {
   color: #ddd6fe;
   font-size: 12px;
   font-weight: 800;
-  min-width: 0;
-  overflow: hidden;
+  min-width: 118px;
+  overflow: visible;
   text-overflow: clip;
   white-space: nowrap;
+  text-align: center;
 }
 
 .fixture-team {
@@ -608,7 +689,15 @@ button:disabled {
 .curse-close {
   justify-self: center;
   min-width: 120px;
-  background: linear-gradient(135deg, #7f1d1d, #ef4444);
+  background: linear-gradient(135deg, #dc2626 0%, #ff2f2f 52%, #fb7185 100%);
+  color: #fff;
+  border: 1px solid rgba(254, 202, 202, 0.76);
+  box-shadow: 0 0 16px rgba(255, 47, 47, 0.58), 0 8px 20px rgba(127, 29, 29, 0.34);
+}
+
+.curse-close:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #ff1f1f 48%, #f97316 100%);
+  box-shadow: 0 0 22px rgba(255, 31, 31, 0.72), 0 10px 24px rgba(127, 29, 29, 0.42);
 }
 
 footer {
@@ -642,7 +731,7 @@ footer {
   }
 
   .fixture-row {
-    grid-template-columns: 34px minmax(0, 1fr) 34px;
+    grid-template-columns: 34px minmax(0, 1fr) 56px;
     min-height: 34px;
     padding: 4px 5px;
     gap: 4px;
@@ -691,12 +780,47 @@ footer {
     display: block;
     text-align: center;
     font-size: 11px;
-    max-width: 34px;
+    min-width: 0;
+    width: 56px;
+    max-width: 56px;
+    overflow: visible;
   }
 
   .fixture-gameweek {
     font-size: 11px;
     padding: 3px 4px;
+  }
+
+  .restriction-panel {
+    gap: 9px;
+    padding: 9px;
+  }
+
+  .prediction-restriction-cards {
+    gap: 9px;
+  }
+
+  .prediction-restriction-card {
+    width: 104px;
+    min-height: 134px;
+    padding: 12px 8px;
+    border-radius: 12px;
+  }
+
+  .prediction-restriction-card-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 19px;
+  }
+
+  .prediction-restriction-card-name {
+    font-size: 12px;
+  }
+
+  .prediction-restriction-played-by {
+    max-width: 118px;
+    font-size: 11px;
+    line-height: 1.15;
   }
 
   .fixture-team {
