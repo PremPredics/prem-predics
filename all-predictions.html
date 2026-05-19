@@ -140,6 +140,12 @@ main {
   gap: 5px;
   color: #fff;
 }
+.prediction-key .key-curse {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+}
 .player-pills {
   padding: 4px 0;
 }
@@ -258,14 +264,16 @@ main {
 .curse-marker {
   width: 25px;
   height: 25px;
-  display: inline-grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
+  padding: 0;
   border-radius: 999px;
   border: 1px solid rgba(254, 202, 202, 0.9);
   background: radial-gradient(circle at 34% 22%, #fecaca 0%, #ff1f1f 40%, #7f1d1d 100%);
   color: #fff;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 950;
   line-height: 1;
   cursor: pointer;
@@ -275,6 +283,11 @@ main {
     -1px 1px 0 rgba(0,0,0,0.92),
     1px 1px 0 rgba(0,0,0,0.92);
   box-shadow: 0 0 12px rgba(255, 31, 31, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
+}
+.curse-marker span {
+  display: block;
+  line-height: 1;
+  transform: translateY(-0.5px);
 }
 .curse-marker:hover {
   transform: translateY(-1px) scale(1.05);
@@ -500,7 +513,7 @@ footer {
   .curse-marker {
     width: 22px;
     height: 22px;
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 </style>
@@ -525,7 +538,8 @@ footer {
       <span class="key-correct-score">Correct Score</span>
       <span class="key-correct-result">Correct Result</span>
       <span class="key-incorrect">Incorrect Result</span>
-      <span class="key-uc"><span class="uc-point-badge">3</span>/<span class="uc-point-badge">1</span> = UC Point</span>
+      <span class="key-uc"><span class="uc-point-badge" aria-hidden="true"></span> = UC Point</span>
+      <span class="key-curse"><span class="curse-marker" aria-hidden="true"><span>&#9760;</span></span> = Curse</span>
     </div>
     <div class="gameweek-controls">
       <button type="button" data-previous-gameweek>Previous GW</button>

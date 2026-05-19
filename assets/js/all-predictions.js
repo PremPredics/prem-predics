@@ -307,7 +307,7 @@ function renderCurseMarker(fixture, curses) {
   const label = curses.length === 1 ? 'View active curse' : `View ${curses.length} active curses`;
   const markerClass = hasRandomCurse ? 'curse-marker dice-curse-marker' : 'curse-marker';
   const markerSymbol = hasRandomCurse ? '&#9856;' : '&#9760;';
-  return `<button class="${markerClass}" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">${markerSymbol}</button>`;
+  return `<button class="${markerClass}" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>${markerSymbol}</span></button>`;
 }
 
 function predictionClass(prediction, result, locked) {
