@@ -92,7 +92,7 @@ function deadlineDisplay(value, options = {}) {
     };
   }
 
-  if (options.type === 'curse') {
+  if (options.type === 'curse' || options.type === 'power') {
     return {
       className: 'playable',
       countdown: countdownText(value),
@@ -117,6 +117,9 @@ function deadlineDisplay(value, options = {}) {
 
 function renderDeadlineCard(label, value, options = {}) {
   const display = deadlineDisplay(value, options);
+  const note = options.note
+    ? `<span class="deadline-note">${escapeHtml(options.note)}</span>`
+    : '';
   const body = display.countdown
     ? `
       <span class="deadline-countdown">${escapeHtml(display.countdown)}</span>
@@ -126,6 +129,7 @@ function renderDeadlineCard(label, value, options = {}) {
 
   return `
     <div class="deadline-card ${escapeHtml(display.className)}">
+      ${note}
       <span class="deadline-title">${escapeHtml(label)}</span>
       <div class="deadline-body">${body}</div>
     </div>
@@ -194,16 +198,16 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
   const predictionDeadlineMs = firstKickoffMs ? firstKickoffMs - (90 * 60 * 1000) : earliestTime(fixtures.map((fixture) => fixture.prediction_locks_at));
   const curseDeadlineMs = firstKickoffMs ? firstKickoffMs - (24 * 60 * 60 * 1000) : null;
   const starDeadline = activeGameweek?.star_man_locks_at || isoFromMs(predictionDeadlineMs);
-  const [predictionsCompleted, starManCompleted] = await Promise.all([
-    loadPredictionCompletion(league, user, fixtures),
-    loadStarManCompletion(league, user, activeGameweek),
-  ]);
+  const starManCompleted = await loadStarManCompletion(league, user, activeGameweek);
 
   function update() {
     deadlineStrip.innerHTML = [
-      renderDeadlineCard('Predictions Deadline', isoFromMs(predictionDeadlineMs), { completed: predictionsCompleted }),
+      renderDeadlineCard('Play Power Card Deadline*', isoFromMs(predictionDeadlineMs), {
+        type: 'power',
+        note: '*certain Power Cards can be played after Power Card Deadline',
+      }),
+      renderDeadlineCard('Play Curse Card Deadline', isoFromMs(curseDeadlineMs), { type: 'curse' }),
       renderDeadlineCard('Star Man Deadline', starDeadline, { completed: starManCompleted }),
-      renderDeadlineCard('Curse Card Deadline', isoFromMs(curseDeadlineMs), { type: 'curse' }),
     ].join('');
   }
 
