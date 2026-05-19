@@ -13,6 +13,7 @@ const leagueTitle = document.querySelector('[data-league-title]');
 const gameweekSummary = document.querySelector('[data-gameweek-summary]');
 const restrictionSummary = document.querySelector('[data-restriction-summary]');
 const leagueBackLink = document.querySelector('[data-league-back]');
+const starBackLink = document.querySelector('[data-star-back]');
 const historyList = document.querySelector('[data-star-man-history]');
 const starCurseModal = document.querySelector('[data-star-curse-modal]');
 const starCurseTitle = document.querySelector('[data-star-curse-title]');
@@ -854,6 +855,9 @@ async function boot() {
   state.user = context.user;
   state.league = context.league;
   leagueBackLink.href = leagueUrl('league.html', state.league.id);
+  if (starBackLink) {
+    starBackLink.href = leagueUrl('star-man-hub.html', state.league.id);
+  }
   leagueTitle.textContent = 'Star Man Pick';
 
   try {

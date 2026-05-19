@@ -16,6 +16,7 @@ const nextButton = document.querySelector('[data-next-gameweek]');
 const playerPills = document.querySelector('[data-player-pills]');
 const predictionList = document.querySelector('[data-prediction-list]');
 const leagueBackLink = document.querySelector('[data-league-back]');
+const predictionsBackLink = document.querySelector('[data-predictions-back]');
 const curseModal = document.querySelector('[data-curse-modal]');
 const curseModalBody = document.querySelector('[data-curse-modal-body]');
 const closeCurseButton = document.querySelector('[data-close-curse]');
@@ -532,7 +533,9 @@ if (context.error) {
   state.user = context.user;
   state.league = context.league;
   leagueBackLink.href = leagueUrl('league.html', state.league.id);
+  predictionsBackLink.href = leagueUrl('prediction-hub.html', state.league.id);
   leagueBackLink.removeAttribute('aria-disabled');
+  predictionsBackLink.removeAttribute('aria-disabled');
 
   try {
     const { activeGameweek } = await loadActiveGameweek(state.league);

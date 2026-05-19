@@ -11,6 +11,7 @@ const subtitle = document.querySelector('[data-view-subtitle]');
 const playerPills = document.querySelector('[data-player-pills]');
 const starMenList = document.querySelector('[data-star-men-list]');
 const leagueBackLink = document.querySelector('[data-league-back]');
+const starBackLink = document.querySelector('[data-star-back]');
 const starCurseModal = document.querySelector('[data-star-curse-modal]');
 const starCurseModalBody = document.querySelector('[data-star-curse-modal-body]');
 const closeStarCurseButton = document.querySelector('[data-close-star-curse]');
@@ -403,6 +404,7 @@ if (context.error) {
   state.user = context.user;
   state.league = context.league;
   leagueBackLink.href = leagueUrl('league.html', state.league.id);
+  starBackLink.href = leagueUrl('star-man-hub.html', state.league.id);
 
   try {
     await loadData();

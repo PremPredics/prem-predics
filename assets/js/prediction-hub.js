@@ -27,9 +27,9 @@ if (context.error) {
     const { activeGameweek } = await loadActiveGameweek(league);
     if (activeGameweek) {
       title.textContent = `Gameweek ${activeGameweek.gameweek_number} Predictions`;
-      copy.textContent = 'Make your picks, or view locked predictions from the league.';
+      copy.textContent = '';
     }
   } catch {
-    copy.textContent = 'Choose what you want to do.';
+    copy.textContent = '';
   }
 }

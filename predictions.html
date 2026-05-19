@@ -56,6 +56,10 @@ main {
 }
 
 .toolbar a {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: #f3e8ff;
   text-decoration: none;
   font-weight: 800;
@@ -63,6 +67,20 @@ main {
   border: 1px solid rgba(216, 180, 254, 0.28);
   border-radius: 8px;
   padding: 8px 11px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.toolbar a.prediction-back-link {
+  color: #fff;
+  background: linear-gradient(135deg, #0891b2, #22d3ee);
+  border-color: rgba(186, 230, 253, 0.78);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.3);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.72),
+    1px -1px 0 rgba(0,0,0,0.72),
+    -1px 1px 0 rgba(0,0,0,0.72),
+    1px 1px 0 rgba(0,0,0,0.72);
 }
 
 .panel {
@@ -730,7 +748,19 @@ footer {
   }
 
   .toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     justify-content: center;
+    gap: 6px;
+    width: min(100%, 460px);
+    margin: 0 auto 8px;
+  }
+
+  .toolbar a {
+    min-height: 30px;
+    padding: 6px 5px;
+    font-size: 12px;
+    line-height: 1.05;
   }
 
   .page-head {
@@ -922,6 +952,7 @@ footer {
 <main>
   <div class="toolbar">
     <a data-league-back href="leagues.html">Back To League Hub</a>
+    <a class="prediction-back-link" data-predictions-back href="prediction-hub.html">Back To Predictions</a>
   </div>
 
   <section class="panel">

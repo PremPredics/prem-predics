@@ -24,9 +24,9 @@ if (context.error) {
     const { activeGameweek } = await loadActiveGameweek(league);
     if (activeGameweek) {
       title.textContent = `Gameweek ${activeGameweek.gameweek_number} Star Man`;
-      copy.textContent = 'Pick your Star Man, or view locked Star Men from the league.';
+      copy.textContent = '';
     }
   } catch {
-    copy.textContent = 'Choose what you want to do.';
+    copy.textContent = '';
   }
 }
