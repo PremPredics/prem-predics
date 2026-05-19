@@ -476,110 +476,37 @@ input:disabled {
     linear-gradient(180deg, rgba(255, 251, 235, 0.16), rgba(76, 29, 149, 0.38));
 }
 
-.player-card-flag {
-  width: min(86px, 72%);
+.player-card-flag-image {
+  width: min(96px, 78%);
   aspect-ratio: 1.45;
-  display: grid;
+  object-fit: cover;
+  display: block;
+  border-radius: 11px;
+  border: 2px solid rgba(255, 255, 255, 0.86);
+  box-shadow:
+    0 8px 16px rgba(0,0,0,0.36),
+    inset 0 0 0 1px rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.9);
+}
+
+.player-card-flag-fallback {
+  width: min(96px, 78%);
+  aspect-ratio: 1.45;
+  display: none;
   place-items: center;
   border-radius: 11px;
-  border: 2px solid rgba(255, 255, 255, 0.78);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0) 22%),
-    linear-gradient(90deg, #ef4444 0 33%, #fff 33% 66%, #22c55e 66% 100%);
-  color: #1f1147;
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  border: 2px solid rgba(255, 255, 255, 0.86);
+  background: linear-gradient(135deg, #4c1d95, #f8d568);
+  color: #fff;
+  font-size: clamp(1rem, 2.5vw, 1.45rem);
   font-weight: 950;
   line-height: 1;
   letter-spacing: 0;
-  box-shadow:
-    0 8px 14px rgba(0,0,0,0.34),
-    inset 0 0 0 1px rgba(0,0,0,0.14);
-  text-shadow: none;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.36);
 }
 
-.player-card-flag[data-country-code="ENG"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0) 22%),
-    linear-gradient(90deg, transparent 0 42%, #dc2626 42% 58%, transparent 58% 100%),
-    linear-gradient(0deg, transparent 0 39%, #dc2626 39% 61%, transparent 61% 100%),
-    #fff;
-}
-
-.player-card-flag[data-country-code="SCO"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0) 22%),
-    linear-gradient(35deg, transparent 0 43%, #fff 43% 57%, transparent 57% 100%),
-    linear-gradient(145deg, transparent 0 43%, #fff 43% 57%, transparent 57% 100%),
-    #2563eb;
-}
-
-.player-card-flag[data-country-code="WAL"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0) 22%),
-    linear-gradient(180deg, #fff 0 50%, #16a34a 50% 100%);
-  color: #b91c1c;
-}
-
-.player-card-flag[data-country-code="NIR"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0) 22%),
-    linear-gradient(90deg, #1d4ed8 0 33%, #fff 33% 66%, #ef4444 66% 100%);
-}
-
-.player-card-flag[data-country-code="PT"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0) 22%),
-    linear-gradient(90deg, #166534 0 42%, #dc2626 42% 100%);
-  color: #facc15;
-}
-
-.player-card-flag[data-country-code="BR"] {
-  background:
-    radial-gradient(circle at 50% 50%, #1d4ed8 0 23%, transparent 24%),
-    linear-gradient(45deg, transparent 22%, #facc15 22% 36%, transparent 36% 64%, #facc15 64% 78%, transparent 78%),
-    linear-gradient(135deg, transparent 22%, #facc15 22% 36%, transparent 36% 64%, #facc15 64% 78%, transparent 78%),
-    #16a34a;
-  color: #fff;
-}
-
-.player-card-flag[data-country-code="FR"],
-.player-card-flag[data-country-code="NL"],
-.player-card-flag[data-country-code="BE"],
-.player-card-flag[data-country-code="RO"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0) 22%),
-    linear-gradient(90deg, #1d4ed8 0 33%, #fff 33% 66%, #ef4444 66% 100%);
-}
-
-.player-card-flag[data-country-code="ES"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0) 22%),
-    linear-gradient(180deg, #dc2626 0 25%, #facc15 25% 75%, #dc2626 75% 100%);
-}
-
-.player-card-flag[data-country-code="DE"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 22%),
-    linear-gradient(180deg, #111827 0 33%, #dc2626 33% 66%, #facc15 66% 100%);
-  color: #fff;
-}
-
-.player-card-flag[data-country-code="IT"] {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0) 22%),
-    linear-gradient(90deg, #16a34a 0 33%, #fff 33% 66%, #dc2626 66% 100%);
-}
-
-.player-card-flag[data-country-code="AR"] {
-  background:
-    radial-gradient(circle at 50% 50%, #facc15 0 9%, transparent 10%),
-    linear-gradient(180deg, #7dd3fc 0 33%, #fff 33% 66%, #7dd3fc 66% 100%);
-}
-
-.player-card-flag[data-country-code="INT"] {
-  background:
-    linear-gradient(135deg, #4c1d95, #f8d568);
-  color: #fff;
+.flag-card-visual.flag-missing .player-card-flag-fallback {
+  display: grid;
 }
 
 .player-card-country {
@@ -739,7 +666,8 @@ input:disabled {
   font-size: 0.86rem;
 }
 
-.selected-player-card .player-card-flag {
+.selected-player-card .player-card-flag-image,
+.selected-player-card .player-card-flag-fallback {
   width: min(124px, 74%);
   font-size: clamp(1.72rem, 6vw, 2.3rem);
 }
@@ -953,7 +881,8 @@ body.card-modal-open {
   border-radius: 14px;
 }
 
-.player-preview-card .player-card-flag {
+.player-preview-card .player-card-flag-image,
+.player-preview-card .player-card-flag-fallback {
   width: min(154px, 76%);
   font-size: clamp(2rem, 7vw, 2.7rem);
 }

@@ -251,22 +251,96 @@
             }
         }
         
-        /* ===== POINT BADGE (COIN STYLE) ===== */
-        .coin-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #000;
-            padding: 8px 14px;
-            border-radius: 50%;
-            margin: 8px 5px 8px 0;
-            font-weight: 700;
-            border: 2px solid #d97706;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4), inset 0 -2px 0 rgba(0,0,0,0.2);
-            display: inline-flex;
+        /* ===== UC POINT ROWS ===== */
+        .rules-card {
+            display: grid;
+            gap: 12px;
+            margin: 16px 0 18px;
+            padding: 16px;
+            border-radius: 12px;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(255,255,255,0.1), transparent 28%),
+                rgba(17, 7, 38, 0.36);
+            border: 1px solid rgba(216, 180, 254, 0.24);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .score-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
             align-items: center;
-            justify-content: center;
-            min-width: 50px;
-            font-size: 14px;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 11px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.13);
+        }
+
+        .uc-coin,
+        .coin-badge {
+            width: 44px;
+            height: 44px;
+            display: inline-grid;
+            place-items: center;
+            flex: none;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 30% 22%, #fff8dc 0 12%, transparent 13%),
+                radial-gradient(circle at 50% 50%, #facc15 0 45%, #d97706 74%, #7c2d12 100%);
+            color: #fff;
+            border: 2px solid #fde68a;
+            box-shadow:
+                0 0 16px rgba(250, 204, 21, 0.48),
+                inset 0 0 0 2px rgba(255,255,255,0.2),
+                inset 0 -4px 8px rgba(124, 45, 18, 0.42);
+            font-size: 0.96rem;
+            font-weight: 950;
+            line-height: 1;
+            text-shadow:
+                -1px -1px 0 rgba(0,0,0,0.92),
+                1px -1px 0 rgba(0,0,0,0.92),
+                -1px 1px 0 rgba(0,0,0,0.92),
+                1px 1px 0 rgba(0,0,0,0.92);
+        }
+
+        .score-copy {
+            color: #f8fafc;
+            font-size: clamp(0.95rem, 1.8vw, 1.06rem);
+            font-weight: 850;
+            line-height: 1.38;
+        }
+
+        .section-kicker,
+        .hint-note {
+            color: #ede9fe;
+            font-weight: 750;
+        }
+
+        .hint-note {
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(76, 29, 149, 0.24);
+            border: 1px solid rgba(216, 180, 254, 0.2);
+            font-size: 0.94rem;
+        }
+
+        .uc-word-gold {
+            color: #facc15;
+            font-weight: 950;
+            text-shadow: 0 0 10px rgba(250, 204, 21, 0.34);
+        }
+
+        .uc-word-green {
+            color: #4ade80;
+            font-weight: 950;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.28);
+        }
+
+        .uc-word-red {
+            color: #fecaca;
+            font-weight: 950;
+            text-shadow: 0 0 10px rgba(248, 113, 113, 0.22);
         }
         
         /* ===== CONTENT TEXT ===== */
@@ -292,19 +366,47 @@
             font-weight: 600;
         }
         
+        .strategy-panel {
+            margin: 16px 0;
+            padding: 16px;
+            border-radius: 12px;
+            background:
+                linear-gradient(135deg, rgba(8, 47, 73, 0.24), rgba(76, 29, 149, 0.26)),
+                rgba(17, 7, 38, 0.32);
+            border: 1px solid rgba(216, 180, 254, 0.22);
+        }
+
         .medal-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 10px;
-            margin: 15px 0;
+            margin: 16px 0;
         }
         
         .medal-item {
-            background: rgba(91, 33, 182, 0.3);
-            border-left: 4px solid #fbbf24;
-            padding: 12px;
-            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 44px;
+            background:
+                linear-gradient(135deg, rgba(250, 204, 21, 0.12), transparent 45%),
+                rgba(91, 33, 182, 0.28);
+            border: 1px solid rgba(250, 204, 21, 0.24);
+            padding: 11px 12px;
+            border-radius: 9px;
+            color: #fff;
             font-size: 14px;
+            font-weight: 800;
+        }
+
+        .medal-item::before {
+            content: '';
+            width: 11px;
+            height: 11px;
+            flex: 0 0 11px;
+            border-radius: 50%;
+            background: #facc15;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.48);
         }
         
         /* ===== CARD GRID ===== */
@@ -880,49 +982,60 @@
         <!-- PREDICTING MATCHES -->
         <button class="collapsible-btn" onclick="toggleCollapsible(this)">Predicting Matches Correctly</button>
         <div class="collapsible-content">
-            <p>All predictions must be made at least 1.5hrs before Kick-Off.</p>
-            <p>UC pts can be earned through match predictions, here's the breakdown:</p>
+            <p class="section-kicker">Predictions lock 90 minutes before each fixture kicks off.</p>
+            <p>UC pts can be earned through match predictions. Here's the breakdown:</p>
             
             <div class="section-title">Match Predictions</div>
-            <div style="margin: 15px 0;">
-                <span class="coin-badge">+3 pts</span> Correct Score (exact outcome and score)
-            </div>
-            <div style="margin: 15px 0;">
-                <span class="coin-badge">+1 pt</span> Correct Result (correct outcome, wrong score)
+            <div class="rules-card">
+                <div class="score-row">
+                    <span class="uc-coin">3</span>
+                    <span class="score-copy">3 UC Points per <span class="uc-word-gold">Correct Score</span> (exact outcome and score)</span>
+                </div>
+                <div class="score-row">
+                    <span class="uc-coin">1</span>
+                    <span class="score-copy">1 UC Point per <span class="uc-word-green">Correct Result</span> (correct outcome, wrong score)</span>
+                </div>
             </div>
             
-            <p style="margin-top: 20px; color: #d8b4fe;"><em>Note: <span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span> can modify these points with multipliers, bonuses or penalties.</em></p>
+            <p class="hint-note"><span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span> can modify these points with multipliers, bonuses or penalties.</p>
         </div>
         
         <!-- SELECTING STAR MAN -->
-        <button class="collapsible-btn" onclick="toggleCollapsible(this)">Selecting A "Star Man" Each Week</button>
+        <button class="collapsible-btn" onclick="toggleCollapsible(this)">Selecting a Star Man each Week</button>
         <div class="collapsible-content">
-            <p>Select one Premier League Player each week to be your "Star Man".</p>
+            <p>Select one Premier League footballer each gameweek to be your <span class="keyword text-star">Star Man</span>.</p>
             
-            <p><strong>Star Men can only be picked once and cannot be chosen again by either player for the rest of the season.</strong></p>
+            <p><strong>You can only pick the same Star Man once per season. That restriction is personal to you, so other players in your league can still choose that footballer for themselves.</strong></p>
             
-            <p>Star Men earn or lose you UC pts for the Gameweek they are chosen for based on their performance, here's the breakdown:</p>
+            <p>Star Men earn or lose you UC pts for the gameweek they are chosen for based on their performance. Here's the breakdown:</p>
             
             <div class="section-title">Star Man Performance (Weekly)</div>
-            <div style="margin: 15px 0;">
-                <span class="coin-badge">+3 pts</span> Per Goal
-            </div>
-            <div style="margin: 15px 0;">
-                <span class="coin-badge">+1 pt</span> Per Assist
-            </div>
-            <div style="margin: 15px 0;">
-                <span class="coin-badge">-1 pt</span> Per Yellow Card
-            </div>
-            <div style="margin: 15px 0;">
-                <span class="coin-badge">-3 pts</span> Per Red Card
+            <div class="rules-card">
+                <div class="score-row">
+                    <span class="uc-coin">3</span>
+                    <span class="score-copy">3 UC Points per Goal</span>
+                </div>
+                <div class="score-row">
+                    <span class="uc-coin">1</span>
+                    <span class="score-copy">1 UC Point per Assist</span>
+                </div>
+                <div class="score-row">
+                    <span class="uc-coin">-1</span>
+                    <span class="score-copy"><span class="uc-word-red">-1 UC Point</span> per Yellow Card</span>
+                </div>
+                <div class="score-row">
+                    <span class="uc-coin">-3</span>
+                    <span class="score-copy"><span class="uc-word-red">-3 UC Points</span> per Red Card</span>
+                </div>
             </div>
             
-            <p style="margin-top: 20px; color: #d8b4fe;"><em>Note: <span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span> can modify these points with multipliers, bonuses or penalties.</em></p>
+            <p class="hint-note"><span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span> can modify these points with multipliers, bonuses or penalties.</p>
         </div>
         
         <!-- PLAYING CARDS -->
         <button class="collapsible-btn" onclick="toggleCollapsible(this)">Playing Power, Curse & Super Cards</button>
         <div class="collapsible-content">
+            <p class="section-kicker">Cards add the tactical layer: help yourself, disrupt an opponent, or turn a gameweek into something bigger.</p>
             <p><strong>There are 4 types of Card:</strong></p>
             <ul class="card-type-list">
                 <li><span class="keyword text-power">Power Cards</span> (Regular Deck)</li>
@@ -931,12 +1044,14 @@
                 <li><span class="keyword text-game">Game Cards</span> (Minigames)</li>
             </ul>
             
-            <p><strong><span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span></strong> can help you or hinder your opponent. They add strategy and excitement to the game.</p>
-            <p><strong><span class="keyword text-game">Game Cards</span> (7 Total)</strong> are best-of-5 Minigames drawn every 5 Gameweeks starting in GW1. Win to earn 1 Super Medal.</p>
-            <p><strong>Start with 1 <span class="keyword text-power">Power Card</span> + 1 <span class="keyword text-curse">Curse Card</span></strong> from your league's Regular Deck.</p>
-            <p><strong>Reach milestones</strong> to earn medals. Each medal can be spent to draw 1 card from the Regular Deck.</p>
+            <div class="strategy-panel">
+                <p><strong><span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span></strong> can change predictions, Star Man scoring, card draws, restrictions, bonuses and penalties.</p>
+                <p><strong><span class="keyword text-game">Game Cards</span> (7 Total)</strong> are best-of-5 minigames drawn every 5 gameweeks starting in GW1. Win to earn 1 Super Medal.</p>
+                <p><strong>Start with 1 <span class="keyword text-power">Power Card</span> + 1 <span class="keyword text-curse">Curse Card</span></strong> from your league's Regular Deck.</p>
+                <p><strong>Reach milestones</strong> to earn medals. Each medal can be spent to draw 1 card from the Regular Deck.</p>
+            </div>
             
-            <p class="deck-note"><strong>Regular Deck:</strong> sized to the final number of active league players, with a balanced <span class="keyword text-power">Power</span> and <span class="keyword text-curse">Curse</span> mix<br><strong>Premium Deck:</strong> 7 <span class="keyword text-super">Super Cards</span> are Drawn by spending Super Medals won from "<span class="keyword text-game">Game Card</span>" Minigames</p>
+            <p class="deck-note"><strong>Regular Deck:</strong> sized to the final number of active league players, with a balanced <span class="keyword text-power">Power</span> and <span class="keyword text-curse">Curse</span> mix<br><strong>Premium Deck:</strong> 7 <span class="keyword text-super">Super Cards</span> are drawn by spending Super Medals won from "<span class="keyword text-game">Game Card</span>" Minigames</p>
             
             <button class="show-cards-btn" onclick="toggleCardsDisplay(this)">Show All Cards</button>
             
@@ -951,7 +1066,7 @@
         <button class="collapsible-btn" onclick="toggleCollapsible(this)">Earning Medals to Draw More Cards</button>
         <div class="collapsible-content">
             <p><strong>Medals can be spent to draw 1 Card from the Regular Deck for each Medal.</strong></p>
-            <p>Earn Medals as you progress through the season by achieving the following accomplishments:</p>
+            <p>Earn Medals as you progress through the season which you can spend on getting Power or Curse cards from the Regular Deck to help you or hinder your opponent by achieving the following accolades:</p>
             
             <div class="medal-list">
                 <div class="medal-item">Reach 20 UC pts</div>

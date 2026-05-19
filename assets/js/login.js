@@ -12,6 +12,8 @@ const favoriteTeamSelect = document.querySelector('[data-favorite-team]');
 const nationalityOptions = document.querySelector('[data-nationality-options]');
 
 let mode = 'signin';
+let isSubmitting = false;
+let isRedirecting = false;
 
 const fallbackPremierLeagueTeams = [
   'AFC Bournemouth',
@@ -39,6 +41,23 @@ const fallbackPremierLeagueTeams = [
 function redirectTarget() {
   const params = new URLSearchParams(window.location.search);
   return params.get('redirect') || 'index.html';
+}
+
+function setFormBusy(isBusy) {
+  submitButton.disabled = isBusy;
+  modeButtons.forEach((button) => {
+    button.disabled = isBusy;
+  });
+}
+
+function safeRedirect(target = redirectTarget()) {
+  if (isRedirecting) {
+    return;
+  }
+
+  isRedirecting = true;
+  setFormBusy(true);
+  window.location.replace(target);
 }
 
 function setMessage(text, type = 'info') {
@@ -109,13 +128,22 @@ async function loadFavoriteTeams() {
 }
 
 modeButtons.forEach((button) => {
-  button.addEventListener('click', () => setMode(button.dataset.authMode));
+  button.addEventListener('click', () => {
+    if (!isSubmitting && !isRedirecting) {
+      setMode(button.dataset.authMode);
+    }
+  });
 });
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (isSubmitting || isRedirecting) {
+    return;
+  }
+
+  isSubmitting = true;
   setMessage('Working...', 'info');
-  submitButton.disabled = true;
+  setFormBusy(true);
 
   const formData = new FormData(form);
   const email = String(formData.get('email') || '').trim();
@@ -169,7 +197,7 @@ form.addEventListener('submit', async (event) => {
       }
 
       if (data.session) {
-        window.location.href = redirectTarget();
+        safeRedirect();
         return;
       }
 
@@ -183,17 +211,20 @@ form.addEventListener('submit', async (event) => {
       throw error;
     }
 
-    window.location.href = redirectTarget();
+    safeRedirect();
   } catch (error) {
     setMessage(error.message || 'Something went wrong. Please try again.', 'error');
   } finally {
-    submitButton.disabled = false;
+    if (!isRedirecting) {
+      isSubmitting = false;
+      setFormBusy(false);
+    }
   }
 });
 
 const { data } = await supabase.auth.getUser();
 if (data.user) {
-  window.location.href = redirectTarget();
+  safeRedirect();
 }
 
 await loadFavoriteTeams();

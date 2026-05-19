@@ -238,6 +238,7 @@ const nationalityFlagCodes = {
   'dr congo': 'CD',
   ecuador: 'EC',
   egypt: 'EG',
+  england: 'GB-ENG',
   france: 'FR',
   gambia: 'GM',
   georgia: 'GE',
@@ -259,6 +260,7 @@ const nationalityFlagCodes = {
   'new zealand': 'NZ',
   nigeria: 'NG',
   norway: 'NO',
+  'northern ireland': 'GB-NIR',
   paraguay: 'PY',
   peru: 'PE',
   poland: 'PL',
@@ -288,58 +290,28 @@ const nationalityFlagCodes = {
   zimbabwe: 'ZW',
 };
 
-function regionalFlag(code) {
-  return code
-    .toUpperCase()
-    .split('')
-    .map((letter) => String.fromCodePoint(127397 + letter.charCodeAt(0)))
-    .join('');
-}
-
 function nationalityCode(nationality) {
   const key = normaliseText(nationality);
-  if (key === 'england') {
-    return 'ENG';
-  }
-  if (key === 'scotland') {
-    return 'SCO';
-  }
-  if (key === 'wales') {
-    return 'WAL';
-  }
-  if (key === 'northern ireland') {
-    return 'NIR';
-  }
-
   return nationalityFlagCodes[key] || 'INT';
 }
 
-function nationalityFlag(nationality) {
-  const key = normaliseText(nationality);
-  if (key === 'england') {
-    return '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}';
-  }
-  if (key === 'scotland') {
-    return '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}';
-  }
-  if (key === 'wales') {
-    return '\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}';
-  }
-  if (key === 'northern ireland') {
-    return regionalFlag('GB');
+function flagImageUrl(code) {
+  if (!code || code === 'INT') {
+    return '';
   }
 
-  const code = nationalityFlagCodes[key];
-  return code ? regionalFlag(code) : '★';
+  return `https://flagcdn.com/w160/${String(code).toLowerCase()}.png`;
 }
 
 function playerVisualMarkup(player) {
   const nationality = player.nationality || 'Nationality';
   const code = nationalityCode(nationality);
+  const flagUrl = flagImageUrl(code);
 
   return `
-    <span class="player-card-photo-frame flag-card-visual" aria-label="${escapeHtml(nationality)}">
-      <span class="player-card-flag" data-country-code="${escapeHtml(code)}" aria-hidden="true"></span>
+    <span class="player-card-photo-frame flag-card-visual${flagUrl ? '' : ' flag-missing'}" aria-label="${escapeHtml(nationality)}">
+      ${flagUrl ? `<img class="player-card-flag-image" src="${escapeHtml(flagUrl)}" alt="" loading="lazy" onerror="this.remove(); this.closest('.flag-card-visual')?.classList.add('flag-missing');">` : ''}
+      <span class="player-card-flag-fallback" aria-hidden="true">${escapeHtml(code === 'INT' ? playerInitials(player) : code)}</span>
       <span class="player-card-country">${escapeHtml(nationality)}</span>
     </span>
   `;
