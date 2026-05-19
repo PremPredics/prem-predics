@@ -12,6 +12,7 @@ const joinCode = document.querySelector('[data-join-code]');
 const copyJoinCodeButton = document.querySelector('[data-copy-join-code]');
 const gameweekLabel = document.querySelector('[data-gameweek-label]');
 const gameweekCountdown = document.querySelector('[data-gameweek-countdown]');
+const gameweekCard = document.querySelector('[data-gameweek-card]');
 const deadlineStrip = document.querySelector('[data-deadline-strip]');
 const playGrid = document.querySelector('[data-play-grid]');
 const profileLink = document.querySelector('[data-profile-link]');
@@ -22,6 +23,7 @@ function renderError(error) {
   leagueName.textContent = 'Private league unavailable';
   gameweekLabel.textContent = error;
   gameweekCountdown.textContent = '--d --h --m --s';
+  gameweekCard?.classList.remove('is-active', 'is-countdown');
   joinCode.textContent = '-';
   if (memberCount) {
     memberCount.textContent = '';
@@ -311,12 +313,17 @@ async function renderLeague(league, user) {
       gameweekLabel.textContent = 'Current Gameweek:';
       gameweekCountdown.textContent = `Gameweek ${activeGameweek.gameweek_number} Is Active`;
       gameweekCountdown.classList.add('active-gameweek');
+      gameweekCard?.classList.add('is-active');
+      gameweekCard?.classList.remove('is-countdown');
     } else {
       gameweekLabel.textContent = `Next Gameweek ${activeGameweek.gameweek_number}`;
+      gameweekCard?.classList.add('is-countdown');
+      gameweekCard?.classList.remove('is-active');
       startCountdown(gameweekCountdown, activeGameweek);
     }
   } else {
     gameweekCountdown.classList.remove('active-gameweek');
+    gameweekCard?.classList.remove('is-active', 'is-countdown');
     gameweekLabel.textContent = 'No active gameweek found';
     gameweekCountdown.textContent = '--d --h --m --s';
     if (deadlineStrip) {

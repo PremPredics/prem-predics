@@ -689,15 +689,25 @@ button:disabled {
 .curse-close {
   justify-self: center;
   min-width: 120px;
-  background: linear-gradient(135deg, #dc2626 0%, #ff2f2f 52%, #fb7185 100%);
+  min-height: 42px;
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255, 255, 255, 0.32), transparent 20%),
+    linear-gradient(135deg, rgba(17, 7, 38, 0.95), rgba(76, 29, 149, 0.94));
   color: #fff;
-  border: 1px solid rgba(254, 202, 202, 0.76);
-  box-shadow: 0 0 16px rgba(255, 47, 47, 0.58), 0 8px 20px rgba(127, 29, 29, 0.34);
+  border: 1px solid rgba(216, 180, 254, 0.5);
+  box-shadow: 0 8px 18px rgba(17, 7, 38, 0.34), 0 0 14px rgba(216, 180, 254, 0.24);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92);
 }
 
 .curse-close:hover {
-  background: linear-gradient(135deg, #ef4444 0%, #ff1f1f 48%, #f97316 100%);
-  box-shadow: 0 0 22px rgba(255, 31, 31, 0.72), 0 10px 24px rgba(127, 29, 29, 0.42);
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255, 255, 255, 0.38), transparent 20%),
+    linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(91, 33, 182, 0.94));
+  box-shadow: 0 10px 22px rgba(17, 7, 38, 0.42), 0 0 18px rgba(216, 180, 254, 0.32);
 }
 
 footer {

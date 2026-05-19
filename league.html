@@ -143,6 +143,7 @@ main {
 }
 
 .gameweek-card {
+  --gameweek-border-color: #fff;
   min-height: 84px;
   display: flex;
   align-items: center;
@@ -152,9 +153,18 @@ main {
   padding: 16px 18px;
   border-radius: 8px;
   background: rgba(17, 7, 38, 0.46);
-  border: 1px solid rgba(216, 180, 254, 0.24);
+  border: 3px solid color-mix(in srgb, var(--gameweek-border-color) 78%, rgba(255,255,255,0.18));
   text-align: center;
   white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 20px rgba(0,0,0,0.16);
+}
+
+.gameweek-card.is-countdown {
+  --gameweek-border-color: #fff;
+}
+
+.gameweek-card.is-active {
+  --gameweek-border-color: #37ff8b;
 }
 
 .gameweek-card span {
@@ -568,7 +578,7 @@ footer {
         <h2 data-league-name>Loading league...</h2>
         <p class="league-members-count" data-member-count></p>
       </div>
-      <div class="gameweek-card">
+      <div class="gameweek-card" data-gameweek-card>
         <span data-gameweek-label>Checking gameweek...</span>
         <strong data-gameweek-countdown>--d --h --m --s</strong>
       </div>
