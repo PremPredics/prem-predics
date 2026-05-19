@@ -117,6 +117,7 @@ function deadlineDisplay(value, options = {}) {
 
 function renderDeadlineCard(label, value, options = {}) {
   const display = deadlineDisplay(value, options);
+  const cleanLabel = String(label || '').replace(/\*/g, '');
   const body = display.countdown
     ? `
       <span class="deadline-countdown">${escapeHtml(display.countdown)}</span>
@@ -126,7 +127,7 @@ function renderDeadlineCard(label, value, options = {}) {
 
   return `
     <div class="deadline-card ${escapeHtml(display.className)}">
-      <span class="deadline-title">${escapeHtml(label)}</span>
+      <span class="deadline-title">${escapeHtml(cleanLabel)}</span>
       <div class="deadline-body">${body}</div>
     </div>
   `;
