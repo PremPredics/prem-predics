@@ -117,9 +117,6 @@ function deadlineDisplay(value, options = {}) {
 
 function renderDeadlineCard(label, value, options = {}) {
   const display = deadlineDisplay(value, options);
-  const note = options.note
-    ? `<span class="deadline-note">${escapeHtml(options.note)}</span>`
-    : '';
   const body = display.countdown
     ? `
       <span class="deadline-countdown">${escapeHtml(display.countdown)}</span>
@@ -129,7 +126,6 @@ function renderDeadlineCard(label, value, options = {}) {
 
   return `
     <div class="deadline-card ${escapeHtml(display.className)}">
-      ${note}
       <span class="deadline-title">${escapeHtml(label)}</span>
       <div class="deadline-body">${body}</div>
     </div>
@@ -202,10 +198,8 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
 
   function update() {
     deadlineStrip.innerHTML = [
-      renderDeadlineCard('Play Power Card Deadline*', isoFromMs(predictionDeadlineMs), {
-        type: 'power',
-        note: '*certain Power Cards can be played after Power Card Deadline',
-      }),
+      '<p class="deadline-strip-note">*certain Power Cards can be played after Power Card Deadline</p>',
+      renderDeadlineCard('Play Power Card Deadline*', isoFromMs(predictionDeadlineMs), { type: 'power' }),
       renderDeadlineCard('Play Curse Card Deadline', isoFromMs(curseDeadlineMs), { type: 'curse' }),
       renderDeadlineCard('Star Man Deadline', starDeadline, { completed: starManCompleted }),
     ].join('');
