@@ -1,0 +1,24 @@
+These active Star Man players still need a confirmed portrait URL after:
+1. supabase/generated-player-photo-fpl-update.sql
+2. supabase/generated-player-photo-manual-topups.sql
+
+Do not guess these from similarly named players. Keep the initials fallback until
+we have a confirmed image URL.
+
+Jaden Dixon - Arsenal
+Ife Ibrahim - Arsenal
+Brando Bailey-Joseph - Arsenal
+Yehor Yarmolyuk - Brentford
+Ellis Clark - Burnley
+Reggie Walsh - Chelsea
+Shim Mheuka - Chelsea
+Kaide Gordon - Liverpool
+Trent Kone-Doherty - Liverpool
+Jaden Heskey - Manchester City
+
+Notes from the retry pass:
+- Ife Ibrahim has a Premier League profile at /players/616068, but the standard portrait URL currently returns 403.
+- Reggie Walsh has a Premier League profile at /players/611921, but the standard portrait URL currently returns 403.
+- Kaide Gordon has a Premier League profile at /players/496185, but the standard portrait URL currently returns 403.
+- Jaden Dixon appeared in squad-list data, but the standard portrait URL candidate returns 403.
+- Jaden Heskey should not use Reigan Heskey's image. The available Reigan code is a different player.

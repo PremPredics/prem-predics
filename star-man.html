@@ -324,6 +324,13 @@ input:focus {
   gap: 6px;
 }
 
+.results.player-card-results {
+  grid-template-columns: repeat(auto-fit, minmax(126px, 154px));
+  justify-content: center;
+  gap: 12px;
+  padding-top: 2px;
+}
+
 .result-button {
   width: 100%;
   min-height: 40px;
@@ -355,10 +362,276 @@ input:focus {
   opacity: 0.55;
 }
 
+.player-result-card {
+  width: 100%;
+  aspect-ratio: 0.7;
+  min-height: 180px;
+  position: relative;
+  display: block;
+  border: 2px solid #f8d568;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 20% 14%, rgba(255,255,255,0.34), transparent 18%),
+    radial-gradient(circle at 82% 88%, rgba(255,255,255,0.24), transparent 22%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 29%, #d69e18 44%, #fff5c4 61%, #b7790e 76%, #7a4d09 100%);
+  box-shadow:
+    0 0 20px rgba(248, 213, 104, 0.56),
+    0 10px 22px rgba(0,0,0,0.34),
+    inset 0 0 18px rgba(255,255,255,0.22);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.player-result-card::after,
+.selected-player-card::after,
+.player-preview-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(42deg, rgba(255,255,255,0.2) 0 12%, transparent 12% 28%, rgba(255,255,255,0.13) 28% 40%, transparent 40% 100%),
+    radial-gradient(circle at 50% 96%, rgba(255,255,255,0.2), transparent 34%);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.player-result-card:not(:disabled):hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 0 26px rgba(248, 213, 104, 0.82),
+    0 14px 28px rgba(0,0,0,0.42),
+    inset 0 0 20px rgba(255,255,255,0.26);
+}
+
+.player-result-card:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.65);
+  opacity: 0.62;
+}
+
+.player-card-name {
+  position: absolute;
+  z-index: 5;
+  top: 8px;
+  left: 7px;
+  right: 7px;
+  min-height: 32px;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: clamp(0.72rem, 1.4vw, 0.86rem);
+  font-weight: 950;
+  line-height: 1.02;
+  text-align: center;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.98),
+    1px -1px 0 rgba(0,0,0,0.98),
+    -1px 1px 0 rgba(0,0,0,0.98),
+    1px 1px 0 rgba(0,0,0,0.98),
+    0 0 12px rgba(255,255,255,0.42);
+  background: linear-gradient(180deg, rgba(92, 55, 7, 0.5), rgba(92, 55, 7, 0.08));
+  border-radius: 8px;
+}
+
+.player-card-photo-frame {
+  position: absolute;
+  z-index: 2;
+  left: 8px;
+  right: 8px;
+  top: 48px;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255,255,255,0.28), transparent 32%),
+    linear-gradient(180deg, rgba(76, 29, 149, 0.2), rgba(46, 16, 102, 0.48));
+  box-shadow: inset 0 0 18px rgba(76, 29, 149, 0.36);
+}
+
+.player-card-photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.player-card-initials {
+  width: 62px;
+  height: 62px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255,255,255,0.36), transparent 26%),
+    linear-gradient(135deg, #4c1d95, #8b5cf6);
+  border: 2px solid rgba(255,255,255,0.72);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9);
+}
+
+.player-card-photo-frame.photo-missing .player-card-initials {
+  display: flex;
+}
+
+.player-card-footer {
+  position: absolute;
+  z-index: 5;
+  left: 7px;
+  right: 7px;
+  bottom: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  color: #3b1c05;
+  text-align: center;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: none;
+}
+
+.player-card-team {
+  max-width: 100%;
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: rgba(68, 38, 4, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff7d6;
+  font-size: clamp(0.64rem, 1.2vw, 0.75rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.72),
+    1px -1px 0 rgba(0,0,0,0.72),
+    -1px 1px 0 rgba(0,0,0,0.72),
+    1px 1px 0 rgba(0,0,0,0.72);
+}
+
+.player-card-status {
+  justify-self: center;
+  max-width: 100%;
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: rgba(20, 83, 45, 0.88);
+  color: #dcfce7;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.player-result-card.unavailable .player-card-status {
+  background: rgba(127, 29, 29, 0.9);
+  color: #fee2e2;
+}
+
 .selected-player {
   min-height: 22px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 2px;
   color: #bbf7d0;
   font-weight: 800;
+}
+
+.selected-player.has-card {
+  min-height: 0;
+}
+
+.selected-player-heading {
+  color: #fff;
+  font-size: clamp(0.78rem, 1.3vw, 0.92rem);
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 0 14px rgba(250, 204, 21, 0.62);
+}
+
+.selected-player-card {
+  width: min(218px, 66vw);
+  aspect-ratio: 0.7;
+  position: relative;
+  border: 3px solid #f8d568;
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 14%, rgba(255,255,255,0.36), transparent 18%),
+    radial-gradient(circle at 82% 88%, rgba(255,255,255,0.24), transparent 22%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 29%, #d69e18 44%, #fff5c4 61%, #b7790e 76%, #7a4d09 100%);
+  box-shadow:
+    0 0 28px rgba(248, 213, 104, 0.78),
+    0 18px 42px rgba(0,0,0,0.54),
+    inset 0 0 22px rgba(255,255,255,0.24);
+}
+
+.selected-player-card.saved {
+  border-color: #bbf7d0;
+  box-shadow:
+    0 0 32px rgba(187, 247, 208, 0.7),
+    0 0 24px rgba(248, 213, 104, 0.58),
+    0 18px 42px rgba(0,0,0,0.54),
+    inset 0 0 22px rgba(255,255,255,0.24);
+}
+
+.selected-player-card .player-card-name {
+  top: 12px;
+  left: 11px;
+  right: 11px;
+  min-height: 44px;
+  font-size: clamp(0.98rem, 3.8vw, 1.16rem);
+}
+
+.selected-player-card .player-card-photo-frame {
+  left: 12px;
+  right: 12px;
+  top: 62px;
+  bottom: 46px;
+  border-radius: 13px;
+}
+
+.selected-player-card .player-card-footer {
+  left: 11px;
+  right: 11px;
+  bottom: 11px;
+  gap: 5px;
+}
+
+.selected-player-card .player-card-team {
+  font-size: 0.86rem;
+}
+
+.selected-player-card .player-card-meta {
+  width: 100%;
+  color: #3b1c05;
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 1.05;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
 
 .message {
@@ -501,6 +774,115 @@ body.card-modal-open {
     1px 1px 0 rgba(0,0,0,0.95);
 }
 
+.player-preview-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 18px 16px;
+  background: rgba(8, 3, 20, 0.56);
+  backdrop-filter: blur(8px);
+  z-index: 1050;
+}
+
+.player-preview-modal.show {
+  display: grid;
+}
+
+.player-preview-panel {
+  width: min(360px, 100%);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.player-preview-card {
+  width: min(282px, 78vw);
+  aspect-ratio: 0.7;
+  position: relative;
+  border: 3px solid #f8d568;
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 14%, rgba(255,255,255,0.36), transparent 18%),
+    radial-gradient(circle at 82% 88%, rgba(255,255,255,0.24), transparent 22%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 29%, #d69e18 44%, #fff5c4 61%, #b7790e 76%, #7a4d09 100%);
+  box-shadow:
+    0 0 34px rgba(248, 213, 104, 0.82),
+    0 24px 60px rgba(0,0,0,0.72),
+    inset 0 0 24px rgba(255,255,255,0.26);
+}
+
+.player-preview-card .player-card-name {
+  top: 14px;
+  left: 12px;
+  right: 12px;
+  min-height: 48px;
+  font-size: clamp(1rem, 5vw, 1.28rem);
+}
+
+.player-preview-card .player-card-photo-frame {
+  left: 14px;
+  right: 14px;
+  top: 66px;
+  bottom: 62px;
+  border-radius: 14px;
+}
+
+.player-preview-card .player-card-initials {
+  width: 96px;
+  height: 96px;
+  font-size: 2rem;
+}
+
+.player-preview-card .player-card-footer {
+  left: 12px;
+  right: 12px;
+  bottom: 13px;
+  gap: 5px;
+}
+
+.player-preview-card .player-card-team {
+  font-size: 0.95rem;
+}
+
+.player-card-meta {
+  color: #3b1c05;
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 1.05;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.player-preview-actions {
+  width: min(320px, 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.player-preview-actions button {
+  min-height: 42px;
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.58);
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.72),
+    1px -1px 0 rgba(0,0,0,0.72),
+    -1px 1px 0 rgba(0,0,0,0.72),
+    1px 1px 0 rgba(0,0,0,0.72);
+}
+
+.player-preview-back {
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+}
+
+.player-preview-choose {
+  background: linear-gradient(135deg, #b45309, #facc15);
+}
+
 button.save:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -544,6 +926,15 @@ footer {
 
   .restrictions {
     max-width: none;
+  }
+
+  .results.player-card-results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .player-result-card {
+    min-height: 178px;
   }
 
   .toolbar a {
@@ -648,6 +1039,16 @@ footer {
     </aside>
   </div>
 </main>
+
+<div class="player-preview-modal" data-player-preview-modal aria-hidden="true">
+  <article class="player-preview-panel" role="dialog" aria-modal="true" aria-label="Choose Star Man player">
+    <div data-player-preview-card></div>
+    <div class="player-preview-actions">
+      <button class="player-preview-back" type="button" data-close-player-preview>Back</button>
+      <button class="player-preview-choose" type="button" data-confirm-player-preview>Choose Player</button>
+    </div>
+  </article>
+</div>
 
 <div class="star-curse-modal" data-star-curse-modal aria-hidden="true">
   <article class="star-curse-panel" role="dialog" aria-modal="true" aria-label="Active Star Man curse">

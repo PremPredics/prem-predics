@@ -539,6 +539,7 @@ create table public.players (
   position text,
   date_of_birth date,
   nationality text,
+  photo_url text,
   height_cm integer check (height_cm is null or height_cm > 0),
   squad_number integer check (squad_number is null or squad_number >= 0),
   surname_scrabble_score integer check (surname_scrabble_score is null or surname_scrabble_score >= 0),
@@ -1526,6 +1527,30 @@ begin
     return new;
   end if;
 
+  if card_row.effect_key in ('power_lanky_crouch', 'power_small_and_mighty')
+    and not public.is_admin()
+  then
+    if not exists (
+      select 1
+      from public.star_man_picks smp
+      join public.players p on p.id = smp.player_id
+      where smp.competition_id = new.competition_id
+        and smp.season_id = new.season_id
+        and smp.gameweek_id = target_gameweek_id
+        and smp.user_id = new.played_by_user_id
+        and (
+          (card_row.effect_key = 'power_lanky_crouch' and coalesce(p.height_cm, 0) >= 185)
+          or (card_row.effect_key = 'power_small_and_mighty' and coalesce(p.height_cm, 999) <= 175)
+        )
+    ) then
+      if card_row.effect_key = 'power_lanky_crouch' then
+        raise exception 'Power of the Lanky Crouch can only be played when one of your current Star Men is 185cm or taller.';
+      end if;
+
+      raise exception 'Power of the Small and Mighty can only be played when one of your current Star Men is 175cm or shorter.';
+    end if;
+  end if;
+
   if card_row.category = 'curse' then
     play_deadline := first_kickoff - interval '24 hours';
   else
@@ -2057,6 +2082,20 @@ group by season_id, gameweek_id, player_id;
 create or replace view public.star_man_score_details
 with (security_invoker = true)
 as
+with effect_windows as (
+  select
+    ace.*,
+    cd.effect_key,
+    coalesce(sgw.number, direct_gw.number, 1) as start_number,
+    coalesce(egw.number, sgw.number, direct_gw.number, 38) as end_number
+  from public.active_card_effects ace
+  join public.card_definitions cd on cd.id = ace.card_id
+  left join public.gameweeks direct_gw on direct_gw.id = ace.gameweek_id
+  left join public.gameweeks sgw on sgw.id = ace.start_gameweek_id
+  left join public.gameweeks egw on egw.id = ace.end_gameweek_id
+  where ace.status = 'active'
+),
+star_rows as (
 select
   smp.id as star_man_pick_id,
   smp.competition_id,
@@ -2070,18 +2109,98 @@ select
   coalesce(pgs.assists, 0) as assists,
   coalesce(pgs.yellow_cards, 0) as yellow_cards,
   coalesce(pgs.red_cards, 0) as red_cards,
-  (
-    coalesce(pgs.goals, 0) * 3
-    + coalesce(pgs.assists, 0)
-    - coalesce(pgs.yellow_cards, 0)
-    - (coalesce(pgs.red_cards, 0) * 3)
-  ) as points
+  p.nationality,
+  p.height_cm,
+  exists (
+    select 1 from effect_windows ew
+    where ew.competition_id = smp.competition_id
+      and ew.played_by_user_id = smp.user_id
+      and ew.effect_key = 'power_goal'
+      and gw.number between ew.start_number and ew.end_number
+  ) as power_goal_applies,
+  exists (
+    select 1 from effect_windows ew
+    where ew.competition_id = smp.competition_id
+      and ew.played_by_user_id = smp.user_id
+      and ew.target_user_id = smp.user_id
+      and ew.effect_key = 'curse_furious'
+      and gw.number between ew.start_number and ew.end_number
+  ) as furious_applies,
+  exists (
+    select 1 from effect_windows ew
+    where ew.competition_id = smp.competition_id
+      and ew.played_by_user_id = smp.user_id
+      and ew.effect_key = 'power_immigrants'
+      and gw.number between ew.start_number and ew.end_number
+      and p.nationality is not null
+      and p.nationality <> 'England'
+  ) as immigrants_applies,
+  exists (
+    select 1 from effect_windows ew
+    where ew.competition_id = smp.competition_id
+      and ew.played_by_user_id = smp.user_id
+      and ew.effect_key = 'power_lanky_crouch'
+      and gw.number between ew.start_number and ew.end_number
+      and coalesce(p.height_cm, 0) >= 185
+  ) as lanky_applies,
+  exists (
+    select 1 from effect_windows ew
+    where ew.competition_id = smp.competition_id
+      and ew.played_by_user_id = smp.user_id
+      and ew.effect_key = 'power_small_and_mighty'
+      and gw.number between ew.start_number and ew.end_number
+      and coalesce(p.height_cm, 999) <= 175
+  ) as small_applies,
+  exists (
+    select 1 from effect_windows ew
+    where ew.competition_id = smp.competition_id
+      and ew.played_by_user_id = smp.user_id
+      and ew.effect_key = 'power_assist_king'
+      and gw.number between ew.start_number and ew.end_number
+  ) as assist_king_applies,
+  exists (
+    select 1 from effect_windows ew
+    where ew.competition_id = smp.competition_id
+      and ew.played_by_user_id = smp.user_id
+      and ew.effect_key = 'super_star_man'
+      and gw.number between ew.start_number and ew.end_number
+  ) as super_star_man_applies
 from public.star_man_picks smp
 join public.gameweeks gw on gw.id = smp.gameweek_id
 left join public.player_gameweek_stat_totals pgs
   on pgs.season_id = smp.season_id
   and pgs.gameweek_id = smp.gameweek_id
-  and pgs.player_id = smp.player_id;
+  and pgs.player_id = smp.player_id
+left join public.players p on p.id = smp.player_id
+)
+select
+  star_man_pick_id,
+  competition_id,
+  season_id,
+  gameweek_id,
+  gameweek_number,
+  user_id,
+  player_id,
+  pick_slot,
+  goals,
+  assists,
+  yellow_cards,
+  red_cards,
+  (
+    (
+      (goals * 3)
+      + assists
+      + case when power_goal_applies then 3 else 0 end
+      + case when assist_king_applies then assists else 0 end
+      - case when super_star_man_applies then 0 else yellow_cards * case when furious_applies then 2 else 1 end end
+      - case when super_star_man_applies then 0 else red_cards * 3 * case when furious_applies then 2 else 1 end end
+    )
+    * case when immigrants_applies then 2 else 1 end
+    * case when lanky_applies then 2 else 1 end
+    * case when small_applies then 2 else 1 end
+    * case when super_star_man_applies then 3 else 1 end
+  )::integer as points
+from star_rows;
 
 create or replace view public.star_man_totals
 with (security_invoker = true)

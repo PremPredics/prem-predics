@@ -5054,6 +5054,68 @@ async function assertLateScoutCanBePlayed(activeGameweek, fixtures, runtimeConte
   }
 }
 
+async function assertHeightPowerCanBePlayed(rule, activeGameweek, runtimeContext, client) {
+  const heightRules = {
+    power_lanky_crouch: {
+      cardName: 'Power of the Lanky Crouch',
+      requirement: '185cm or taller',
+      isEligible: (height) => Number(height || 0) >= 185,
+    },
+    power_small_and_mighty: {
+      cardName: 'Power of the Small and Mighty',
+      requirement: '175cm or shorter',
+      isEligible: (height) => Number(height || 999) <= 175,
+    },
+  };
+  const heightRule = heightRules[rule.effectKey];
+  if (!heightRule) {
+    return;
+  }
+
+  const { data: picks, error: picksError } = await client
+    .from('star_man_picks')
+    .select('pick_slot, player_id')
+    .eq('competition_id', runtimeContext.league.id)
+    .eq('season_id', runtimeContext.league.season_id)
+    .eq('gameweek_id', activeGameweek.gameweek_id)
+    .eq('user_id', runtimeContext.user.id);
+
+  if (picksError) {
+    throw picksError;
+  }
+
+  if (!picks?.length) {
+    throw new Error(`${heightRule.cardName} can only be played after you have picked a Star Man who is ${heightRule.requirement}.`);
+  }
+
+  const playerIds = [...new Set(picks.map((pick) => pick.player_id).filter(Boolean))];
+  const { data: players, error: playersError } = await client
+    .from('players')
+    .select('id, display_name, height_cm')
+    .in('id', playerIds);
+
+  if (playersError) {
+    throw playersError;
+  }
+
+  const playersById = new Map((players || []).map((player) => [player.id, player]));
+  const pickedPlayers = picks
+    .map((pick) => playersById.get(pick.player_id))
+    .filter(Boolean);
+
+  if (pickedPlayers.some((player) => heightRule.isEligible(player.height_cm))) {
+    return;
+  }
+
+  const currentNames = pickedPlayers.length
+    ? pickedPlayers.map((player) => {
+        const heightText = player.height_cm ? `${player.height_cm}cm` : 'height unknown';
+        return `${player.display_name} (${heightText})`;
+      }).join(', ')
+    : 'none';
+  throw new Error(`${heightRule.cardName} can only be played when one of your current Star Men is ${heightRule.requirement}. Current Star Men: ${currentNames}.`);
+}
+
 function shouldKeepPlayedCardInHand(activation) {
   return Boolean(activation?.card_instance_id)
     && !gameweekHasStartedFromTime(activation.first_fixture_kickoff_at);
@@ -6363,6 +6425,7 @@ async function initializeCardPage() {
         } else if (!rule.deadlineExempt) {
           assertCardPlayDeadline(rule, activeGameweek);
         }
+        await assertHeightPowerCanBePlayed(rule, activeGameweek, context, supabase);
 
         if (rule.special === 'veto') {
           return playVeto(activeGameweek);

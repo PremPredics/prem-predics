@@ -20,6 +20,10 @@ const starCurseTitle = document.querySelector('[data-star-curse-title]');
 const starCurseDescription = document.querySelector('[data-star-curse-description]');
 const starCursePlayer = document.querySelector('[data-star-curse-player]');
 const closeStarCurseButton = document.querySelector('[data-close-star-curse]');
+const playerPreviewModal = document.querySelector('[data-player-preview-modal]');
+const playerPreviewCard = document.querySelector('[data-player-preview-card]');
+const closePlayerPreviewButton = document.querySelector('[data-close-player-preview]');
+const confirmPlayerPreviewButton = document.querySelector('[data-confirm-player-preview]');
 
 const state = {
   user: null,
@@ -42,6 +46,7 @@ const state = {
     primary: null,
     super_duo: null,
   },
+  pendingPlayerPreview: null,
 };
 
 const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
@@ -158,6 +163,53 @@ function teamName(teamId) {
 
 function playerLabel(player) {
   return `${player.display_name} (${teamName(player.team_id)})`;
+}
+
+function playerInitials(player) {
+  const parts = String(player.display_name || '')
+    .split(/\s+/)
+    .filter(Boolean);
+  const first = parts[0]?.[0] || 'P';
+  const second = parts.length > 1 ? parts[parts.length - 1][0] : '';
+  return `${first}${second}`.toUpperCase();
+}
+
+function playerPhotoUrl(player) {
+  return String(player.photo_url || '').trim();
+}
+
+function playerPhotoMarkup(player) {
+  const photoUrl = playerPhotoUrl(player);
+  const missingClass = photoUrl ? '' : ' photo-missing';
+  const image = photoUrl
+    ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(player.display_name)}" loading="lazy" onerror="this.closest('.player-card-photo-frame').classList.add('photo-missing'); this.remove();">`
+    : '';
+
+  return `
+    <span class="player-card-photo-frame${missingClass}">
+      ${image}
+      <span class="player-card-initials">${escapeHtml(playerInitials(player))}</span>
+    </span>
+  `;
+}
+
+function playerCardMarkup(player, options = {}) {
+  const mode = options.mode || 'search';
+  const allowed = options.allowed !== false;
+  const status = options.status || 'Available';
+  const meta = [
+    player.nationality,
+    player.height_cm ? `${player.height_cm}cm` : '',
+  ].filter(Boolean).join(' | ');
+
+  return `
+    <span class="player-card-name">${escapeHtml(player.display_name)}</span>
+    ${playerPhotoMarkup(player)}
+    <span class="player-card-footer">
+      <span class="player-card-team">${escapeHtml(teamName(player.team_id))}</span>
+      ${mode === 'preview' || mode === 'selected' ? `<span class="player-card-meta">${escapeHtml(meta || 'Star Man Pick')}</span>` : `<span class="player-card-status">${escapeHtml(status)}</span>`}
+    </span>
+  `;
 }
 
 function playerSearchTokens(player) {
@@ -369,13 +421,26 @@ async function loadTeams() {
 }
 
 async function loadPlayers() {
-  const { data, error } = await supabase
+  const baseFields = 'id, display_name, first_name, last_name, surname, nationality, team_id, height_cm, surname_scrabble_score';
+  let { data, error } = await supabase
     .from('players')
-    .select('id, display_name, first_name, last_name, surname, nationality, team_id, surname_scrabble_score')
+    .select(`${baseFields}, photo_url`)
     .eq('is_active', true)
     .not('team_id', 'is', null)
     .order('display_name', { ascending: true })
     .range(0, 4999);
+
+  if (error && (error.code === '42703' || String(error.message || '').includes('photo_url'))) {
+    const fallback = await supabase
+      .from('players')
+      .select(baseFields)
+      .eq('is_active', true)
+      .not('team_id', 'is', null)
+      .order('display_name', { ascending: true })
+      .range(0, 4999);
+    data = fallback.data;
+    error = fallback.error;
+  }
 
   if (error) {
     throw error;
@@ -622,9 +687,9 @@ function renderExistingSelections() {
     }
 
     state.selected[slot] = player;
-    const { input, selected, button } = slotElements(slot);
+    const { input, button } = slotElements(slot);
     input.value = playerLabel(player);
-    selected.textContent = `Selected: ${playerLabel(player)}`;
+    renderSelectedPlayer(slot, player, { saved: true });
     button.disabled = true;
   });
 }
@@ -690,16 +755,122 @@ async function autoReplaceInvalidPrimaryPick() {
   }
 }
 
+function setResultsMessage(results, message) {
+  results.classList.remove('player-card-results');
+  results.innerHTML = `<p class="state-text">${escapeHtml(message)}</p>`;
+}
+
+function renderSelectedPlayer(slot, player, options = {}) {
+  const { selected } = slotElements(slot);
+  if (!selected) {
+    return;
+  }
+
+  if (!player) {
+    selected.classList.remove('has-card');
+    selected.innerHTML = '';
+    return;
+  }
+
+  const isSaved = options.saved === true;
+  const heading = isSaved
+    ? (slot === 'super_duo' ? 'Submitted Super Duo' : 'Submitted Star Man')
+    : (slot === 'super_duo' ? 'Selected Super Duo' : 'Selected Star Man');
+
+  selected.classList.add('has-card');
+  selected.innerHTML = `
+    <span class="selected-player-heading">${escapeHtml(heading)}</span>
+    <span class="selected-player-card${isSaved ? ' saved' : ''}" aria-label="${escapeHtml(playerLabel(player))}">
+      ${playerCardMarkup(player, { mode: 'selected' })}
+    </span>
+  `;
+}
+
+function selectPlayer(slot, player) {
+  const { input, results } = slotElements(slot);
+  state.selected[slot] = player;
+  input.value = playerLabel(player);
+  renderSelectedPlayer(slot, player);
+  results.classList.remove('player-card-results');
+  results.innerHTML = '';
+  updateSaveButton(slot);
+
+  if (slot === 'primary') {
+    renderSearch('super_duo');
+  }
+}
+
+function closePlayerPreview() {
+  if (!playerPreviewModal) {
+    return;
+  }
+
+  playerPreviewModal.classList.remove('show');
+  playerPreviewModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('card-modal-open');
+  state.pendingPlayerPreview = null;
+}
+
+function openPlayerPreview(slot, playerId) {
+  const player = state.players.find((item) => String(item.id) === String(playerId));
+  if (!player || !playerPreviewModal || !playerPreviewCard) {
+    return;
+  }
+
+  state.pendingPlayerPreview = { slot, playerId: player.id };
+  playerPreviewCard.innerHTML = `
+    <div class="player-preview-card">
+      ${playerCardMarkup(player, { mode: 'preview' })}
+    </div>
+  `;
+  playerPreviewModal.classList.add('show');
+  playerPreviewModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('card-modal-open');
+}
+
+function confirmPlayerPreview() {
+  const preview = state.pendingPlayerPreview;
+  if (!preview) {
+    closePlayerPreview();
+    return;
+  }
+
+  const player = state.players.find((item) => String(item.id) === String(preview.playerId));
+  if (player) {
+    selectPlayer(preview.slot, player);
+  }
+  closePlayerPreview();
+}
+
+function wirePlayerPreviewModal() {
+  if (!playerPreviewModal) {
+    return;
+  }
+
+  closePlayerPreviewButton?.addEventListener('click', closePlayerPreview);
+  confirmPlayerPreviewButton?.addEventListener('click', confirmPlayerPreview);
+  playerPreviewModal.addEventListener('click', (event) => {
+    if (event.target === playerPreviewModal) {
+      closePlayerPreview();
+    }
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && playerPreviewModal.classList.contains('show')) {
+      closePlayerPreview();
+    }
+  });
+}
+
 function renderSearch(slot) {
-  const { input, results, selected } = slotElements(slot);
+  const { input, results } = slotElements(slot);
   const query = input.value.trim();
   const selectedPlayer = state.selected[slot];
 
-  selected.textContent = selectedPlayer ? `Selected: ${playerLabel(selectedPlayer)}` : '';
+  renderSelectedPlayer(slot, selectedPlayer);
   updateSaveButton(slot);
 
   if (query.length < 2) {
-    results.innerHTML = '<p class="state-text">Type at least 2 letters.</p>';
+    setResultsMessage(results, 'Type at least 2 letters.');
     return;
   }
 
@@ -708,31 +879,25 @@ function renderSearch(slot) {
     .slice(0, 10);
 
   if (!matches.length) {
-    results.innerHTML = '<p class="state-text">No players found.</p>';
+    setResultsMessage(results, 'No players found.');
     return;
   }
 
+  results.classList.add('player-card-results');
   results.innerHTML = matches.map((player) => {
     const check = evaluatePlayer(player, slot);
-    const reason = check.allowed ? 'Available' : check.reasons.join(', ');
+    const reason = check.allowed ? 'Available' : 'Unavailable';
+    const title = check.allowed ? `Choose ${playerLabel(player)}` : check.reasons.join(', ');
     return `
-      <button class="result-button" type="button" data-select-player="${player.id}" ${check.allowed ? '' : 'disabled'}>
-        ${escapeHtml(player.display_name)}
-        <span>${escapeHtml(teamName(player.team_id))} - ${escapeHtml(reason)}</span>
+      <button class="player-result-card${check.allowed ? '' : ' unavailable'}" type="button" data-preview-player="${escapeHtml(player.id)}" data-preview-slot="${escapeHtml(slot)}" title="${escapeHtml(title)}" ${check.allowed ? '' : 'disabled'}>
+        ${playerCardMarkup(player, { allowed: check.allowed, status: reason })}
       </button>
     `;
   }).join('');
 
-  results.querySelectorAll('[data-select-player]').forEach((resultButton) => {
+  results.querySelectorAll('[data-preview-player]').forEach((resultButton) => {
     resultButton.addEventListener('click', () => {
-      const player = state.players.find((item) => item.id === resultButton.dataset.selectPlayer);
-      state.selected[slot] = player;
-      input.value = playerLabel(player);
-      results.innerHTML = '';
-      renderSearch(slot);
-      if (slot === 'primary') {
-        renderSearch('super_duo');
-      }
+      openPlayerPreview(resultButton.dataset.previewSlot, resultButton.dataset.previewPlayer);
     });
   });
 }
@@ -826,6 +991,7 @@ async function savePick(slot) {
     state.seasonPicks.push(savedPick);
   }
   updateSaveButton(slot);
+  renderSelectedPlayer(slot, player, { saved: true });
   renderStarManHistory();
   setMessage(slot, slot === 'super_duo' ? 'Super Duo saved.' : 'Star Man saved.', 'success');
 }
@@ -843,6 +1009,7 @@ function wireSlots() {
 
 async function boot() {
   wireSlots();
+  wirePlayerPreviewModal();
 
   const context = await loadLeagueContext();
   if (context.error) {

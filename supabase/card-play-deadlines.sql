@@ -124,6 +124,30 @@ begin
     return new;
   end if;
 
+  if card_row.effect_key in ('power_lanky_crouch', 'power_small_and_mighty')
+    and not public.is_admin()
+  then
+    if not exists (
+      select 1
+      from public.star_man_picks smp
+      join public.players p on p.id = smp.player_id
+      where smp.competition_id = new.competition_id
+        and smp.season_id = new.season_id
+        and smp.gameweek_id = target_gameweek_id
+        and smp.user_id = new.played_by_user_id
+        and (
+          (card_row.effect_key = 'power_lanky_crouch' and coalesce(p.height_cm, 0) >= 185)
+          or (card_row.effect_key = 'power_small_and_mighty' and coalesce(p.height_cm, 999) <= 175)
+        )
+    ) then
+      if card_row.effect_key = 'power_lanky_crouch' then
+        raise exception 'Power of the Lanky Crouch can only be played when one of your current Star Men is 185cm or taller.';
+      end if;
+
+      raise exception 'Power of the Small and Mighty can only be played when one of your current Star Men is 175cm or shorter.';
+    end if;
+  end if;
+
   if card_row.category = 'curse' then
     play_deadline := first_kickoff - interval '24 hours';
   else
