@@ -198,8 +198,7 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
 
   function update() {
     deadlineStrip.innerHTML = [
-      '<p class="deadline-strip-note">*certain Power Cards can be played after Power Card Deadline</p>',
-      renderDeadlineCard('Play Power Card Deadline*', isoFromMs(predictionDeadlineMs), { type: 'power' }),
+      renderDeadlineCard('Play Power Card Deadline', isoFromMs(predictionDeadlineMs), { type: 'power' }),
       renderDeadlineCard('Play Curse Card Deadline', isoFromMs(curseDeadlineMs), { type: 'curse' }),
       renderDeadlineCard('Star Man Deadline', starDeadline, { completed: starManCompleted }),
     ].join('');
