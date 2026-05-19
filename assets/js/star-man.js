@@ -296,6 +296,24 @@ function regionalFlag(code) {
     .join('');
 }
 
+function nationalityCode(nationality) {
+  const key = normaliseText(nationality);
+  if (key === 'england') {
+    return 'ENG';
+  }
+  if (key === 'scotland') {
+    return 'SCO';
+  }
+  if (key === 'wales') {
+    return 'WAL';
+  }
+  if (key === 'northern ireland') {
+    return 'NIR';
+  }
+
+  return nationalityFlagCodes[key] || 'INT';
+}
+
 function nationalityFlag(nationality) {
   const key = normaliseText(nationality);
   if (key === 'england') {
@@ -317,10 +335,11 @@ function nationalityFlag(nationality) {
 
 function playerVisualMarkup(player) {
   const nationality = player.nationality || 'Nationality';
+  const code = nationalityCode(nationality);
 
   return `
     <span class="player-card-photo-frame flag-card-visual" aria-label="${escapeHtml(nationality)}">
-      <span class="player-card-flag">${escapeHtml(nationalityFlag(nationality))}</span>
+      <span class="player-card-flag" data-country-code="${escapeHtml(code)}" aria-hidden="true"></span>
       <span class="player-card-country">${escapeHtml(nationality)}</span>
     </span>
   `;
