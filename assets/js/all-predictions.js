@@ -377,7 +377,28 @@ function closeCurseModal() {
 
 function wireCurseMarkers() {
   predictionList.querySelectorAll('[data-curse-fixture]').forEach((button) => {
-    button.addEventListener('click', () => openCurseModal(button.dataset.curseFixture));
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+      openCurseModal(button.dataset.curseFixture);
+    });
+  });
+}
+
+function wireResultRows() {
+  predictionList.querySelectorAll('[data-result-toggle]').forEach((row) => {
+    const toggle = () => {
+      const expanded = row.classList.toggle('expanded');
+      row.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      row.querySelector('.actual-result-row')?.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+    };
+
+    row.addEventListener('click', toggle);
+    row.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggle();
+      }
+    });
   });
 }
 
@@ -418,20 +439,31 @@ async function renderPredictionRows(gameweek) {
       : prediction
         ? `${prediction.home_goals}-${prediction.away_goals}`
         : 'X-X';
+    const actualScore = result
+      ? `${result.home_goals}-${result.away_goals}`
+      : '-';
     return `
-      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${locked && !prediction ? 'missed' : ''} ${resultClass}">
+      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${locked && !prediction ? 'missed' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
         <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
         <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
         <strong>${escapeHtml(score)}</strong>
         <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
         <span class="row-actions">
-          ${points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}
           ${renderCurseMarker(fixture, curses)}
+          ${points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}
+        </span>
+        <span class="actual-result-row" aria-hidden="true">
+          <span class="actual-result-label">FT</span>
+          <span class="actual-result-home">${escapeHtml(teamName(fixture.home_team_id))}</span>
+          <strong class="actual-result-score">${escapeHtml(actualScore)}</strong>
+          <span class="actual-result-away">${escapeHtml(teamName(fixture.away_team_id))}</span>
+          <span aria-hidden="true"></span>
         </span>
       </div>
     `;
   }).join('');
   wireCurseMarkers();
+  wireResultRows();
 }
 
 async function render() {

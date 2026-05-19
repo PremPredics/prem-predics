@@ -149,6 +149,20 @@ main {
 .player-pills {
   padding: 4px 0;
 }
+.result-instruction {
+  margin: -1px 0 1px;
+  color: #fff;
+  text-align: center;
+  font-size: clamp(0.78rem, 1.9vw, 0.95rem);
+  font-weight: 900;
+  line-height: 1.2;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.78),
+    1px -1px 0 rgba(0,0,0,0.78),
+    -1px 1px 0 rgba(0,0,0,0.78),
+    1px 1px 0 rgba(0,0,0,0.78),
+    0 0 10px rgba(216, 180, 254, 0.52);
+}
 .player-pill {
   width: 48px;
   height: 48px;
@@ -185,6 +199,12 @@ main {
   border-radius: 8px;
   background: rgba(17, 7, 38, 0.44);
   border: 1px solid rgba(216, 180, 254, 0.2);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.prediction-row:hover {
+  background: rgba(17, 7, 38, 0.54);
+  border-color: rgba(216, 180, 254, 0.34);
 }
 .prediction-row span {
   min-width: 0;
@@ -234,6 +254,39 @@ main {
   color: #ffd700;
   font-size: 18px;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.62), 0 0 18px rgba(250, 204, 21, 0.34);
+}
+.actual-result-row {
+  grid-column: 1 / -1;
+  display: none;
+  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 58px;
+  gap: 6px;
+  align-items: center;
+  padding: 2px 0 1px;
+}
+.prediction-row.expanded .actual-result-row {
+  display: grid;
+}
+.actual-result-row span,
+.actual-result-row strong {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-shadow: none;
+}
+.actual-result-row .actual-result-label {
+  justify-self: center;
+  opacity: 0.86;
+  font-size: 11px;
+}
+.actual-result-row .actual-result-home {
+  text-align: right;
+}
+.actual-result-row .actual-result-away {
+  text-align: left;
+}
+.actual-result-row .actual-result-score {
+  text-align: center;
 }
 .row-actions {
   display: flex;
@@ -505,6 +558,17 @@ footer {
   }
   .prediction-row span { font-size: 12px; }
   .prediction-row strong { font-size: 14px; }
+  .actual-result-row {
+    grid-template-columns: 36px minmax(60px, 1fr) 42px minmax(60px, 1fr) 48px;
+    gap: 4px;
+  }
+  .actual-result-row span,
+  .actual-result-row strong {
+    font-size: 10.5px;
+  }
+  .result-instruction {
+    font-size: 11.5px;
+  }
   .uc-point-badge {
     width: 21px;
     height: 21px;
@@ -547,6 +611,7 @@ footer {
       <button type="button" data-next-gameweek>Next GW</button>
     </div>
     <div class="player-pills" data-player-pills></div>
+    <p class="result-instruction">Click each match to see Actual Result</p>
     <div class="fixtures" data-prediction-list>
       <p class="state-text">Loading...</p>
     </div>
