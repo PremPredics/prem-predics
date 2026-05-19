@@ -120,7 +120,54 @@ function hasSelectionChanged(slot) {
 
 function updateSaveButton(slot) {
   const { button } = slotElements(slot);
+  if (!button) {
+    return;
+  }
   button.disabled = !hasSelectionChanged(slot);
+}
+
+function isExistingPick(slot, player) {
+  return Boolean(player) && String(state.existingPicks.get(slot) || '') === String(player.id);
+}
+
+function canSearchSlot(slot) {
+  const gameweekLocked = isPast(state.activeGameweek?.star_man_locks_at);
+  if (!gameweekLocked) {
+    return true;
+  }
+
+  if (slot === 'super_duo') {
+    return false;
+  }
+
+  const hasExistingPick = Boolean(state.existingPicks.get(slot));
+  if (hasExistingPick) {
+    return Boolean(ownEffect('super_sub'));
+  }
+
+  return Boolean(ownEffect('power_late_scout'));
+}
+
+function applySlotSearchState(slot) {
+  const { input, results, button } = slotElements(slot);
+  const canSearch = canSearchSlot(slot);
+
+  if (input) {
+    input.disabled = !canSearch;
+    input.readOnly = !canSearch;
+    input.placeholder = canSearch ? 'Search player' : 'Star Man locked';
+  }
+
+  if (!canSearch && results) {
+    results.classList.remove('player-card-results');
+    results.innerHTML = '';
+  }
+
+  if (!canSearch && button) {
+    button.disabled = true;
+  }
+
+  return canSearch;
 }
 
 function setMessage(slot, text, type = 'info') {
@@ -174,21 +221,107 @@ function playerInitials(player) {
   return `${first}${second}`.toUpperCase();
 }
 
-function playerPhotoUrl(player) {
-  return String(player.photo_url || '').trim();
+const nationalityFlagCodes = {
+  albania: 'AL',
+  algeria: 'DZ',
+  argentina: 'AR',
+  austria: 'AT',
+  belgium: 'BE',
+  brazil: 'BR',
+  bulgaria: 'BG',
+  'burkina faso': 'BF',
+  cameroon: 'CM',
+  colombia: 'CO',
+  croatia: 'HR',
+  'czech republic': 'CZ',
+  denmark: 'DK',
+  'dr congo': 'CD',
+  ecuador: 'EC',
+  egypt: 'EG',
+  france: 'FR',
+  gambia: 'GM',
+  georgia: 'GE',
+  germany: 'DE',
+  ghana: 'GH',
+  greece: 'GR',
+  hungary: 'HU',
+  iceland: 'IS',
+  ireland: 'IE',
+  italy: 'IT',
+  'ivory coast': 'CI',
+  jamaica: 'JM',
+  japan: 'JP',
+  mali: 'ML',
+  mexico: 'MX',
+  morocco: 'MA',
+  mozambique: 'MZ',
+  netherlands: 'NL',
+  'new zealand': 'NZ',
+  nigeria: 'NG',
+  norway: 'NO',
+  paraguay: 'PY',
+  peru: 'PE',
+  poland: 'PL',
+  portugal: 'PT',
+  romania: 'RO',
+  'republic of ireland': 'IE',
+  scotland: 'GB-SCT',
+  senegal: 'SN',
+  serbia: 'RS',
+  slovakia: 'SK',
+  slovenia: 'SI',
+  'south africa': 'ZA',
+  'south korea': 'KR',
+  spain: 'ES',
+  sweden: 'SE',
+  switzerland: 'CH',
+  trinidad: 'TT',
+  'trinidad and tobago': 'TT',
+  tunisia: 'TN',
+  turkey: 'TR',
+  ukraine: 'UA',
+  uruguay: 'UY',
+  'united states': 'US',
+  uzbekistan: 'UZ',
+  venezuela: 'VE',
+  wales: 'GB-WLS',
+  zimbabwe: 'ZW',
+};
+
+function regionalFlag(code) {
+  return code
+    .toUpperCase()
+    .split('')
+    .map((letter) => String.fromCodePoint(127397 + letter.charCodeAt(0)))
+    .join('');
 }
 
-function playerPhotoMarkup(player) {
-  const photoUrl = playerPhotoUrl(player);
-  const missingClass = photoUrl ? '' : ' photo-missing';
-  const image = photoUrl
-    ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(player.display_name)}" loading="lazy" onerror="this.closest('.player-card-photo-frame').classList.add('photo-missing'); this.remove();">`
-    : '';
+function nationalityFlag(nationality) {
+  const key = normaliseText(nationality);
+  if (key === 'england') {
+    return '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}';
+  }
+  if (key === 'scotland') {
+    return '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}';
+  }
+  if (key === 'wales') {
+    return '\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}';
+  }
+  if (key === 'northern ireland') {
+    return regionalFlag('GB');
+  }
+
+  const code = nationalityFlagCodes[key];
+  return code ? regionalFlag(code) : '★';
+}
+
+function playerVisualMarkup(player) {
+  const nationality = player.nationality || 'Nationality';
 
   return `
-    <span class="player-card-photo-frame${missingClass}">
-      ${image}
-      <span class="player-card-initials">${escapeHtml(playerInitials(player))}</span>
+    <span class="player-card-photo-frame flag-card-visual" aria-label="${escapeHtml(nationality)}">
+      <span class="player-card-flag">${escapeHtml(nationalityFlag(nationality))}</span>
+      <span class="player-card-country">${escapeHtml(nationality)}</span>
     </span>
   `;
 }
@@ -198,13 +331,12 @@ function playerCardMarkup(player, options = {}) {
   const allowed = options.allowed !== false;
   const status = options.status || 'Available';
   const meta = [
-    player.nationality,
     player.height_cm ? `${player.height_cm}cm` : '',
   ].filter(Boolean).join(' | ');
 
   return `
     <span class="player-card-name">${escapeHtml(player.display_name)}</span>
-    ${playerPhotoMarkup(player)}
+    ${playerVisualMarkup(player)}
     <span class="player-card-footer">
       <span class="player-card-team">${escapeHtml(teamName(player.team_id))}</span>
       ${mode === 'preview' || mode === 'selected' ? `<span class="player-card-meta">${escapeHtml(meta || 'Star Man Pick')}</span>` : `<span class="player-card-status">${escapeHtml(status)}</span>`}
@@ -422,25 +554,13 @@ async function loadTeams() {
 
 async function loadPlayers() {
   const baseFields = 'id, display_name, first_name, last_name, surname, nationality, team_id, height_cm, surname_scrabble_score';
-  let { data, error } = await supabase
+  const { data, error } = await supabase
     .from('players')
-    .select(`${baseFields}, photo_url`)
+    .select(baseFields)
     .eq('is_active', true)
     .not('team_id', 'is', null)
     .order('display_name', { ascending: true })
     .range(0, 4999);
-
-  if (error && (error.code === '42703' || String(error.message || '').includes('photo_url'))) {
-    const fallback = await supabase
-      .from('players')
-      .select(baseFields)
-      .eq('is_active', true)
-      .not('team_id', 'is', null)
-      .order('display_name', { ascending: true })
-      .range(0, 4999);
-    data = fallback.data;
-    error = fallback.error;
-  }
 
   if (error) {
     throw error;
@@ -691,6 +811,7 @@ function renderExistingSelections() {
     input.value = playerLabel(player);
     renderSelectedPlayer(slot, player, { saved: true });
     button.disabled = true;
+    applySlotSearchState(slot);
   });
 }
 
@@ -865,11 +986,22 @@ function renderSearch(slot) {
   const { input, results } = slotElements(slot);
   const query = input.value.trim();
   const selectedPlayer = state.selected[slot];
+  const canSearch = applySlotSearchState(slot);
 
-  renderSelectedPlayer(slot, selectedPlayer);
+  renderSelectedPlayer(slot, selectedPlayer, { saved: isExistingPick(slot, selectedPlayer) });
   updateSaveButton(slot);
 
-  if (selectedPlayer && normaliseText(query) === normaliseText(playerLabel(selectedPlayer))) {
+  if (!canSearch) {
+    return;
+  }
+
+  const selectedSearchTerms = selectedPlayer ? [
+    selectedPlayer.display_name,
+    playerLabel(selectedPlayer),
+    `${selectedPlayer.display_name} ${teamName(selectedPlayer.team_id)}`,
+  ].map(normaliseText) : [];
+
+  if (selectedPlayer && selectedSearchTerms.includes(normaliseText(query))) {
     results.classList.remove('player-card-results');
     results.innerHTML = '';
     return;
@@ -882,6 +1014,7 @@ function renderSearch(slot) {
 
   const matches = state.players
     .filter((player) => playerMatchesQuery(player, query))
+    .filter((player) => String(player.id) !== String(selectedPlayer?.id || ''))
     .slice(0, 10);
 
   if (!matches.length) {
@@ -1006,6 +1139,10 @@ function wireSlots() {
   ['primary', 'super_duo'].forEach((slot) => {
     const { input, button } = slotElements(slot);
     input.addEventListener('input', () => {
+      if (!canSearchSlot(slot)) {
+        renderSearch(slot);
+        return;
+      }
       state.selected[slot] = null;
       renderSearch(slot);
     });

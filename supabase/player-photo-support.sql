@@ -1,8 +1,6 @@
--- Prem Predics player photo support.
--- Run this once in Supabase before adding player photo URLs.
---
--- The Star Man page reads public.players.photo_url when it exists.
--- Paste your photo URL rows into the temp table insert below, then run this file.
+-- Prem Predics player photo support, reserved for future licensed assets only.
+-- The live Star Man page currently uses nationality flags instead of player photos.
+-- Keep public.players.photo_url blank unless you have permission to use the image.
 
 alter table public.players
   add column if not exists photo_url text;
