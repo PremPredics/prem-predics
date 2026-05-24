@@ -104,8 +104,16 @@ main {
 
 .page-head h2 {
   margin: 0;
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-size: clamp(1.55rem, 3.6vw, 2.35rem);
   text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 1px rgba(5, 1, 12, 0.96);
+  text-shadow:
+    -1px -1px 0 rgba(5,1,12,0.96),
+    1px -1px 0 rgba(5,1,12,0.96),
+    -1px 1px 0 rgba(5,1,12,0.96),
+    1px 1px 0 rgba(5,1,12,0.96),
+    0 0 14px rgba(216, 180, 254, 0.62);
 }
 
 .state-text,
@@ -518,6 +526,14 @@ button:disabled {
   border: 1px solid rgba(216, 180, 254, 0.2);
 }
 
+.summary-fixture-row {
+  grid-template-columns: 82px minmax(0, 1fr) 136px;
+}
+
+.summary-fixture-main {
+  grid-template-columns: minmax(110px, 1fr) 74px minmax(110px, 1fr);
+}
+
 .summary-score {
   display: inline-flex;
   align-items: center;
@@ -782,6 +798,10 @@ footer {
   .fixture-main {
     grid-template-columns: minmax(56px, 1fr) 36px 12px 36px minmax(56px, 1fr);
     gap: 4px;
+  }
+
+  .summary-fixture-main {
+    grid-template-columns: minmax(56px, 1fr) 44px minmax(56px, 1fr);
   }
 
   .fixture-row::before {

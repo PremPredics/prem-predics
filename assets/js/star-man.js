@@ -382,6 +382,9 @@ function effectDescription(effect) {
 }
 
 function playedByName(effect) {
+  if (effect.played_by_user_id === state.user?.id) {
+    return 'You';
+  }
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
 }
 
@@ -413,13 +416,32 @@ function restrictions() {
     'curse_scoring_drought_5',
     'curse_tiny_club',
     'curse_random_roulette',
-  ].includes(effectKey(effect)) && curseActiveNow());
+  ].includes(effectKey(effect)));
 }
 
 function starManScoringCurses() {
   return effectsTargetingUser().filter((effect) => [
     'curse_furious',
-  ].includes(effectKey(effect)) && curseActiveNow());
+  ].includes(effectKey(effect)));
+}
+
+function activeHeightPowerForPlayer(player) {
+  if (!player) {
+    return null;
+  }
+
+  const height = Number(player.height_cm || 0);
+  const lanky = ownEffect('power_lanky_crouch');
+  if (lanky && height >= 185) {
+    return lanky;
+  }
+
+  const small = ownEffect('power_small_and_mighty');
+  if (small && height > 0 && height <= 175) {
+    return small;
+  }
+
+  return null;
 }
 
 function activeRestrictionSourceEffectId() {
@@ -787,6 +809,9 @@ function wireRestrictionCards() {
   restrictionSummary.querySelectorAll('[data-star-curse-effect]').forEach((button) => {
     button.addEventListener('click', () => openStarCurseModal(button.dataset.starCurseEffect));
   });
+  restrictionSummary.querySelectorAll('[data-star-power-effect]').forEach((button) => {
+    button.addEventListener('click', () => openStarCurseModal(button.dataset.starPowerEffect));
+  });
 }
 
 function renderExistingSelections() {
@@ -885,6 +910,7 @@ function renderSelectedPlayer(slot, player, options = {}) {
   }
 
   const isSaved = options.saved === true;
+  const powerEffect = activeHeightPowerForPlayer(player);
   const heading = isSaved
     ? (slot === 'super_duo' ? 'Submitted Super Duo' : 'Submitted Star Man')
     : (slot === 'super_duo' ? 'Selected Super Duo' : 'Selected Star Man');
@@ -893,9 +919,18 @@ function renderSelectedPlayer(slot, player, options = {}) {
   selected.innerHTML = `
     <span class="selected-player-heading">${escapeHtml(heading)}</span>
     <span class="selected-player-card${isSaved ? ' saved' : ''}" aria-label="${escapeHtml(playerLabel(player))}">
+      ${powerEffect ? `
+        <button class="star-power-badge" type="button" data-star-power-effect="${escapeHtml(powerEffect.id)}" aria-label="View ${escapeHtml(effectName(powerEffect))}">
+          <span>Power</span>
+          <strong aria-hidden="true">&#9994;</strong>
+        </button>
+      ` : ''}
       ${playerCardMarkup(player, { mode: 'selected' })}
     </span>
   `;
+  selected.querySelectorAll('[data-star-power-effect]').forEach((button) => {
+    button.addEventListener('click', () => openStarCurseModal(button.dataset.starPowerEffect));
+  });
 }
 
 function selectPlayer(slot, player) {

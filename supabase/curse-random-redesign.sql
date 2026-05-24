@@ -139,6 +139,7 @@ as $$
 declare
   card_row record;
   target_gameweek_id bigint;
+  league_start_gameweek_id bigint;
   first_kickoff timestamptz;
   play_deadline timestamptz;
 begin
@@ -149,6 +150,25 @@ begin
 
   if card_row.category is null or card_row.category = 'game' then
     return new;
+  end if;
+
+  select starts_gameweek_id
+    into league_start_gameweek_id
+  from public.competitions
+  where id = new.competition_id;
+
+  if league_start_gameweek_id is not null
+    and exists (
+      select 1
+      from public.fixtures f
+      where f.season_id = new.season_id
+        and f.gameweek_id = league_start_gameweek_id
+        and lower(coalesce(f.status, '')) not in ('completed', 'finished', 'full_time', 'ft')
+        and (f.kickoff_at is null or now() < f.kickoff_at + interval '3 hours')
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Cards can be played after the first gameweek in this private league is completed.';
   end if;
 
   target_gameweek_id := coalesce(new.start_gameweek_id, new.gameweek_id);
@@ -210,7 +230,10 @@ begin
     if card_row.category = 'curse' then
       raise exception 'Curse cards must be played at least 24 hours before the gameweek''s first KO time.';
     end if;
-    raise exception 'Power and Super cards must be played before the 90-minute gameweek deadline.';
+    if card_row.category = 'super' then
+      raise exception 'Super cards must be played before the 90-minute gameweek deadline.';
+    end if;
+    raise exception 'Power cards must be played before the 90-minute gameweek deadline.';
   end if;
 
   return new;

@@ -114,6 +114,20 @@ async function leaveLeague(competitionId) {
   await loadLeagues();
 }
 
+async function deleteLeague(competitionId) {
+  const { error } = await supabase.rpc('delete_competition_before_start', {
+    target_competition_id: competitionId,
+  });
+
+  if (error) {
+    setMessage(error.message, 'error');
+    return;
+  }
+
+  setMessage('League deleted.', 'success');
+  await loadLeagues();
+}
+
 async function loadLeagues() {
   const user = await getUser();
   if (!user) {
@@ -138,10 +152,16 @@ async function loadLeagues() {
 
   leagueList.innerHTML = data.map((membership) => {
     const league = membership.competitions;
-    const hasStarted = Boolean(league.started_at) || new Date(league.member_lock_at).getTime() <= Date.now();
+    const firstKickoffMs = league.member_lock_at
+      ? new Date(league.member_lock_at).getTime() + (90 * 60 * 1000)
+      : null;
+    const hasStarted = firstKickoffMs ? firstKickoffMs <= Date.now() : Boolean(league.started_at);
     const leaveButton = hasStarted
       ? ''
       : `<button type="button" class="secondary-action" data-leave-league="${league.id}">Leave League</button>`;
+    const deleteButton = !hasStarted && membership.role === 'owner'
+      ? `<button type="button" class="danger-action" data-delete-league="${league.id}">Delete League</button>`
+      : '';
 
     return `
       <article class="league-row">
@@ -156,6 +176,7 @@ async function loadLeagues() {
             <button class="copy-code-btn" type="button" data-copy-code="${escapeHtml(league.join_code)}">Copy</button>
           </div>
           ${leaveButton}
+          ${deleteButton}
         </div>
       </article>
     `;
@@ -173,6 +194,16 @@ async function loadLeagues() {
 
   leagueList.querySelectorAll('[data-copy-code]').forEach((button) => {
     button.addEventListener('click', () => copyText(button.dataset.copyCode, button));
+  });
+
+  leagueList.querySelectorAll('[data-delete-league]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      if (!(await confirmAction('Delete this league for everyone? This can only be done before the first gameweek starts.', 'Delete'))) {
+        return;
+      }
+
+      await deleteLeague(button.dataset.deleteLeague);
+    });
   });
 }
 

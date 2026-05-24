@@ -964,6 +964,8 @@ button:disabled {
 
 .opponent-target-content {
   width: min(620px, 100%);
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
   display: grid;
   gap: 22px;
   padding: 26px;
@@ -1123,6 +1125,8 @@ button:disabled {
 
 .random-curse-content {
   width: min(760px, 100%);
+  max-height: calc(100vh - 28px);
+  overflow-y: auto;
 }
 
 .random-curse-body {
@@ -1272,8 +1276,37 @@ button:disabled {
 }
 
 @media (max-width: 640px) {
+  .opponent-target-modal {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .opponent-target-content {
+    gap: 12px;
+    padding: 14px;
+    border-radius: 12px;
+    max-height: calc(100vh - 20px);
+  }
+
+  .opponent-target-list,
+  .random-fixture-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .opponent-target-btn {
+    min-height: 86px;
+    padding: 10px 8px;
+  }
+
+  .random-fixture-btn {
+    min-height: 54px;
+    padding: 9px;
+  }
+
   .random-curse-content {
-    padding: 18px;
+    width: 100%;
+    padding: 14px;
   }
 
   .random-roll-row {
@@ -2929,7 +2962,7 @@ button:disabled {
 
   .side-actions {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 5px;
     padding: 6px;
     border-radius: 10px;
@@ -2938,7 +2971,7 @@ button:disabled {
 
   .side-actions.mobile-in-swap-actions {
     display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 5px;
     padding: 6px;
     border-radius: 10px;
@@ -3784,6 +3817,69 @@ function showSiteNotice(message, title = 'Notice') {
   modal.setAttribute('aria-hidden', 'false');
 }
 
+function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm') {
+  const modal = document.getElementById('siteNoticeModal');
+  const titleEl = document.getElementById('siteNoticeTitle');
+  const bodyEl = document.getElementById('siteNoticeBody');
+  const closeButton = document.getElementById('siteNoticeClose');
+
+  if (!modal || !titleEl || !bodyEl || !closeButton) {
+    return Promise.resolve(false);
+  }
+
+  return new Promise((resolve) => {
+    const confirmButton = document.createElement('button');
+    confirmButton.className = 'opponent-target-confirm';
+    confirmButton.type = 'button';
+    confirmButton.textContent = confirmText;
+    closeButton.textContent = 'Back';
+    closeButton.before(confirmButton);
+    titleEl.textContent = title;
+    bodyEl.textContent = String(message || '');
+
+    function finish(value) {
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('card-preview-open');
+      closeButton.textContent = 'Close';
+      confirmButton.removeEventListener('click', confirm);
+      closeButton.removeEventListener('click', cancel);
+      modal.removeEventListener('click', modalClick);
+      document.removeEventListener('keydown', keydown);
+      confirmButton.remove();
+      resolve(value);
+    }
+
+    function confirm() {
+      finish(true);
+    }
+
+    function cancel() {
+      finish(false);
+    }
+
+    function modalClick(event) {
+      if (event.target === modal) {
+        cancel();
+      }
+    }
+
+    function keydown(event) {
+      if (event.key === 'Escape') {
+        cancel();
+      }
+    }
+
+    confirmButton.addEventListener('click', confirm);
+    closeButton.addEventListener('click', cancel);
+    modal.addEventListener('click', modalClick);
+    document.addEventListener('keydown', keydown);
+    document.body.classList.add('card-preview-open');
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+  });
+}
+
 window.alert = (message) => showSiteNotice(message);
 
 // CARD DESCRIPTIONS DATABASE
@@ -4020,6 +4116,9 @@ function load() {
     gameState.cardInstanceIdsByPlayer = gameState.cardInstanceIdsByPlayer || {};
     gameState.handCardInstancesByPlayer = gameState.handCardInstancesByPlayer || {};
     gameState.usedCardEffectsByInstance = gameState.usedCardEffectsByInstance || {};
+    if (gameState.pendingSwap && !(gameState.pendingSwap.drawn || []).length) {
+      gameState.pendingSwap = null;
+    }
     gameState.currentPlayerKey = gameState.currentPlayerKey || 'p1';
     save();
   }
@@ -4329,6 +4428,13 @@ function getPlayerName(playerKey) {
   return gameState.playerNames?.[playerKey] || playerKey;
 }
 
+function formatChoiceList(items) {
+  const values = (items || []).filter(Boolean);
+  if (values.length <= 1) return values[0] || '';
+  if (values.length === 2) return `${values[0]} or ${values[1]}`;
+  return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
+}
+
 function safeProfileColor(color) {
   return /^#[0-9a-f]{6}$/i.test(String(color || '')) ? color : '#ffffff';
 }
@@ -4417,11 +4523,15 @@ function drawFirstCards() {
   
   const p1Power = powerDeck.pop();
   const p1Curse = curseDeck.pop();
-  gameState.players.p1.hand.push(p1Power, p1Curse);
+  const p1StarterCards = [p1Power, p1Curse].filter(Boolean);
+  shuffle(p1StarterCards);
+  gameState.players.p1.hand.push(...p1StarterCards);
   
   const p2Power = powerDeck.pop();
   const p2Curse = curseDeck.pop();
-  gameState.players.p2.hand.push(p2Power, p2Curse);
+  const p2StarterCards = [p2Power, p2Curse].filter(Boolean);
+  shuffle(p2StarterCards);
+  gameState.players.p2.hand.push(...p2StarterCards);
   
   gameState.regularDeck = [];
   powerDeck.forEach(card => gameState.regularDeck.push(card));
@@ -4438,6 +4548,10 @@ function drawFirstCards() {
 }
 
 function openDeckChoice() {
+  if (gameState.pendingSwap?.drawn?.length) {
+    alert('Finish choosing 2 cards from Power of the Swap before drawing or playing anything else.');
+    return;
+  }
   updateMedalDisplays();
   document.body.classList.add('card-preview-open');
   document.getElementById('deckChoiceModal').classList.add('show');
@@ -4733,6 +4847,15 @@ async function confirmCardPlay() {
     }
   }
 
+  if (card.includes("Power of the Swap")) {
+    startSwap(player, card, {
+      cardInstanceId: selectedCardInstanceId,
+      playedIndex: index,
+    });
+    render();
+    return;
+  }
+
   if (card === "Super Draw") {
     const superDrawCount = superDrawCountForLeague();
     if (gameState.regularDeck.length < superDrawCount) {
@@ -4804,15 +4927,30 @@ function cardInstanceFromDrawn(card) {
   return typeof card === 'string' ? null : card?.id;
 }
 
-function startSwap(player, card, activation = null) {
-  gameState.pendingSwap = { player, card, effectId: activation?.id || null, discardChoice: null, drawn: [], selectedIndices: [] };
+function startSwap(player, card, options = {}) {
+  gameState.pendingSwap = {
+    player,
+    card,
+    cardInstanceId: options.cardInstanceId || null,
+    playedIndex: Number.isInteger(options.playedIndex) ? options.playedIndex : null,
+    effectId: options.effectId || options.id || null,
+    discardChoice: null,
+    discardChoiceInstanceId: null,
+    drawn: options.drawn || [],
+    selectedIndices: [],
+  };
   document.getElementById("confirmSwapBtn").style.display = "block";
   render();
 }
 
 function pickSwapDiscard(index) {
   if (!gameState.pendingSwap) return;
+  if (index === gameState.pendingSwap.playedIndex) {
+    alert("Choose a different card to discard with Power of the Swap.");
+    return;
+  }
   gameState.pendingSwap.discardChoice = index;
+  gameState.pendingSwap.discardChoiceInstanceId = gameState.handCardInstancesByPlayer?.[gameState.pendingSwap.player]?.[index]?.id || null;
   render();
 }
 
@@ -4823,12 +4961,56 @@ async function confirmSwap() {
     return;
   }
 
+  const confirmed = await showSiteConfirm(
+    'Discard Power of the Swap and your selected card, then draw 3 Regular Deck cards?',
+    'Confirm Swap',
+    'Confirm Discard'
+  );
+  if (!confirmed) {
+    return;
+  }
+
   const hand = gameState.players[swap.player].hand;
-  const discardedChoice = hand.splice(swap.discardChoice, 1)[0];
+  let playedIndex = gameState.handCardInstancesByPlayer?.[swap.player]?.findIndex((card) => card.id === swap.cardInstanceId);
+  if (!Number.isInteger(playedIndex) || playedIndex < 0) playedIndex = swap.playedIndex;
+  let discardIndex = gameState.handCardInstancesByPlayer?.[swap.player]?.findIndex((card) => card.id === swap.discardChoiceInstanceId);
+  if (!Number.isInteger(discardIndex) || discardIndex < 0) discardIndex = swap.discardChoice;
+  const discardedChoice = hand[discardIndex];
+  let activation = null;
+  try {
+    activation = cardRuntime?.activateCardEffect
+      ? await cardRuntime.activateCardEffect(swap.card, swap.player, swap.cardInstanceId)
+      : null;
+  } catch (error) {
+    alert(error.message || "Could not activate Power of the Swap.");
+    return;
+  }
+  swap.effectId = activation?.id || swap.effectId;
+
   gameState.discardPile.push(discardedChoice);
   gameState.discardPile.push(swap.card);
-  discardDatabaseCard(swap.player, discardedChoice);
-  discardDatabaseCard(swap.player, swap.card);
+  const discardTasks = [
+    cardRuntime?.discardCardInstance && swap.discardChoiceInstanceId
+      ? cardRuntime.discardCardInstance(swap.discardChoiceInstanceId)
+      : cardRuntime?.discardCard(swap.player, discardedChoice),
+    cardRuntime?.discardCardInstance && swap.cardInstanceId
+      ? cardRuntime.discardCardInstance(swap.cardInstanceId)
+      : cardRuntime?.discardCard(swap.player, swap.card),
+  ].filter(Boolean);
+  try {
+    await Promise.all(discardTasks);
+  } catch (error) {
+    alert(error.message || "Could not discard cards for Power of the Swap.");
+    return;
+  }
+
+  const removeIndexes = [playedIndex, discardIndex]
+    .filter((index) => Number.isInteger(index) && index >= 0)
+    .sort((a, b) => b - a);
+  removeIndexes.forEach((index) => {
+    hand.splice(index, 1);
+    gameState.handCardInstancesByPlayer?.[swap.player]?.splice(index, 1);
+  });
 
   swap.drawn = [];
   if (cardRuntime?.drawEffectCards && swap.effectId) {
@@ -4850,6 +5032,7 @@ async function confirmSwap() {
 
   document.getElementById("confirmSwapBtn").style.display = "none";
   document.getElementById("confirmPickBtn").style.display = "block";
+  save();
   render();
 }
 
@@ -4869,18 +5052,32 @@ async function confirmPick() {
     return;
   }
 
-  swap.selectedIndices.sort((a, b) => b - a)
-    .forEach(i => gameState.players[swap.player].hand.push(cardNameFromDrawn(swap.drawn.splice(i, 1)[0])));
-  const discardTasks = [];
-  swap.drawn.forEach(c => {
-    const cardName = cardNameFromDrawn(c);
-    const cardInstanceId = cardInstanceFromDrawn(c);
-    gameState.discardPile.push(cardName);
-    if (cardInstanceId && cardRuntime?.discardCardInstance) {
-      discardTasks.push(cardRuntime.discardCardInstance(cardInstanceId));
+  const keepCards = swap.selectedIndices.map((index) => swap.drawn[index]).filter(Boolean);
+  const keepIds = keepCards.map(cardInstanceFromDrawn).filter(Boolean);
+
+  try {
+    if (cardRuntime?.resolveSwapPicks && swap.effectId && keepIds.length === 2) {
+      await cardRuntime.resolveSwapPicks(swap.effectId, keepIds);
+    } else {
+      const discardTasks = [];
+      swap.drawn.forEach((card, index) => {
+        if (swap.selectedIndices.includes(index)) {
+          gameState.players[swap.player].hand.push(cardNameFromDrawn(card));
+          return;
+        }
+        const cardName = cardNameFromDrawn(card);
+        const cardInstanceId = cardInstanceFromDrawn(card);
+        gameState.discardPile.push(cardName);
+        if (cardInstanceId && cardRuntime?.discardCardInstance) {
+          discardTasks.push(cardRuntime.discardCardInstance(cardInstanceId));
+        }
+      });
+      await Promise.allSettled(discardTasks);
     }
-  });
-  await Promise.allSettled(discardTasks);
+  } catch (error) {
+    alert(error.message || "Could not finish Power of the Swap.");
+    return;
+  }
 
   gameState.pendingSwap = null;
   document.getElementById("confirmPickBtn").style.display = "none";
@@ -5026,7 +5223,8 @@ function assertCardPlayDeadline(rule, activeGameweek) {
     throw new Error(`Curse cards must be played at least 24 hours before the gameweek's first KO time. Deadline: ${formatDeadlineForMessage(deadline)}.`);
   }
 
-  throw new Error(`Power and Super cards must be played before the 90-minute gameweek deadline. Deadline: ${formatDeadlineForMessage(deadline)}.`);
+  const label = rule?.cardId?.startsWith('super_') ? 'Super cards' : 'Power cards';
+  throw new Error(`${label} must be played before the 90-minute gameweek deadline. Deadline: ${formatDeadlineForMessage(deadline)}.`);
 }
 
 async function assertLateScoutCanBePlayed(activeGameweek, fixtures, runtimeContext, client) {
@@ -5051,6 +5249,41 @@ async function assertLateScoutCanBePlayed(activeGameweek, fixtures, runtimeConte
   const openFixtures = (fixtures || []).filter((fixture) => fixture.status !== 'postponed' && !gameweekHasStartedFromTime(fixture.kickoff_at));
   if (!openFixtures.length) {
     throw new Error('Power of the Late Scout can only be played while at least one current gameweek match has not kicked off.');
+  }
+}
+
+async function assertFirstLeagueGameweekCompleted(runtimeContext, client) {
+  const firstGameweekId = runtimeContext?.league?.starts_gameweek_id;
+  if (!firstGameweekId) {
+    return;
+  }
+
+  const { data: fixtures, error } = await client
+    .from('fixtures')
+    .select('kickoff_at, status')
+    .eq('season_id', runtimeContext.league.season_id)
+    .eq('gameweek_id', firstGameweekId);
+
+  if (error) {
+    throw error;
+  }
+
+  if (!(fixtures || []).length) {
+    return;
+  }
+
+  const graceMs = 3 * 60 * 60 * 1000;
+  const stillInFirstWeek = fixtures.some((fixture) => {
+    const status = String(fixture.status || '').toLowerCase();
+    if (['completed', 'finished', 'full_time', 'ft'].includes(status)) {
+      return false;
+    }
+    const kickoffMs = fixture.kickoff_at ? new Date(fixture.kickoff_at).getTime() : 0;
+    return !kickoffMs || Date.now() < kickoffMs + graceMs;
+  });
+
+  if (stillInFirstWeek) {
+    throw new Error('Cards can be played after the first gameweek in this private league is completed.');
   }
 }
 
@@ -5246,7 +5479,12 @@ function render() {
       }
 
       if (gameState.pendingSwap && gameState.pendingSwap.player === p && gameState.pendingSwap.drawn.length === 0) {
-        if (gameState.pendingSwap.discardChoice === i) div.classList.add('swap-select');
+        if (gameState.pendingSwap.playedIndex === i || gameState.pendingSwap.cardInstanceId === cardInstance?.id) {
+          div.classList.add('used-card');
+          div.setAttribute('aria-disabled', 'true');
+        } else if (gameState.pendingSwap.discardChoice === i) {
+          div.classList.add('swap-select');
+        }
       } else if (gameState.stealMode && gameState.stealMode !== p) {
         if (gameState.selectedSteal && gameState.selectedSteal.opponent === p && gameState.selectedSteal.index === i)
           div.classList.add('selected');
@@ -5279,14 +5517,17 @@ function render() {
     swapDiv.style.display = "block";
     swapDiv.innerHTML = html;
     swapDiv.querySelectorAll('.card-tile').forEach(fitTileText);
+    document.getElementById("confirmSwapBtn").style.display = gameState.pendingSwap.drawn.length === 0 ? "block" : "none";
+    document.getElementById("confirmPickBtn").style.display = gameState.pendingSwap.drawn.length > 0 ? "block" : "none";
+    document.getElementById("confirmStealBtn").style.display = "none";
   } else if (gameState.stealMode) {
     const player = getPlayerName(gameState.stealMode);
     const opponentNames = (gameState.playerOrder || [])
       .filter((playerKey) => playerKey !== gameState.stealMode)
       .map(getPlayerName)
-      .join(', ');
+      .filter(Boolean);
     swapDiv.style.display = "block";
-    swapDiv.innerHTML = `<strong>Steal active for ${player}</strong><p>Select a card from ${opponentNames || 'an opponent'}'s hand below and press Confirm Steal</p>`;
+    swapDiv.innerHTML = `<strong>Steal active for ${player}</strong><p>Select a card from ${formatChoiceList(opponentNames) || 'an opponent'}'s hand below and press Confirm Steal</p>`;
     document.getElementById("confirmStealBtn").style.display = "block";
   } else {
     swapDiv.style.display = "block";
@@ -5447,7 +5688,7 @@ async function initializeCardPage() {
 
       const { data: playedEffects, error: playedEffectsError } = await supabase
         .from('active_card_effects')
-        .select('id, card_instance_id, gameweek_id, start_gameweek_id, played_at, status')
+        .select('id, card_instance_id, gameweek_id, start_gameweek_id, played_at, played_by_user_id, status, card_definitions(effect_key)')
         .eq('competition_id', context.league.id)
         .not('card_instance_id', 'is', null)
         .in('status', ['active', 'resolved', 'vetoed']);
@@ -5477,8 +5718,10 @@ async function initializeCardPage() {
       (playedEffects || []).forEach((effect) => {
         const gameweek = gameweeksById.get(String(effect.start_gameweek_id || effect.gameweek_id));
         const firstFixtureKickoffAt = gameweek?.first_fixture_kickoff_at || null;
+        const definition = getNestedRecord(effect.card_definitions);
         gameState.usedCardEffectsByInstance[effect.card_instance_id] = {
           effectId: effect.id,
+          effectKey: definition?.effect_key || '',
           gameweekNumber: gameweek?.gameweek_number || '?',
           firstFixtureKickoffAt,
           hasGameweekStarted: gameweekHasStartedFromTime(firstFixtureKickoffAt),
@@ -5489,7 +5732,8 @@ async function initializeCardPage() {
         .from('league_cards')
         .select('id, owner_user_id, zone, card_definitions(name, category, deck_type)')
         .eq('competition_id', context.league.id)
-        .in('zone', ['regular_deck', 'premium_deck', 'game_deck', 'hand', 'discard']);
+        .in('zone', ['regular_deck', 'premium_deck', 'game_deck', 'hand', 'active', 'discard'])
+        .order('updated_at', { ascending: true });
 
       if (cardError) {
         throw cardError;
@@ -5525,7 +5769,7 @@ async function initializeCardPage() {
         } else if (row.zone === 'premium_deck') {
           gameState.premiumDeck.push(cardName);
         } else if (row.zone === 'discard') {
-          if (usedMeta && !usedMeta.hasGameweekStarted) {
+          if (usedMeta && !usedMeta.hasGameweekStarted && usedMeta.effectKey !== 'power_swap') {
             const playerKey = userIdToPlayerKey.get(row.owner_user_id);
             if (playerKey && gameState.players[playerKey]) {
               gameState.players[playerKey].hand.push(cardName);
@@ -5538,6 +5782,64 @@ async function initializeCardPage() {
           dbDiscardPile.push(cardName);
         }
       });
+
+      const ownPlayerKey = userIdToPlayerKey.get(context.user.id);
+      const pendingSwapEffect = (playedEffects || []).find((effect) => {
+        const definition = getNestedRecord(effect.card_definitions);
+        return effect.played_by_user_id === context.user.id
+          && effect.status === 'active'
+          && definition?.effect_key === 'power_swap';
+      });
+
+      if (ownPlayerKey && pendingSwapEffect && !gameState.pendingSwap && !gameState.stealMode) {
+        const { data: drawEvents, error: drawEventsError } = await supabase
+          .from('card_draw_events')
+          .select('card_instance_id')
+          .eq('competition_id', context.league.id)
+          .eq('user_id', context.user.id)
+          .eq('source_card_effect_id', pendingSwapEffect.id);
+
+        if (drawEventsError) {
+          throw drawEventsError;
+        }
+
+        const drawnIds = (drawEvents || []).map((event) => event.card_instance_id).filter(Boolean);
+        if (drawnIds.length) {
+          const { data: drawnCards, error: drawnCardsError } = await supabase
+            .from('league_cards')
+            .select('id, card_definitions(name)')
+            .eq('competition_id', context.league.id)
+            .eq('owner_user_id', context.user.id)
+            .eq('zone', 'active')
+            .in('id', drawnIds);
+
+          if (drawnCardsError) {
+            throw drawnCardsError;
+          }
+
+          const drawn = (drawnCards || []).map((row) => {
+            const definition = getNestedRecord(row.card_definitions);
+            return {
+              id: row.id,
+              name: normalizeCardName(definition?.name || row.card_id),
+            };
+          });
+
+          if (drawn.length) {
+            gameState.pendingSwap = {
+              player: ownPlayerKey,
+              card: 'Power of the Swap',
+              cardInstanceId: pendingSwapEffect.card_instance_id || null,
+              playedIndex: null,
+              effectId: pendingSwapEffect.id,
+              discardChoice: null,
+              discardChoiceInstanceId: null,
+              drawn,
+              selectedIndices: [],
+            };
+          }
+        }
+      }
 
       gameState.discardPile = dbDiscardPile;
 
@@ -5865,12 +6167,21 @@ async function initializeCardPage() {
 
       return new Promise((resolve, reject) => {
         let settled = false;
+        let selectedOpponent = null;
+        const confirmButton = document.createElement('button');
+        confirmButton.className = 'opponent-target-confirm';
+        confirmButton.type = 'button';
+        confirmButton.textContent = 'Confirm Target';
+        confirmButton.disabled = true;
+        cancelButton.before(confirmButton);
 
         function cleanup() {
           modal.classList.remove('show');
           modal.setAttribute('aria-hidden', 'true');
           document.body.classList.remove('card-preview-open');
           cancelButton.removeEventListener('click', cancel);
+          confirmButton.removeEventListener('click', confirmSelection);
+          confirmButton.remove();
           modal.removeEventListener('click', modalClick);
           document.removeEventListener('keydown', keydown);
         }
@@ -5887,6 +6198,11 @@ async function initializeCardPage() {
           settled = true;
           cleanup();
           reject(new Error('Card play cancelled.'));
+        }
+
+        function confirmSelection() {
+          if (!selectedOpponent) return;
+          finish(selectedOpponent);
         }
 
         function modalClick(event) {
@@ -5910,11 +6226,17 @@ async function initializeCardPage() {
 
         list.querySelectorAll('[data-opponent-index]').forEach((button) => {
           button.addEventListener('click', () => {
-            finish(opponents[Number(button.dataset.opponentIndex)]);
+            selectedOpponent = opponents[Number(button.dataset.opponentIndex)];
+            list.querySelectorAll('[data-opponent-index]').forEach((item) => {
+              item.classList.toggle('selected', item === button);
+              item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+            });
+            confirmButton.disabled = false;
           });
         });
 
         cancelButton.addEventListener('click', cancel);
+        confirmButton.addEventListener('click', confirmSelection);
         modal.addEventListener('click', modalClick);
         document.addEventListener('keydown', keydown);
         document.body.classList.add('card-preview-open');
@@ -6381,6 +6703,17 @@ async function initializeCardPage() {
 
         return data || [];
       },
+      async resolveSwapPicks(effectId, keepCardInstanceIds) {
+        const { error } = await supabase.rpc('resolve_power_swap_picks', {
+          target_competition_id: context.league.id,
+          target_source_card_effect_id: effectId,
+          keep_card_instance_ids: keepCardInstanceIds,
+        });
+
+        if (error) {
+          throw error;
+        }
+      },
       async discardCardInstance(cardInstanceId) {
         const { error } = await supabase.rpc('discard_my_league_card', {
           target_competition_id: context.league.id,
@@ -6419,6 +6752,7 @@ async function initializeCardPage() {
         if (!activeGameweek) {
           throw new Error('No active gameweek found.');
         }
+        await assertFirstLeagueGameweekCompleted(context, supabase);
         const fixtures = await currentGameweekFixtures(activeGameweek);
         if (rule.effectKey === 'power_late_scout') {
           await assertLateScoutCanBePlayed(activeGameweek, fixtures, context, supabase);

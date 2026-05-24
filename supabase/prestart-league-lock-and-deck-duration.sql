@@ -376,6 +376,7 @@ as $$
 declare
   current_role text;
   target_member_lock_at timestamptz;
+  target_first_kickoff timestamptz;
   member_count integer;
 begin
   if auth.uid() is null then
@@ -393,7 +394,18 @@ begin
     raise exception 'You are not a member of this league.';
   end if;
 
-  if target_member_lock_at is not null and now() >= target_member_lock_at then
+  select min(f.kickoff_at)
+    into target_first_kickoff
+  from public.competitions c
+  join public.fixtures f
+    on f.season_id = c.season_id
+   and f.gameweek_id = c.starts_gameweek_id
+   and f.status <> 'postponed'
+  where c.id = target_competition_id;
+
+  if coalesce(target_first_kickoff, target_member_lock_at) is not null
+    and now() >= coalesce(target_first_kickoff, target_member_lock_at)
+  then
     raise exception 'You cannot leave a league after its first gameweek has started.';
   end if;
 
@@ -418,8 +430,27 @@ begin
   set status = 'removed',
       resolved_at = now()
   where competition_id = target_competition_id
-    and played_by_user_id = auth.uid()
+    and (played_by_user_id = auth.uid() or target_user_id = auth.uid())
     and status = 'active';
+
+  update public.league_cards lc
+  set owner_user_id = null,
+      zone = case cd.deck_type
+        when 'premium' then 'premium_deck'
+        else 'regular_deck'
+      end,
+      source = 'returned_prestart_effect',
+      updated_at = now()
+  from public.active_card_effects ace,
+       public.card_definitions cd
+  where lc.id = ace.card_instance_id
+    and cd.id = lc.card_id
+    and lc.competition_id = target_competition_id
+    and ace.competition_id = target_competition_id
+    and (ace.played_by_user_id = auth.uid() or ace.target_user_id = auth.uid())
+    and ace.status = 'removed'
+    and ace.resolved_at >= now() - interval '10 seconds'
+    and cd.deck_type in ('regular', 'premium');
 
   update public.league_cards lc
   set owner_user_id = null,
@@ -441,4 +472,48 @@ begin
 end;
 $$;
 
+create or replace function public.delete_competition_before_start(target_competition_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  target_member_lock_at timestamptz;
+  target_first_kickoff timestamptz;
+begin
+  if auth.uid() is null then
+    raise exception 'You must be signed in to delete a league.';
+  end if;
+
+  select member_lock_at
+    into target_member_lock_at
+  from public.competitions
+  where id = target_competition_id
+    and owner_id = auth.uid();
+
+  if target_member_lock_at is null then
+    raise exception 'Only the league creator can delete this league.';
+  end if;
+
+  select min(f.kickoff_at)
+    into target_first_kickoff
+  from public.competitions c
+  join public.fixtures f
+    on f.season_id = c.season_id
+   and f.gameweek_id = c.starts_gameweek_id
+   and f.status <> 'postponed'
+  where c.id = target_competition_id;
+
+  if now() >= coalesce(target_first_kickoff, target_member_lock_at) then
+    raise exception 'You cannot delete a league after its first gameweek has started.';
+  end if;
+
+  delete from public.competitions
+  where id = target_competition_id
+    and owner_id = auth.uid();
+end;
+$$;
+
 grant execute on function public.leave_competition_before_start(uuid) to authenticated;
+grant execute on function public.delete_competition_before_start(uuid) to authenticated;

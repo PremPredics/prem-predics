@@ -649,12 +649,12 @@ begin
 
   select *
     into token_row
-  from public.card_draw_tokens
-  where competition_id = target_competition_id
-    and user_id = target_user
-    and deck_type = target_deck_type
-    and status = 'available'
-  order by created_at
+  from public.card_draw_tokens cdt
+  where cdt.competition_id = target_competition_id
+    and cdt.user_id = target_user
+    and cdt.deck_type = target_deck_type
+    and cdt.status = 'available'
+  order by cdt.created_at
   limit 1
   for update skip locked;
 
@@ -828,7 +828,12 @@ as $$
 declare
   target_competition public.competitions;
   member_row record;
-  starter_card_id uuid;
+  starter_power_card_id uuid;
+  starter_curse_card_id uuid;
+  first_card_id uuid;
+  second_card_id uuid;
+  first_source text;
+  second_source text;
 begin
   select *
     into target_competition
@@ -845,23 +850,35 @@ begin
 
   perform public.ensure_league_card_decks(target_competition_id);
 
+  update public.league_cards
+  set source = source || ':' || owner_user_id::text
+  where competition_id = target_competition_id
+    and owner_user_id is not null
+    and source in ('starter_power', 'starter_curse');
+
   for member_row in
     select cm.user_id
     from public.competition_members cm
     where cm.competition_id = target_competition_id
     order by cm.joined_at
   loop
+    starter_power_card_id := null;
+    starter_curse_card_id := null;
+    first_card_id := null;
+    second_card_id := null;
+    first_source := null;
+    second_source := null;
+
     if not exists (
       select 1
       from public.league_cards lc
       join public.card_definitions cd on cd.id = lc.card_id
       where lc.competition_id = target_competition_id
-        and lc.owner_user_id = member_row.user_id
         and cd.category = 'power'
-        and lc.source = 'starter_power'
+        and lc.source = 'starter_power:' || member_row.user_id::text
     ) then
       select lc.id
-        into starter_card_id
+        into starter_power_card_id
       from public.league_cards lc
       join public.card_definitions cd on cd.id = lc.card_id
       where lc.competition_id = target_competition_id
@@ -871,30 +888,18 @@ begin
       order by random()
       limit 1
       for update skip locked;
-
-      if starter_card_id is not null then
-        update public.league_cards
-        set owner_user_id = member_row.user_id,
-            zone = 'hand',
-            source = 'starter_power',
-            updated_at = now()
-        where id = starter_card_id;
-      end if;
     end if;
 
-    starter_card_id := null;
-
     if not exists (
       select 1
       from public.league_cards lc
       join public.card_definitions cd on cd.id = lc.card_id
       where lc.competition_id = target_competition_id
-        and lc.owner_user_id = member_row.user_id
         and cd.category = 'curse'
-        and lc.source = 'starter_curse'
+        and lc.source = 'starter_curse:' || member_row.user_id::text
     ) then
       select lc.id
-        into starter_card_id
+        into starter_curse_card_id
       from public.league_cards lc
       join public.card_definitions cd on cd.id = lc.card_id
       where lc.competition_id = target_competition_id
@@ -904,15 +909,36 @@ begin
       order by random()
       limit 1
       for update skip locked;
+    end if;
 
-      if starter_card_id is not null then
-        update public.league_cards
-        set owner_user_id = member_row.user_id,
-            zone = 'hand',
-            source = 'starter_curse',
-            updated_at = now()
-        where id = starter_card_id;
-      end if;
+    if starter_power_card_id is not null and starter_curse_card_id is not null and random() < 0.5 then
+      first_card_id := starter_curse_card_id;
+      first_source := 'starter_curse:' || member_row.user_id::text;
+      second_card_id := starter_power_card_id;
+      second_source := 'starter_power:' || member_row.user_id::text;
+    else
+      first_card_id := starter_power_card_id;
+      first_source := 'starter_power:' || member_row.user_id::text;
+      second_card_id := starter_curse_card_id;
+      second_source := 'starter_curse:' || member_row.user_id::text;
+    end if;
+
+    if first_card_id is not null then
+      update public.league_cards
+      set owner_user_id = member_row.user_id,
+          zone = 'hand',
+          source = first_source,
+          updated_at = now()
+      where id = first_card_id;
+    end if;
+
+    if second_card_id is not null then
+      update public.league_cards
+      set owner_user_id = member_row.user_id,
+          zone = 'hand',
+          source = second_source,
+          updated_at = now() + interval '1 millisecond'
+      where id = second_card_id;
     end if;
   end loop;
 end;
@@ -1566,7 +1592,7 @@ begin
   loop
     update public.league_cards
     set owner_user_id = target_user,
-        zone = 'hand',
+        zone = case when effect_row.effect_key = 'power_swap' then 'active' else 'hand' end,
         updated_at = now()
     where id = draw_row.id;
 
@@ -1601,12 +1627,85 @@ begin
     raise exception 'The Regular Deck does not have enough cards.';
   end if;
 
-  if effect_row.effect_key in ('super_draw', 'power_swap') then
+  if effect_row.effect_key = 'super_draw' then
     update public.active_card_effects
     set status = 'resolved',
         resolved_at = now()
     where id = target_source_card_effect_id;
   end if;
+end;
+$$;
+
+create or replace function public.resolve_power_swap_picks(
+  target_competition_id uuid,
+  target_source_card_effect_id uuid,
+  keep_card_instance_ids uuid[]
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  target_user uuid := auth.uid();
+  effect_row record;
+  keep_count integer;
+begin
+  if target_user is null then
+    raise exception 'You must be logged in.';
+  end if;
+
+  select ace.*, cd.effect_key
+    into effect_row
+  from public.active_card_effects ace
+  join public.card_definitions cd on cd.id = ace.card_id
+  where ace.id = target_source_card_effect_id
+    and ace.competition_id = target_competition_id
+    and ace.played_by_user_id = target_user
+    and ace.status = 'active';
+
+  if effect_row.id is null or effect_row.effect_key <> 'power_swap' then
+    raise exception 'Active Power of the Swap effect not found.';
+  end if;
+
+  select count(*)
+    into keep_count
+  from unnest(coalesce(keep_card_instance_ids, array[]::uuid[])) as kept(card_instance_id);
+
+  if keep_count <> 2 then
+    raise exception 'Choose exactly 2 cards to keep.';
+  end if;
+
+  if exists (
+    select 1
+    from unnest(keep_card_instance_ids) as kept(card_instance_id)
+    left join public.card_draw_events cde
+      on cde.card_instance_id = kept.card_instance_id
+     and cde.source_card_effect_id = target_source_card_effect_id
+     and cde.user_id = target_user
+     and cde.competition_id = target_competition_id
+    where cde.card_instance_id is null
+  ) then
+    raise exception 'One of those cards is not part of this pending swap.';
+  end if;
+
+  update public.league_cards lc
+  set zone = case
+        when lc.id = any(keep_card_instance_ids) then 'hand'
+        else 'discard'
+      end,
+      owner_user_id = target_user,
+      updated_at = now()
+  from public.card_draw_events cde
+  where cde.card_instance_id = lc.id
+    and cde.source_card_effect_id = target_source_card_effect_id
+    and cde.competition_id = target_competition_id
+    and cde.user_id = target_user;
+
+  update public.active_card_effects
+  set status = 'resolved',
+      resolved_at = now()
+  where id = target_source_card_effect_id;
 end;
 $$;
 
@@ -1688,6 +1787,7 @@ end;
 $$;
 
 grant execute on function public.draw_regular_cards_for_effect(uuid, uuid, integer) to authenticated;
+grant execute on function public.resolve_power_swap_picks(uuid, uuid, uuid[]) to authenticated;
 grant execute on function public.steal_regular_card_from_opponent(uuid, uuid, uuid) to authenticated;
 
 -- Version 1.1.1 profile colour + calculated Premier League table upgrades.
