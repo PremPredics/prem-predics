@@ -55,7 +55,8 @@ const state = {
   fixtures: [],
   predictions: new Map(),
   hedgeEffect: null,
-  hedgePrediction: null,
+  hedgeEffects: [],
+  hedgePredictions: [],
   godEffect: null,
   godPrediction: null,
   superScoreEffect: null,
@@ -162,6 +163,43 @@ function effectCategory(effect) {
   return isPredictionCurse(effect) ? 'curse' : 'power';
 }
 
+function isHedgeSlot(slot) {
+  return slot === 'hedge' || /^hedge_\d+$/.test(String(slot || ''));
+}
+
+function hedgeSlotForIndex(index) {
+  return index === 0 ? 'hedge' : `hedge_${index + 1}`;
+}
+
+function sortedHedgeEffects() {
+  return [...(state.hedgeEffects || [])]
+    .sort((a, b) => effectPlayedAtMs(a) - effectPlayedAtMs(b));
+}
+
+function hedgeEffectIndex(effect) {
+  return sortedHedgeEffects().findIndex((item) => item.id === effect?.id);
+}
+
+function hedgePredictionForEffect(effect, fallbackIndex = hedgeEffectIndex(effect)) {
+  const safeIndex = Math.max(0, fallbackIndex);
+  const slot = hedgeSlotForIndex(safeIndex);
+  return (state.hedgePredictions || []).find((prediction) => (
+    prediction.source_card_effect_id && prediction.source_card_effect_id === effect?.id
+  )) || (state.hedgePredictions || []).find((prediction) => prediction.prediction_slot === slot) || null;
+}
+
+function hedgeFixtureId(effect, fallbackIndex = hedgeEffectIndex(effect)) {
+  return effect?.fixture_id || hedgePredictionForEffect(effect, fallbackIndex)?.fixture_id || '';
+}
+
+function hedgeEffectsForFixture(fixture) {
+  if (!fixture) {
+    return [];
+  }
+
+  return sortedHedgeEffects().filter((effect, index) => hedgeFixtureId(effect, index) === fixture.id);
+}
+
 function predictionIsNilNil(prediction) {
   return prediction
     && Number(prediction.home_goals) === 0
@@ -217,12 +255,23 @@ function renderCurseMarker(fixture) {
   return `<button class="curse-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="curse" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9760;</button>`;
 }
 
-function visiblePredictionPowersForFixture() {
-  return state.pessimistEffect ? [state.pessimistEffect] : [];
+function visiblePredictionPowersForFixture(fixture) {
+  const powers = [];
+  if (state.pessimistEffect) {
+    powers.push(state.pessimistEffect);
+  }
+
+  powers.push(...hedgeEffectsForFixture(fixture));
+
+  if (fixture && state.godEffect && state.godEffect.fixture_id === fixture.id) {
+    powers.push(state.godEffect);
+  }
+
+  return powers.sort((a, b) => effectPlayedAtMs(a) - effectPlayedAtMs(b));
 }
 
 function ownPredictionPanelPowers() {
-  return [state.pessimistEffect, state.hedgeEffect, state.godEffect, state.superScoreEffect]
+  return [state.pessimistEffect, ...sortedHedgeEffects(), state.godEffect, state.superScoreEffect]
     .filter(Boolean);
 }
 
@@ -384,6 +433,8 @@ async function loadFixtures() {
 async function loadExistingPredictions() {
   if (!state.fixtures.length) {
     state.predictions = new Map();
+    state.hedgePredictions = [];
+    state.godPrediction = null;
     return;
   }
 
@@ -392,7 +443,6 @@ async function loadExistingPredictions() {
     .select('fixture_id, home_goals, away_goals, prediction_slot, source_card_effect_id, updated_at')
     .eq('competition_id', state.league.id)
     .eq('user_id', state.user.id)
-    .in('prediction_slot', ['primary', 'hedge', 'power_of_god'])
     .in('fixture_id', state.fixtures.map((fixture) => fixture.id));
 
   if (error) {
@@ -402,7 +452,7 @@ async function loadExistingPredictions() {
   state.predictions = new Map((data || [])
     .filter((prediction) => prediction.prediction_slot === 'primary')
     .map((prediction) => [prediction.fixture_id, prediction]));
-  state.hedgePrediction = (data || []).find((prediction) => prediction.prediction_slot === 'hedge') || null;
+  state.hedgePredictions = (data || []).filter((prediction) => isHedgeSlot(prediction.prediction_slot));
   state.godPrediction = (data || []).find((prediction) => prediction.prediction_slot === 'power_of_god') || null;
   if (state.fixtures.length && state.predictions.size === state.fixtures.length) {
     state.mode = 'summary';
@@ -498,9 +548,8 @@ async function loadActivePredictionEffects() {
       ? 'odd'
       : null;
 
-  state.hedgeEffect = ownEffects.find((effect) => (
-    effectKey(effect) === 'power_hedge'
-  )) || null;
+  state.hedgeEffects = ownEffects.filter((effect) => effectKey(effect) === 'power_hedge');
+  state.hedgeEffect = state.hedgeEffects[0] || null;
 
   state.godEffect = ownEffects.find((effect) => (
     effectKey(effect) === 'power_of_god'
@@ -558,12 +607,12 @@ function renderSummary() {
                 ${renderCurseMarker(fixture)}
               </span>
             </span>
-            ${state.hedgePrediction?.fixture_id === fixture.id ? `<small>Hedge: ${state.hedgePrediction.home_goals}-${state.hedgePrediction.away_goals}</small>` : ''}
             ${state.godPrediction?.fixture_id === fixture.id ? `<small>Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
             ${curseOverride ? '<small class="summary-cursed-label">Cursed</small>' : ''}
           </article>
         `;
       }).join('')}
+      ${renderHedgeRows('summary')}
       ${state.superScorePick ? `<div class="summary-row special-summary"><span>Super Score</span><strong>${state.superScorePick.home_goals}-${state.superScorePick.away_goals}</strong><span>Scoreline Pick</span><span class="summary-status"></span></div>` : ''}
     </div>
   `;
@@ -613,7 +662,7 @@ function renderEdit() {
         </span>
       </article>
     `;
-  }).join('')}`;
+  }).join('')}${renderHedgeRows('edit')}`;
 
   fixturesContainer.querySelectorAll('[data-score-input]').forEach((input) => {
     input.addEventListener('input', () => {
@@ -633,38 +682,122 @@ function renderEdit() {
 }
 
 function renderSpecialPanels() {
-  return `${renderHedgePanel()}${renderGodPanel()}${renderSuperScorePanel()}`;
+  return `${renderGodPanel()}${renderSuperScorePanel()}`;
 }
 
-function renderHedgePanel() {
-  if (!state.hedgeEffect) {
+function renderPowerEffectMarker(effect) {
+  if (!effect) {
     return '';
   }
 
-  const selectedFixtureId = state.hedgeEffect.fixture_id || state.hedgePrediction?.fixture_id || '';
+  return `<button class="power-marker" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="View ${escapeHtml(effectName(effect))}">&#9994;</button>`;
+}
+
+function renderHedgeRows(mode = 'edit') {
+  const effects = sortedHedgeEffects();
+  if (!effects.length) {
+    return '';
+  }
+
+  return effects.map((effect, index) => renderHedgeRow(effect, index, mode)).join('');
+}
+
+function renderHedgeRow(effect, index, mode = 'edit') {
+  const selectedFixtureId = hedgeFixtureId(effect, index);
   const selectedFixture = state.fixtures.find((fixture) => fixture.id === selectedFixtureId);
+  const prediction = hedgePredictionForEffect(effect, index);
   const locked = selectedFixture ? isPast(selectedFixture.prediction_locks_at) : false;
+  const disabled = locked ? 'disabled' : '';
+  const powerMarker = selectedFixture ? renderPowerMarker(selectedFixture) : renderPowerEffectMarker(effect);
   const fixtureOptions = state.fixtures.map((fixture) => `
     <option value="${fixture.id}" ${fixture.id === selectedFixtureId ? 'selected' : ''}>
       ${escapeHtml(fixtureLabel(fixture))}
     </option>
   `).join('');
 
+  if (mode === 'summary') {
+    if (!selectedFixture) {
+      return `
+        <article class="fixture-row summary-fixture-row hedge-fixture-row" data-hedge-effect-id="${escapeHtml(effect.id)}">
+          <span class="fixture-flags hedge-flags">
+            <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
+            <span class="hedge-badge">Hedge</span>
+          </span>
+          <span class="fixture-main summary-fixture-main hedge-empty-main">
+            <span class="fixture-team home">Choose Match</span>
+            <strong class="summary-score">-</strong>
+            <span class="fixture-team away">Power of the Hedge</span>
+          </span>
+          <span class="fixture-meta">
+            <span class="fixture-lock remaining">Pending</span>
+            <span class="fixture-effects">${renderPowerEffectMarker(effect)}</span>
+          </span>
+        </article>
+      `;
+    }
+
+    return `
+      <article class="fixture-row summary-fixture-row hedge-fixture-row" data-hedge-effect-id="${escapeHtml(effect.id)}" data-hedge-source-fixture="${escapeHtml(selectedFixture.id)}">
+        <span class="fixture-flags hedge-flags">
+          <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
+          <span class="hedge-badge">Hedge</span>
+        </span>
+        <span class="fixture-main summary-fixture-main">
+          <span class="fixture-team home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
+          <strong class="summary-score">${prediction?.home_goals ?? '-'}-${prediction?.away_goals ?? '-'}</strong>
+          <span class="fixture-team away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
+        </span>
+        <span class="fixture-meta">
+          <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(selectedFixture.prediction_locks_at || '')}">${fixtureLockText(selectedFixture)}</span>
+          <span class="fixture-effects">${powerMarker}</span>
+        </span>
+      </article>
+    `;
+  }
+
+  if (!selectedFixture || !effect.fixture_id) {
+    return `
+      <article class="fixture-row hedge-fixture-row hedge-picker-row" data-hedge-effect-id="${escapeHtml(effect.id)}">
+        <span class="fixture-flags hedge-flags">
+          <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
+          <span class="hedge-badge">Hedge</span>
+        </span>
+        <span class="fixture-main hedge-picker-main">
+          <select class="hedge-fixture-select" data-hedge-fixture aria-label="Choose Hedge fixture" ${disabled}>
+            <option value="">Choose match</option>
+            ${fixtureOptions}
+          </select>
+          <input class="score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="Hedge home goals">
+          <span class="score-separator">-</span>
+          <input class="score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="Hedge away goals">
+        </span>
+        <span class="fixture-meta hedge-fixture-meta">
+          <span class="fixture-effects">${renderPowerEffectMarker(effect)}</span>
+          <button class="hedge-save-button" type="button" data-save-hedge ${disabled}>Save Hedge</button>
+        </span>
+      </article>
+    `;
+  }
+
   return `
-    <section class="hedge-panel" data-hedge-panel>
-      <h3>Power of the Hedge</h3>
-      <p class="state-text">Choose one match for a second scoreline. The best answer counts for that match.</p>
-      <div class="hedge-controls">
-        <select data-hedge-fixture ${state.hedgeEffect.fixture_id ? 'disabled' : ''}>
-          <option value="">Choose match</option>
-          ${fixtureOptions}
-        </select>
-        <input class="score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${state.hedgePrediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Hedge home goals">
+    <article class="fixture-row hedge-fixture-row" data-hedge-effect-id="${escapeHtml(effect.id)}" data-hedge-source-fixture="${escapeHtml(selectedFixture.id)}">
+      <span class="fixture-flags hedge-flags">
+        <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
+        <span class="hedge-badge">Hedge</span>
+      </span>
+      <span class="fixture-main">
+        <span class="fixture-team home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
+        <input class="score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.home_team_id))} Hedge goals">
         <span class="score-separator">-</span>
-        <input class="score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${state.hedgePrediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Hedge away goals">
-        <button type="button" data-save-hedge ${locked ? 'disabled' : ''}>Save Hedge</button>
-      </div>
-    </section>
+        <input class="score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.away_team_id))} Hedge goals">
+        <span class="fixture-team away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
+      </span>
+      <span class="fixture-meta hedge-fixture-meta">
+        <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(selectedFixture.prediction_locks_at || '')}">${fixtureLockText(selectedFixture)}</span>
+        <span class="fixture-effects">${powerMarker}</span>
+        <button class="hedge-save-button" type="button" data-save-hedge ${disabled}>Save Hedge</button>
+      </span>
+    </article>
   `;
 }
 
@@ -724,15 +857,14 @@ function renderSuperScorePanel() {
 }
 
 function wireSpecialPanels() {
-  const panel = fixturesContainer.querySelector('[data-hedge-panel]');
-  if (!panel) {
-    // Continue wiring other panels.
-  } else {
-    panel.querySelectorAll('input').forEach((input) => {
+  fixturesContainer.querySelectorAll('[data-hedge-effect-id]').forEach((row) => {
+    row.querySelectorAll('input').forEach((input) => {
       input.addEventListener('input', () => cleanScoreInput(input));
     });
-    panel.querySelector('[data-save-hedge]')?.addEventListener('click', saveHedgePrediction);
-  }
+    row.querySelector('[data-save-hedge]')?.addEventListener('click', () => {
+      saveHedgePrediction(row.dataset.hedgeEffectId);
+    });
+  });
 
   const godPanel = fixturesContainer.querySelector('[data-god-panel]');
   godPanel?.querySelectorAll('input').forEach((input) => {
@@ -758,6 +890,11 @@ function updatePredictionCountdowns() {
     const row = element.closest('[data-fixture-id]');
     row?.querySelectorAll('[data-score-input]').forEach((input) => {
       input.disabled = locked || row.dataset.curseOverride === 'true';
+    });
+
+    const hedgeRow = element.closest('[data-hedge-effect-id]');
+    hedgeRow?.querySelectorAll('[data-hedge-home], [data-hedge-away], [data-save-hedge]').forEach((control) => {
+      control.disabled = locked;
     });
   });
 
@@ -994,15 +1131,36 @@ async function saveAllPredictions() {
   render();
 }
 
-async function saveHedgePrediction() {
-  const panel = fixturesContainer.querySelector('[data-hedge-panel]');
+async function saveHedgePrediction(effectId) {
+  const effect = sortedHedgeEffects().find((item) => item.id === effectId);
+  const effectIndex = hedgeEffectIndex(effect);
+  const panel = [...fixturesContainer.querySelectorAll('[data-hedge-effect-id]')]
+    .find((row) => row.dataset.hedgeEffectId === effectId);
   const draftPredictions = collectDraftPredictionInputs();
-  const fixtureId = panel?.querySelector('[data-hedge-fixture]')?.value;
+  const fixtureId = panel?.querySelector('[data-hedge-fixture]')?.value || hedgeFixtureId(effect, effectIndex);
   const homeInput = panel?.querySelector('[data-hedge-home]');
   const awayInput = panel?.querySelector('[data-hedge-away]');
 
-  if (!state.hedgeEffect || !fixtureId || !homeInput?.value || !awayInput?.value) {
+  if (!effect || !homeInput || !awayInput) {
     setMessage('Choose a match and enter both Hedge scores.', 'error');
+    return;
+  }
+
+  const home = scoreInputState(homeInput);
+  const away = scoreInputState(awayInput);
+
+  if (!fixtureId || !home.filled || !away.filled) {
+    setMessage('Choose a match and enter both Hedge scores.', 'error');
+    return;
+  }
+
+  if (!home.valid || !away.valid) {
+    setMessage('Hedge predictions must be whole numbers from 0 to 100.', 'error');
+    return;
+  }
+
+  if (!home.parityOk || !away.parityOk) {
+    setMessage(paritySaveFailedMessage(), 'error');
     return;
   }
 
@@ -1014,11 +1172,11 @@ async function saveHedgePrediction() {
 
   setMessage('Saving Hedge prediction...', 'info');
 
-  if (!state.hedgeEffect.fixture_id || state.hedgeEffect.fixture_id !== fixtureId) {
+  if (!effect.fixture_id || effect.fixture_id !== fixtureId) {
     const { error: effectError } = await supabase
       .from('active_card_effects')
       .update({ fixture_id: fixtureId })
-      .eq('id', state.hedgeEffect.id)
+      .eq('id', effect.id)
       .eq('played_by_user_id', state.user.id);
 
     if (effectError) {
@@ -1026,7 +1184,7 @@ async function saveHedgePrediction() {
       return;
     }
 
-    state.hedgeEffect.fixture_id = fixtureId;
+    effect.fixture_id = fixtureId;
   }
 
   const row = {
@@ -1034,10 +1192,10 @@ async function saveHedgePrediction() {
     season_id: state.league.season_id,
     fixture_id: fixtureId,
     user_id: state.user.id,
-    prediction_slot: 'hedge',
-    home_goals: Number(homeInput.value),
-    away_goals: Number(awayInput.value),
-    source_card_effect_id: state.hedgeEffect.id,
+    prediction_slot: hedgeSlotForIndex(effectIndex),
+    home_goals: home.value,
+    away_goals: away.value,
+    source_card_effect_id: effect.id,
     submitted_at: new Date().toISOString(),
   };
 
@@ -1050,7 +1208,12 @@ async function saveHedgePrediction() {
     return;
   }
 
-  state.hedgePrediction = row;
+  state.hedgePredictions = [
+    ...state.hedgePredictions.filter((prediction) => (
+      prediction.source_card_effect_id !== effect.id && prediction.prediction_slot !== row.prediction_slot
+    )),
+    row,
+  ];
   setMessage('Hedge prediction saved.', 'success');
   render();
   restoreDraftPredictionInputs(draftPredictions);

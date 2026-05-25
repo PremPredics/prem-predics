@@ -87,7 +87,7 @@ with check (
           and now() < f.prediction_locks_at
         )
         or (
-          predictions.prediction_slot = 'hedge'
+          (predictions.prediction_slot = 'hedge' or predictions.prediction_slot like 'hedge_%')
           and now() < f.prediction_locks_at
           and exists (
             select 1
@@ -139,7 +139,7 @@ using (
           and now() < f.prediction_locks_at
         )
         or (
-          predictions.prediction_slot = 'hedge'
+          (predictions.prediction_slot = 'hedge' or predictions.prediction_slot like 'hedge_%')
           and now() < f.prediction_locks_at
           and exists (
             select 1
@@ -184,7 +184,7 @@ with check (
           and now() < f.prediction_locks_at
         )
         or (
-          predictions.prediction_slot = 'hedge'
+          (predictions.prediction_slot = 'hedge' or predictions.prediction_slot like 'hedge_%')
           and now() < f.prediction_locks_at
           and exists (
             select 1
@@ -1039,7 +1039,11 @@ considered_predictions as (
     or (
       not has_curse_override
       and not has_power_of_god_override
-      and prediction_slot in ('primary', 'hedge')
+      and (
+        prediction_slot = 'primary'
+        or prediction_slot = 'hedge'
+        or prediction_slot like 'hedge_%'
+      )
     )
 ),
 adjusted_predictions as (

@@ -1219,7 +1219,10 @@ create table public.predictions (
   fixture_id uuid not null references public.fixtures(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,
   prediction_slot text not null default 'primary'
-    check (prediction_slot in ('primary', 'hedge', 'power_of_god', 'curse_hated', 'curse_gambler')),
+    check (
+      prediction_slot in ('primary', 'hedge', 'power_of_god', 'curse_hated', 'curse_gambler')
+      or prediction_slot ~ '^hedge_[0-9]+$'
+    ),
   home_goals integer not null check (home_goals >= 0),
   away_goals integer not null check (away_goals >= 0),
   source_card_effect_id uuid,
@@ -2070,7 +2073,11 @@ considered_predictions as (
     or (
       not has_curse_override
       and not has_power_of_god_override
-      and prediction_slot in ('primary', 'hedge')
+      and (
+        prediction_slot = 'primary'
+        or prediction_slot = 'hedge'
+        or prediction_slot like 'hedge_%'
+      )
     )
 )
 select
@@ -2941,7 +2948,7 @@ with check (
           and now() < f.prediction_locks_at
         )
         or (
-          predictions.prediction_slot = 'hedge'
+          (predictions.prediction_slot = 'hedge' or predictions.prediction_slot like 'hedge_%')
           and now() < f.prediction_locks_at
           and exists (
             select 1
@@ -2990,7 +2997,7 @@ using (
           and now() < f.prediction_locks_at
         )
         or (
-          predictions.prediction_slot = 'hedge'
+          (predictions.prediction_slot = 'hedge' or predictions.prediction_slot like 'hedge_%')
           and now() < f.prediction_locks_at
           and exists (
             select 1
@@ -3035,7 +3042,7 @@ with check (
           and now() < f.prediction_locks_at
         )
         or (
-          predictions.prediction_slot = 'hedge'
+          (predictions.prediction_slot = 'hedge' or predictions.prediction_slot like 'hedge_%')
           and now() < f.prediction_locks_at
           and exists (
             select 1

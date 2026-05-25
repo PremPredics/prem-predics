@@ -62,7 +62,10 @@ alter table public.predictions drop constraint if exists predictions_prediction_
 
 alter table public.predictions
   add constraint predictions_prediction_slot_check
-  check (prediction_slot in ('primary', 'hedge', 'power_of_god', 'curse_hated', 'curse_gambler'));
+  check (
+    prediction_slot in ('primary', 'hedge', 'power_of_god', 'curse_hated', 'curse_gambler')
+    or prediction_slot ~ '^hedge_[0-9]+$'
+  );
 
 create table if not exists public.curse_random_roulette_inputs (
   id uuid primary key default gen_random_uuid(),
@@ -281,7 +284,11 @@ considered_predictions as (
     or (
       not has_curse_override
       and not has_power_of_god_override
-      and prediction_slot in ('primary', 'hedge')
+      and (
+        prediction_slot = 'primary'
+        or prediction_slot = 'hedge'
+        or prediction_slot like 'hedge_%'
+      )
     )
 )
 select

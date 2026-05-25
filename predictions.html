@@ -361,6 +361,62 @@ main {
   font-weight: 900;
 }
 
+.hedge-fixture-row {
+  border-color: rgba(125, 211, 252, 0.44);
+  background:
+    linear-gradient(90deg, rgba(7, 89, 133, 0.24), rgba(17, 7, 38, 0.44) 34%),
+    rgba(17, 7, 38, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.14);
+}
+
+.hedge-flags {
+  gap: 5px;
+}
+
+.hedge-badge {
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.88),
+    1px -1px 0 rgba(0,0,0,0.88),
+    -1px 1px 0 rgba(0,0,0,0.88),
+    1px 1px 0 rgba(0,0,0,0.88),
+    0 0 10px rgba(125, 211, 252, 0.68);
+}
+
+.hedge-picker-main {
+  grid-template-columns: minmax(180px, 1fr) 46px 18px 46px;
+}
+
+.hedge-empty-main .fixture-team {
+  text-align: center;
+}
+
+.hedge-fixture-select {
+  min-height: 30px;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(125, 211, 252, 0.48);
+  border-radius: 7px;
+  padding: 5px 8px;
+  background: rgba(17, 7, 38, 0.76);
+  color: #fff;
+  font: 900 13px 'Segoe UI', Arial, sans-serif;
+}
+
+.hedge-save-button {
+  min-height: 28px;
+  white-space: nowrap;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #075985, #0284c7 62%, #7dd3fc);
+  color: #fff;
+  font-size: 11px;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.34);
+}
+
 .curse-marker {
   width: 26px;
   height: 26px;
@@ -456,6 +512,14 @@ main {
   justify-content: end;
   gap: 6px;
   min-width: 0;
+}
+
+.hedge-fixture-meta {
+  grid-template-columns: minmax(78px, auto) auto auto;
+}
+
+.hedge-picker-row .hedge-fixture-meta {
+  grid-template-columns: auto auto;
 }
 
 .fixture-effects {
@@ -926,6 +990,28 @@ footer {
     gap: 4px;
   }
 
+  .hedge-fixture-row {
+    grid-template-columns: 66px minmax(0, 1fr) minmax(58px, auto);
+  }
+
+  .hedge-flags {
+    gap: 3px;
+  }
+
+  .hedge-badge {
+    font-size: 9.5px;
+  }
+
+  .hedge-picker-main {
+    grid-template-columns: 1fr 34px 10px 34px;
+  }
+
+  .hedge-fixture-select {
+    min-height: 28px;
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
   .summary-fixture-main {
     grid-template-columns: minmax(56px, 1fr) 44px minmax(56px, 1fr);
   }
@@ -1033,6 +1119,18 @@ footer {
 
   button {
     width: 100%;
+  }
+
+  .hedge-save-button {
+    width: auto;
+    min-height: 22px;
+    padding: 4px 6px;
+    font-size: 9.5px;
+  }
+
+  .hedge-fixture-meta {
+    grid-template-columns: 1fr;
+    gap: 2px;
   }
 
   .curse-marker {
