@@ -3,7 +3,7 @@ import {
   leagueUrl,
   loadLeagueContext,
 } from './league-context.js';
-import { countdownText, isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
+import { isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
 import { supabase } from './supabase-client.js';
 
 const leagueName = document.querySelector('[data-league-name]');
@@ -75,60 +75,63 @@ function isoFromMs(value) {
   return value ? new Date(value).toISOString() : null;
 }
 
+function compactCountdownText(value) {
+  if (!value) {
+    return 'Not Set';
+  }
+
+  const remainingMs = new Date(value).getTime() - Date.now();
+  if (remainingMs <= 0) {
+    return 'Locked';
+  }
+
+  const totalMinutes = Math.max(1, Math.ceil(remainingMs / 60000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return hours > 0 ? `${hours}hr ${minutes}m` : `${minutes}m`;
+}
+
 function deadlineDisplay(value, options = {}) {
+  if (options.enabled === false) {
+    return {
+      className: 'disabled',
+      countdown: 'Disabled',
+    };
+  }
+
   if (!value) {
     return {
-      className: 'unset',
-      countdown: '',
-      status: 'Not set',
+      className: 'disabled',
+      countdown: 'Not Set',
     };
   }
 
-  if (Date.now() >= new Date(value).getTime()) {
-    return {
-      className: 'locked',
-      countdown: '',
-      status: 'Locked',
-    };
-  }
+  const locked = Date.now() >= new Date(value).getTime();
+  const countdown = compactCountdownText(value);
 
-  if (options.type === 'curse' || options.type === 'power') {
+  if (options.windowOnly) {
     return {
-      className: 'playable',
-      countdown: countdownText(value),
-      status: 'Playable',
-    };
-  }
-
-  if (options.completed) {
-    return {
-      className: 'complete',
-      countdown: countdownText(value),
-      status: 'Completed',
+      className: locked ? 'bad locked' : 'good',
+      countdown,
     };
   }
 
   return {
-    className: 'action',
-    countdown: countdownText(value),
-    status: 'Action Required',
+    className: options.completed ? 'good' : 'bad',
+    countdown,
   };
 }
 
 function renderDeadlineCard(label, value, options = {}) {
   const display = deadlineDisplay(value, options);
-  const cleanLabel = String(label || '').replace(/\*/g, '');
-  const body = display.countdown
-    ? `
-      <span class="deadline-countdown">${escapeHtml(display.countdown)}</span>
-      <strong class="deadline-status">${escapeHtml(display.status)}</strong>
-    `
-    : `<strong class="deadline-status">${escapeHtml(display.status)}</strong>`;
 
   return `
     <div class="deadline-card ${escapeHtml(display.className)}">
-      <span class="deadline-title">${escapeHtml(cleanLabel)}</span>
-      <div class="deadline-body">${body}</div>
+      <span class="deadline-title">${escapeHtml(label)}</span>
+      <div class="deadline-body">
+        <strong class="deadline-countdown">${escapeHtml(display.countdown)}</strong>
+        <span class="deadline-light" aria-hidden="true"></span>
+      </div>
     </div>
   `;
 }
@@ -181,6 +184,66 @@ async function loadStarManCompletion(league, user, activeGameweek) {
   return Boolean(data?.id);
 }
 
+async function loadGameCardCompletion(league, user, activeGameweek) {
+  if (!activeGameweek) {
+    return { enabled: false, completed: false };
+  }
+
+  try {
+    await supabase.rpc('ensure_game_card_rounds', {
+      target_competition_id: league.id,
+    });
+
+    const [{ data: gameweeks, error: gameweekError }, { data: rounds, error: roundError }] = await Promise.all([
+      supabase
+        .from('gameweeks')
+        .select('id, number')
+        .eq('season_id', league.season_id),
+      supabase
+        .from('game_card_rounds')
+        .select('id, start_gameweek_id, end_gameweek_id, status')
+        .eq('competition_id', league.id)
+        .eq('season_id', league.season_id)
+        .order('round_number', { ascending: true }),
+    ]);
+
+    if (gameweekError || roundError) {
+      return { enabled: false, completed: false };
+    }
+
+    const numberById = new Map((gameweeks || []).map((gameweek) => [String(gameweek.id), Number(gameweek.number)]));
+    const activeNumber = Number(activeGameweek.gameweek_number || 0);
+    const activeRound = (rounds || []).find((round) => {
+      const startNumber = numberById.get(String(round.start_gameweek_id));
+      const endNumber = numberById.get(String(round.end_gameweek_id));
+      return activeNumber >= startNumber && activeNumber <= endNumber;
+    });
+
+    if (!activeRound) {
+      return { enabled: false, completed: false };
+    }
+
+    const { data, error } = await supabase
+      .from('game_card_predictions')
+      .select('id, predicted_value')
+      .eq('round_id', activeRound.id)
+      .eq('gameweek_id', activeGameweek.gameweek_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (error) {
+      return { enabled: true, completed: false };
+    }
+
+    return {
+      enabled: true,
+      completed: data?.predicted_value !== null && data?.predicted_value !== undefined && String(data.predicted_value) !== '',
+    };
+  } catch {
+    return { enabled: false, completed: false };
+  }
+}
+
 async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
   if (!deadlineStrip) {
     return;
@@ -195,13 +258,20 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
   const predictionDeadlineMs = firstKickoffMs ? firstKickoffMs - (90 * 60 * 1000) : earliestTime(fixtures.map((fixture) => fixture.prediction_locks_at));
   const curseDeadlineMs = firstKickoffMs ? firstKickoffMs - (24 * 60 * 60 * 1000) : null;
   const starDeadline = activeGameweek?.star_man_locks_at || isoFromMs(predictionDeadlineMs);
-  const starManCompleted = await loadStarManCompletion(league, user, activeGameweek);
+  const gameweekLabelText = `GW${activeGameweek?.gameweek_number || 'X'}`;
+  const [predictionsCompleted, starManCompleted, gameCardCompletion] = await Promise.all([
+    loadPredictionCompletion(league, user, fixtures),
+    loadStarManCompletion(league, user, activeGameweek),
+    loadGameCardCompletion(league, user, activeGameweek),
+  ]);
 
   function update() {
     deadlineStrip.innerHTML = [
-      renderDeadlineCard('Play Power Card Deadline', isoFromMs(predictionDeadlineMs), { type: 'power' }),
-      renderDeadlineCard('Play Curse Card Deadline', isoFromMs(curseDeadlineMs), { type: 'curse' }),
-      renderDeadlineCard('Star Man Deadline', starDeadline, { completed: starManCompleted }),
+      renderDeadlineCard(`${gameweekLabelText} Predictions Deadline`, isoFromMs(predictionDeadlineMs), { completed: predictionsCompleted }),
+      renderDeadlineCard(`${gameweekLabelText} Star Man Deadline`, starDeadline, { completed: starManCompleted }),
+      renderDeadlineCard(`${gameweekLabelText} Game Card Deadline`, starDeadline, { completed: gameCardCompletion.completed, enabled: gameCardCompletion.enabled }),
+      renderDeadlineCard('Play Power Card Deadline', isoFromMs(predictionDeadlineMs), { windowOnly: true }),
+      renderDeadlineCard('Play Curse Card Deadline', isoFromMs(curseDeadlineMs), { windowOnly: true }),
     ].join('');
   }
 

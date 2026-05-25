@@ -10,6 +10,9 @@ import { loadActiveGameweek } from './gameweek-context.js';
 const leagueLink = document.querySelector('[data-league-link]');
 const content = document.querySelector('[data-game-card-content]');
 const message = document.querySelector('[data-game-card-message]');
+const cardModal = document.querySelector('[data-card-modal]');
+const cardModalBody = document.querySelector('[data-card-modal-body]');
+const closeCardButton = document.querySelector('[data-close-card]');
 
 const state = {
   user: null,
@@ -72,6 +75,26 @@ function cardDescription(definition) {
   return description && !hasEncodingArtifacts(description)
     ? description
     : cardInstruction(cardName);
+}
+
+function openCardModal(definition) {
+  if (!cardModal || !cardModalBody) {
+    return;
+  }
+
+  const cardName = definition?.name || 'Game Card';
+  cardModalBody.innerHTML = `
+    <h2>${escapeHtml(cardName)}</h2>
+    <p>${escapeHtml(cardDescription(definition))}</p>
+    <p>${escapeHtml(cardInstruction(cardName))}</p>
+  `;
+  cardModal.classList.add('show');
+  cardModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeCardModal() {
+  cardModal?.classList.remove('show');
+  cardModal?.setAttribute('aria-hidden', 'true');
 }
 
 function predictionKey(roundId, gameweekId) {
@@ -331,7 +354,7 @@ function renderRound(round) {
     <section class="round-panel ${status}">
       <span class="round-label">${label}</span>
       <div class="active-card-layout">
-        <div class="game-card-visual">${escapeHtml(cardName)}</div>
+        <button class="game-card-visual" type="button" data-game-card-preview="${escapeHtml(round.id)}">${escapeHtml(cardName)}</button>
         <div class="card-copy">
           <h2>${escapeHtml(cardName)}</h2>
           <p>${escapeHtml(cardDescription(definition))}</p>
@@ -362,6 +385,13 @@ function renderRounds() {
     button.addEventListener('click', () => savePrediction(button.closest('[data-gameweek-id]')));
   });
 
+  content.querySelectorAll('[data-game-card-preview]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const round = state.rounds.find((item) => String(item.id) === String(button.dataset.gameCardPreview));
+      openCardModal(normaliseNested(round?.card_definitions));
+    });
+  });
+
   updateCountdowns();
   countdownTimer = window.setInterval(updateCountdowns, 30000);
 }
@@ -387,16 +417,27 @@ async function savePrediction(row) {
   const roundId = row?.dataset.roundId;
   const gameweekId = row?.dataset.gameweekId;
   const input = row?.querySelector('[data-prediction-input]');
-  const value = Number(input?.value);
+  const rawValue = input?.value.trim() || '';
 
-  if (!roundId || !gameweekId || !input || input.value === '' || Number.isNaN(value) || value < 0 || value > 999) {
-    setMessage('Enter a number between 0 and 999.', 'error');
+  if (!roundId || !gameweekId || !input) {
+    setMessage('Could not find this Game Card prediction row.', 'error');
     return;
   }
 
   const round = state.rounds.find((item) => item.id === roundId);
   if (!round || roundStatus(round) !== 'active') {
     setMessage('Only the active Game Card can be edited.', 'error');
+    return;
+  }
+
+  if (rawValue === '') {
+    await clearPrediction(row, roundId, gameweekId);
+    return;
+  }
+
+  const value = Number(rawValue);
+  if (Number.isNaN(value) || value < 0 || value > 999) {
+    setMessage('Enter a number between 0 and 999.', 'error');
     return;
   }
 
@@ -422,6 +463,29 @@ async function savePrediction(row) {
   row.querySelector('.save-light')?.setAttribute('aria-label', 'Prediction saved');
   row.querySelector('.save-light')?.setAttribute('title', 'Prediction saved');
   setMessage('Game Card prediction saved.', 'success');
+}
+
+async function clearPrediction(row, roundId, gameweekId) {
+  setMessage('Clearing Game Card prediction...', 'info');
+
+  const { error } = await supabase
+    .from('game_card_predictions')
+    .delete()
+    .eq('round_id', roundId)
+    .eq('gameweek_id', gameweekId)
+    .eq('user_id', state.user.id);
+
+  if (error) {
+    setMessage(error.message || 'Could not clear Game Card prediction.', 'error');
+    return;
+  }
+
+  state.predictions.delete(predictionKey(roundId, gameweekId));
+  const light = row.querySelector('.save-light');
+  light?.classList.remove('saved');
+  light?.setAttribute('aria-label', 'No prediction saved');
+  light?.setAttribute('title', 'No prediction saved');
+  setMessage('Game Card prediction cleared.', 'success');
 }
 
 async function boot() {
@@ -457,3 +521,10 @@ async function boot() {
 }
 
 boot();
+
+closeCardButton?.addEventListener('click', closeCardModal);
+cardModal?.addEventListener('click', (event) => {
+  if (event.target === cardModal) {
+    closeCardModal();
+  }
+});
