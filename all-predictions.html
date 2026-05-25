@@ -215,7 +215,7 @@ main {
 .prediction-row {
   min-height: 30px;
   display: grid;
-  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 58px;
+  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 88px;
   gap: 6px;
   align-items: center;
   padding: 5px 7px;
@@ -281,7 +281,7 @@ main {
 .actual-result-row {
   grid-column: 1 / -1;
   display: none;
-  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 58px;
+  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 88px;
   gap: 6px;
   align-items: center;
   padding: 2px 0 1px;
@@ -393,7 +393,8 @@ main {
   box-shadow: 0 0 16px rgba(14, 165, 233, 0.82), inset 0 0 7px rgba(255,255,255,0.28);
 }
 .curse-marker span {
-  display: block;
+  display: grid;
+  place-items: center;
   line-height: 1;
   transform: translateY(-0.5px);
 }
@@ -427,12 +428,14 @@ main {
   display: grid;
 }
 .curse-panel {
-  width: min(720px, 100%);
+  width: min(1040px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
   display: grid;
-  gap: 16px;
+  gap: 12px;
   justify-items: center;
   border-radius: 16px;
-  padding: 18px 14px 24px;
+  padding: 14px 12px 18px;
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -450,11 +453,14 @@ main {
 }
 .curse-card-list {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
-  align-items: stretch;
-  flex-wrap: wrap;
+  align-items: center;
+  flex-wrap: nowrap;
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
 }
 .curse-card-wrap {
   display: grid;
@@ -484,13 +490,13 @@ main {
     0 0 12px rgba(251, 113, 133, 0.7);
 }
 .curse-detail-card {
-  width: min(330px, calc(100vw - 40px));
-  height: min(430px, calc(100vh - 170px));
-  min-height: 330px;
+  width: 220px;
+  height: 310px;
+  min-height: 310px;
   display: flex;
   flex-direction: column;
   border-radius: 18px;
-  padding: 24px 20px;
+  padding: 18px 14px;
   text-align: center;
   color: #fff;
   position: relative;
@@ -533,7 +539,7 @@ main {
   margin: 0;
   padding: 0 2px 8px;
   color: #fff;
-  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
+  font-size: clamp(1rem, 1.8vw, 1.18rem);
   line-height: 1.18;
   font-weight: 950;
 }
@@ -545,7 +551,7 @@ main {
   margin: 0;
   padding: 0 2px;
   color: #fff;
-  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  font-size: clamp(0.68rem, 1.1vw, 0.82rem);
   font-weight: 850;
   line-height: 1.35;
   overflow-y: auto;
@@ -619,14 +625,14 @@ footer {
   .player-pill { width: 40px; height: 40px; }
   .prediction-row {
     min-height: 28px;
-    grid-template-columns: 36px minmax(60px, 1fr) 42px minmax(60px, 1fr) 48px;
+    grid-template-columns: 36px minmax(54px, 1fr) 42px minmax(54px, 1fr) 72px;
     gap: 4px;
     padding: 4px 5px;
   }
   .prediction-row span { font-size: 12px; }
   .prediction-row strong { font-size: 14px; }
   .actual-result-row {
-    grid-template-columns: 36px minmax(60px, 1fr) 42px minmax(60px, 1fr) 48px;
+    grid-template-columns: 36px minmax(54px, 1fr) 42px minmax(54px, 1fr) 72px;
     gap: 4px;
   }
   .actual-result-row span,
@@ -651,6 +657,37 @@ footer {
     width: 22px;
     height: 22px;
     font-size: 13px;
+  }
+
+  .curse-panel {
+    width: calc(100vw - 12px);
+    max-height: calc(100vh - 12px);
+    gap: 9px;
+    padding: 10px 6px 14px;
+  }
+
+  .curse-card-list {
+    justify-content: flex-start;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .curse-detail-card {
+    width: 148px;
+    height: 220px;
+    min-height: 220px;
+    border-radius: 14px;
+    padding: 12px 8px;
+  }
+
+  .curse-card-played-by {
+    font-size: 11px;
+    line-height: 1.1;
+  }
+
+  .curse-audit-separator {
+    min-width: 58px;
+    font-size: 0.82rem;
   }
 }
 </style>
@@ -677,6 +714,7 @@ footer {
       <span class="key-incorrect">Incorrect Result</span>
       <span class="key-uc"><span class="uc-point-badge" aria-hidden="true"></span> = UC Point</span>
       <span class="key-curse"><span class="curse-marker" aria-hidden="true"><span>&#9760;</span></span> = Curse</span>
+      <span class="key-power"><span class="power-marker" aria-hidden="true"><span>&#9994;</span></span> = Power</span>
     </div>
     <div class="gameweek-controls">
       <button type="button" data-previous-gameweek>Previous GW</button>
@@ -695,7 +733,7 @@ footer {
   <div class="curse-panel" role="dialog" aria-modal="true" aria-label="Prediction curse">
     <h2>Active Curse</h2>
     <div class="curse-card-list" data-curse-modal-body></div>
-    <button class="curse-close" type="button" data-close-curse>Close</button>
+    <button class="curse-close" type="button" data-close-curse>Back</button>
   </div>
 </div>
 

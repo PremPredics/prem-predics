@@ -128,7 +128,7 @@ main {
 .star-row {
   min-height: 28px;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 32px;
+  grid-template-columns: 44px minmax(0, 1fr) 32px auto;
   gap: 6px;
   align-items: center;
   padding: 4px 7px;
@@ -180,7 +180,39 @@ main {
 }
 .card-icon.yellow { background: #facc15; }
 .card-icon.red { background: #ef4444; }
-.curse-marker {
+.star-points-badge {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  justify-self: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 247, 173, 0.86);
+  background: radial-gradient(circle at 34% 28%, #fff7ad 0%, #facc15 42%, #d97706 78%, #78350f 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.82),
+    1px -1px 0 rgba(0,0,0,0.82),
+    -1px 1px 0 rgba(0,0,0,0.82),
+    1px 1px 0 rgba(0,0,0,0.82);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.55), inset 0 0 5px rgba(255,255,255,0.22);
+}
+.star-points-badge.negative {
+  border-color: rgba(254, 202, 202, 0.95);
+  background: radial-gradient(circle at 34% 28%, #fecaca 0%, #ef4444 44%, #991b1b 100%);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.58), inset 0 0 5px rgba(255,255,255,0.22);
+}
+.star-effects {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 28px;
+}
+.curse-marker,
+.power-marker {
   width: 25px;
   height: 25px;
   display: inline-grid;
@@ -201,9 +233,18 @@ main {
     1px 1px 0 rgba(0,0,0,0.92);
   box-shadow: 0 0 12px rgba(255, 31, 31, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
 }
-.curse-marker:hover {
+.power-marker {
+  border-color: rgba(191, 219, 254, 0.9);
+  background: radial-gradient(circle at 34% 22%, #e0f2fe 0%, #0284c7 40%, #075985 100%);
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
+}
+.curse-marker:hover,
+.power-marker:hover {
   transform: translateY(-1px) scale(1.05);
   box-shadow: 0 0 16px rgba(255, 31, 31, 0.82), inset 0 0 7px rgba(255,255,255,0.28);
+}
+.power-marker:hover {
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.82), inset 0 0 7px rgba(255,255,255,0.28);
 }
 .star-row.unlocked {
   opacity: 0.74;
@@ -265,6 +306,18 @@ main {
   gap: 9px;
   justify-items: center;
 }
+.curse-audit-separator {
+  align-self: center;
+  color: #fff;
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 16px rgba(255,255,255,0.72);
+}
 .curse-card-played-by {
   color: #fff;
   font-weight: 950;
@@ -296,6 +349,11 @@ main {
     -1px 1px 0 rgba(0,0,0,0.92),
     1px 1px 0 rgba(0,0,0,0.92),
     0 2px 5px rgba(0,0,0,0.78);
+}
+.curse-detail-card.power-detail-card {
+  border-color: #7dd3fc;
+  background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 24%, #38bdf8 50%, #0ea5e9 72%, #bae6fd 100%);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.18);
 }
 .curse-detail-card::after {
   content: '';
@@ -400,13 +458,19 @@ footer {
   .player-pill { width: 40px; height: 40px; }
   .star-row {
     min-height: 25px;
-    grid-template-columns: 38px minmax(0, 1fr) 26px;
+    grid-template-columns: 38px minmax(0, 1fr) 28px auto;
     gap: 4px;
     padding: 3px 5px;
   }
   .star-choice { font-size: 11px; }
   .star-icons { font-size: 11px; }
-  .curse-marker {
+  .star-points-badge {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+  .curse-marker,
+  .power-marker {
     width: 22px;
     height: 22px;
     font-size: 14px;

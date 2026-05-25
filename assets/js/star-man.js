@@ -154,7 +154,7 @@ function canSearchSlot(slot) {
 
   const hasExistingPick = Boolean(state.existingPicks.get(slot));
   if (hasExistingPick) {
-    return Boolean(ownEffect('super_sub'));
+    return Boolean(ownEffect('super_sub') || ownEffect('power_late_scout'));
   }
 
   return Boolean(ownEffect('power_late_scout'));

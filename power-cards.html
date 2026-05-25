@@ -399,6 +399,52 @@ button:disabled {
   box-shadow: 0 0 34px rgba(52, 211, 153, 0.82), 0 14px 34px rgba(6, 95, 70, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
+.card-preview-played-by {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(17, 7, 38, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92);
+}
+
+.card-preview-played-by[hidden] {
+  display: none;
+}
+
+.card-preview-played-by-avatar {
+  width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255,255,255,0.22);
+  border: 2px solid rgba(255,255,255,0.92);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.card-preview-played-by-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .card-preview-btn.back {
   background:
     radial-gradient(circle at 24% 16%, rgba(255, 255, 255, 0.88), transparent 20%),
@@ -3500,12 +3546,13 @@ button:disabled {
 <div class="container">
   <!-- Card Preview Modal -->
   <div class="card-preview-modal" id="cardPreviewModal">
-    <div class="card-preview-wrapper">
-      <div class="card-preview-question">Are you sure you'd like to play this card?</div>
-      <div class="card-preview-content" id="cardPreviewContent">
-        <div class="card-preview-name" id="cardPreviewName"></div>
-        <div class="card-preview-description" id="cardPreviewDescription"></div>
-      </div>
+      <div class="card-preview-wrapper">
+        <div class="card-preview-question">Are you sure you'd like to play this card?</div>
+        <div class="card-preview-played-by" id="cardPreviewPlayedBy" hidden></div>
+        <div class="card-preview-content" id="cardPreviewContent">
+          <div class="card-preview-name" id="cardPreviewName"></div>
+          <div class="card-preview-description" id="cardPreviewDescription"></div>
+        </div>
       <div class="card-preview-buttons">
         <button class="card-preview-btn play" id="playCardBtn" onclick="confirmCardPlay()">Play Card</button>
         <button class="card-preview-btn back" onclick="closeCardPreview()">Back</button>
@@ -4018,6 +4065,7 @@ let gameState = {
   playerOrder: ['p1'],
   playerNames: { p1: 'You' },
   playerColors: { p1: '#ffffff' },
+  playerProfileImages: {},
   playerUserIds: {},
   cardInstanceIdsByPlayer: {},
   handCardInstancesByPlayer: {},
@@ -4133,6 +4181,7 @@ function load() {
     gameState.playerOrder = gameState.playerOrder || Object.keys(gameState.players || {});
     gameState.playerNames = gameState.playerNames || {};
     gameState.playerColors = gameState.playerColors || {};
+    gameState.playerProfileImages = gameState.playerProfileImages || {};
     gameState.playerUserIds = gameState.playerUserIds || {};
     gameState.cardInstanceIdsByPlayer = gameState.cardInstanceIdsByPlayer || {};
     gameState.handCardInstancesByPlayer = gameState.handCardInstancesByPlayer || {};
@@ -4447,6 +4496,29 @@ function updateMedalDisplays() {
 
 function getPlayerName(playerKey) {
   return gameState.playerNames?.[playerKey] || playerKey;
+}
+
+function playerKeyForUserId(userId) {
+  return Object.entries(gameState.playerUserIds || {})
+    .find(([, value]) => String(value) === String(userId))?.[0] || null;
+}
+
+function playerAvatarMarkup(userId) {
+  const playerKey = playerKeyForUserId(userId);
+  const name = playerKey ? getPlayerName(playerKey) : 'Player';
+  const imageUrl = playerKey ? gameState.playerProfileImages?.[playerKey] : null;
+  if (imageUrl) {
+    return `<span class="card-preview-played-by-avatar"><img src="${escapeHtml(imageUrl)}" alt=""></span>`;
+  }
+
+  const initial = (name || 'P').trim().charAt(0).toUpperCase() || 'P';
+  return `<span class="card-preview-played-by-avatar">${escapeHtml(initial)}</span>`;
+}
+
+function playedByMarkup(userId) {
+  const playerKey = playerKeyForUserId(userId);
+  const name = playerKey ? getPlayerName(playerKey) : 'Player';
+  return `Played by ${playerAvatarMarkup(userId)} <span>${escapeHtml(name)}</span>`;
 }
 
 function formatChoiceList(items) {
@@ -4788,9 +4860,14 @@ function showCardPreview(cardName, player, index) {
   const content = document.getElementById('cardPreviewContent');
   const question = modal.querySelector('.card-preview-question');
   const playButton = document.getElementById('playCardBtn');
-  const cardType = getCardType(cardName);
+  const playedByEl = document.getElementById('cardPreviewPlayedBy');
+  const cardType = getCardType(displayName);
   
   question.textContent = "Are you sure you'd like to play this card?";
+  if (playedByEl) {
+    playedByEl.hidden = true;
+    playedByEl.innerHTML = '';
+  }
   playButton.hidden = false;
   content.className = `card-preview-content ${cardType}`;
   const nameEl = document.getElementById('cardPreviewName');
@@ -4803,16 +4880,21 @@ function showCardPreview(cardName, player, index) {
   fitPreviewText(nameEl, descEl);
 }
 
-function showReadOnlyCardPreview(cardName) {
+function showReadOnlyCardPreview(cardName, playedByUserId = null) {
   const modal = document.getElementById('cardPreviewModal');
   const discardModal = document.getElementById('discardPileModal');
   const content = document.getElementById('cardPreviewContent');
   const question = modal.querySelector('.card-preview-question');
   const playButton = document.getElementById('playCardBtn');
-  const cardType = getCardType(cardName);
+  const playedByEl = document.getElementById('cardPreviewPlayedBy');
+  const cardType = getCardType(displayName);
 
   gameState.cardToPlay = null;
   question.textContent = 'Card Details';
+  if (playedByEl) {
+    playedByEl.hidden = !playedByUserId;
+    playedByEl.innerHTML = playedByUserId ? playedByMarkup(playedByUserId) : '';
+  }
   playButton.hidden = true;
   content.className = `card-preview-content ${cardType}`;
   const nameEl = document.getElementById('cardPreviewName');
@@ -4830,9 +4912,14 @@ function closeCardPreview() {
   const modal = document.getElementById('cardPreviewModal');
   const question = modal.querySelector('.card-preview-question');
   const playButton = document.getElementById('playCardBtn');
+  const playedByEl = document.getElementById('cardPreviewPlayedBy');
   modal.classList.remove('show');
   modal.classList.remove('detail-over-modal');
   question.textContent = "Are you sure you'd like to play this card?";
+  if (playedByEl) {
+    playedByEl.hidden = true;
+    playedByEl.innerHTML = '';
+  }
   playButton.hidden = false;
   if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show')) {
     document.body.classList.remove('card-preview-open');
@@ -5198,9 +5285,19 @@ function getMaskedCardLabel(cardName) {
   return 'Regular Card';
 }
 
+function pileCardName(card) {
+  return typeof card === 'object' && card ? card.name : card;
+}
+
+function pileCardPlayedBy(card) {
+  return typeof card === 'object' && card ? card.playedByUserId : null;
+}
+
 function cardTileMarkup(cardName, extraClass = '') {
+  const displayName = pileCardName(cardName);
+  const playedByUserId = pileCardPlayedBy(cardName);
   const cardType = getCardType(cardName);
-  return `<div class="card-tile ${cardType} ${extraClass}" data-card-name="${escapeHtml(cardName)}">${escapeHtml(cardName)}</div>`;
+  return `<div class="card-tile ${cardType} ${extraClass}" data-card-name="${escapeHtml(displayName)}" ${playedByUserId ? `data-played-by-user-id="${escapeHtml(playedByUserId)}"` : ''}>${escapeHtml(displayName)}</div>`;
 }
 
 function gameweekHasStartedFromTime(kickoffAt) {
@@ -5501,6 +5598,7 @@ function markCardInstanceAsUsed(playerKey, cardIndex, activation) {
   gameState.usedCardEffectsByInstance = gameState.usedCardEffectsByInstance || {};
   gameState.usedCardEffectsByInstance[cardInstanceId] = {
     effectId: activation.id,
+    playedByUserId: activation.played_by_user_id || cardRuntime?.user?.id || null,
     gameweekNumber: activation.gameweek_number || '?',
     firstFixtureKickoffAt: activation.first_fixture_kickoff_at || null,
     hasGameweekStarted: gameweekHasStartedFromTime(activation.first_fixture_kickoff_at),
@@ -5697,7 +5795,10 @@ function render() {
     fitTileText(tile);
     tile.setAttribute('role', 'button');
     tile.setAttribute('tabindex', '0');
-    const openDetails = () => showReadOnlyCardPreview(tile.dataset.cardName || tile.textContent.trim());
+    const openDetails = () => showReadOnlyCardPreview(
+      tile.dataset.cardName || tile.textContent.trim(),
+      tile.dataset.playedByUserId || null
+    );
     tile.addEventListener('click', openDetails);
     tile.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
@@ -5795,6 +5896,7 @@ async function initializeCardPage() {
       const nextPlayers = {};
       const nextPlayerNames = {};
       const nextPlayerColors = {};
+      const nextPlayerProfileImages = {};
       const nextPlayerUserIds = {};
       const nextCardInstanceIdsByPlayer = {};
       const nextHandCardInstancesByPlayer = {};
@@ -5808,6 +5910,7 @@ async function initializeCardPage() {
         nextHandCardInstancesByPlayer[key] = [];
         nextPlayerNames[key] = profile?.display_name || (member.user_id === context.user.id ? 'You' : 'Player');
         nextPlayerColors[key] = safeProfileColor(profile?.favorite_color);
+        nextPlayerProfileImages[key] = profile?.profile_image_url || '';
         nextPlayerUserIds[key] = member.user_id;
         nextOrder.push(key);
         lastHandSizes[key] = lastHandSizes[key] || 0;
@@ -5817,6 +5920,7 @@ async function initializeCardPage() {
       gameState.playerOrder = nextOrder.length ? nextOrder : ['p1'];
       gameState.playerNames = nextPlayerNames;
       gameState.playerColors = nextPlayerColors;
+      gameState.playerProfileImages = nextPlayerProfileImages;
       gameState.playerUserIds = nextPlayerUserIds;
       gameState.cardInstanceIdsByPlayer = nextCardInstanceIdsByPlayer;
       gameState.handCardInstancesByPlayer = nextHandCardInstancesByPlayer;
@@ -5859,6 +5963,7 @@ async function initializeCardPage() {
         gameState.usedCardEffectsByInstance[effect.card_instance_id] = {
           effectId: effect.id,
           effectKey: definition?.effect_key || '',
+          playedByUserId: effect.played_by_user_id || null,
           gameweekNumber: gameweek?.gameweek_number || '?',
           firstFixtureKickoffAt,
           hasGameweekStarted: gameweekHasStartedFromTime(firstFixtureKickoffAt),
@@ -5887,10 +5992,13 @@ async function initializeCardPage() {
         const cardDefinition = getNestedRecord(row.card_definitions);
         const cardName = normalizeCardName(cardDefinition?.name || row.card_id);
         const usedMeta = gameState.usedCardEffectsByInstance[row.id];
+        const discardItem = usedMeta?.playedByUserId
+          ? { name: cardName, playedByUserId: usedMeta.playedByUserId }
+          : cardName;
 
         if (row.zone === 'hand') {
           if (usedMeta?.hasGameweekStarted) {
-            dbDiscardPile.push(cardName);
+            dbDiscardPile.push(discardItem);
             return;
           }
 
@@ -5916,7 +6024,7 @@ async function initializeCardPage() {
             }
             return;
           }
-          dbDiscardPile.push(cardName);
+          dbDiscardPile.push(discardItem);
         }
       });
 

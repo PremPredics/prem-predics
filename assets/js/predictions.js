@@ -190,6 +190,10 @@ function visiblePredictionCursesForFixture(fixture) {
     .sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
 }
 
+function effectPlayedAtMs(effect) {
+  return new Date(effect?.played_at || 0).getTime() || 0;
+}
+
 function renderCurseMarker(fixture) {
   const curses = visiblePredictionCursesForFixture(fixture);
   if (!curses.length) {
@@ -202,6 +206,11 @@ function renderCurseMarker(fixture) {
 
 function visiblePredictionPowersForFixture() {
   return state.pessimistEffect ? [state.pessimistEffect] : [];
+}
+
+function ownPredictionPanelPowers() {
+  return [state.pessimistEffect, state.hedgeEffect, state.godEffect, state.superScoreEffect]
+    .filter(Boolean);
 }
 
 function renderPowerMarker(fixture) {
@@ -403,19 +412,22 @@ async function loadCurseOverridePredictions() {
   }
 
   const activeEffectIds = new Set(state.targetEffects.map((effect) => String(effect.id)));
-  [...(hatedResult.data || []), ...(gamblerResult.data || [])].forEach((row) => {
-    if (!activeEffectIds.has(String(row.card_effect_id))) {
-      return;
-    }
-
-    state.curseOverridePredictions.set(row.fixture_id, {
+  const effectById = new Map(state.targetEffects.map((effect) => [String(effect.id), effect]));
+  [...(hatedResult.data || []), ...(gamblerResult.data || [])]
+    .filter((row) => activeEffectIds.has(String(row.card_effect_id)))
+    .sort((a, b) => (
+      effectPlayedAtMs(effectById.get(String(a.card_effect_id)))
+      - effectPlayedAtMs(effectById.get(String(b.card_effect_id)))
+    ))
+    .forEach((row) => {
+      state.curseOverridePredictions.set(row.fixture_id, {
       fixture_id: row.fixture_id,
       home_goals: row.home_goals,
       away_goals: row.away_goals,
       prediction_slot: 'curse_override',
       source_card_effect_id: row.card_effect_id,
     });
-  });
+    });
 }
 
 function isEffectForCurrentGameweek(effect) {
@@ -442,7 +454,7 @@ async function loadActivePredictionEffects() {
   const ownEffects = activeEffects.filter((effect) => effect.played_by_user_id === state.user.id);
   state.targetEffects = activeEffects.filter((effect) => effect.target_user_id === state.user.id);
   state.pessimistEffect = ownEffects.find((effect) => effectKey(effect) === 'power_pessimist') || null;
-  const visibleEffects = [...state.targetEffects, state.pessimistEffect].filter(Boolean);
+  const visibleEffects = [...state.targetEffects, ...ownEffects].filter(Boolean);
   const playedByUserIds = [...new Set(visibleEffects.map((effect) => effect.played_by_user_id).filter(Boolean))];
   state.effectProfiles = new Map();
   if (playedByUserIds.length) {
@@ -511,10 +523,12 @@ function renderSummary() {
               <strong class="summary-score ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}-${prediction?.away_goals ?? '-'}</strong>
               <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
             </span>
-            <span class="fixture-lock-wrap">
-              ${renderPowerMarker(fixture)}
-              ${renderCurseMarker(fixture)}
+            <span class="fixture-meta">
               <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${fixtureLockText(fixture)}</span>
+              <span class="fixture-effects">
+                ${renderPowerMarker(fixture)}
+                ${renderCurseMarker(fixture)}
+              </span>
             </span>
             ${state.hedgePrediction?.fixture_id === fixture.id ? `<small>Hedge: ${state.hedgePrediction.home_goals}-${state.hedgePrediction.away_goals}</small>` : ''}
             ${state.godPrediction?.fixture_id === fixture.id ? `<small>Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
@@ -562,10 +576,12 @@ function renderEdit() {
           <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
           <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
         </span>
-        <span class="fixture-lock-wrap">
-          ${renderPowerMarker(fixture)}
-          ${renderCurseMarker(fixture)}
+        <span class="fixture-meta">
           <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${fixtureLockText(fixture)}</span>
+          <span class="fixture-effects">
+            ${renderPowerMarker(fixture)}
+            ${renderCurseMarker(fixture)}
+          </span>
         </span>
       </article>
     `;
@@ -773,12 +789,25 @@ function openCurseEffectModal(effectId) {
   openCurseEffectsModal([effect]);
 }
 
-function openPowerModal() {
-  if (!state.pessimistEffect) {
+function openPowerModal(fixtureId) {
+  const fixture = state.fixtures.find((item) => item.id === fixtureId);
+  const powers = fixture ? visiblePredictionPowersForFixture(fixture) : visiblePredictionPowersForFixture();
+  if (!powers.length) {
     return;
   }
 
-  openCardEffectsModal([state.pessimistEffect], 'Active Power');
+  openCardEffectsModal(powers, powers.length === 1 ? 'Active Power' : 'Active Powers');
+}
+
+function openPredictionEffectModal(effectId) {
+  const effect = [...state.targetEffects, ...ownPredictionPanelPowers()].filter(Boolean)
+    .find((item) => item.id === effectId);
+  if (!effect) {
+    return;
+  }
+
+  const title = effectCategory(effect) === 'power' ? 'Active Power' : 'Active Curse';
+  openCardEffectsModal([effect], title);
 }
 
 function closeCurseModal() {
@@ -795,7 +824,7 @@ function wireCurseMarkers() {
   fixturesContainer.querySelectorAll('[data-card-fixture]').forEach((button) => {
     button.addEventListener('click', () => {
       if (button.dataset.cardKind === 'power') {
-        openPowerModal();
+        openPowerModal(button.dataset.cardFixture);
         return;
       }
 
@@ -803,8 +832,8 @@ function wireCurseMarkers() {
     });
   });
 
-  fixturesContainer.querySelectorAll('[data-prediction-curse-effect]').forEach((button) => {
-    button.addEventListener('click', () => openCurseEffectModal(button.dataset.predictionCurseEffect));
+  fixturesContainer.querySelectorAll('[data-prediction-card-effect]').forEach((button) => {
+    button.addEventListener('click', () => openPredictionEffectModal(button.dataset.predictionCardEffect));
   });
 }
 
@@ -818,14 +847,15 @@ function render() {
 }
 
 function renderTargetRestrictionPanel() {
-  const visibleEffects = state.targetEffects.filter((effect) => {
-    if (!isPredictionCurse(effect)) {
-      return false;
-    }
-    return state.fixtures.some((fixture) => (
+  const visibleCurses = state.targetEffects.filter((effect) => (
+    isPredictionCurse(effect)
+    && state.fixtures.some((fixture) => (
       curseAppliesToFixture(effect, fixture) && curseRevealAllowed(effect, fixture)
-    ));
-  });
+    ))
+  ));
+  const visiblePowers = ownPredictionPanelPowers();
+  const visibleEffects = [...visiblePowers, ...visibleCurses]
+    .sort((a, b) => effectPlayedAtMs(a) - effectPlayedAtMs(b));
 
   if (!visibleEffects.length) {
     return '';
@@ -833,17 +863,21 @@ function renderTargetRestrictionPanel() {
 
   return `
     <section class="hedge-panel restriction-panel">
-      <h3>Active Prediction Restrictions:</h3>
-      <div class="prediction-restriction-cards" aria-label="Active prediction curse cards">
-        ${visibleEffects.map((effect) => `
+      <h3>Active Power &amp; Curses on Predictions</h3>
+      <div class="prediction-restriction-cards" aria-label="Active prediction cards">
+        ${visibleEffects.map((effect) => {
+          const category = effectCategory(effect);
+          const icon = category === 'power' ? '&#9994;' : '&#9760;';
+          return `
           <div class="prediction-restriction-card-wrap">
-            <button class="prediction-restriction-card" type="button" data-prediction-curse-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}">
-              <span class="prediction-restriction-card-icon" aria-hidden="true">&#9760;</span>
+            <button class="prediction-restriction-card ${category === 'power' ? 'power-restriction-card' : 'curse-restriction-card'}" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}">
+              <span class="prediction-restriction-card-icon" aria-hidden="true">${icon}</span>
               <span class="prediction-restriction-card-name">${escapeHtml(effectName(effect))}</span>
             </button>
             <span class="prediction-restriction-played-by">Played by ${escapeHtml(playedByName(effect))}</span>
           </div>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
     </section>
   `;

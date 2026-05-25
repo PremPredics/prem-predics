@@ -174,12 +174,13 @@ main {
 }
 
 .restriction-panel {
-  gap: 12px;
+  gap: 8px;
+  padding: 10px 12px;
   background:
-    linear-gradient(135deg, rgba(46, 16, 102, 0.72), rgba(17, 7, 38, 0.62)),
-    radial-gradient(circle at 50% 0%, rgba(248, 113, 113, 0.18), transparent 52%);
-  border: 1px solid rgba(251, 113, 133, 0.52);
-  box-shadow: inset 0 0 0 1px rgba(216, 180, 254, 0.08), 0 8px 20px rgba(17, 7, 38, 0.2);
+    linear-gradient(90deg, rgba(7, 89, 133, 0.74) 0%, rgba(14, 116, 144, 0.64) 46%, rgba(127, 29, 29, 0.72) 54%, rgba(153, 27, 27, 0.74) 100%),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16), transparent 48%);
+  border: 2px solid rgba(255,255,255,0.36);
+  box-shadow: inset 0 0 0 1px rgba(216, 180, 254, 0.12), 0 8px 20px rgba(17, 7, 38, 0.2);
 }
 
 .restriction-panel h3 {
@@ -195,26 +196,26 @@ main {
 .prediction-restriction-cards {
   display: flex;
   justify-content: center;
-  align-items: stretch;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .prediction-restriction-card-wrap {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   justify-items: center;
 }
 
 .prediction-restriction-card {
-  width: 118px;
-  min-height: 152px;
+  width: 86px;
+  min-height: 104px;
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 8px;
-  padding: 14px 10px;
-  border-radius: 14px;
+  gap: 6px;
+  padding: 9px 7px;
+  border-radius: 12px;
   border: 2px solid rgba(254, 202, 202, 0.86);
   background:
     radial-gradient(circle at 32% 24%, rgba(255,255,255,0.24), transparent 24%),
@@ -228,6 +229,14 @@ main {
     1px 1px 0 rgba(0,0,0,0.92);
 }
 
+.prediction-restriction-card.power-restriction-card {
+  border-color: rgba(191, 219, 254, 0.9);
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255,255,255,0.24), transparent 24%),
+    linear-gradient(135deg, #075985 0%, #0284c7 34%, #38bdf8 70%, #bae6fd 100%);
+  box-shadow: 0 0 18px rgba(14, 165, 233, 0.42), 0 12px 22px rgba(17, 7, 38, 0.34);
+}
+
 .prediction-restriction-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 24px rgba(255, 47, 47, 0.58), 0 14px 26px rgba(17, 7, 38, 0.42);
@@ -236,25 +245,32 @@ main {
 .prediction-restriction-card-icon {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: rgba(127, 29, 29, 0.72);
   border: 1px solid rgba(254, 202, 202, 0.7);
-  font-size: 23px;
+  font-size: 18px;
   line-height: 1;
 }
 
+.power-restriction-card .prediction-restriction-card-icon {
+  background: rgba(7, 89, 133, 0.72);
+  border-color: rgba(191, 219, 254, 0.78);
+}
+
 .prediction-restriction-card-name {
-  font-size: 13px;
+  font-size: 10.5px;
   line-height: 1.12;
   font-weight: 950;
 }
 
 .prediction-restriction-played-by {
   color: #fff;
-  font-size: 12px;
+  max-width: 94px;
+  font-size: 10px;
   font-weight: 900;
+  line-height: 1.1;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.9),
     1px -1px 0 rgba(0,0,0,0.9),
@@ -291,7 +307,7 @@ main {
 
 .fixture-row {
   display: grid;
-  grid-template-columns: 82px minmax(0, 1fr) 136px;
+  grid-template-columns: 76px minmax(0, 1fr) minmax(148px, auto);
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -425,39 +441,32 @@ main {
   transform: translateY(-1px) scale(1.06);
 }
 
-.fixture-lock-wrap {
-  position: relative;
-  display: flex;
+.fixture-meta {
+  display: grid;
+  grid-template-columns: minmax(92px, auto) auto;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
+  justify-content: end;
+  gap: 6px;
   min-width: 0;
-  overflow: visible;
 }
 
-.fixture-lock-wrap .curse-marker {
-  position: absolute;
-  right: -9px;
-  top: -11px;
-  z-index: 2;
-}
-
-.fixture-lock-wrap .power-marker {
-  position: absolute;
-  right: 22px;
-  top: -11px;
-  z-index: 2;
+.fixture-effects {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
 }
 
 .fixture-lock {
   color: #ddd6fe;
   font-size: 12px;
   font-weight: 800;
-  min-width: 118px;
+  min-width: 92px;
   overflow: visible;
   text-overflow: clip;
   white-space: nowrap;
-  text-align: center;
+  text-align: right;
 }
 
 .fixture-team {
@@ -560,7 +569,7 @@ button:disabled {
 }
 
 .summary-fixture-row {
-  grid-template-columns: 82px minmax(0, 1fr) 136px;
+  grid-template-columns: 76px minmax(0, 1fr) minmax(148px, auto);
 }
 
 .summary-fixture-main {
@@ -633,12 +642,14 @@ button:disabled {
 }
 
 .curse-panel {
-  width: min(720px, 100%);
+  width: min(1040px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
   display: grid;
-  gap: 16px;
+  gap: 12px;
   justify-items: center;
   border-radius: 16px;
-  padding: 18px 14px 24px;
+  padding: 14px 12px 18px;
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -658,11 +669,14 @@ button:disabled {
 
 .curse-card-list {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
-  align-items: stretch;
-  flex-wrap: wrap;
+  align-items: center;
+  flex-wrap: nowrap;
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
 }
 
 .curse-card-wrap {
@@ -696,14 +710,14 @@ button:disabled {
 }
 
 .curse-detail-card {
-  width: min(330px, calc(100vw - 40px));
-  height: min(430px, calc(100vh - 170px));
-  min-height: 330px;
+  width: 220px;
+  height: 310px;
+  min-height: 310px;
   display: flex;
   flex-direction: column;
   gap: 0;
   border-radius: 18px;
-  padding: 24px 20px;
+  padding: 18px 14px;
   text-align: center;
   color: #fff;
   position: relative;
@@ -751,7 +765,7 @@ button:disabled {
   margin: 0;
   padding: 0 2px 8px;
   color: #fff;
-  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
+  font-size: clamp(1rem, 1.8vw, 1.18rem);
   line-height: 1.18;
   font-weight: 950;
 }
@@ -764,7 +778,7 @@ button:disabled {
   margin: 0;
   padding: 0 2px;
   color: #fff;
-  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  font-size: clamp(0.68rem, 1.1vw, 0.82rem);
   font-weight: 850;
   line-height: 1.35;
   overflow-y: auto;
@@ -840,8 +854,9 @@ footer {
     margin-bottom: 4px;
   }
 
-  .fixture-row {
-    grid-template-columns: 34px minmax(0, 1fr) 42px;
+  .fixture-row,
+  .summary-fixture-row {
+    grid-template-columns: 34px minmax(0, 1fr) minmax(66px, auto);
     min-height: 34px;
     padding: 4px 5px;
     gap: 4px;
@@ -877,26 +892,23 @@ footer {
     grid-column: 1 / -1;
   }
 
-  .fixture-lock-wrap {
-    justify-content: center;
-    min-height: 18px;
-    gap: 0;
+  .fixture-meta {
+    grid-template-columns: 1fr;
+    justify-items: end;
+    gap: 2px;
   }
 
-  .fixture-lock-wrap .curse-marker {
-    position: absolute;
-    right: -7px;
-    top: -10px;
-    transform: none;
+  .fixture-effects {
+    gap: 2px;
   }
 
   .fixture-lock {
     display: block;
-    text-align: center;
+    text-align: right;
     font-size: 11px;
     min-width: 0;
-    width: 42px;
-    max-width: 42px;
+    width: 64px;
+    max-width: 64px;
     overflow: visible;
   }
 
@@ -906,34 +918,34 @@ footer {
   }
 
   .restriction-panel {
-    gap: 9px;
-    padding: 9px;
+    gap: 7px;
+    padding: 8px;
   }
 
   .prediction-restriction-cards {
-    gap: 9px;
+    gap: 7px;
   }
 
   .prediction-restriction-card {
-    width: 104px;
-    min-height: 134px;
-    padding: 12px 8px;
-    border-radius: 12px;
+    width: 76px;
+    min-height: 92px;
+    padding: 8px 6px;
+    border-radius: 11px;
   }
 
   .prediction-restriction-card-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 19px;
+    width: 28px;
+    height: 28px;
+    font-size: 17px;
   }
 
   .prediction-restriction-card-name {
-    font-size: 12px;
+    font-size: 9.5px;
   }
 
   .prediction-restriction-played-by {
-    max-width: 118px;
-    font-size: 11px;
+    max-width: 84px;
+    font-size: 9px;
     line-height: 1.15;
   }
 
@@ -970,6 +982,45 @@ footer {
     height: 20px;
     min-height: 20px;
     font-size: 12px;
+  }
+
+  .power-marker {
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    min-height: 20px;
+    font-size: 12px;
+  }
+
+  .curse-panel {
+    width: calc(100vw - 12px);
+    max-height: calc(100vh - 12px);
+    gap: 9px;
+    padding: 10px 6px 14px;
+  }
+
+  .curse-card-list {
+    justify-content: flex-start;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .curse-detail-card {
+    width: 148px;
+    height: 220px;
+    min-height: 220px;
+    border-radius: 14px;
+    padding: 12px 8px;
+  }
+
+  .curse-card-played-by {
+    font-size: 11px;
+    line-height: 1.1;
+  }
+
+  .curse-audit-separator {
+    min-width: 58px;
+    font-size: 0.82rem;
   }
 
   .summary-row {
@@ -1061,7 +1112,7 @@ footer {
   <div class="curse-panel" role="dialog" aria-modal="true" aria-label="Active prediction curse">
     <h2>Active Curse</h2>
     <div class="curse-card-list" data-curse-modal-body></div>
-    <button class="curse-close" type="button" data-close-curse>Close</button>
+    <button class="curse-close" type="button" data-close-curse>Back</button>
   </div>
 </div>
 

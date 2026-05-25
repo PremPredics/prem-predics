@@ -221,7 +221,7 @@ async function loadFixtureScores(gameweek, fixtures) {
 
 async function loadCurseOverrides(gameweek, fixtures) {
   if (!fixtures.length) {
-    return new Map();
+    return [];
   }
 
   const fixtureIds = fixtures.map((fixture) => fixture.id);
@@ -249,16 +249,7 @@ async function loadCurseOverrides(gameweek, fixtures) {
     throw randomResult.error;
   }
 
-  return new Map([...(hatedResult.data || []), ...(randomResult.data || [])].map((row) => [
-    row.fixture_id,
-    {
-      fixture_id: row.fixture_id,
-      home_goals: row.home_goals,
-      away_goals: row.away_goals,
-      prediction_slot: 'curse_override',
-      source_card_effect_id: row.card_effect_id,
-    },
-  ]));
+  return [...(hatedResult.data || []), ...(randomResult.data || [])];
 }
 
 function isEffectForGameweek(effect, gameweek) {
@@ -333,6 +324,33 @@ function predictionCursesForFixture(fixture, effects, prediction, override) {
     .filter(isPredictionCurse)
     .filter((effect) => curseAppliesToFixture(effect, fixture, prediction, override))
     .sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
+}
+
+function effectPlayedAtMs(effect) {
+  return new Date(effect?.played_at || 0).getTime() || 0;
+}
+
+function buildLatestCurseOverrideMap(rows, effects) {
+  const effectById = new Map(effects.map((effect) => [String(effect.id), effect]));
+  const overrides = new Map();
+
+  (rows || [])
+    .filter((row) => effectById.has(String(row.card_effect_id)))
+    .sort((a, b) => (
+      effectPlayedAtMs(effectById.get(String(a.card_effect_id)))
+      - effectPlayedAtMs(effectById.get(String(b.card_effect_id)))
+    ))
+    .forEach((row) => {
+      overrides.set(row.fixture_id, {
+        fixture_id: row.fixture_id,
+        home_goals: row.home_goals,
+        away_goals: row.away_goals,
+        prediction_slot: 'curse_override',
+        source_card_effect_id: row.card_effect_id,
+      });
+    });
+
+  return overrides;
 }
 
 function predictionPowersForFixture(fixture, effects) {
@@ -466,7 +484,7 @@ async function renderPredictionRows(gameweek) {
     return;
   }
 
-  const [predictions, results, fixtureScores, curseOverrides, predictionEffects] = await Promise.all([
+  const [predictions, results, fixtureScores, curseOverrideRows, predictionEffects] = await Promise.all([
     loadPredictions(gameweek, fixtures),
     loadResults(fixtures),
     loadFixtureScores(gameweek, fixtures),
@@ -475,6 +493,7 @@ async function renderPredictionRows(gameweek) {
   ]);
   state.visibleEffectsByFixture = new Map();
   const visibleEffectIds = new Set(predictionEffects.map((effect) => String(effect.id)));
+  const curseOverrides = buildLatestCurseOverrideMap(curseOverrideRows, predictionEffects);
   const showPessimistPowers = pessimistSucceeded(fixtures, results);
   predictionList.innerHTML = fixtures.map((fixture) => {
     const locked = isPast(fixture.prediction_locks_at);
@@ -512,9 +531,9 @@ async function renderPredictionRows(gameweek) {
         <strong>${escapeHtml(score)}</strong>
         <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
         <span class="row-actions">
-          ${points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}
           ${renderPowerMarker(fixture, powers)}
           ${renderCurseMarker(fixture, curses)}
+          ${points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}
         </span>
         <span class="actual-result-row" aria-hidden="true">
           <span class="actual-result-label">FT</span>
