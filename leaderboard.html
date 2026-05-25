@@ -420,16 +420,54 @@ footer {
 @media (max-width: 650px) {
   main { padding: 22px 8px 34px; }
   .toolbar a { flex: 1; text-align: center; }
-  th,
-  td {
-    padding: 8px 7px;
-    font-size: 13px;
+  .table-wrap {
+    scrollbar-gutter: stable;
   }
   table {
-    min-width: 840px;
+    min-width: 720px;
+    table-layout: fixed;
+  }
+  th,
+  td {
+    padding: 8px 5px;
+    font-size: 12px;
+  }
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 34px;
+  }
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 156px;
+  }
+  th:nth-child(3),
+  td:nth-child(3) {
+    width: 62px;
+  }
+  th:nth-child(n+4),
+  td:nth-child(n+4) {
+    width: 58px;
   }
   .player-cell {
-    min-width: 160px;
+    min-width: 0;
+    width: 146px;
+    gap: 6px;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  .username {
+    max-width: 104px;
+    display: block;
+    font-size: 12px;
+  }
+  .uc-head {
+    font-size: 12px;
+  }
+  .uc-cell {
+    font-size: 1rem;
   }
   .player-cell.show-first-name .first-name-inline {
     display: none;
