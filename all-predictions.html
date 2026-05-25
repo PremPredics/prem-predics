@@ -360,6 +360,38 @@ main {
     1px 1px 0 rgba(0,0,0,0.92);
   box-shadow: 0 0 12px rgba(255, 31, 31, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
 }
+.power-marker {
+  width: 25px;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  background: radial-gradient(circle at 34% 22%, #e0f2fe 0%, #0284c7 40%, #075985 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 950;
+  line-height: 1;
+  cursor: pointer;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92);
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
+}
+.power-marker span {
+  display: block;
+  line-height: 1;
+  transform: translateY(-0.5px);
+}
+.power-marker:hover {
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.82), inset 0 0 7px rgba(255,255,255,0.28);
+}
 .curse-marker span {
   display: block;
   line-height: 1;
@@ -429,6 +461,18 @@ main {
   gap: 9px;
   justify-items: center;
 }
+.curse-audit-separator {
+  align-self: center;
+  color: #fff;
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 16px rgba(255,255,255,0.72);
+}
 .curse-card-played-by {
   color: #fff;
   font-weight: 950;
@@ -460,6 +504,11 @@ main {
     -1px 1px 0 rgba(0,0,0,0.92),
     1px 1px 0 rgba(0,0,0,0.92),
     0 2px 5px rgba(0,0,0,0.78);
+}
+.curse-detail-card.power-detail-card {
+  border-color: #7dd3fc;
+  background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 24%, #38bdf8 50%, #0ea5e9 72%, #bae6fd 100%);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.18);
 }
 .curse-detail-card::after {
   content: '';
@@ -594,6 +643,11 @@ footer {
     font-size: 12px;
   }
   .curse-marker {
+    width: 22px;
+    height: 22px;
+    font-size: 13px;
+  }
+  .power-marker {
     width: 22px;
     height: 22px;
     font-size: 13px;

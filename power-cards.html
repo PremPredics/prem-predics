@@ -1012,6 +1012,13 @@ button:disabled {
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.opponent-target-btn > span:not(.opponent-target-avatar) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.12;
+}
+
 .opponent-target-btn:hover {
   transform: translateY(-2px);
   border-color: rgba(248, 113, 113, 0.78);
@@ -1180,7 +1187,8 @@ button:disabled {
 }
 
 .random-curse-confirm,
-.random-dice-btn {
+.random-dice-btn,
+.random-curse-done {
   border: 0;
   border-radius: 999px;
   padding: 12px 18px;
@@ -1189,6 +1197,16 @@ button:disabled {
   font-weight: 950;
   cursor: pointer;
   box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.random-curse-done {
+  background: linear-gradient(135deg, #16a34a, #86efac);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.72),
+    1px -1px 0 rgba(0,0,0,0.72),
+    -1px 1px 0 rgba(0,0,0,0.72),
+    1px 1px 0 rgba(0,0,0,0.72);
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.48);
 }
 
 .random-curse-confirm:disabled,
@@ -2018,8 +2036,11 @@ button:disabled {
 }
 
 .card-tile.selected { 
-  border: 3px solid #f87171;
-  background: linear-gradient(135deg, #be123c, #e11d48);
+  border: 3px solid #f59e0b;
+  box-shadow:
+    0 0 24px rgba(245, 158, 11, 0.78),
+    0 0 8px rgba(251, 191, 36, 0.92),
+    inset 0 0 14px rgba(251, 191, 36, 0.18);
 }
 
 .card-tile.keep { 
@@ -5227,6 +5248,142 @@ function assertCardPlayDeadline(rule, activeGameweek) {
   throw new Error(`${label} must be played before the 90-minute gameweek deadline. Deadline: ${formatDeadlineForMessage(deadline)}.`);
 }
 
+const nonStackingEffectKeys = new Set([
+  'power_laundrette',
+  'power_clean_sweep',
+  'power_pessimist',
+  'power_immigrants',
+  'power_lanky_crouch',
+  'power_small_and_mighty',
+  'power_assist_king',
+  'power_late_scout',
+  'power_snow',
+  'super_star_man',
+  'super_golden_gameweek',
+  'super_sub',
+  'super_score',
+  'super_duo',
+  'super_pen',
+]);
+
+const heightPowerOpposites = {
+  power_lanky_crouch: { key: 'power_small_and_mighty', name: 'Power of the Small and Mighty' },
+  power_small_and_mighty: { key: 'power_lanky_crouch', name: 'Power of the Lanky Crouch' },
+};
+
+async function findOwnActiveEffect(effectKey, activeGameweek, runtimeContext, client) {
+  const { data, error } = await client
+    .from('active_card_effects')
+    .select('id, card_id, card_definitions!inner(name, effect_key)')
+    .eq('competition_id', runtimeContext.league.id)
+    .eq('season_id', runtimeContext.league.season_id)
+    .eq('gameweek_id', activeGameweek.gameweek_id)
+    .eq('played_by_user_id', runtimeContext.user.id)
+    .eq('status', 'active')
+    .eq('card_definitions.effect_key', effectKey)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data || null;
+}
+
+async function assertNonStackingCardCanBePlayed(rule, cardName, activeGameweek, runtimeContext, client) {
+  if (!nonStackingEffectKeys.has(rule.effectKey)) {
+    return;
+  }
+
+  const existing = await findOwnActiveEffect(rule.effectKey, activeGameweek, runtimeContext, client);
+  if (existing) {
+    throw new Error(`${cardName} cannot be played more than once within a Gameweek`);
+  }
+}
+
+async function handleHeightPowerSwap(rule, cardName, activeGameweek, runtimeContext, client) {
+  const opposite = heightPowerOpposites[rule.effectKey];
+  if (!opposite) {
+    return;
+  }
+
+  const existingOpposite = await findOwnActiveEffect(opposite.key, activeGameweek, runtimeContext, client);
+  if (!existingOpposite) {
+    return;
+  }
+
+  const deadline = cardPlayDeadline(rule, activeGameweek);
+  if (deadline && Date.now() >= new Date(deadline).getTime()) {
+    throw new Error(`${opposite.name} is already active this Gameweek.`);
+  }
+
+  const confirmed = await showSiteConfirm(
+    `Would you like to swap your ${opposite.name} for ${cardName}?`,
+    'Swap Power Card',
+    'Swap Power'
+  );
+  if (!confirmed) {
+    throw new Error('Card play cancelled.');
+  }
+
+  const { error } = await client
+    .from('active_card_effects')
+    .update({ status: 'cancelled', resolved_at: new Date().toISOString() })
+    .eq('id', existingOpposite.id)
+    .eq('played_by_user_id', runtimeContext.user.id)
+    .eq('status', 'active');
+
+  if (error) {
+    throw error;
+  }
+}
+
+async function assertPredictionCurseCompatibility(rule, targetUserId, activeGameweek, runtimeContext, client) {
+  const parityKeys = new Set(['curse_even_number', 'curse_odd_number']);
+  const isRandom = rule.effectKey === 'curse_gambler';
+  const isParity = parityKeys.has(rule.effectKey);
+  if (!targetUserId || (!isRandom && !isParity)) {
+    return;
+  }
+
+  const { data, error } = await client
+    .from('active_card_effects')
+    .select('id, card_definitions!inner(name, effect_key)')
+    .eq('competition_id', runtimeContext.league.id)
+    .eq('season_id', runtimeContext.league.season_id)
+    .eq('gameweek_id', activeGameweek.gameweek_id)
+    .eq('target_user_id', targetUserId)
+    .eq('status', 'active')
+    .in('card_definitions.effect_key', ['curse_gambler', 'curse_even_number', 'curse_odd_number']);
+
+  if (error) {
+    throw error;
+  }
+
+  const existingKeys = new Set((data || []).map((effect) => {
+    const definition = Array.isArray(effect.card_definitions) ? effect.card_definitions[0] : effect.card_definitions;
+    return definition?.effect_key;
+  }));
+
+  if (isParity && existingKeys.has('curse_gambler')) {
+    const cardName = rule.effectKey === 'curse_even_number' ? 'Curse of the Even Number' : 'Curse of the Odd Number';
+    throw new Error(`${cardName} cannot be played whilst Curse of the Random is active.`);
+  }
+
+  if (isRandom && (existingKeys.has('curse_even_number') || existingKeys.has('curse_odd_number'))) {
+    throw new Error('Curse of the Random cannot be played whilst Curse of the Even/Odd Number is active.');
+  }
+
+  if (rule.effectKey === 'curse_even_number' && existingKeys.has('curse_odd_number')) {
+    throw new Error('Curse of the Even Number cannot be played whilst Curse of the Odd Number is active.');
+  }
+
+  if (rule.effectKey === 'curse_odd_number' && existingKeys.has('curse_even_number')) {
+    throw new Error('Curse of the Odd Number cannot be played whilst Curse of the Even Number is active.');
+  }
+}
+
 async function assertLateScoutCanBePlayed(activeGameweek, fixtures, runtimeContext, client) {
   return true;
 }
@@ -5267,6 +5424,7 @@ async function assertFirstLeagueGameweekCompleted(runtimeContext, client) {
 }
 
 async function assertHeightPowerCanBePlayed(rule, activeGameweek, runtimeContext, client) {
+  return;
   const heightRules = {
     power_lanky_crouch: {
       cardName: 'Power of the Lanky Crouch',
@@ -5897,7 +6055,7 @@ async function initializeCardPage() {
       'Power of the Lanky Crouch': { cardId: 'power_lanky_crouch', effectKey: 'power_lanky_crouch', duration: 1, target: 'self' },
       'Power of the Small and Mighty': { cardId: 'power_small_and_mighty', effectKey: 'power_small_and_mighty', duration: 1, target: 'self' },
       'Power of God': { cardId: 'power_of_god', effectKey: 'power_of_god', duration: 1, target: 'self', deadlineExempt: true },
-      'Power of the Hedge': { cardId: 'power_hedge', effectKey: 'power_hedge', duration: 1, target: 'self' },
+      'Power of the Hedge': { cardId: 'power_hedge', effectKey: 'power_hedge', duration: 1, target: 'self', fixture: true },
       'Power of the Assist King': { cardId: 'power_assist_king', effectKey: 'power_assist_king', duration: 1, target: 'self' },
       'Power of the Late Scout': { cardId: 'power_late_scout', effectKey: 'power_late_scout', duration: 1, target: 'self', deadlineExempt: true },
       'Power of the Snow': { cardId: 'power_snow', effectKey: 'power_snow', duration: 1, target: 'self' },
@@ -6388,23 +6546,14 @@ async function initializeCardPage() {
           }
         }
 
-        function showSummary() {
-          body.innerHTML = `
-            <div class="random-roll-summary">
-              <strong>Curse of the Random results saved to the card.</strong>
-              ${rolls.map((roll) => `
-                <span>${escapeHtml(fixtureChoiceLabel(roll.fixture))}: ${roll.home_die_roll}-${roll.away_die_roll}</span>
-              `).join('')}
-            </div>
-          `;
-          window.setTimeout(() => {
-            finish(rolls.map((roll) => ({
-              fixture_id: roll.fixture.id,
-              roll_number: roll.roll_number,
-              home_die_roll: roll.home_die_roll,
-              away_die_roll: roll.away_die_roll,
-            })));
-          }, 5000);
+        function finishRolls() {
+          finish(rolls.map((roll) => ({
+            fixture_id: roll.fixture.id,
+            fixture_label: fixtureChoiceLabel(roll.fixture),
+            roll_number: roll.roll_number,
+            home_die_roll: roll.home_die_roll,
+            away_die_roll: roll.away_die_roll,
+          })));
         }
 
         function updateRollRow(index) {
@@ -6466,7 +6615,7 @@ async function initializeCardPage() {
                 button.classList.remove('rolling');
                 updateRollRow(index);
                 if (allRolled()) {
-                  window.setTimeout(showSummary, 450);
+                  window.setTimeout(finishRolls, 450);
                 }
               }
             }, 80);
@@ -6476,6 +6625,28 @@ async function initializeCardPage() {
         body.querySelector('[data-random-cancel]')?.addEventListener('click', cancel);
         modal.addEventListener('click', modalClick);
         document.addEventListener('keydown', keydown);
+        openRandomCurseModal();
+      });
+    }
+
+    function showRandomCurseAppliedSummary(targetName, rollRows) {
+      const { modal, body } = randomCurseModalParts();
+      return new Promise((resolve) => {
+        body.innerHTML = `
+          <div class="random-roll-summary">
+            <strong>Curse effect has been applied to ${escapeHtml(targetName || 'opponent')}.</strong>
+            ${(rollRows || []).map((roll) => {
+              return `<span>${escapeHtml(roll.fixture_label || 'Fixture')}: ${roll.home_die_roll}-${roll.away_die_roll}</span>`;
+            }).join('')}
+          </div>
+          <div class="random-curse-actions">
+            <button class="random-curse-done" type="button" data-random-done>Done</button>
+          </div>
+        `;
+        body.querySelector('[data-random-done]')?.addEventListener('click', () => {
+          closeRandomCurseModal();
+          resolve();
+        }, { once: true });
         openRandomCurseModal();
       });
     }
@@ -6721,6 +6892,7 @@ async function initializeCardPage() {
         if (!rule) {
           return;
         }
+        const cardDisplayName = Object.keys(cardEffectRules).find((name) => cardEffectRules[name] === rule) || cardName;
 
         const playedByUserId = gameState.playerUserIds?.[playerKey];
         if (playedByUserId !== context.user.id) {
@@ -6738,6 +6910,8 @@ async function initializeCardPage() {
         } else if (!rule.deadlineExempt) {
           assertCardPlayDeadline(rule, activeGameweek);
         }
+        await handleHeightPowerSwap(rule, cardDisplayName, activeGameweek, context, supabase);
+        await assertNonStackingCardCanBePlayed(rule, cardDisplayName, activeGameweek, context, supabase);
         await assertHeightPowerCanBePlayed(rule, activeGameweek, context, supabase);
 
         if (rule.special === 'veto') {
@@ -6747,21 +6921,24 @@ async function initializeCardPage() {
         const members = await leagueMembers();
         const opponents = members.filter((member) => member.user_id !== context.user.id);
         let targetUserId = null;
+        let targetMember = null;
         let fixtureId = null;
         let payload = {};
         let pendingRandomRollRows = [];
 
         if (rule.target === 'opponent') {
-          targetUserId = (await chooseOpponentFromModal(opponents)).user_id;
+          targetMember = await chooseOpponentFromModal(opponents);
+          targetUserId = targetMember.user_id;
+          await assertPredictionCurseCompatibility(rule, targetUserId, activeGameweek, context, supabase);
         }
 
         if (rule.special === 'hated') {
           if (!fixtures.length) {
             throw new Error('No fixtures are available for this gameweek.');
           }
-          const chosenFixture = fixtures[Math.floor(Math.random() * fixtures.length)];
+          const chosenFixture = await chooseFromList('Choose the match this curse forces to 8-2:', fixtures, fixtureChoiceLabel);
           fixtureId = chosenFixture.id;
-          payload.random_fixture = true;
+          payload.chosen_fixture = true;
         } else if (rule.fixture) {
           fixtureId = (await chooseFromList('Choose the match this card affects:', fixtures, fixtureChoiceLabel)).id;
         }
@@ -6773,6 +6950,20 @@ async function initializeCardPage() {
         }
 
         const effect = await insertCardEffect(rule, playerKey, activeGameweek, { targetUserId, fixtureId, payload, cardInstanceId });
+
+        if (rule.effectKey === 'power_hedge' && fixtureId) {
+          const chosenFixture = fixtures.find((fixture) => fixture.id === fixtureId);
+          const fixtureText = chosenFixture ? fixtureChoiceLabel(chosenFixture) : 'the selected match';
+          const playerName = context.profile?.display_name || context.user?.email || 'you';
+          const goToPredictions = await showSiteConfirm(
+            `Additional Prediction for ${fixtureText} is now added for ${playerName}.`,
+            'Power of the Hedge',
+            'Go To Predictions'
+          );
+          if (goToPredictions) {
+            window.location.href = leagueModule.leagueUrl('predictions.html', context.league.id);
+          }
+        }
 
         if (rule.special === 'hated') {
           const { error } = await supabase.from('curse_hated_forced_predictions').insert({
@@ -6804,6 +6995,7 @@ async function initializeCardPage() {
           }));
           const { error } = await supabase.from('curse_gambler_rolls').insert(rollRows);
           if (error) throw error;
+          await showRandomCurseAppliedSummary(targetMember?.display_name || 'opponent', pendingRandomRollRows);
         }
 
         return effect;

@@ -771,17 +771,28 @@ async function loadRestrictionData() {
       goalsByPlayer.set(row.player_id, group);
     });
 
+    const recentIdsByNumber = (relevantGameweeks || [])
+      .sort((a, b) => Number(b.gameweek_number) - Number(a.gameweek_number))
+      .map((gameweek) => gameweek.gameweek_id)
+      .filter(Boolean);
+    const last3Ids = recentIdsByNumber.slice(0, 3);
+    const last5Ids = recentIdsByNumber.slice(0, 5);
+
+    function hasGoalsInRange(playerId, gameweekIds) {
+      const rows = goalsByPlayer.get(playerId) || [];
+      return gameweekIds.some((gameweekId) => (
+        Number(rows.find((row) => String(row.gameweek_id) === String(gameweekId))?.goals || 0) > 0
+      ));
+    }
+
     state.drought3Ids = new Set();
     state.drought5Ids = new Set();
-    goalsByPlayer.forEach((rows, playerId) => {
-      const sorted = rows.sort((a, b) => Number(b.gameweek_id) - Number(a.gameweek_id));
-      const last3 = sorted.slice(0, 3);
-      const last5 = sorted.slice(0, 5);
-      if (last3.length >= 3 && last3.every((row) => Number(row.goals) === 0)) {
-        state.drought3Ids.add(playerId);
+    state.players.forEach((player) => {
+      if (!hasGoalsInRange(player.id, last3Ids)) {
+        state.drought3Ids.add(player.id);
       }
-      if (last5.length >= 5 && last5.every((row) => Number(row.goals) === 0)) {
-        state.drought5Ids.add(playerId);
+      if (!hasGoalsInRange(player.id, last5Ids)) {
+        state.drought5Ids.add(player.id);
       }
     });
   }
@@ -820,7 +831,6 @@ function renderRestrictionSummary() {
           return `
           <button class="star-effect-button ${category}-card" type="button" data-star-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="${escapeHtml(effectName(effect))}">
             <span aria-hidden="true">${symbol}</span>
-            <small>${escapeHtml(effectName(effect))}</small>
           </button>
           `;
         }).join('')}
@@ -886,60 +896,37 @@ function randomItem(items) {
 }
 
 async function autoReplaceInvalidPrimaryPick() {
-  const existingPlayerId = state.existingPicks.get('primary');
-  if (!existingPlayerId) {
-    return;
-  }
-
-  const existingPlayer = state.players.find((item) => item.id === existingPlayerId);
-  if (!existingPlayer) {
-    return;
-  }
-
-  const activeRestrictionReasons = restrictionReasons(existingPlayer);
-  if (!activeRestrictionReasons.length) {
-    return;
-  }
-
-  const candidates = state.players.filter((player) => evaluatePlayer(player, 'primary', { ignoreDeadline: true }).allowed);
-  if (!candidates.length) {
-    return;
-  }
-
-  const replacement = randomItem(candidates);
-  const replacementCheck = evaluatePlayer(replacement, 'primary', { ignoreDeadline: true });
-
-  const { error } = await supabase.from('star_man_picks').upsert({
-    competition_id: state.league.id,
-    season_id: state.league.season_id,
-    gameweek_id: state.activeGameweek.gameweek_id,
-    user_id: state.user.id,
-    player_id: replacement.id,
-    pick_slot: 'primary',
-    source_card_effect_id: replacementCheck.sourceCardEffectId,
-  }, {
-    onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
+  const invalidSlots = ['primary', 'super_duo'].filter((slot) => {
+    const existingPlayerId = state.existingPicks.get(slot);
+    const existingPlayer = state.players.find((item) => item.id === existingPlayerId);
+    return Boolean(existingPlayer && restrictionReasons(existingPlayer).length);
   });
+
+  if (!invalidSlots.length) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from('star_man_picks')
+    .delete()
+    .eq('competition_id', state.league.id)
+    .eq('season_id', state.league.season_id)
+    .eq('gameweek_id', state.activeGameweek.gameweek_id)
+    .eq('user_id', state.user.id)
+    .in('pick_slot', invalidSlots);
 
   if (error) {
     return;
   }
 
-  state.existingPicks.set('primary', replacement.id);
-  state.selected.primary = replacement;
-  const savedPick = {
-    player_id: replacement.id,
-    gameweek_id: state.activeGameweek.gameweek_id,
-    pick_slot: 'primary',
-  };
-  const existingIndex = state.seasonPicks.findIndex((pick) => (
-    String(pick.gameweek_id) === String(savedPick.gameweek_id) && pick.pick_slot === 'primary'
+  invalidSlots.forEach((slot) => {
+    state.existingPicks.delete(slot);
+    state.selected[slot] = null;
+  });
+  state.seasonPicks = state.seasonPicks.filter((pick) => !(
+    String(pick.gameweek_id) === String(state.activeGameweek.gameweek_id)
+    && invalidSlots.includes(pick.pick_slot)
   ));
-  if (existingIndex >= 0) {
-    state.seasonPicks[existingIndex] = savedPick;
-  } else {
-    state.seasonPicks.push(savedPick);
-  }
 }
 
 function setResultsMessage(results, message) {

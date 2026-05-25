@@ -29,6 +29,10 @@ const predictionCurseKeys = new Set([
   'curse_gambler',
 ]);
 
+const predictionPowerKeys = new Set([
+  'power_pessimist',
+]);
+
 const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
 const effectNameOverrides = {
   curse_gambler: 'Curse of the Random',
@@ -56,6 +60,7 @@ const state = {
   godPrediction: null,
   superScoreEffect: null,
   superScorePick: null,
+  pessimistEffect: null,
   targetEffects: [],
   effectProfiles: new Map(),
   curseOverridePredictions: new Map(),
@@ -138,11 +143,23 @@ function effectDescription(effect) {
 }
 
 function playedByName(effect) {
+  if (String(effect.played_by_user_id || '') === String(state.user?.id || '')) {
+    return 'You';
+  }
+
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
 }
 
 function isPredictionCurse(effect) {
   return predictionCurseKeys.has(effectKey(effect));
+}
+
+function isPredictionPower(effect) {
+  return predictionPowerKeys.has(effectKey(effect));
+}
+
+function effectCategory(effect) {
+  return isPredictionCurse(effect) ? 'curse' : 'power';
 }
 
 function curseAppliesToFixture(effect, fixture) {
@@ -169,7 +186,8 @@ function predictionCursesForFixture(fixture) {
 
 function visiblePredictionCursesForFixture(fixture) {
   return predictionCursesForFixture(fixture)
-    .filter((effect) => curseRevealAllowed(effect, fixture));
+    .filter((effect) => curseRevealAllowed(effect, fixture))
+    .sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
 }
 
 function renderCurseMarker(fixture) {
@@ -179,7 +197,21 @@ function renderCurseMarker(fixture) {
   }
 
   const label = curses.length === 1 ? 'View active curse' : `View ${curses.length} active curses`;
-  return `<button class="curse-marker" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9760;</button>`;
+  return `<button class="curse-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="curse" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9760;</button>`;
+}
+
+function visiblePredictionPowersForFixture() {
+  return state.pessimistEffect ? [state.pessimistEffect] : [];
+}
+
+function renderPowerMarker(fixture) {
+  const powers = visiblePredictionPowersForFixture(fixture);
+  if (!powers.length) {
+    return '';
+  }
+
+  const label = powers.length === 1 ? 'View active power' : `View ${powers.length} active powers`;
+  return `<button class="power-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="power" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9994;</button>`;
 }
 
 function revealedCurseOverride(fixture) {
@@ -397,7 +429,7 @@ function isEffectForCurrentGameweek(effect) {
 async function loadActivePredictionEffects() {
   const { data, error } = await supabase
     .from('active_card_effects')
-    .select('id, fixture_id, gameweek_id, start_gameweek_id, end_gameweek_id, played_by_user_id, target_user_id, status, payload, card_definitions(effect_key, name, description, category)')
+    .select('id, fixture_id, gameweek_id, start_gameweek_id, end_gameweek_id, played_at, played_by_user_id, target_user_id, status, payload, card_definitions(effect_key, name, description, category)')
     .eq('competition_id', state.league.id)
     .eq('season_id', state.league.season_id)
     .eq('status', 'active');
@@ -409,7 +441,9 @@ async function loadActivePredictionEffects() {
   const activeEffects = (data || []).filter(isEffectForCurrentGameweek);
   const ownEffects = activeEffects.filter((effect) => effect.played_by_user_id === state.user.id);
   state.targetEffects = activeEffects.filter((effect) => effect.target_user_id === state.user.id);
-  const playedByUserIds = [...new Set(state.targetEffects.map((effect) => effect.played_by_user_id).filter(Boolean))];
+  state.pessimistEffect = ownEffects.find((effect) => effectKey(effect) === 'power_pessimist') || null;
+  const visibleEffects = [...state.targetEffects, state.pessimistEffect].filter(Boolean);
+  const playedByUserIds = [...new Set(visibleEffects.map((effect) => effect.played_by_user_id).filter(Boolean))];
   state.effectProfiles = new Map();
   if (playedByUserIds.length) {
     const { data: profiles } = await supabase
@@ -478,6 +512,7 @@ function renderSummary() {
               <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
             </span>
             <span class="fixture-lock-wrap">
+              ${renderPowerMarker(fixture)}
               ${renderCurseMarker(fixture)}
               <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${fixtureLockText(fixture)}</span>
             </span>
@@ -528,6 +563,7 @@ function renderEdit() {
           <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
         </span>
         <span class="fixture-lock-wrap">
+          ${renderPowerMarker(fixture)}
           ${renderCurseMarker(fixture)}
           <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${fixtureLockText(fixture)}</span>
         </span>
@@ -685,10 +721,11 @@ function updatePredictionCountdowns() {
 }
 
 function curseCardDetailMarkup(effect) {
+  const category = effectCategory(effect);
   return `
     <div class="curse-card-wrap">
       <div class="curse-card-played-by">Played by ${escapeHtml(playedByName(effect))}</div>
-      <article class="curse-detail-card">
+      <article class="curse-detail-card ${category === 'power' ? 'power-detail-card' : ''}">
         <strong>${escapeHtml(effectName(effect))}</strong>
         <p>${escapeHtml(effectDescription(effect))}</p>
       </article>
@@ -696,16 +733,26 @@ function curseCardDetailMarkup(effect) {
   `;
 }
 
-function openCurseEffectsModal(effects) {
+function openCardEffectsModal(effects, title = 'Active Card') {
   if (!curseModal || !curseModalBody || !effects.length) {
     return;
   }
 
-  curseModalBody.innerHTML = effects.map(curseCardDetailMarkup).join('');
+  const titleElement = curseModal.querySelector('h2');
+  if (titleElement) {
+    titleElement.textContent = title;
+  }
+  curseModalBody.innerHTML = effects
+    .map(curseCardDetailMarkup)
+    .join('<div class="curse-audit-separator">AND THEN</div>');
 
   document.body.classList.add('card-preview-open');
   curseModal.classList.add('show');
   curseModal.setAttribute('aria-hidden', 'false');
+}
+
+function openCurseEffectsModal(effects) {
+  openCardEffectsModal(effects, effects.length === 1 ? 'Active Curse' : 'Active Curses');
 }
 
 function openCurseModal(fixtureId) {
@@ -726,6 +773,14 @@ function openCurseEffectModal(effectId) {
   openCurseEffectsModal([effect]);
 }
 
+function openPowerModal() {
+  if (!state.pessimistEffect) {
+    return;
+  }
+
+  openCardEffectsModal([state.pessimistEffect], 'Active Power');
+}
+
 function closeCurseModal() {
   if (!curseModal) {
     return;
@@ -737,8 +792,15 @@ function closeCurseModal() {
 }
 
 function wireCurseMarkers() {
-  fixturesContainer.querySelectorAll('[data-curse-fixture]').forEach((button) => {
-    button.addEventListener('click', () => openCurseModal(button.dataset.curseFixture));
+  fixturesContainer.querySelectorAll('[data-card-fixture]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (button.dataset.cardKind === 'power') {
+        openPowerModal();
+        return;
+      }
+
+      openCurseModal(button.dataset.cardFixture);
+    });
   });
 
   fixturesContainer.querySelectorAll('[data-prediction-curse-effect]').forEach((button) => {

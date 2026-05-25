@@ -69,8 +69,25 @@ declare
   league_start_gameweek_id bigint;
   first_kickoff timestamptz;
   play_deadline timestamptz;
+  non_stacking_effect_keys text[] := array[
+    'power_laundrette',
+    'power_clean_sweep',
+    'power_pessimist',
+    'power_immigrants',
+    'power_lanky_crouch',
+    'power_small_and_mighty',
+    'power_assist_king',
+    'power_late_scout',
+    'power_snow',
+    'super_star_man',
+    'super_golden_gameweek',
+    'super_sub',
+    'super_score',
+    'super_duo',
+    'super_pen'
+  ];
 begin
-  select category, effect_key
+  select category, effect_key, name
     into card_row
   from public.card_definitions
   where id = new.card_id;
@@ -103,6 +120,66 @@ begin
     return new;
   end if;
 
+  if card_row.effect_key = any(non_stacking_effect_keys)
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.played_by_user_id = new.played_by_user_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = card_row.effect_key
+    )
+    and not public.is_admin()
+  then
+    raise exception '% cannot be played more than once within a Gameweek', coalesce(card_row.name, 'This card');
+  end if;
+
+  if card_row.effect_key in ('power_lanky_crouch', 'power_small_and_mighty')
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.played_by_user_id = new.played_by_user_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and (
+          (card_row.effect_key = 'power_lanky_crouch' and cd.effect_key = 'power_small_and_mighty')
+          or (card_row.effect_key = 'power_small_and_mighty' and cd.effect_key = 'power_lanky_crouch')
+        )
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Lanky Crouch and Power of the Small and Mighty cannot be active at the same time.';
+  end if;
+
+  if card_row.effect_key in ('curse_gambler', 'curse_even_number', 'curse_odd_number')
+    and new.target_user_id is not null
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.target_user_id = new.target_user_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and (
+          (card_row.effect_key = 'curse_gambler' and cd.effect_key in ('curse_even_number', 'curse_odd_number'))
+          or (card_row.effect_key in ('curse_even_number', 'curse_odd_number') and cd.effect_key = 'curse_gambler')
+          or (card_row.effect_key = 'curse_even_number' and cd.effect_key = 'curse_odd_number')
+          or (card_row.effect_key = 'curse_odd_number' and cd.effect_key = 'curse_even_number')
+        )
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Curse of the Random cannot be combined with Curse of the Even/Odd Number.';
+  end if;
+
   select min(kickoff_at) filter (where status <> 'postponed')
     into first_kickoff
   from public.fixtures
@@ -115,30 +192,6 @@ begin
 
   if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god', 'power_late_scout') then
     return new;
-  end if;
-
-  if card_row.effect_key in ('power_lanky_crouch', 'power_small_and_mighty')
-    and not public.is_admin()
-  then
-    if not exists (
-      select 1
-      from public.star_man_picks smp
-      join public.players p on p.id = smp.player_id
-      where smp.competition_id = new.competition_id
-        and smp.season_id = new.season_id
-        and smp.gameweek_id = target_gameweek_id
-        and smp.user_id = new.played_by_user_id
-        and (
-          (card_row.effect_key = 'power_lanky_crouch' and coalesce(p.height_cm, 0) >= 185)
-          or (card_row.effect_key = 'power_small_and_mighty' and coalesce(p.height_cm, 999) <= 175)
-        )
-    ) then
-      if card_row.effect_key = 'power_lanky_crouch' then
-        raise exception 'Power of the Lanky Crouch can only be played when one of your current Star Men is 185cm or taller.';
-      end if;
-
-      raise exception 'Power of the Small and Mighty can only be played when one of your current Star Men is 175cm or shorter.';
-    end if;
   end if;
 
   if card_row.category = 'curse' then
