@@ -145,6 +145,10 @@ main {
   border: 1px solid rgba(250, 204, 21, 0.34);
 }
 
+.correct-score-row.has-effects {
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+}
+
 .correct-fixture {
   grid-column: 2;
   grid-row: 1;
@@ -204,6 +208,52 @@ main {
   font-weight: 950;
   text-align: center;
   box-shadow: 0 0 10px rgba(250, 204, 21, 0.22);
+}
+
+.correct-effects {
+  grid-column: 3;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 30px;
+}
+
+.effect-marker {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.9);
+  color: #fff;
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 950;
+  padding: 0;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9);
+  box-shadow: 0 0 13px rgba(255,255,255,0.2), inset 0 0 8px rgba(255,255,255,0.14);
+}
+
+.curse-marker {
+  background: linear-gradient(135deg, #7f1d1d, #ef4444 54%, #fb7185);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.64), inset 0 0 8px rgba(255,255,255,0.16);
+}
+
+.power-marker {
+  background: linear-gradient(135deg, #075985, #0284c7 54%, #7dd3fc);
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.64), inset 0 0 8px rgba(255,255,255,0.16);
+}
+
+.effect-marker:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
 }
 
 .player-card {
@@ -293,6 +343,127 @@ footer {
   border-top: 1px solid rgba(167, 139, 250, 0.3);
 }
 
+.card-effect-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 20px 20px 86px;
+  background: rgba(8, 3, 20, 0.56);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+.card-effect-modal.show {
+  display: grid;
+}
+
+body.card-modal-open {
+  overflow: hidden;
+}
+
+.card-effect-panel {
+  width: min(330px, 100%);
+  height: min(430px, calc(100vh - 116px));
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  padding: 24px 20px;
+  text-align: center;
+  border: 3px solid #7dd3fc;
+  background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 24%, #38bdf8 50%, #0ea5e9 72%, #bae6fd 100%);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.18);
+  color: #fff;
+  position: relative;
+  overflow: visible;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 2px 5px rgba(0,0,0,0.78);
+}
+
+.card-effect-panel.curse-card {
+  border-color: #fb7185;
+  background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
+  box-shadow: 0 0 30px rgba(251, 113, 133, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.16);
+}
+
+.card-effect-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 28%),
+    linear-gradient(42deg, rgba(255,255,255,0.12) 0 12%, transparent 12% 27%, rgba(255,255,255,0.09) 27% 38%, transparent 38% 100%);
+  pointer-events: none;
+}
+
+.card-effect-panel h2,
+.card-effect-panel p,
+.card-effect-panel small {
+  position: relative;
+  z-index: 1;
+}
+
+.card-effect-panel h2 {
+  min-height: 0;
+  flex: 0 0 22%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 2px 8px;
+  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
+  line-height: 1.18;
+}
+
+.card-effect-panel p {
+  flex: 1 1 68%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  font-weight: 850;
+  line-height: 1.35;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.card-effect-panel small {
+  color: #fff;
+  font-weight: 950;
+}
+
+.card-effect-back {
+  position: absolute;
+  left: 50%;
+  bottom: -62px;
+  transform: translateX(-50%);
+  width: min(220px, 100%);
+  min-height: 42px;
+  border-radius: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  border: 3px solid rgba(233, 213, 255, 0.98);
+  z-index: 2;
+  box-shadow: 0 12px 30px rgba(76, 29, 149, 0.56), 0 0 24px rgba(167, 139, 250, 0.42);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95);
+}
+
 @media (max-width: 640px) {
   main { padding: 22px 10px 34px; }
   .toolbar a { flex: 1; text-align: center; }
@@ -311,6 +482,9 @@ footer {
     padding: 5px 6px;
     gap: 5px;
   }
+  .correct-score-row.has-effects {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+  }
   .correct-fixture {
     grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
     gap: 5px;
@@ -323,6 +497,15 @@ footer {
     min-width: 42px;
     padding: 3px 6px;
     font-size: 11px;
+  }
+  .correct-effects {
+    min-width: 26px;
+    gap: 2px;
+  }
+  .effect-marker {
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
   }
 }
 @media (max-width: 650px) {
@@ -377,6 +560,15 @@ footer {
     </div>
   </section>
 </main>
+
+<div class="card-effect-modal" data-card-effect-modal aria-hidden="true">
+  <article class="card-effect-panel" data-card-effect-panel role="dialog" aria-modal="true" aria-label="Card effect">
+    <h2 data-card-effect-title>Card</h2>
+    <p data-card-effect-description></p>
+    <small data-card-effect-player></small>
+    <button class="card-effect-back" type="button" data-close-card-effect>Back</button>
+  </article>
+</div>
 
 <footer>2026 Prem Predics | Correct Scores</footer>
 

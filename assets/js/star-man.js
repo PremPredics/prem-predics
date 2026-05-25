@@ -54,6 +54,17 @@ const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
 const effectNameOverrides = {
   curse_random_roulette: 'Curse Of The Microstate',
 };
+const starPowerKeys = new Set([
+  'power_goal',
+  'power_immigrants',
+  'power_lanky_crouch',
+  'power_small_and_mighty',
+  'power_assist_king',
+  'power_late_scout',
+  'super_star_man',
+  'super_sub',
+  'super_duo',
+]);
 const microstateNationalities = new Set([
   'andorra',
   'antigua and barbuda',
@@ -384,11 +395,18 @@ function effectDescription(effect) {
 
 function effectCategory(effect) {
   const definition = normaliseNested(effect.card_definitions) || {};
-  return definition.category || (String(definition.effect_key || '').startsWith('power_') ? 'power' : 'curse');
+  if (definition.category) {
+    return definition.category;
+  }
+  const key = String(definition.effect_key || '');
+  if (key.startsWith('super_')) {
+    return 'super';
+  }
+  return key.startsWith('power_') ? 'power' : 'curse';
 }
 
 function playedByName(effect) {
-  if (effect.played_by_user_id === state.user?.id) {
+  if (String(effect.played_by_user_id || '') === String(state.user?.id || '')) {
     return 'You';
   }
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
@@ -404,13 +422,15 @@ function isEffectForCurrentGameweek(effect) {
 
 function effectsTargetingUser() {
   return state.activeEffects.filter((effect) => (
-    effect.target_user_id === state.user.id || state.targetEffectIds.has(effect.id)
+    String(effect.target_user_id || '') === String(state.user?.id || '')
+    || state.targetEffectIds.has(effect.id)
+    || state.targetEffectIds.has(String(effect.id))
   ));
 }
 
 function ownEffect(key) {
   return state.activeEffects.find((effect) => (
-    effect.played_by_user_id === state.user.id && effectKey(effect) === key
+    String(effect.played_by_user_id || '') === String(state.user?.id || '') && effectKey(effect) === key
   ));
 }
 
@@ -429,6 +449,33 @@ function starManScoringCurses() {
   return effectsTargetingUser().filter((effect) => [
     'curse_furious',
   ].includes(effectKey(effect)));
+}
+
+function starPowerEffects() {
+  return state.activeEffects.filter((effect) => (
+    String(effect.played_by_user_id || '') === String(state.user?.id || '')
+    && starPowerKeys.has(effectKey(effect))
+  ));
+}
+
+function starCardEffects() {
+  const unique = new Map();
+  [
+    ...starPowerEffects(),
+    ...restrictions(),
+    ...starManScoringCurses(),
+  ].forEach((effect) => {
+    unique.set(String(effect.id), effect);
+  });
+
+  return [...unique.values()].sort((a, b) => (
+    new Date(a.played_at || 0).getTime() - new Date(b.played_at || 0).getTime()
+    || String(a.id).localeCompare(String(b.id))
+  ));
+}
+
+function effectButtonCategory(effect) {
+  return effectCategory(effect) === 'curse' ? 'curse' : 'power';
 }
 
 function activeHeightPowerForPlayer(player) {
@@ -656,7 +703,7 @@ async function loadPicks() {
 async function loadEffects() {
   const { data: effects, error: effectsError } = await supabase
     .from('active_card_effects')
-    .select('id, card_id, season_id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_by_user_id, target_user_id, payload, card_definitions(effect_key, name, description, category)')
+    .select('id, card_id, season_id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_at, played_by_user_id, target_user_id, payload, card_definitions(effect_key, name, description, category)')
     .eq('competition_id', state.league.id)
     .eq('season_id', state.league.season_id)
     .eq('status', 'active');
@@ -762,32 +809,25 @@ async function loadRestrictionData() {
 }
 
 function renderRestrictionSummary() {
-  const activeRestrictions = restrictions();
-  const scoringCurses = starManScoringCurses();
-  const helpful = [
-    ownEffect('power_late_scout') ? 'Power of the Late Scout available after the normal lock.' : '',
-    ownEffect('super_sub') ? 'Super Sub lets you swap Star Man until the new player fixture kicks off.' : '',
-    ownEffect('super_duo') ? 'Super Duo allows a second Star Man before the gameweek lock.' : '',
-  ].filter(Boolean);
-
-  const curseEffects = [...activeRestrictions, ...scoringCurses];
-  const boundaryText = activeRestrictions.map(effectName);
-  const scoringText = scoringCurses.map((effect) => (
-    `${effectName(effect)} active: yellow-card and red-card deductions are doubled this Gameweek.`
-  ));
-  const lines = [...boundaryText, ...scoringText, ...helpful];
+  const effects = starCardEffects();
 
   restrictionSummary.innerHTML = `
-    <p class="state-text">${escapeHtml(lines.length ? lines.join(' ') : 'No active Star Man restrictions.')}</p>
-    ${curseEffects.length ? `
-      <div class="restriction-cards" aria-label="Active Star Man curse cards">
-        ${curseEffects.map((effect) => `
-          <button class="restriction-card-button" type="button" data-star-curse-effect="${escapeHtml(effect.id)}">
-            ${escapeHtml(effectName(effect))}
+    ${effects.length ? `
+      <div class="star-effect-buttons" aria-label="Active Star Man card effects">
+        ${effects.map((effect) => {
+          const category = effectButtonCategory(effect);
+          const symbol = category === 'curse' ? '&#9760;' : '&#9994;';
+          return `
+          <button class="star-effect-button ${category}-card" type="button" data-star-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="${escapeHtml(effectName(effect))}">
+            <span aria-hidden="true">${symbol}</span>
+            <small>${escapeHtml(effectName(effect))}</small>
           </button>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
-    ` : ''}
+    ` : `
+      <p class="state-text no-effects">No Powers or Curses affect you this Gameweek</p>
+    `}
   `;
   wireRestrictionCards();
 }
@@ -819,11 +859,8 @@ function closeStarCurseModal() {
 }
 
 function wireRestrictionCards() {
-  restrictionSummary.querySelectorAll('[data-star-curse-effect]').forEach((button) => {
-    button.addEventListener('click', () => openStarCurseModal(button.dataset.starCurseEffect));
-  });
-  restrictionSummary.querySelectorAll('[data-star-power-effect]').forEach((button) => {
-    button.addEventListener('click', () => openStarCurseModal(button.dataset.starPowerEffect));
+  restrictionSummary.querySelectorAll('[data-star-effect]').forEach((button) => {
+    button.addEventListener('click', () => openStarCurseModal(button.dataset.starEffect));
   });
 }
 
@@ -923,7 +960,6 @@ function renderSelectedPlayer(slot, player, options = {}) {
   }
 
   const isSaved = options.saved === true;
-  const powerEffect = activeHeightPowerForPlayer(player);
   const heading = isSaved
     ? (slot === 'super_duo' ? 'Submitted Super Duo' : 'Submitted Star Man')
     : (slot === 'super_duo' ? 'Selected Super Duo' : 'Selected Star Man');
@@ -935,17 +971,8 @@ function renderSelectedPlayer(slot, player, options = {}) {
       <span class="selected-player-card${isSaved ? ' saved' : ''}" aria-label="${escapeHtml(playerLabel(player))}">
         ${playerCardMarkup(player, { mode: 'selected' })}
       </span>
-      ${powerEffect ? `
-        <button class="star-power-badge" type="button" data-star-power-effect="${escapeHtml(powerEffect.id)}" aria-label="View ${escapeHtml(effectName(powerEffect))}">
-          <span>Power</span>
-          <strong aria-hidden="true">&#9994;</strong>
-        </button>
-      ` : ''}
     </span>
   `;
-  selected.querySelectorAll('[data-star-power-effect]').forEach((button) => {
-    button.addEventListener('click', () => openStarCurseModal(button.dataset.starPowerEffect));
-  });
 }
 
 function selectPlayer(slot, player) {

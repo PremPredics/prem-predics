@@ -17,8 +17,213 @@ const state = {
   league: null,
   members: [],
   scoresByUser: new Map(),
+  gameweekNumbers: new Map(),
+  sourceEffectsByScore: new Map(),
+  activeEffects: [],
+  effectProfiles: new Map(),
+  effectById: new Map(),
   selectedUserId: null,
 };
+
+const predictionCurseKeys = new Set([
+  'curse_deleted_match',
+  'curse_glasses',
+  'curse_even_number',
+  'curse_odd_number',
+  'curse_hated',
+  'curse_gambler',
+]);
+
+const predictionPowerKeys = new Set([
+  'power_laundrette',
+  'power_pessimist',
+  'power_hedge',
+  'power_of_god',
+  'power_snow',
+  'super_golden_gameweek',
+]);
+
+const effectNameOverrides = {
+  curse_gambler: 'Curse of the Random',
+};
+
+const effectDescriptionOverrides = {
+  curse_deleted_match: "Valid for 1 Gameweek. Choose one opponent prediction. The opponent cannot earn points from this game. Must be played at least 24 hours before the gameweek's first KO time.",
+  curse_glasses: "Valid for 1 Gameweek. Any 0-0 prediction that the opponent makes scores nothing. Must be played at least 24 hours before the gameweek's first KO time.",
+  curse_even_number: "Valid for 1 Gameweek. Opponent can only predict an even number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time.",
+  curse_odd_number: "Valid for 1 Gameweek. Opponent can only predict an odd number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time.",
+  curse_hated: "Valid for 1 Gameweek. Opponent must predict 8-2 in at least one game this Gameweek. Must be played at least 24 hours before the gameweek's first KO time.",
+  curse_gambler: "Valid for 1 Gameweek. For 3 games, roll a dice to determine the score predictions of an opponent. Must be played at least 24 hours before the gameweek's first KO time.",
+};
+
+function sameId(a, b) {
+  return String(a || '') === String(b || '');
+}
+
+function effectDefinition(effect) {
+  return normaliseNested(effect?.card_definitions) || {};
+}
+
+function effectKey(effect) {
+  return effectDefinition(effect).effect_key || effect.payload?.effect_key || '';
+}
+
+function effectCategory(effect) {
+  const category = effectDefinition(effect).category;
+  if (category) {
+    return category === 'super' ? 'power' : category;
+  }
+
+  return effectKey(effect).startsWith('curse_') ? 'curse' : 'power';
+}
+
+function effectName(effect) {
+  const key = effectKey(effect);
+  return effectNameOverrides[key] || effectDefinition(effect).name || key.replaceAll('_', ' ');
+}
+
+function effectDescription(effect) {
+  const key = effectKey(effect);
+  return effectDescriptionOverrides[key] || effectDefinition(effect).description || 'This card affected this fixture.';
+}
+
+function playedByName(effect) {
+  if (String(effect.played_by_user_id || '') === String(state.user?.id || '')) {
+    return 'You';
+  }
+
+  return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'another player';
+}
+
+function scoreKey(score) {
+  return `${score.user_id}:${score.fixture_id}`;
+}
+
+function isEffectForScoreGameweek(effect, score) {
+  const gameweekId = score.gameweek_id;
+  const gameweekNumber = Number(score.gameweek_number);
+  const directGameweek = !effect.gameweek_id || sameId(effect.gameweek_id, gameweekId);
+  const startNumber = effect.start_gameweek_id
+    ? Number(state.gameweekNumbers.get(String(effect.start_gameweek_id)))
+    : null;
+  const endNumber = effect.end_gameweek_id
+    ? Number(state.gameweekNumbers.get(String(effect.end_gameweek_id)))
+    : null;
+  const startsOk = !startNumber || startNumber <= gameweekNumber;
+  const endsOk = !endNumber || endNumber >= gameweekNumber;
+  return directGameweek && startsOk && endsOk;
+}
+
+function curseAppliesToScore(effect, score, sourceIds) {
+  const key = effectKey(effect);
+  if (sourceIds.has(String(effect.id))) {
+    return true;
+  }
+
+  if (!predictionCurseKeys.has(key) || !sameId(effect.target_user_id, score.user_id)) {
+    return false;
+  }
+
+  if (key === 'curse_deleted_match' || key === 'curse_hated') {
+    return sameId(effect.fixture_id, score.fixture_id);
+  }
+
+  if (key === 'curse_gambler') {
+    const ids = effect.payload?.gambler_fixture_ids || [];
+    return ids.some((id) => sameId(id, score.fixture_id));
+  }
+
+  if (key === 'curse_glasses') {
+    return Number(score.predicted_home_goals) === 0 && Number(score.predicted_away_goals) === 0;
+  }
+
+  return true;
+}
+
+function powerAppliesToScore(effect, score, sourceIds) {
+  const key = effectKey(effect);
+  if (sourceIds.has(String(effect.id))) {
+    return true;
+  }
+
+  if (!predictionPowerKeys.has(key) || !sameId(effect.played_by_user_id, score.user_id)) {
+    return false;
+  }
+
+  return !effect.fixture_id || sameId(effect.fixture_id, score.fixture_id);
+}
+
+function effectsForScore(score) {
+  const sourceIds = state.sourceEffectsByScore.get(scoreKey(score)) || new Set();
+  const effects = state.activeEffects.filter((effect) => (
+    isEffectForScoreGameweek(effect, score)
+    && (
+      effectCategory(effect) === 'curse'
+        ? curseAppliesToScore(effect, score, sourceIds)
+        : powerAppliesToScore(effect, score, sourceIds)
+    )
+  ));
+
+  const unique = new Map();
+  effects.forEach((effect) => unique.set(String(effect.id), effect));
+  return [...unique.values()].sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
+}
+
+function renderEffectButtons(score) {
+  const effects = effectsForScore(score);
+  if (!effects.length) {
+    return '';
+  }
+
+  return `
+    <span class="correct-effects">
+      ${effects.map((effect) => {
+        const category = effectCategory(effect);
+        const symbol = category === 'curse' ? '&#9760;' : '&#9994;';
+        return `<button class="effect-marker ${category}-marker" type="button" data-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="${escapeHtml(effectName(effect))}">${symbol}</button>`;
+      }).join('')}
+    </span>
+  `;
+}
+
+function openEffectModal(effectId) {
+  const effect = state.effectById.get(String(effectId));
+  const modal = document.querySelector('[data-card-effect-modal]');
+  const panel = document.querySelector('[data-card-effect-panel]');
+  const titleElement = document.querySelector('[data-card-effect-title]');
+  const descriptionElement = document.querySelector('[data-card-effect-description]');
+  const playerElement = document.querySelector('[data-card-effect-player]');
+  if (!effect || !modal || !panel || !titleElement || !descriptionElement || !playerElement) {
+    return;
+  }
+
+  const category = effectCategory(effect);
+  panel.classList.remove('power-card', 'curse-card');
+  panel.classList.add(`${category}-card`);
+  titleElement.textContent = effectName(effect);
+  descriptionElement.textContent = effectDescription(effect);
+  playerElement.textContent = `Played by ${playedByName(effect)}`;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('card-modal-open');
+}
+
+function closeEffectModal() {
+  const modal = document.querySelector('[data-card-effect-modal]');
+  if (!modal) {
+    return;
+  }
+
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('card-modal-open');
+}
+
+function wireEffectButtons() {
+  container.querySelectorAll('[data-card-effect]').forEach((button) => {
+    button.addEventListener('click', () => openEffectModal(button.dataset.cardEffect));
+  });
+}
 
 function avatarMarkup(member) {
   const imageUrl = member.profile_image_url?.startsWith('data:image/')
@@ -70,17 +275,20 @@ function render() {
   }
 
   container.innerHTML = scores.map((score) => {
+    const effectButtons = renderEffectButtons(score);
     return `
-      <div class="correct-score-row">
+      <div class="correct-score-row${effectButtons ? ' has-effects' : ''}">
         <span class="correct-gw-pill">GW${escapeHtml(score.gameweek_number)}</span>
         <span class="correct-fixture">
           <span class="correct-team correct-home">${escapeHtml(shortTeamName(score.home_team))}</span>
           <strong class="correct-scoreline">${escapeHtml(score.actual_home_goals)}-${escapeHtml(score.actual_away_goals)}</strong>
           <span class="correct-team correct-away">${escapeHtml(shortTeamName(score.away_team))}</span>
         </span>
+        ${effectButtons}
       </div>
     `;
   }).join('');
+  wireEffectButtons();
 }
 
 async function loadCorrectScores() {
@@ -94,7 +302,13 @@ async function loadCorrectScores() {
   state.league = context.league;
   leagueLink.href = leagueUrl('league.html', context.league.id);
 
-  const [{ data: members, error: memberError }, { data: scores, error: scoreError }] = await Promise.all([
+  const [
+    { data: members, error: memberError },
+    { data: scores, error: scoreError },
+    { data: scoreDetails, error: detailError },
+    { data: activeEffects, error: effectError },
+    { data: gameweeks, error: gameweekError },
+  ] = await Promise.all([
     supabase
       .from('competition_members')
       .select('user_id, joined_at, profiles(id, display_name, profile_image_url, favorite_color)')
@@ -102,13 +316,29 @@ async function loadCorrectScores() {
       .order('joined_at', { ascending: true }),
     supabase
       .from('correct_scores')
-      .select('competition_id, user_id, fixture_id, gameweek_number, home_team, away_team, actual_home_goals, actual_away_goals')
+      .select('competition_id, user_id, fixture_id, gameweek_id, gameweek_number, home_team, away_team, predicted_home_goals, predicted_away_goals, actual_home_goals, actual_away_goals')
       .eq('competition_id', context.league.id)
       .order('gameweek_number', { ascending: true }),
+    supabase
+      .from('prediction_score_details')
+      .select('competition_id, user_id, fixture_id, source_card_effect_id, is_correct_score')
+      .eq('competition_id', context.league.id)
+      .eq('is_correct_score', true)
+      .not('source_card_effect_id', 'is', null),
+    supabase
+      .from('active_card_effects')
+      .select('id, fixture_id, gameweek_id, start_gameweek_id, end_gameweek_id, played_at, played_by_user_id, target_user_id, status, payload, card_definitions(effect_key, name, description, category)')
+      .eq('competition_id', context.league.id)
+      .eq('season_id', context.league.season_id)
+      .in('status', ['active', 'resolved']),
+    supabase
+      .from('gameweek_deadlines')
+      .select('gameweek_id, gameweek_number')
+      .eq('season_id', context.league.season_id),
   ]);
 
-  if (memberError || scoreError) {
-    container.innerHTML = `<p class="empty">${escapeHtml(memberError?.message || scoreError?.message)}</p>`;
+  if (memberError || scoreError || detailError || effectError || gameweekError) {
+    container.innerHTML = `<p class="empty">${escapeHtml(memberError?.message || scoreError?.message || detailError?.message || effectError?.message || gameweekError?.message)}</p>`;
     return;
   }
 
@@ -129,6 +359,31 @@ async function loadCorrectScores() {
     });
 
   state.scoresByUser = new Map();
+  state.sourceEffectsByScore = new Map();
+  state.gameweekNumbers = new Map((gameweeks || []).map((gameweek) => [
+    String(gameweek.gameweek_id),
+    Number(gameweek.gameweek_number),
+  ]));
+
+  (scoreDetails || []).forEach((detail) => {
+    const key = `${detail.user_id}:${detail.fixture_id}`;
+    const group = state.sourceEffectsByScore.get(key) || new Set();
+    group.add(String(detail.source_card_effect_id));
+    state.sourceEffectsByScore.set(key, group);
+  });
+
+  state.activeEffects = activeEffects || [];
+  state.effectById = new Map(state.activeEffects.map((effect) => [String(effect.id), effect]));
+  const playedByUserIds = [...new Set(state.activeEffects.map((effect) => effect.played_by_user_id).filter(Boolean))];
+  state.effectProfiles = new Map();
+  if (playedByUserIds.length) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('id', playedByUserIds);
+    state.effectProfiles = new Map((profiles || []).map((profile) => [profile.id, profile]));
+  }
+
   const seen = new Set();
   (scores || []).forEach((score) => {
     const key = `${score.user_id}:${score.fixture_id}`;
@@ -146,3 +401,15 @@ async function loadCorrectScores() {
 }
 
 loadCorrectScores();
+
+document.querySelector('[data-close-card-effect]')?.addEventListener('click', closeEffectModal);
+document.querySelector('[data-card-effect-modal]')?.addEventListener('click', (event) => {
+  if (event.target === event.currentTarget) {
+    closeEffectModal();
+  }
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeEffectModal();
+  }
+});

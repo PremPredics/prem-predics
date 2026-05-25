@@ -166,16 +166,19 @@ main {
 }
 
 .page-head h2 {
-  margin: 0 0 6px;
-  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  margin: 0 0 8px;
+  font-size: clamp(1.75rem, 4.4vw, 2.65rem);
   text-align: center;
   color: #fff;
+  font-weight: 950;
+  line-height: 1.04;
   text-shadow:
-    -1px -1px 0 rgba(0,0,0,0.95),
-    1px -1px 0 rgba(0,0,0,0.95),
-    -1px 1px 0 rgba(0,0,0,0.95),
-    1px 1px 0 rgba(0,0,0,0.95),
-    0 0 16px rgba(216, 180, 254, 0.74);
+    -2px -2px 0 rgba(0,0,0,0.95),
+    2px -2px 0 rgba(0,0,0,0.95),
+    -2px 2px 0 rgba(0,0,0,0.95),
+    2px 2px 0 rgba(0,0,0,0.95),
+    0 0 18px rgba(216, 180, 254, 0.86),
+    0 0 28px rgba(250, 204, 21, 0.24);
 }
 
 .state-text,
@@ -194,61 +197,78 @@ main {
 .restrictions {
   min-width: 220px;
   max-width: 370px;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 12px 12px 13px;
+  border-radius: 10px;
   background:
-    linear-gradient(135deg, rgba(69, 10, 10, 0.56), rgba(17, 7, 38, 0.58)),
-    radial-gradient(circle at 50% 0%, rgba(248, 113, 113, 0.18), transparent 45%);
-  border: 1px solid rgba(248, 113, 113, 0.36);
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 42%),
+    linear-gradient(100deg, rgba(7, 89, 133, 0.78) 0%, rgba(14, 165, 233, 0.62) 48%, rgba(127, 29, 29, 0.66) 52%, rgba(225, 29, 72, 0.76) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.46);
   text-align: center;
   display: grid;
   gap: 8px;
   align-content: start;
+  box-shadow:
+    0 0 24px rgba(56, 189, 248, 0.22),
+    0 0 24px rgba(248, 113, 113, 0.18),
+    inset 0 1px 0 rgba(255,255,255,0.22);
 }
 
 .restrictions strong {
-  display: block;
-  margin-bottom: 5px;
-  color: #ff2626;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 1px;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.95),
     1px -1px 0 rgba(0,0,0,0.95),
     -1px 1px 0 rgba(0,0,0,0.95),
     1px 1px 0 rgba(0,0,0,0.95),
-    0 0 14px rgba(248, 38, 38, 0.8);
+    0 0 16px rgba(255,255,255,0.42);
+}
+
+.restrictions strong::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(186, 230, 253, 0.3), rgba(255,255,255,0.95), rgba(254, 202, 202, 0.3));
+  box-shadow: 0 0 10px rgba(255,255,255,0.34);
 }
 
 .restriction-summary {
   display: grid;
-  gap: 9px;
+  gap: 8px;
 }
 
 .restriction-summary .state-text {
   margin: 0;
 }
 
-.restriction-cards {
-  display: grid;
+.star-effect-buttons {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-.restriction-card-button {
-  width: 100%;
-  min-height: 74px;
+.star-effect-button {
+  min-width: 62px;
+  max-width: 94px;
+  min-height: 54px;
   display: grid;
+  grid-template-rows: 30px auto;
   place-items: center;
-  border-radius: 12px;
-  padding: 10px;
-  border: 2px solid #fb7185;
-  background:
-    radial-gradient(circle at 30% 24%, rgba(255,255,255,0.2), transparent 26%),
-    linear-gradient(135deg, #4c0519 0%, #991b1b 28%, #ef4444 54%, #be123c 74%, #fecaca 100%);
+  gap: 3px;
+  border: 0;
+  background: transparent;
   color: #fff;
   font-weight: 950;
-  line-height: 1.08;
   cursor: pointer;
   text-align: center;
-  box-shadow: 0 0 18px rgba(251, 113, 133, 0.46), inset 0 0 14px rgba(255,255,255,0.14);
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.95),
     1px -1px 0 rgba(0,0,0,0.95),
@@ -256,9 +276,52 @@ main {
     1px 1px 0 rgba(0,0,0,0.95);
 }
 
-.restriction-card-button:hover {
+.star-effect-button span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.92);
+  font-size: 17px;
+  line-height: 1;
+  box-shadow: 0 0 15px rgba(255,255,255,0.24), inset 0 0 9px rgba(255,255,255,0.18);
+}
+
+.star-effect-button small {
+  max-width: 100%;
+  color: #fff;
+  font-size: 0.58rem;
+  line-height: 1.02;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.star-effect-button.power-card span {
+  background: linear-gradient(135deg, #075985, #0284c7 54%, #7dd3fc);
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.68), inset 0 0 9px rgba(255,255,255,0.18);
+}
+
+.star-effect-button.curse-card span {
+  background: linear-gradient(135deg, #7f1d1d, #ef4444 54%, #fb7185);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.68), inset 0 0 9px rgba(255,255,255,0.18);
+}
+
+.star-effect-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 24px rgba(251, 113, 133, 0.62), inset 0 0 14px rgba(255,255,255,0.18);
+  filter: brightness(1.08);
+}
+
+.no-effects {
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 850;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.78),
+    1px -1px 0 rgba(0,0,0,0.78),
+    -1px 1px 0 rgba(0,0,0,0.78),
+    1px 1px 0 rgba(0,0,0,0.78);
 }
 
 .pick-grid {
@@ -1122,7 +1185,7 @@ footer {
           <p class="state-text" data-gameweek-summary>Checking gameweek and card effects.</p>
         </div>
         <div class="restrictions">
-          <strong>Restrictions</strong>
+          <strong>Powers &amp; Curses</strong>
           <div class="restriction-summary" data-restriction-summary>
             <p class="state-text">Loading...</p>
           </div>
