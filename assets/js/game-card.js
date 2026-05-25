@@ -132,6 +132,53 @@ function roundGameweeks(round) {
   ));
 }
 
+function isCurrentGameweek(gameweek) {
+  return Number(gameweek.gameweek_number) === Number(state.activeGameweek?.gameweek_number);
+}
+
+function gameweekTiming(gameweek) {
+  const currentNumber = Number(state.activeGameweek?.gameweek_number || 0);
+  const rowNumber = Number(gameweek.gameweek_number || 0);
+  if (rowNumber < currentNumber) {
+    return 'past';
+  }
+  if (rowNumber > currentNumber) {
+    return 'future';
+  }
+  return 'current';
+}
+
+function rowDeadlineText(gameweek, isActiveRound) {
+  if (!isActiveRound) {
+    return 'History';
+  }
+
+  const timing = gameweekTiming(gameweek);
+  if (timing === 'past') {
+    return 'Locked';
+  }
+  if (timing === 'future') {
+    return 'Not Yet';
+  }
+
+  return isPast(gameweek.star_man_locks_at)
+    ? 'Locked'
+    : countdownText(gameweek.star_man_locks_at);
+}
+
+function formatActualValue(value) {
+  if (value === null || value === undefined || value === '') {
+    return '';
+  }
+
+  const numberValue = Number(value);
+  if (!Number.isNaN(numberValue)) {
+    return Number.isInteger(numberValue) ? String(numberValue) : String(numberValue);
+  }
+
+  return String(value);
+}
+
 async function loadGameweeks() {
   const { data, error } = await supabase
     .from('gameweek_deadlines')
@@ -244,22 +291,28 @@ function renderRows(round) {
   const rows = roundGameweeks(round).map((gameweek) => {
     const prediction = state.predictions.get(predictionKey(round.id, gameweek.gameweek_id));
     const result = state.results.get(resultKey(round.card_id, gameweek.gameweek_id));
-    const locked = isPast(gameweek.star_man_locks_at) || !isActiveRound;
+    const current = isCurrentGameweek(gameweek);
+    const timing = gameweekTiming(gameweek);
+    const editable = isActiveRound && current && !isPast(gameweek.star_man_locks_at);
     const inputValue = prediction?.predicted_value ?? '';
+    const hasPrediction = inputValue !== '';
+    const resultText = result ? `Result: ${formatActualValue(result.actual_value)}` : 'Results Pending';
+    const deadlineClass = editable ? '' : timing === 'future' && isActiveRound ? 'upcoming' : 'locked';
 
     return `
-      <article class="gameweek-row" data-round-id="${round.id}" data-gameweek-id="${gameweek.gameweek_id}">
-        <strong>GW ${gameweek.gameweek_number}</strong>
-        <span class="deadline ${locked ? 'locked' : ''}" data-deadline="${escapeHtml(isActiveRound ? gameweek.star_man_locks_at || '' : '')}">
-          ${isActiveRound ? (locked ? 'Locked' : countdownText(gameweek.star_man_locks_at)) : 'History'}
+      <article class="gameweek-row ${current && isActiveRound ? 'current-gameweek' : ''}" data-round-id="${round.id}" data-gameweek-id="${gameweek.gameweek_id}" data-current-gameweek="${current && isActiveRound ? 'true' : 'false'}">
+        <strong class="gameweek-badge">GW${escapeHtml(gameweek.gameweek_number)}</strong>
+        <span class="deadline ${deadlineClass}" data-deadline="${escapeHtml(editable ? gameweek.star_man_locks_at || '' : '')}">
+          ${escapeHtml(rowDeadlineText(gameweek, isActiveRound))}
         </span>
+        <span class="result-value ${result ? '' : 'pending'}">${escapeHtml(resultText)}</span>
         ${isActiveRound ? `
-          <input class="prediction-input" data-prediction-input type="number" inputmode="numeric" min="0" max="999" step="1" value="${escapeHtml(inputValue)}" ${locked ? 'disabled' : ''} aria-label="Game Card prediction for Gameweek ${gameweek.gameweek_number}">
+          <input class="prediction-input" data-prediction-input type="number" inputmode="numeric" min="0" max="999" step="1" value="${escapeHtml(inputValue)}" ${editable ? '' : 'disabled'} aria-label="Game Card prediction for Gameweek ${gameweek.gameweek_number}">
         ` : `
           <span class="prediction-value">${inputValue !== '' ? escapeHtml(inputValue) : 'No pick'}</span>
         `}
-        <span>${result ? `Result: ${escapeHtml(result.actual_value)}` : 'Result pending'}</span>
-        ${isActiveRound ? `<button type="button" data-save-game-card ${locked ? 'disabled' : ''}>Save</button>` : '<span></span>'}
+        <span class="save-light ${hasPrediction ? 'saved' : ''}" aria-label="${hasPrediction ? 'Prediction saved' : 'No prediction saved'}" title="${hasPrediction ? 'Prediction saved' : 'No prediction saved'}"></span>
+        ${isActiveRound ? `<button type="button" data-save-game-card ${editable ? '' : 'disabled'}>Save</button>` : '<span></span>'}
       </article>
     `;
   }).join('');
@@ -324,8 +377,9 @@ function updateCountdowns() {
     element.classList.toggle('locked', locked);
 
     const row = element.closest('[data-gameweek-id]');
-    row?.querySelector('[data-prediction-input]')?.toggleAttribute('disabled', locked);
-    row?.querySelector('[data-save-game-card]')?.toggleAttribute('disabled', locked);
+    const editable = row?.dataset.currentGameweek === 'true' && !locked;
+    row?.querySelector('[data-prediction-input]')?.toggleAttribute('disabled', !editable);
+    row?.querySelector('[data-save-game-card]')?.toggleAttribute('disabled', !editable);
   });
 }
 
@@ -364,6 +418,9 @@ async function savePrediction(row) {
   }
 
   state.predictions.set(predictionKey(roundId, gameweekId), { round_id: roundId, gameweek_id: gameweekId, predicted_value: value });
+  row.querySelector('.save-light')?.classList.add('saved');
+  row.querySelector('.save-light')?.setAttribute('aria-label', 'Prediction saved');
+  row.querySelector('.save-light')?.setAttribute('title', 'Prediction saved');
   setMessage('Game Card prediction saved.', 'success');
 }
 

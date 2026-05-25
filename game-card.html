@@ -129,6 +129,13 @@ main {
 
 .card-copy {
   text-align: center;
+  padding: 14px 16px;
+  border: 1px solid rgba(216, 180, 254, 0.62);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.09), transparent 42%),
+    rgba(17, 7, 38, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
 }
 
 .card-copy h2 {
@@ -160,7 +167,7 @@ main {
 
 .gameweek-row {
   display: grid;
-  grid-template-columns: 74px minmax(0, 1fr) 126px 108px 118px;
+  grid-template-columns: 66px minmax(120px, 1fr) 128px 112px 28px 98px;
   gap: 10px;
   align-items: center;
   padding: 12px;
@@ -169,14 +176,68 @@ main {
   border: 1px solid rgba(216, 180, 254, 0.22);
 }
 
+.gameweek-row.current-gameweek {
+  border: 2px solid rgba(251, 146, 60, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(124, 45, 18, 0.28) inset,
+    0 0 18px rgba(251, 146, 60, 0.52),
+    0 0 34px rgba(249, 115, 22, 0.25);
+}
+
 .gameweek-row strong,
 .gameweek-row span {
   text-align: center;
 }
 
+.gameweek-badge {
+  justify-self: center;
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: rgba(17, 7, 38, 0.72);
+  border: 1px solid rgba(216, 180, 254, 0.3);
+  color: #fde68a;
+  font-size: 12px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
 .prediction-value {
   color: #fff;
   font-weight: 900;
+}
+
+.result-value {
+  color: #e9d5ff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.result-value.pending {
+  color: #f5d0fe;
+  opacity: 0.82;
+}
+
+.save-light {
+  justify-self: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.48);
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255,255,255,0.74), transparent 24%),
+    radial-gradient(circle at 50% 52%, #ef4444, #991b1b 62%, #450a0a);
+  box-shadow:
+    0 0 10px rgba(239, 68, 68, 0.82),
+    inset 0 -3px 6px rgba(0,0,0,0.48);
+}
+
+.save-light.saved {
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255,255,255,0.74), transparent 24%),
+    radial-gradient(circle at 50% 52%, #22c55e, #15803d 62%, #052e16);
+  box-shadow:
+    0 0 10px rgba(34, 197, 94, 0.82),
+    inset 0 -3px 6px rgba(0,0,0,0.48);
 }
 
 .deadline {
@@ -187,6 +248,10 @@ main {
 
 .deadline.locked {
   color: #fecaca;
+}
+
+.deadline.upcoming {
+  color: #ddd6fe;
 }
 
 .prediction-input {
@@ -219,6 +284,7 @@ button {
 button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+  filter: grayscale(0.35);
 }
 
 .state-text,
@@ -251,8 +317,33 @@ footer {
     grid-template-columns: 1fr;
   }
   .gameweek-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 42px minmax(54px, 0.8fr) minmax(68px, 1fr) 54px 16px 48px;
+    gap: 4px;
+    padding: 8px 6px;
     text-align: center;
+  }
+  .gameweek-badge {
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+  .deadline,
+  .result-value {
+    font-size: 9.4px;
+    line-height: 1.08;
+  }
+  .prediction-input {
+    min-height: 30px;
+    padding: 5px 6px;
+    font-size: 13px;
+  }
+  .save-light {
+    width: 15px;
+    height: 15px;
+  }
+  .gameweek-row button {
+    min-height: 30px;
+    padding: 5px 4px;
+    font-size: 10px;
   }
   .toolbar a {
     flex: 1;
