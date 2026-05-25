@@ -743,11 +743,14 @@ button:disabled {
   display: flex;
   gap: 12px;
   justify-content: center;
-  align-items: center;
-  flex-wrap: nowrap;
+  align-items: flex-start;
+  align-content: center;
+  flex-wrap: wrap;
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
+  margin-inline: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 2px 2px 8px;
 }
 
@@ -886,52 +889,62 @@ button:disabled {
 
 @media (min-width: 651px) {
   .curse-panel {
-    width: min(1320px, calc(100vw - 16px));
+    width: min(1380px, calc(100vw - 16px));
     max-height: none;
     overflow: visible;
-    gap: 8px;
-    padding: 10px 8px 14px;
+    gap: 12px;
+    padding: 12px 10px 16px;
   }
 
   .curse-card-list {
-    gap: 6px;
+    gap: 8px;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: center;
+    flex-wrap: wrap;
     overflow: visible;
     padding: 0;
+    max-width: 1306px;
   }
 
   .curse-card-wrap {
-    gap: 4px;
+    flex: 0 0 150px;
+    gap: 6px;
   }
 
   .curse-card-played-by {
-    max-width: 96px;
-    font-size: clamp(8px, 0.66vw, 10.5px);
-    line-height: 1.05;
+    max-width: 150px;
+    font-size: clamp(10px, 0.8vw, 12px);
+    line-height: 1.08;
   }
 
   .curse-audit-separator {
-    min-width: 30px;
-    font-size: clamp(0.58rem, 0.78vw, 0.88rem);
+    flex: 0 0 24px;
+    min-width: 24px;
+    max-width: 24px;
+    font-size: clamp(0.62rem, 0.74vw, 0.82rem);
+    line-height: 1.05;
+    overflow-wrap: anywhere;
   }
 
   .curse-detail-card {
-    width: clamp(74px, 7vw, 106px);
-    height: clamp(124px, 12vw, 168px);
-    min-height: clamp(124px, 12vw, 168px);
+    width: 150px;
+    height: 224px;
+    min-height: 224px;
     border-width: 2px;
-    border-radius: 12px;
-    padding: 8px 6px;
+    border-radius: 15px;
+    padding: 13px 9px;
   }
 
   .curse-detail-card strong {
-    font-size: clamp(0.56rem, 0.78vw, 0.78rem);
-    line-height: 1.08;
-    padding-bottom: 4px;
+    font-size: 0.88rem;
+    line-height: 1.12;
+    padding-bottom: 6px;
   }
 
   .curse-detail-card p {
-    font-size: clamp(0.39rem, 0.52vw, 0.56rem);
-    line-height: 1.16;
+    font-size: 0.62rem;
+    line-height: 1.2;
   }
 }
 
@@ -1157,27 +1170,55 @@ footer {
   }
 
   .curse-card-list {
-    justify-content: flex-start;
-    gap: 8px;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-width: min(100%, 338px);
     padding-bottom: 8px;
   }
 
+  .curse-card-wrap {
+    flex: 0 0 clamp(46px, 13vw, 52px);
+    gap: 4px;
+  }
+
   .curse-detail-card {
-    width: 148px;
-    height: 220px;
-    min-height: 220px;
-    border-radius: 14px;
-    padding: 12px 8px;
+    width: clamp(46px, 13vw, 52px);
+    height: clamp(76px, 21vw, 84px);
+    min-height: clamp(76px, 21vw, 84px);
+    border-width: 1.5px;
+    border-radius: 9px;
+    padding: 6px 4px;
   }
 
   .curse-card-played-by {
-    font-size: 11px;
-    line-height: 1.1;
+    max-width: 52px;
+    font-size: 6.6px;
+    line-height: 1.02;
   }
 
   .curse-audit-separator {
-    min-width: 58px;
-    font-size: 0.82rem;
+    flex: 0 0 10px;
+    min-width: 10px;
+    max-width: 10px;
+    font-size: 0.36rem;
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .curse-detail-card strong {
+    font-size: 0.43rem;
+    line-height: 1.02;
+    padding-bottom: 2px;
+  }
+
+  .curse-detail-card p {
+    font-size: 0.29rem;
+    line-height: 1.05;
   }
 
   .curse-close {
