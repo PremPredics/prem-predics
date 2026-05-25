@@ -696,7 +696,7 @@ async function renderActualResults() {
     list.innerHTML = fixtures.map((fixture) => {
       const result = resultByFixture.get(fixture.id);
       return `
-        <div class="admin-row" data-fixture-id="${fixture.id}">
+        <div class="admin-row" data-fixture-id="${fixture.id}" data-has-result="${result ? 'true' : 'false'}">
           <strong>${escapeHtml(fixtureLabel(fixture))}<small>${escapeHtml(new Date(fixture.kickoff_at).toLocaleString('en-GB'))}</small></strong>
           <input data-home-goals type="number" min="0" max="99" value="${result?.home_goals ?? ''}" placeholder="Home">
           <input data-away-goals type="number" min="0" max="99" value="${result?.away_goals ?? ''}" placeholder="Away">
@@ -717,11 +717,27 @@ async function renderActualResults() {
 }
 
 async function saveVisibleActualResults(list, message, buttons, renderList) {
-  const rows = [...list.querySelectorAll('[data-fixture-id]')]
-    .filter((row) => row.querySelector('[data-home-goals]').value !== '' && row.querySelector('[data-away-goals]').value !== '');
+  const allRows = [...list.querySelectorAll('[data-fixture-id]')];
+  const partialRow = allRows.find((row) => {
+    const homeValue = row.querySelector('[data-home-goals]').value;
+    const awayValue = row.querySelector('[data-away-goals]').value;
+    return (homeValue === '') !== (awayValue === '');
+  });
+
+  if (partialRow) {
+    setMessage(message, 'Enter both scores for a result, or clear both boxes to remove it.', 'error');
+    return;
+  }
+
+  const rows = allRows.filter((row) => {
+    const homeValue = row.querySelector('[data-home-goals]').value;
+    const awayValue = row.querySelector('[data-away-goals]').value;
+    const hasResult = row.dataset.hasResult === 'true';
+    return (homeValue !== '' && awayValue !== '') || (hasResult && homeValue === '' && awayValue === '');
+  });
 
   if (!rows.length) {
-    setMessage(message, 'Enter at least one complete result before saving.', 'error');
+    setMessage(message, 'Enter at least one complete result or clear one saved result before saving.', 'error');
     return;
   }
 
@@ -729,10 +745,29 @@ async function saveVisibleActualResults(list, message, buttons, renderList) {
   setButtonsDisabled(buttons, true);
 
   try {
+    let clearedCount = 0;
+    let savedCount = 0;
+
     for (const row of rows) {
       const fixtureId = row.dataset.fixtureId;
-      const homeGoals = numberOrZero(row.querySelector('[data-home-goals]').value);
-      const awayGoals = numberOrZero(row.querySelector('[data-away-goals]').value);
+      const homeValue = row.querySelector('[data-home-goals]').value;
+      const awayValue = row.querySelector('[data-away-goals]').value;
+
+      if (homeValue === '' && awayValue === '') {
+        const { error } = await supabase.from('match_results').delete().eq('fixture_id', fixtureId);
+        if (error) {
+          throw error;
+        }
+        const { error: fixtureError } = await supabase.from('fixtures').update({ status: 'scheduled' }).eq('id', fixtureId);
+        if (fixtureError) {
+          throw fixtureError;
+        }
+        clearedCount += 1;
+        continue;
+      }
+
+      const homeGoals = numberOrZero(homeValue);
+      const awayGoals = numberOrZero(awayValue);
 
       const { error } = await supabase.from('match_results').upsert({
         fixture_id: fixtureId,
@@ -749,9 +784,14 @@ async function saveVisibleActualResults(list, message, buttons, renderList) {
       if (fixtureError) {
         throw fixtureError;
       }
+
+      savedCount += 1;
     }
 
-    setMessage(message, `${rows.length} result${rows.length === 1 ? '' : 's'} saved.`, 'success');
+    const parts = [];
+    if (savedCount) parts.push(`${savedCount} result${savedCount === 1 ? '' : 's'} saved`);
+    if (clearedCount) parts.push(`${clearedCount} result${clearedCount === 1 ? '' : 's'} cleared`);
+    setMessage(message, `${parts.join(', ')}.`, 'success');
     await renderList();
   } catch (error) {
     setMessage(message, error.message || 'Could not save actual results.', 'error');

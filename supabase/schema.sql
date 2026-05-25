@@ -1590,34 +1590,7 @@ begin
     return new;
   end if;
 
-  if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god') then
-    return new;
-  end if;
-
-  if card_row.effect_key = 'power_late_scout' then
-    if exists (
-      select 1
-      from public.star_man_picks smp
-      where smp.competition_id = new.competition_id
-        and smp.season_id = new.season_id
-        and smp.gameweek_id = target_gameweek_id
-        and smp.user_id = new.played_by_user_id
-        and smp.pick_slot = 'primary'
-    ) then
-      raise exception 'Power of the Late Scout can only be played if you have not already chosen a Star Man for this gameweek.';
-    end if;
-
-    if not exists (
-      select 1
-      from public.fixtures f
-      where f.season_id = new.season_id
-        and f.gameweek_id = target_gameweek_id
-        and f.status <> 'postponed'
-        and now() < f.kickoff_at
-    ) then
-      raise exception 'Power of the Late Scout can only be played while at least one current gameweek match has not kicked off.';
-    end if;
-
+  if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god', 'power_late_scout') then
     return new;
   end if;
 
@@ -2107,9 +2080,9 @@ select
   gameweek_id,
   gameweek_number,
   fixture_id,
-  bool_or(is_correct_score) as is_correct_score,
-  bool_or(is_correct_result) as is_correct_result,
-  max(points) as points
+  bool_or(is_correct_score and prediction_slot <> 'curse_hated' and points > 0) as is_correct_score,
+  bool_or(is_correct_result and prediction_slot <> 'curse_hated' and points > 0) as is_correct_result,
+  max(case when prediction_slot = 'curse_hated' then 0 else points end) as points
 from considered_predictions
 group by competition_id, user_id, season_id, gameweek_id, gameweek_number, fixture_id;
 
@@ -2623,6 +2596,27 @@ as $$
         and (
           (
             target_pick_slot = 'primary'
+            and exists (
+              select 1
+              from public.players p
+              join public.fixtures f
+                on f.season_id = target_season_id
+                and f.gameweek_id = target_gameweek_id
+                and f.status <> 'postponed'
+              where p.id = target_player_id
+                and (
+                  p.team_id in (f.home_team_id, f.away_team_id)
+                  or exists (
+                    select 1
+                    from public.player_team_assignments pta
+                    where pta.player_id = target_player_id
+                      and pta.season_id = target_season_id
+                      and pta.team_id in (f.home_team_id, f.away_team_id)
+                      and pta.starts_gameweek_id <= target_gameweek_id
+                      and (pta.ends_gameweek_id is null or pta.ends_gameweek_id >= target_gameweek_id)
+                  )
+                )
+            )
             and (
               now() < public.star_man_lock_at_for_gameweek(target_season_id, target_gameweek_id)
               or exists (
@@ -2649,7 +2643,26 @@ as $$
                         and pta.team_id in (f.home_team_id, f.away_team_id)
                         and pta.starts_gameweek_id <= target_gameweek_id
                         and (pta.ends_gameweek_id is null or pta.ends_gameweek_id >= target_gameweek_id)
-                    )
+                      )
+                  )
+                  and f.kickoff_at = (
+                    select min(f2.kickoff_at)
+                    from public.fixtures f2
+                    where f2.season_id = target_season_id
+                      and f2.gameweek_id = target_gameweek_id
+                      and f2.status <> 'postponed'
+                      and (
+                        p.team_id in (f2.home_team_id, f2.away_team_id)
+                        or exists (
+                          select 1
+                          from public.player_team_assignments pta2
+                          where pta2.player_id = target_player_id
+                            and pta2.season_id = target_season_id
+                            and pta2.team_id in (f2.home_team_id, f2.away_team_id)
+                            and pta2.starts_gameweek_id <= target_gameweek_id
+                            and (pta2.ends_gameweek_id is null or pta2.ends_gameweek_id >= target_gameweek_id)
+                        )
+                      )
                   )
                   and now() < f.kickoff_at
               )

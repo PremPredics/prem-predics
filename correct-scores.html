@@ -136,7 +136,7 @@ main {
 .correct-score-row {
   min-height: 34px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 54px minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   padding: 6px 8px;
@@ -146,7 +146,13 @@ main {
 }
 
 .correct-fixture {
+  grid-column: 2;
+  grid-row: 1;
   min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
   text-align: center;
   color: #ffd700;
   font-size: 14px;
@@ -155,6 +161,33 @@ main {
   text-overflow: ellipsis;
   white-space: nowrap;
   text-shadow: 0 0 10px rgba(250, 204, 21, 0.42);
+}
+
+.correct-team {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.correct-home {
+  text-align: right;
+}
+
+.correct-away {
+  text-align: left;
+}
+
+.correct-scoreline {
+  text-align: center;
+  color: #fff3a3;
+  font-size: 15px;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.82),
+    1px -1px 0 rgba(0,0,0,0.82),
+    -1px 1px 0 rgba(0,0,0,0.82),
+    1px 1px 0 rgba(0,0,0,0.82),
+    0 0 12px rgba(250, 204, 21, 0.56);
 }
 
 .correct-gw-pill {
@@ -171,11 +204,6 @@ main {
   font-weight: 950;
   text-align: center;
   box-shadow: 0 0 10px rgba(250, 204, 21, 0.22);
-}
-
-.correct-fixture {
-  grid-column: 2;
-  grid-row: 1;
 }
 
 .player-card {
@@ -284,6 +312,11 @@ footer {
     gap: 5px;
   }
   .correct-fixture {
+    grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+    gap: 5px;
+    font-size: 12px;
+  }
+  .correct-scoreline {
     font-size: 12px;
   }
   .correct-gw-pill {

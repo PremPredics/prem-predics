@@ -101,7 +101,14 @@ function countdownText(value) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   const isCompact = window.matchMedia?.('(max-width: 720px)').matches;
-  return isCompact ? `${hours}hr ${minutes}m` : `${hours}hr ${minutes}m Remaining`;
+  if (isCompact) {
+    return hours >= 1 ? `${hours}hr` : `${Math.max(1, minutes)}m`;
+  }
+  return `${hours}hr ${minutes}m Remaining`;
+}
+
+function fixtureLockText(fixture) {
+  return isPast(fixture.prediction_locks_at) ? '🔒' : countdownText(fixture.prediction_locks_at);
 }
 
 function teamName(teamId) {
@@ -171,11 +178,8 @@ function renderCurseMarker(fixture) {
     return '';
   }
 
-  const hasRandomCurse = curses.some((effect) => effectKey(effect) === 'curse_gambler');
   const label = curses.length === 1 ? 'View active curse' : `View ${curses.length} active curses`;
-  const markerClass = hasRandomCurse ? 'curse-marker dice-curse-marker' : 'curse-marker';
-  const markerSymbol = hasRandomCurse ? '&#9856;' : '&#9760;';
-  return `<button class="${markerClass}" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">${markerSymbol}</button>`;
+  return `<button class="curse-marker" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9760;</button>`;
 }
 
 function revealedCurseOverride(fixture) {
@@ -475,7 +479,7 @@ function renderSummary() {
             </span>
             <span class="fixture-lock-wrap">
               ${renderCurseMarker(fixture)}
-              <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${locked ? 'Locked' : countdownText(fixture.prediction_locks_at)}</span>
+              <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${fixtureLockText(fixture)}</span>
             </span>
             ${state.hedgePrediction?.fixture_id === fixture.id ? `<small>Hedge: ${state.hedgePrediction.home_goals}-${state.hedgePrediction.away_goals}</small>` : ''}
             ${state.godPrediction?.fixture_id === fixture.id ? `<small>Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
@@ -525,7 +529,7 @@ function renderEdit() {
         </span>
         <span class="fixture-lock-wrap">
           ${renderCurseMarker(fixture)}
-          <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${locked ? 'Locked' : countdownText(fixture.prediction_locks_at)}</span>
+          <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${fixtureLockText(fixture)}</span>
         </span>
       </article>
     `;
@@ -667,7 +671,7 @@ function updatePredictionCountdowns() {
   fixturesContainer.querySelectorAll('[data-prediction-lock]').forEach((element) => {
     const deadline = element.dataset.predictionLock;
     const locked = isPast(deadline);
-    element.textContent = locked ? 'Locked' : countdownText(deadline);
+    element.textContent = locked ? '🔒' : countdownText(deadline);
     element.classList.toggle('locked', locked);
     element.classList.toggle('remaining', !locked);
 

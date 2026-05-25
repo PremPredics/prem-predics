@@ -3896,7 +3896,7 @@ const cardDescriptions = {
   "Power of God": "Power of God\n\nValid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.",
   "Power of the Hedge": "Power of the Hedge\n\nValid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Assist King": "Power of the Assist King\n\nValid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Late Scout": "Power of the Late Scout\n\nValid for 1 Gameweek. Choose your Star Man AFTER line-ups are announced for one match. Must be played before Star Man's Kick-Off.",
+  "Power of the Late Scout": "Power of the Late Scout\n\nValid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team's first match in the Gameweek kicks off.",
   "Power of the Snow": "Power of the Snow\n\nValid for 1 Gameweek. Any Predicted match played in heavy snow scores DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
 
   "Curse of the Hated": "Curse of the Hated\n\nValid for 1 Gameweek. Opponent must predict 8-2 in at least one game this Gameweek. Must be played at least 24 hours before the gameweek's first KO time.",
@@ -5228,28 +5228,7 @@ function assertCardPlayDeadline(rule, activeGameweek) {
 }
 
 async function assertLateScoutCanBePlayed(activeGameweek, fixtures, runtimeContext, client) {
-  const { data: existingPick, error } = await client
-    .from('star_man_picks')
-    .select('id')
-    .eq('competition_id', runtimeContext.league.id)
-    .eq('season_id', runtimeContext.league.season_id)
-    .eq('gameweek_id', activeGameweek.gameweek_id)
-    .eq('user_id', runtimeContext.user.id)
-    .eq('pick_slot', 'primary')
-    .maybeSingle();
-
-  if (error) {
-    throw error;
-  }
-
-  if (existingPick) {
-    throw new Error('Power of the Late Scout can only be played if you have not already chosen a Star Man for this gameweek.');
-  }
-
-  const openFixtures = (fixtures || []).filter((fixture) => fixture.status !== 'postponed' && !gameweekHasStartedFromTime(fixture.kickoff_at));
-  if (!openFixtures.length) {
-    throw new Error('Power of the Late Scout can only be played while at least one current gameweek match has not kicked off.');
-  }
+  return true;
 }
 
 async function assertFirstLeagueGameweekCompleted(runtimeContext, client) {
@@ -5920,7 +5899,7 @@ async function initializeCardPage() {
       'Power of God': { cardId: 'power_of_god', effectKey: 'power_of_god', duration: 1, target: 'self', deadlineExempt: true },
       'Power of the Hedge': { cardId: 'power_hedge', effectKey: 'power_hedge', duration: 1, target: 'self' },
       'Power of the Assist King': { cardId: 'power_assist_king', effectKey: 'power_assist_king', duration: 1, target: 'self' },
-      'Power of the Late Scout': { cardId: 'power_late_scout', effectKey: 'power_late_scout', duration: 1, target: 'self' },
+      'Power of the Late Scout': { cardId: 'power_late_scout', effectKey: 'power_late_scout', duration: 1, target: 'self', deadlineExempt: true },
       'Power of the Snow': { cardId: 'power_snow', effectKey: 'power_snow', duration: 1, target: 'self' },
       'Curse of the Hated': { cardId: 'curse_hated', effectKey: 'curse_hated', duration: 1, target: 'opponent', special: 'hated' },
       'Curse of the Random': { cardId: 'curse_gambler', effectKey: 'curse_gambler', duration: 1, target: 'opponent', special: 'gambler' },

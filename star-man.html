@@ -613,6 +613,12 @@ input:disabled {
     0 0 14px rgba(250, 204, 21, 0.62);
 }
 
+.selected-player-card-wrap {
+  position: relative;
+  display: inline-grid;
+  justify-items: center;
+}
+
 .selected-player-card {
   width: min(218px, 66vw);
   aspect-ratio: 0.7;
@@ -641,9 +647,9 @@ input:disabled {
 
 .star-power-badge {
   position: absolute;
-  top: -17px;
-  right: -13px;
-  z-index: 4;
+  top: -14px;
+  right: -22px;
+  z-index: 12;
   display: grid;
   justify-items: center;
   gap: 2px;
@@ -790,6 +796,28 @@ body.card-modal-open {
     -1px 1px 0 rgba(0,0,0,0.92),
     1px 1px 0 rgba(0,0,0,0.92),
     0 2px 5px rgba(0,0,0,0.78);
+}
+
+.star-curse-panel.power-card {
+  border-color: #7dd3fc;
+  background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 24%, #38bdf8 50%, #0ea5e9 72%, #bae6fd 100%);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.18);
+}
+
+.star-curse-panel.power-card small {
+  color: #e0f2fe;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 0 13px rgba(125, 211, 252, 0.82);
+}
+
+.star-curse-panel.super-card {
+  border-color: #fef3c7;
+  background: linear-gradient(135deg, #451a03 0%, #b45309 22%, #facc15 50%, #d97706 73%, #fef3c7 100%);
+  box-shadow: 0 0 30px rgba(250, 204, 21, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.18);
 }
 
 .star-curse-panel::after {

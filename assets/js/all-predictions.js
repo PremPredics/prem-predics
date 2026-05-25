@@ -187,6 +187,26 @@ async function loadResults(fixtures) {
   return new Map((data || []).map((result) => [result.fixture_id, result]));
 }
 
+async function loadFixtureScores(gameweek, fixtures) {
+  if (!fixtures.length) {
+    return new Map();
+  }
+
+  const { data, error } = await supabase
+    .from('prediction_fixture_scores')
+    .select('fixture_id, points, is_correct_score, is_correct_result')
+    .eq('competition_id', state.league.id)
+    .eq('user_id', state.selectedUserId)
+    .eq('gameweek_id', gameweek.gameweek_id)
+    .in('fixture_id', fixtures.map((fixture) => fixture.id));
+
+  if (error) {
+    throw error;
+  }
+
+  return new Map((data || []).map((score) => [score.fixture_id, score]));
+}
+
 async function loadCurseOverrides(gameweek, fixtures) {
   if (!fixtures.length) {
     return new Map();
@@ -303,11 +323,8 @@ function renderCurseMarker(fixture, curses) {
     return '';
   }
 
-  const hasRandomCurse = curses.some((effect) => effectKey(effect) === 'curse_gambler');
   const label = curses.length === 1 ? 'View active curse' : `View ${curses.length} active curses`;
-  const markerClass = hasRandomCurse ? 'curse-marker dice-curse-marker' : 'curse-marker';
-  const markerSymbol = hasRandomCurse ? '&#9856;' : '&#9760;';
-  return `<button class="${markerClass}" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>${markerSymbol}</span></button>`;
+  return `<button class="curse-marker" type="button" data-curse-fixture="${fixture.id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>&#9760;</span></button>`;
 }
 
 function predictionClass(prediction, result, locked) {
@@ -329,18 +346,6 @@ function predictionClass(prediction, result, locked) {
   }
 
   return 'incorrect';
-}
-
-function predictionPoints(resultClass) {
-  if (resultClass === 'correct-score') {
-    return 3;
-  }
-
-  if (resultClass === 'correct-result') {
-    return 1;
-  }
-
-  return 0;
 }
 
 function curseCardDetailMarkup(effect) {
@@ -412,9 +417,10 @@ async function renderPredictionRows(gameweek) {
     return;
   }
 
-  const [predictions, results, curseOverrides, predictionEffects] = await Promise.all([
+  const [predictions, results, fixtureScores, curseOverrides, predictionEffects] = await Promise.all([
     loadPredictions(gameweek, fixtures),
     loadResults(fixtures),
+    loadFixtureScores(gameweek, fixtures),
     loadCurseOverrides(gameweek, fixtures),
     loadPredictionEffects(gameweek),
   ]);
@@ -428,8 +434,11 @@ async function renderPredictionRows(gameweek) {
       : null;
     const prediction = locked ? (override || predictions.get(fixture.id)) : null;
     const result = results.get(fixture.id);
-    const resultClass = predictionClass(prediction, result, locked);
-    const points = predictionPoints(resultClass);
+    const scored = fixtureScores.get(fixture.id);
+    const resultClass = scored
+      ? (scored.is_correct_score ? 'correct-score' : scored.is_correct_result ? 'correct-result' : (locked && prediction && result ? 'incorrect' : ''))
+      : predictionClass(prediction, result, locked);
+    const points = Number(scored?.points || 0);
     const curses = locked
       ? predictionCursesForFixture(fixture, predictionEffects, prediction, override)
       : [];
@@ -449,8 +458,8 @@ async function renderPredictionRows(gameweek) {
         <strong>${escapeHtml(score)}</strong>
         <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
         <span class="row-actions">
-          ${renderCurseMarker(fixture, curses)}
           ${points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}
+          ${renderCurseMarker(fixture, curses)}
         </span>
         <span class="actual-result-row" aria-hidden="true">
           <span class="actual-result-label">FT</span>

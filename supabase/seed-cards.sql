@@ -15,7 +15,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('power_of_god', 'Power of God', 'power', 'regular', 'power_of_god', 'Change one match prediction before the second-half deadline.'),
     ('power_hedge', 'Power of the Hedge', 'power', 'regular', 'power_hedge', 'Predict two scorelines for one match; best result counts.'),
     ('power_assist_king', 'Power of the Assist King', 'power', 'regular', 'power_assist_king', 'Star Man assists score double points.'),
-    ('power_late_scout', 'Power of the Late Scout', 'power', 'regular', 'power_late_scout', 'Choose Star Man after lineups until the chosen player fixture kicks off.'),
+    ('power_late_scout', 'Power of the Late Scout', 'power', 'regular', 'power_late_scout', 'Play at any time. Choose Star Man after lineups; each player is available until their team first kicks off in the gameweek.'),
     ('power_snow', 'Power of the Snow', 'power', 'regular', 'power_snow', 'Predicted matches played in heavy snow score double points.'),
 
     ('curse_hated', 'Curse of the Hated', 'curse', 'regular', 'curse_hated', 'Valid for 1 Gameweek. Opponent must predict 8-2 in at least one game this gameweek. Must be played at least 24 hours before the gameweek''s first KO time.'),

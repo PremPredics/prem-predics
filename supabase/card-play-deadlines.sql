@@ -21,7 +21,7 @@ with canonical_card_descriptions (id, description) as (
     ('power_of_god', 'Valid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.'),
     ('power_hedge', 'Valid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_assist_king', 'Valid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
-    ('power_late_scout', 'Valid for 1 Gameweek. Choose your Star Man AFTER line-ups are announced for one match. Must be played before Star Man''s Kick-Off.'),
+    ('power_late_scout', 'Valid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team''s first match in the Gameweek kicks off.'),
     ('power_snow', 'Valid for 1 Gameweek. Any Predicted match played in heavy snow scores DOUBLE points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('curse_hated', 'Valid for 1 Gameweek. Opponent must predict 8-2 in at least one game this Gameweek. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_gambler', 'Valid for 1 Gameweek. For 3 games, roll a dice to determine the score predictions of an opponent. Must be played at least 24 hours before the gameweek''s first KO time.'),
@@ -113,34 +113,7 @@ begin
     return new;
   end if;
 
-  if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god') then
-    return new;
-  end if;
-
-  if card_row.effect_key = 'power_late_scout' then
-    if exists (
-      select 1
-      from public.star_man_picks smp
-      where smp.competition_id = new.competition_id
-        and smp.season_id = new.season_id
-        and smp.gameweek_id = target_gameweek_id
-        and smp.user_id = new.played_by_user_id
-        and smp.pick_slot = 'primary'
-    ) then
-      raise exception 'Power of the Late Scout can only be played if you have not already chosen a Star Man for this gameweek.';
-    end if;
-
-    if not exists (
-      select 1
-      from public.fixtures f
-      where f.season_id = new.season_id
-        and f.gameweek_id = target_gameweek_id
-        and f.status <> 'postponed'
-        and now() < f.kickoff_at
-    ) then
-      raise exception 'Power of the Late Scout can only be played while at least one current gameweek match has not kicked off.';
-    end if;
-
+  if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god', 'power_late_scout') then
     return new;
   end if;
 

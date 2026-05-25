@@ -137,6 +137,7 @@ th {
 
 .symbol.tick-green { color: #22c55e; }
 .symbol.tick-amber { color: #f59e0b; }
+.symbol.tick-white { color: #fff; }
 .symbol.star { color: #fde047; }
 .symbol.ball { color: #f8fafc; }
 .symbol.target { color: #67e8f9; }
@@ -157,6 +158,20 @@ th {
   font-size: 1.12rem;
   font-weight: 950;
   text-shadow: 0 0 12px rgba(255, 215, 0, 0.48);
+}
+
+.prediction-points-cell {
+  color: #fff;
+  font-weight: 950;
+  text-shadow: 0 0 10px rgba(255,255,255,0.36);
+}
+
+.green-stat,
+.green-stat .symbol,
+.green-stat-cell {
+  color: #22c55e;
+  font-weight: 950;
+  text-shadow: 0 0 10px rgba(34, 197, 94, 0.46);
 }
 
 td {
@@ -411,7 +426,7 @@ footer {
     font-size: 13px;
   }
   table {
-    min-width: 760px;
+    min-width: 840px;
   }
   .player-cell {
     min-width: 160px;
@@ -472,17 +487,18 @@ footer {
             <th>Pos</th>
             <th>Player</th>
             <th class="uc-head">UC PTS</th>
-            <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span></th>
-            <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-amber">&#10003;</span></span><span>CR</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-white">&#10003;</span></span><span>PP</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span></span><span>SMP</span></span></th>
-            <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol ball">&#9917;</span></span><span>SMG</span></span></th>
+            <th><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-amber">&#10003;</span></span><span>CR</span></span></th>
+            <th><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol ball">&#9917;</span></span><span>SMG</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol target">&#10166;</span></span><span>SMA</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol card yellow"></span></span><span>SMY</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol card red"></span></span><span>SMR</span></span></th>
           </tr>
         </thead>
         <tbody data-leaderboard-body>
-          <tr><td colspan="10">Loading leaderboard...</td></tr>
+          <tr><td colspan="11">Loading leaderboard...</td></tr>
         </tbody>
       </table>
     </div>
@@ -497,10 +513,11 @@ footer {
   <div class="legend-panel" role="dialog" aria-modal="true" aria-label="Leaderboard stat key">
     <div class="legend-key">
       <div><span class="key-code uc-head">UC PTS</span><span class="key-equals">=</span><span>Total Ultimate Champion Points</span></div>
-      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span><span class="key-equals">=</span><span>Total Correct Scores</span></div>
-      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol tick-amber">&#10003;</span></span><span>CR</span></span><span class="key-equals">=</span><span>Total Correct Results</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol tick-white">&#10003;</span></span><span>PP</span></span><span class="key-equals">=</span><span>Total Prediction Points</span></div>
       <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span></span><span>SMP</span></span><span class="key-equals">=</span><span>Total Star Man Points</span></div>
-      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol ball">&#9917;</span></span><span>SMG</span></span><span class="key-equals">=</span><span>Total Star Man Goals</span></div>
+      <div><span class="key-code stat-head green-stat"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span><span class="key-equals">=</span><span>Total Correct Scores</span></div>
+      <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol tick-amber">&#10003;</span></span><span>CR</span></span><span class="key-equals">=</span><span>Total Correct Results</span></div>
+      <div><span class="key-code stat-head green-stat"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol ball">&#9917;</span></span><span>SMG</span></span><span class="key-equals">=</span><span>Total Star Man Goals</span></div>
       <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol target">&#10166;</span></span><span>SMA</span></span><span class="key-equals">=</span><span>Total Star Man Assists</span></div>
       <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol card yellow"></span></span><span>SMY</span></span><span class="key-equals">=</span><span>Total Star Man Yellow Cards</span></div>
       <div><span class="key-code stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol card red"></span></span><span>SMR</span></span><span class="key-equals">=</span><span>Total Star Man Red Cards</span></div>

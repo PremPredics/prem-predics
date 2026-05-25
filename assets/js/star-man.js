@@ -16,6 +16,7 @@ const leagueBackLink = document.querySelector('[data-league-back]');
 const starBackLink = document.querySelector('[data-star-back]');
 const historyList = document.querySelector('[data-star-man-history]');
 const starCurseModal = document.querySelector('[data-star-curse-modal]');
+const starCursePanel = document.querySelector('.star-curse-panel');
 const starCurseTitle = document.querySelector('[data-star-curse-title]');
 const starCurseDescription = document.querySelector('[data-star-curse-description]');
 const starCursePlayer = document.querySelector('[data-star-curse-player]');
@@ -378,7 +379,12 @@ function effectName(effect) {
 }
 
 function effectDescription(effect) {
-  return normaliseNested(effect.card_definitions)?.description || 'This curse affects your Star Man pick this Gameweek.';
+  return normaliseNested(effect.card_definitions)?.description || 'This card affects your Star Man pick this Gameweek.';
+}
+
+function effectCategory(effect) {
+  const definition = normaliseNested(effect.card_definitions) || {};
+  return definition.category || (String(definition.effect_key || '').startsWith('power_') ? 'power' : 'curse');
 }
 
 function playedByName(effect) {
@@ -455,12 +461,18 @@ function hasMicrostateNationality(player) {
 
 function playerFixture(player) {
   return state.fixtures.find((fixture) => (
-    fixture.home_team_id === player.team_id || fixture.away_team_id === player.team_id
+    String(fixture.status || '').toLowerCase() !== 'postponed'
+    && (fixture.home_team_id === player.team_id || fixture.away_team_id === player.team_id)
   ));
 }
 
 function deadlineCheck(player, slot) {
   const globalLocked = isPast(state.activeGameweek.star_man_locks_at);
+  const fixture = playerFixture(player);
+
+  if (!fixture) {
+    return { allowed: false, reason: "this player's team does not play in this gameweek", sourceCardEffectId: null };
+  }
 
   if (slot === 'super_duo') {
     const superDuo = ownEffect('super_duo');
@@ -480,7 +492,6 @@ function deadlineCheck(player, slot) {
   }
 
   const lateScout = ownEffect('power_late_scout');
-  const fixture = playerFixture(player);
   if (lateScout && fixture && !isPast(fixture.kickoff_at)) {
     return { allowed: true, reason: '', sourceCardEffectId: lateScout.id };
   }
@@ -790,6 +801,8 @@ function openStarCurseModal(effectId) {
   starCurseTitle.textContent = effectName(effect);
   starCurseDescription.textContent = effectDescription(effect);
   starCursePlayer.textContent = `Played by ${playedByName(effect)}`;
+  starCursePanel?.classList.remove('power-card', 'curse-card', 'super-card');
+  starCursePanel?.classList.add(`${effectCategory(effect)}-card`);
   starCurseModal.classList.add('show');
   starCurseModal.setAttribute('aria-hidden', 'false');
   document.body.classList.add('card-modal-open');
@@ -918,14 +931,16 @@ function renderSelectedPlayer(slot, player, options = {}) {
   selected.classList.add('has-card');
   selected.innerHTML = `
     <span class="selected-player-heading">${escapeHtml(heading)}</span>
-    <span class="selected-player-card${isSaved ? ' saved' : ''}" aria-label="${escapeHtml(playerLabel(player))}">
+    <span class="selected-player-card-wrap">
+      <span class="selected-player-card${isSaved ? ' saved' : ''}" aria-label="${escapeHtml(playerLabel(player))}">
+        ${playerCardMarkup(player, { mode: 'selected' })}
+      </span>
       ${powerEffect ? `
         <button class="star-power-badge" type="button" data-star-power-effect="${escapeHtml(powerEffect.id)}" aria-label="View ${escapeHtml(effectName(powerEffect))}">
           <span>Power</span>
           <strong aria-hidden="true">&#9994;</strong>
         </button>
       ` : ''}
-      ${playerCardMarkup(player, { mode: 'selected' })}
     </span>
   `;
   selected.querySelectorAll('[data-star-power-effect]').forEach((button) => {

@@ -35,9 +35,10 @@ function avatarMarkup(profile, displayName) {
 function sortRows(rows) {
   return rows.sort((a, b) => (
     numberValue(b.ultimate_champion_points) - numberValue(a.ultimate_champion_points)
+    || numberValue(b.prediction_points) - numberValue(a.prediction_points)
+    || numberValue(b.star_man_points) - numberValue(a.star_man_points)
     || numberValue(b.correct_scores) - numberValue(a.correct_scores)
     || numberValue(b.correct_results) - numberValue(a.correct_results)
-    || numberValue(b.star_man_points) - numberValue(a.star_man_points)
     || numberValue(b.star_man_goals) - numberValue(a.star_man_goals)
     || numberValue(b.star_man_assists) - numberValue(a.star_man_assists)
     || numberValue(a.star_man_yellows) - numberValue(b.star_man_yellows)
@@ -48,7 +49,7 @@ function sortRows(rows) {
 
 function render(rows, profilesById) {
   if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="10" class="empty">No leaderboard data yet.</td></tr>';
+    body.innerHTML = '<tr><td colspan="11" class="empty">No leaderboard data yet.</td></tr>';
     return;
   }
 
@@ -70,10 +71,11 @@ function render(rows, profilesById) {
           </div>
         </td>
         <td class="uc-cell">${numberValue(row.ultimate_champion_points)}</td>
-        <td>${numberValue(row.correct_scores)}</td>
-        <td>${numberValue(row.correct_results)}</td>
+        <td class="prediction-points-cell">${numberValue(row.prediction_points)}</td>
         <td>${numberValue(row.star_man_points)}</td>
-        <td>${numberValue(row.star_man_goals)}</td>
+        <td class="green-stat-cell">${numberValue(row.correct_scores)}</td>
+        <td>${numberValue(row.correct_results)}</td>
+        <td class="green-stat-cell">${numberValue(row.star_man_goals)}</td>
         <td>${numberValue(row.star_man_assists)}</td>
         <td>${numberValue(row.star_man_yellows)}</td>
         <td>${numberValue(row.star_man_reds)}</td>
@@ -85,7 +87,7 @@ function render(rows, profilesById) {
 async function loadLeaderboard() {
   const context = await loadLeagueContext();
   if (context.error) {
-    body.innerHTML = `<tr><td colspan="10" class="empty">${escapeHtml(context.error)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(context.error)}</td></tr>`;
     return;
   }
 
@@ -93,11 +95,11 @@ async function loadLeaderboard() {
 
   const { data: rows, error } = await supabase
     .from('leaderboard')
-    .select('competition_id, user_id, display_name, ultimate_champion_points, correct_scores, correct_results, star_man_points, star_man_goals, star_man_assists, star_man_yellows, star_man_reds')
+    .select('competition_id, user_id, display_name, ultimate_champion_points, prediction_points, correct_scores, correct_results, star_man_points, star_man_goals, star_man_assists, star_man_yellows, star_man_reds')
     .eq('competition_id', context.league.id);
 
   if (error) {
-    body.innerHTML = `<tr><td colspan="10" class="empty">${escapeHtml(error.message)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(error.message)}</td></tr>`;
     return;
   }
 

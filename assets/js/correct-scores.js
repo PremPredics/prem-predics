@@ -70,11 +70,14 @@ function render() {
   }
 
   container.innerHTML = scores.map((score) => {
-    const fixture = `${shortTeamName(score.home_team)} ${score.actual_home_goals}-${score.actual_away_goals} ${shortTeamName(score.away_team)}`;
     return `
       <div class="correct-score-row">
-        <span class="correct-fixture">${escapeHtml(fixture)}</span>
         <span class="correct-gw-pill">GW${escapeHtml(score.gameweek_number)}</span>
+        <span class="correct-fixture">
+          <span class="correct-team correct-home">${escapeHtml(shortTeamName(score.home_team))}</span>
+          <strong class="correct-scoreline">${escapeHtml(score.actual_home_goals)}-${escapeHtml(score.actual_away_goals)}</strong>
+          <span class="correct-team correct-away">${escapeHtml(shortTeamName(score.away_team))}</span>
+        </span>
       </div>
     `;
   }).join('');

@@ -291,9 +291,9 @@ select
   gameweek_id,
   gameweek_number,
   fixture_id,
-  bool_or(is_correct_score) as is_correct_score,
-  bool_or(is_correct_result) as is_correct_result,
-  max(points) as points
+  bool_or(is_correct_score and prediction_slot <> 'curse_hated' and points > 0) as is_correct_score,
+  bool_or(is_correct_result and prediction_slot <> 'curse_hated' and points > 0) as is_correct_result,
+  max(case when prediction_slot = 'curse_hated' then 0 else points end) as points
 from considered_predictions
 group by competition_id, user_id, season_id, gameweek_id, gameweek_number, fixture_id;
 
