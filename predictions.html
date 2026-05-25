@@ -134,7 +134,14 @@ main {
 }
 
 .message[data-type="error"] {
-  color: #fecaca;
+  color: #ff1f1f;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 0 12px rgba(255, 31, 31, 0.72);
 }
 
 .fixtures {
@@ -208,13 +215,13 @@ main {
 }
 
 .prediction-restriction-card {
-  width: 86px;
-  min-height: 104px;
+  width: 72px;
+  min-height: 92px;
   display: grid;
   align-content: center;
   justify-items: center;
   gap: 6px;
-  padding: 9px 7px;
+  padding: 8px 6px;
   border-radius: 12px;
   border: 2px solid rgba(254, 202, 202, 0.86);
   background:
@@ -260,12 +267,13 @@ main {
 }
 
 .prediction-restriction-card-name {
-  font-size: 10.5px;
+  font-size: 9.5px;
   line-height: 1.12;
   font-weight: 950;
 }
 
 .prediction-restriction-played-by {
+  display: none;
   color: #fff;
   max-width: 94px;
   font-size: 10px;
@@ -812,6 +820,57 @@ button:disabled {
   transform: translateY(-2px);
 }
 
+@media (min-width: 651px) {
+  .curse-panel {
+    width: min(1320px, calc(100vw - 16px));
+    max-height: none;
+    overflow: visible;
+    gap: 8px;
+    padding: 10px 8px 14px;
+  }
+
+  .curse-card-list {
+    gap: 6px;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .curse-card-wrap {
+    gap: 4px;
+  }
+
+  .curse-card-played-by {
+    max-width: 96px;
+    font-size: clamp(8px, 0.66vw, 10.5px);
+    line-height: 1.05;
+  }
+
+  .curse-audit-separator {
+    min-width: 30px;
+    font-size: clamp(0.58rem, 0.78vw, 0.88rem);
+  }
+
+  .curse-detail-card {
+    width: clamp(74px, 7vw, 106px);
+    height: clamp(124px, 12vw, 168px);
+    min-height: clamp(124px, 12vw, 168px);
+    border-width: 2px;
+    border-radius: 12px;
+    padding: 8px 6px;
+  }
+
+  .curse-detail-card strong {
+    font-size: clamp(0.56rem, 0.78vw, 0.78rem);
+    line-height: 1.08;
+    padding-bottom: 4px;
+  }
+
+  .curse-detail-card p {
+    font-size: clamp(0.39rem, 0.52vw, 0.56rem);
+    line-height: 1.16;
+  }
+}
+
 footer {
   text-align: center;
   padding: 12px;
@@ -927,8 +986,8 @@ footer {
   }
 
   .prediction-restriction-card {
-    width: 76px;
-    min-height: 92px;
+    width: 64px;
+    min-height: 82px;
     padding: 8px 6px;
     border-radius: 11px;
   }
@@ -940,7 +999,7 @@ footer {
   }
 
   .prediction-restriction-card-name {
-    font-size: 9.5px;
+    font-size: 8.6px;
   }
 
   .prediction-restriction-played-by {
@@ -1021,6 +1080,14 @@ footer {
   .curse-audit-separator {
     min-width: 58px;
     font-size: 0.82rem;
+  }
+
+  .curse-close {
+    min-width: 96px;
+    width: 96px;
+    padding-left: 14px;
+    padding-right: 14px;
+    justify-self: center;
   }
 
   .summary-row {

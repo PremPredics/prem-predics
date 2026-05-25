@@ -162,7 +162,17 @@ function effectCategory(effect) {
   return isPredictionCurse(effect) ? 'curse' : 'power';
 }
 
-function curseAppliesToFixture(effect, fixture) {
+function predictionIsNilNil(prediction) {
+  return prediction
+    && Number(prediction.home_goals) === 0
+    && Number(prediction.away_goals) === 0;
+}
+
+function fixturePredictionForEffects(fixture) {
+  return displayPredictionForFixture(fixture);
+}
+
+function curseAppliesToFixture(effect, fixture, prediction = fixturePredictionForEffects(fixture)) {
   const key = effectKey(effect);
   if (key === 'curse_deleted_match' || key === 'curse_hated') {
     return !effect.fixture_id || effect.fixture_id === fixture.id;
@@ -170,6 +180,9 @@ function curseAppliesToFixture(effect, fixture) {
   if (key === 'curse_gambler') {
     const ids = effect.payload?.gambler_fixture_ids || [];
     return !ids.length || ids.includes(fixture.id);
+  }
+  if (key === 'curse_glasses') {
+    return predictionIsNilNil(prediction);
   }
   return true;
 }
@@ -211,6 +224,20 @@ function visiblePredictionPowersForFixture() {
 function ownPredictionPanelPowers() {
   return [state.pessimistEffect, state.hedgeEffect, state.godEffect, state.superScoreEffect]
     .filter(Boolean);
+}
+
+function activeParityEffect() {
+  return state.targetEffects.find((effect) => (
+    effectKey(effect) === 'curse_even_number' || effectKey(effect) === 'curse_odd_number'
+  )) || null;
+}
+
+function paritySaveFailedMessage() {
+  const effect = activeParityEffect();
+  const isOdd = effectKey(effect) === 'curse_odd_number';
+  const curseName = isOdd ? 'Curse of the Odd Number' : 'Curse of the Even Number';
+  const scoreWord = isOdd ? 'Odd' : 'Even';
+  return `Save Failed - ${playedByName(effect)} has played ${curseName}, each score must be ${scoreWord}.`;
 }
 
 function renderPowerMarker(fixture) {
@@ -508,6 +535,7 @@ function renderSummary() {
   }
 
   fixturesContainer.innerHTML = `
+    ${renderTargetRestrictionPanel()}
     <div class="prediction-summary-list">
       ${state.fixtures.map((fixture) => {
         const prediction = displayPredictionForFixture(fixture);
@@ -847,12 +875,7 @@ function render() {
 }
 
 function renderTargetRestrictionPanel() {
-  const visibleCurses = state.targetEffects.filter((effect) => (
-    isPredictionCurse(effect)
-    && state.fixtures.some((fixture) => (
-      curseAppliesToFixture(effect, fixture) && curseRevealAllowed(effect, fixture)
-    ))
-  ));
+  const visibleCurses = state.targetEffects.filter(isPredictionCurse);
   const visiblePowers = ownPredictionPanelPowers();
   const visibleEffects = [...visiblePowers, ...visibleCurses]
     .sort((a, b) => effectPlayedAtMs(a) - effectPlayedAtMs(b));
@@ -910,7 +933,7 @@ async function saveAllPredictions() {
     }
 
     if (result.status === 'parity') {
-      setMessage(`This curse means every entered score must be an ${state.predictionParity} number.`, 'error');
+      setMessage(paritySaveFailedMessage(), 'error');
       return;
     }
 

@@ -4515,10 +4515,11 @@ function playerAvatarMarkup(userId) {
   return `<span class="card-preview-played-by-avatar">${escapeHtml(initial)}</span>`;
 }
 
-function playedByMarkup(userId) {
+function playedByMarkup(userId, action = 'used') {
   const playerKey = playerKeyForUserId(userId);
   const name = playerKey ? getPlayerName(playerKey) : 'Player';
-  return `Played by ${playerAvatarMarkup(userId)} <span>${escapeHtml(name)}</span>`;
+  const label = action === 'discarded' ? 'Discarded by' : 'Used by';
+  return `${label} ${playerAvatarMarkup(userId)} <span>${escapeHtml(name)}</span>`;
 }
 
 function formatChoiceList(items) {
@@ -4677,6 +4678,10 @@ function closeDiscardPile() {
 }
 
 async function startCardReveal(deckType) {
+  if (sequenceInProgress) {
+    return;
+  }
+
   if (!['regular', 'premium'].includes(deckType)) {
     alert('Choose either the Regular Deck or Premium Deck.');
     return;
@@ -4697,11 +4702,13 @@ async function startCardReveal(deckType) {
 
   document.getElementById('deckChoiceModal').classList.remove('show');
   document.body.classList.remove('card-preview-open');
+  sequenceInProgress = true;
 
   try {
     const drawn = await cardRuntime.redeemCardDraw(deckType);
     await drawAndRevealCard(deckType, getCurrentPlayerKey(), drawn.card_name);
   } catch (error) {
+    sequenceInProgress = false;
     alert(error.message || 'Could not draw that card.');
   }
 }
@@ -4755,7 +4762,8 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
   
   if (!forcedCard && deck.length === 0) {
     alert("Deck empty!");
-    return;
+    sequenceInProgress = false;
+    return Promise.resolve();
   }
   
   const card = forcedCard || deck.pop();
@@ -4781,18 +4789,22 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
   fitPreviewText(nameEl, descEl);
   
   // Auto-close after 4 seconds and send to hand
-  setTimeout(() => {
-    reveal.classList.remove('show');
+  return new Promise((resolve) => {
     setTimeout(() => {
-      animateCardToHand(card, cardType, player, () => {
-        gameState.players[player].hand.push(card);
-        syncHandFromDatabase();
-        updateDecksDisplay();
-        render();
-        save();
-      });
-    }, 300);
-  }, 4000);
+      reveal.classList.remove('show');
+      setTimeout(() => {
+        animateCardToHand(card, cardType, player, () => {
+          gameState.players[player].hand.push(card);
+          syncHandFromDatabase();
+          updateDecksDisplay();
+          render();
+          save();
+          sequenceInProgress = false;
+          resolve();
+        });
+      }, 300);
+    }, 4000);
+  });
 }
 
 function drawGameCard() {
@@ -4861,7 +4873,7 @@ function showCardPreview(cardName, player, index) {
   const question = modal.querySelector('.card-preview-question');
   const playButton = document.getElementById('playCardBtn');
   const playedByEl = document.getElementById('cardPreviewPlayedBy');
-  const cardType = getCardType(displayName);
+  const cardType = getCardType(cardName);
   
   question.textContent = "Are you sure you'd like to play this card?";
   if (playedByEl) {
@@ -4880,20 +4892,20 @@ function showCardPreview(cardName, player, index) {
   fitPreviewText(nameEl, descEl);
 }
 
-function showReadOnlyCardPreview(cardName, playedByUserId = null) {
+function showReadOnlyCardPreview(cardName, playedByUserId = null, action = 'used') {
   const modal = document.getElementById('cardPreviewModal');
   const discardModal = document.getElementById('discardPileModal');
   const content = document.getElementById('cardPreviewContent');
   const question = modal.querySelector('.card-preview-question');
   const playButton = document.getElementById('playCardBtn');
   const playedByEl = document.getElementById('cardPreviewPlayedBy');
-  const cardType = getCardType(displayName);
+  const cardType = getCardType(cardName);
 
   gameState.cardToPlay = null;
   question.textContent = 'Card Details';
   if (playedByEl) {
     playedByEl.hidden = !playedByUserId;
-    playedByEl.innerHTML = playedByUserId ? playedByMarkup(playedByUserId) : '';
+    playedByEl.innerHTML = playedByUserId ? playedByMarkup(playedByUserId, action) : '';
   }
   playButton.hidden = true;
   content.className = `card-preview-content ${cardType}`;
@@ -5293,11 +5305,16 @@ function pileCardPlayedBy(card) {
   return typeof card === 'object' && card ? card.playedByUserId : null;
 }
 
+function pileCardAction(card) {
+  return typeof card === 'object' && card ? card.action : null;
+}
+
 function cardTileMarkup(cardName, extraClass = '') {
   const displayName = pileCardName(cardName);
   const playedByUserId = pileCardPlayedBy(cardName);
-  const cardType = getCardType(cardName);
-  return `<div class="card-tile ${cardType} ${extraClass}" data-card-name="${escapeHtml(displayName)}" ${playedByUserId ? `data-played-by-user-id="${escapeHtml(playedByUserId)}"` : ''}>${escapeHtml(displayName)}</div>`;
+  const action = pileCardAction(cardName);
+  const cardType = getCardType(displayName);
+  return `<div class="card-tile ${cardType} ${extraClass}" data-card-name="${escapeHtml(displayName)}" ${playedByUserId ? `data-played-by-user-id="${escapeHtml(playedByUserId)}"` : ''} ${action ? `data-card-action="${escapeHtml(action)}"` : ''}>${escapeHtml(displayName)}</div>`;
 }
 
 function gameweekHasStartedFromTime(kickoffAt) {
@@ -5797,7 +5814,8 @@ function render() {
     tile.setAttribute('tabindex', '0');
     const openDetails = () => showReadOnlyCardPreview(
       tile.dataset.cardName || tile.textContent.trim(),
-      tile.dataset.playedByUserId || null
+      tile.dataset.playedByUserId || null,
+      tile.dataset.cardAction || 'used'
     );
     tile.addEventListener('click', openDetails);
     tile.addEventListener('keydown', (event) => {
@@ -5992,9 +6010,11 @@ async function initializeCardPage() {
         const cardDefinition = getNestedRecord(row.card_definitions);
         const cardName = normalizeCardName(cardDefinition?.name || row.card_id);
         const usedMeta = gameState.usedCardEffectsByInstance[row.id];
-        const discardItem = usedMeta?.playedByUserId
-          ? { name: cardName, playedByUserId: usedMeta.playedByUserId }
-          : cardName;
+        const discardItem = {
+          name: cardName,
+          playedByUserId: usedMeta?.playedByUserId || row.owner_user_id || null,
+          action: usedMeta ? 'used' : 'discarded',
+        };
 
         if (row.zone === 'hand') {
           if (usedMeta?.hasGameweekStarted) {

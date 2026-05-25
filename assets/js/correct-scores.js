@@ -150,6 +150,10 @@ function powerAppliesToScore(effect, score, sourceIds) {
     return false;
   }
 
+  if (key === 'power_hedge' || key === 'power_of_god') {
+    return Boolean(effect.fixture_id) && sameId(effect.fixture_id, score.fixture_id);
+  }
+
   return !effect.fixture_id || sameId(effect.fixture_id, score.fixture_id);
 }
 
