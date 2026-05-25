@@ -127,6 +127,12 @@ function slotElements(slot) {
 function hasSelectionChanged(slot) {
   const selectedId = state.selected[slot]?.id;
   const existingId = state.existingPicks.get(slot);
+  const inputValue = slotElements(slot).input?.value.trim() || '';
+
+  if (!selectedId && existingId && inputValue === '') {
+    return true;
+  }
+
   return Boolean(selectedId) && String(selectedId) !== String(existingId || '');
 }
 
@@ -1063,7 +1069,9 @@ function renderSearch(slot) {
   }
 
   if (query.length < 2) {
-    setResultsMessage(results, 'Type at least 2 letters.');
+    setResultsMessage(results, state.existingPicks.get(slot) && query === ''
+      ? 'Save blank to remove this Star Man.'
+      : 'Type at least 2 letters.');
     return;
   }
 
@@ -1137,6 +1145,12 @@ function renderStarManHistory() {
 async function savePick(slot) {
   const player = state.selected[slot];
   if (!player) {
+    const { input } = slotElements(slot);
+    if (state.existingPicks.get(slot) && (input?.value.trim() || '') === '') {
+      await clearPick(slot);
+      return;
+    }
+
     setMessage(slot, 'Choose a player first.', 'error');
     return;
   }
@@ -1188,6 +1202,46 @@ async function savePick(slot) {
   renderSelectedPlayer(slot, player, { saved: true });
   renderStarManHistory();
   setMessage(slot, slot === 'super_duo' ? 'Super Duo saved.' : 'Star Man saved.', 'success');
+}
+
+async function clearPick(slot) {
+  setMessage(slot, slot === 'super_duo' ? 'Clearing Super Duo...' : 'Clearing Star Man...', 'info');
+
+  const { error } = await supabase
+    .from('star_man_picks')
+    .delete()
+    .eq('competition_id', state.league.id)
+    .eq('season_id', state.league.season_id)
+    .eq('gameweek_id', state.activeGameweek.gameweek_id)
+    .eq('user_id', state.user.id)
+    .eq('pick_slot', slot);
+
+  if (error) {
+    setMessage(slot, error.message || 'Could not clear Star Man.', 'error');
+    return;
+  }
+
+  state.existingPicks.delete(slot);
+  state.selected[slot] = null;
+  state.seasonPicks = state.seasonPicks.filter((pick) => !(
+    String(pick.gameweek_id) === String(state.activeGameweek.gameweek_id)
+    && pick.pick_slot === slot
+  ));
+
+  const { button, results } = slotElements(slot);
+  renderSelectedPlayer(slot, null);
+  renderStarManHistory();
+  renderSearch(slot);
+  if (slot === 'primary') {
+    renderSearch('super_duo');
+  }
+  if (results) {
+    setResultsMessage(results, 'Type at least 2 letters.');
+  }
+  if (button) {
+    button.disabled = true;
+  }
+  setMessage(slot, slot === 'super_duo' ? 'Super Duo cleared.' : 'Star Man cleared.', 'success');
 }
 
 function wireSlots() {

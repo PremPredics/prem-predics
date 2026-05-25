@@ -95,6 +95,7 @@ function deadlineDisplay(value, options = {}) {
   if (options.enabled === false) {
     return {
       className: 'disabled',
+      action: '',
       countdown: 'Disabled',
     };
   }
@@ -102,6 +103,7 @@ function deadlineDisplay(value, options = {}) {
   if (!value) {
     return {
       className: 'disabled',
+      action: '',
       countdown: 'Not Set',
     };
   }
@@ -112,12 +114,30 @@ function deadlineDisplay(value, options = {}) {
   if (options.windowOnly) {
     return {
       className: locked ? 'bad locked' : 'good',
+      action: '',
+      countdown,
+    };
+  }
+
+  if (locked && !options.completed) {
+    return {
+      className: 'bad locked',
+      action: '',
+      countdown,
+    };
+  }
+
+  if (!options.completed) {
+    return {
+      className: 'action',
+      action: 'Action Required',
       countdown,
     };
   }
 
   return {
-    className: options.completed ? 'good' : 'bad',
+    className: 'good',
+    action: '',
     countdown,
   };
 }
@@ -129,6 +149,7 @@ function renderDeadlineCard(label, value, options = {}) {
     <div class="deadline-card ${escapeHtml(display.className)}">
       <span class="deadline-title">${escapeHtml(label)}</span>
       <div class="deadline-body">
+        <span class="deadline-action">${escapeHtml(display.action || '')}</span>
         <strong class="deadline-countdown">${escapeHtml(display.countdown)}</strong>
         <span class="deadline-light" aria-hidden="true"></span>
       </div>
