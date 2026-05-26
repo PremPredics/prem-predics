@@ -34,12 +34,13 @@ const predictionPowerKeys = new Set([
 ]);
 
 const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
+const HEDGE_DELETED_MATCH_CONFLICT_TEXT = 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
 const effectNameOverrides = {
   curse_gambler: 'Curse of the Random',
 };
 
 const effectDescriptionOverrides = {
-  curse_deleted_match: "Valid for 1 Gameweek. Choose one opponent prediction. The opponent cannot earn points from this game. Must be played at least 24 hours before the gameweek's first KO time.",
+  curse_deleted_match: "Valid for 1 Gameweek. Choose one opponent prediction. The opponent cannot earn points from this game. Must be played at least 24 hours before the gameweek's first KO time. Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.",
   curse_glasses: "Valid for 1 Gameweek. Any 0-0 prediction that the opponent makes scores nothing. Must be played at least 24 hours before the gameweek's first KO time.",
   curse_even_number: "Valid for 1 Gameweek. Opponent can only predict an even number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time.",
   curse_odd_number: "Valid for 1 Gameweek. Opponent can only predict an odd number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time.",
@@ -252,7 +253,7 @@ function renderCurseMarker(fixture) {
   }
 
   const label = curses.length === 1 ? 'View active curse' : `View ${curses.length} active curses`;
-  return `<button class="curse-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="curse" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9760;</button>`;
+  return `<button class="curse-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="curse" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>&#9760;</span></button>`;
 }
 
 function visiblePredictionPowersForFixture(fixture) {
@@ -296,7 +297,7 @@ function renderPowerMarker(fixture) {
   }
 
   const label = powers.length === 1 ? 'View active power' : `View ${powers.length} active powers`;
-  return `<button class="power-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="power" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">&#9994;</button>`;
+  return `<button class="power-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="power" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>&#9994;</span></button>`;
 }
 
 function revealedCurseOverride(fixture) {
@@ -690,7 +691,7 @@ function renderPowerEffectMarker(effect) {
     return '';
   }
 
-  return `<button class="power-marker" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="View ${escapeHtml(effectName(effect))}">&#9994;</button>`;
+  return `<button class="power-marker" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="View ${escapeHtml(effectName(effect))}"><span>&#9994;</span></button>`;
 }
 
 function renderHedgeRows(mode = 'edit') {
@@ -1173,6 +1174,27 @@ async function saveHedgePrediction(effectId) {
   setMessage('Saving Hedge prediction...', 'info');
 
   if (!effect.fixture_id || effect.fixture_id !== fixtureId) {
+    const { data: conflictRows, error: conflictError } = await supabase
+      .from('active_card_effects')
+      .select('id, card_definitions!inner(effect_key)')
+      .eq('competition_id', state.league.id)
+      .eq('season_id', state.league.season_id)
+      .eq('target_user_id', state.user.id)
+      .eq('fixture_id', fixtureId)
+      .eq('status', 'active')
+      .eq('card_definitions.effect_key', 'curse_deleted_match')
+      .limit(1);
+
+    if (conflictError) {
+      setMessage(conflictError.message || 'Could not choose Hedge match.', 'error');
+      return;
+    }
+
+    if ((conflictRows || []).length) {
+      setMessage(HEDGE_DELETED_MATCH_CONFLICT_TEXT, 'error');
+      return;
+    }
+
     const { error: effectError } = await supabase
       .from('active_card_effects')
       .update({ fixture_id: fixtureId })

@@ -51,7 +51,7 @@ set description = 'Valid for 1 Gameweek. Opponent 0-0 predictions score nothing.
 where id = 'curse_glasses';
 
 update public.card_definitions
-set description = 'Valid for 1 Gameweek. Choose one opponent prediction; opponent cannot earn points from that game. Must be played at least 24 hours before the gameweek''s first KO time.'
+set description = 'Valid for 1 Gameweek. Choose one opponent prediction; opponent cannot earn points from that game. Must be played at least 24 hours before the gameweek''s first KO time. Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.'
 where id = 'curse_deleted_match';
 
 update public.card_definitions

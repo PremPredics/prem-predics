@@ -215,9 +215,14 @@ main {
 .power-marker {
   width: 25px;
   height: 25px;
-  display: inline-grid;
-  place-items: center;
+  min-width: 25px;
+  min-height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
   justify-self: end;
+  padding: 0;
   border-radius: 999px;
   border: 1px solid rgba(254, 202, 202, 0.9);
   background: radial-gradient(circle at 34% 22%, #fecaca 0%, #ff1f1f 40%, #7f1d1d 100%);
@@ -226,12 +231,26 @@ main {
   font-weight: 950;
   line-height: 1;
   cursor: pointer;
+  box-sizing: border-box;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.92),
     1px -1px 0 rgba(0,0,0,0.92),
     -1px 1px 0 rgba(0,0,0,0.92),
     1px 1px 0 rgba(0,0,0,0.92);
   box-shadow: 0 0 12px rgba(255, 31, 31, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
+}
+.curse-marker span,
+.power-marker span {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transform: translate(-0.6px, -0.4px);
+}
+.power-marker span {
+  transform: translate(-0.6px, 0);
 }
 .power-marker {
   border-color: rgba(191, 219, 254, 0.9);
@@ -272,12 +291,14 @@ main {
   display: grid;
 }
 .curse-panel {
-  width: min(720px, 100%);
+  width: min(1040px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
   display: grid;
-  gap: 16px;
+  gap: 12px;
   justify-items: center;
   border-radius: 16px;
-  padding: 18px 14px 24px;
+  padding: 14px 12px 18px;
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -295,28 +316,22 @@ main {
 }
 .curse-card-list {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
-  align-items: stretch;
+  align-items: flex-start;
+  align-content: center;
   flex-wrap: wrap;
   width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 2px 2px 8px;
 }
 .curse-card-wrap {
   display: grid;
   gap: 9px;
   justify-items: center;
-}
-.curse-audit-separator {
-  align-self: center;
-  color: #fff;
-  font-size: clamp(1rem, 3vw, 1.35rem);
-  font-weight: 950;
-  text-shadow:
-    -1px -1px 0 rgba(0,0,0,0.95),
-    1px -1px 0 rgba(0,0,0,0.95),
-    -1px 1px 0 rgba(0,0,0,0.95),
-    1px 1px 0 rgba(0,0,0,0.95),
-    0 0 16px rgba(255,255,255,0.72);
 }
 .curse-card-played-by {
   color: #fff;
@@ -329,13 +344,14 @@ main {
     0 0 12px rgba(251, 113, 133, 0.7);
 }
 .curse-detail-card {
-  width: min(330px, calc(100vw - 40px));
-  height: min(430px, calc(100vh - 170px));
-  min-height: 330px;
+  width: 220px;
+  height: 310px;
+  min-height: 310px;
   display: flex;
   flex-direction: column;
+  gap: 0;
   border-radius: 18px;
-  padding: 24px 20px;
+  padding: 18px 14px;
   text-align: center;
   color: #fff;
   position: relative;
@@ -371,6 +387,7 @@ main {
   z-index: 1;
 }
 .curse-detail-card strong {
+  min-height: 0;
   flex: 0 0 22%;
   display: flex;
   align-items: center;
@@ -378,7 +395,7 @@ main {
   margin: 0;
   padding: 0 2px 8px;
   color: #fff;
-  font-size: clamp(1.18rem, 2.6vw, 1.46rem);
+  font-size: clamp(1rem, 1.8vw, 1.18rem);
   line-height: 1.18;
   font-weight: 950;
 }
@@ -390,7 +407,7 @@ main {
   margin: 0;
   padding: 0 2px;
   color: #fff;
-  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  font-size: clamp(0.68rem, 1.1vw, 0.82rem);
   font-weight: 850;
   line-height: 1.35;
   overflow-y: auto;
@@ -420,6 +437,57 @@ main {
 .curse-close:hover {
   background: linear-gradient(135deg, #4c1d95, #6d28d9);
   transform: translateY(-2px);
+}
+@media (min-width: 651px) {
+  .curse-panel {
+    width: min(1380px, calc(100vw - 16px));
+    max-height: none;
+    overflow: visible;
+    gap: 12px;
+    padding: 12px 10px 16px;
+  }
+
+  .curse-card-list {
+    gap: 8px;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: center;
+    flex-wrap: wrap;
+    overflow: visible;
+    padding: 0;
+    max-width: 1500px;
+  }
+
+  .curse-card-wrap {
+    flex: 0 0 170px;
+    gap: 6px;
+  }
+
+  .curse-card-played-by {
+    max-width: 170px;
+    font-size: clamp(10px, 0.8vw, 12px);
+    line-height: 1.08;
+  }
+
+  .curse-detail-card {
+    width: 170px;
+    height: 252px;
+    min-height: 252px;
+    border-width: 2px;
+    border-radius: 15px;
+    padding: 13px 9px;
+  }
+
+  .curse-detail-card strong {
+    font-size: 0.88rem;
+    line-height: 1.12;
+    padding-bottom: 6px;
+  }
+
+  .curse-detail-card p {
+    font-size: 0.62rem;
+    line-height: 1.2;
+  }
 }
 footer {
   text-align: center;
@@ -473,7 +541,61 @@ footer {
   .power-marker {
     width: 22px;
     height: 22px;
+    min-width: 22px;
+    min-height: 22px;
     font-size: 14px;
+  }
+  .curse-panel {
+    width: calc(100vw - 12px);
+    max-height: calc(100vh - 12px);
+    overflow: auto;
+    gap: 9px;
+    padding: 10px 6px 14px;
+  }
+  .curse-card-list {
+    justify-content: center;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    gap: 9px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: calc(100vh - 122px);
+    max-width: min(100%, 560px);
+    padding-bottom: 8px;
+  }
+  .curse-card-wrap {
+    flex: 0 1 clamp(92px, 28vw, 112px);
+    gap: 6px;
+  }
+  .curse-detail-card {
+    width: clamp(92px, 28vw, 112px);
+    height: clamp(136px, 40vw, 164px);
+    min-height: clamp(136px, 40vw, 164px);
+    border-width: 2px;
+    border-radius: 12px;
+    padding: 8px 6px;
+  }
+  .curse-card-played-by {
+    max-width: 112px;
+    font-size: 8px;
+    line-height: 1.04;
+  }
+  .curse-detail-card strong {
+    font-size: 0.62rem;
+    line-height: 1.04;
+    padding-bottom: 4px;
+  }
+  .curse-detail-card p {
+    font-size: 0.43rem;
+    line-height: 1.1;
+  }
+  .curse-close {
+    min-width: 96px;
+    width: 96px;
+    padding-left: 14px;
+    padding-right: 14px;
+    justify-self: center;
   }
 }
 </style>

@@ -19,7 +19,7 @@ with canonical_card_descriptions (id, description) as (
     ('power_lanky_crouch', 'Valid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_small_and_mighty', 'Valid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_of_god', 'Valid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.'),
-    ('power_hedge', 'Valid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek''s first KO time.'),
+    ('power_hedge', 'Valid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek''s first KO time. Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.'),
     ('power_assist_king', 'Valid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_late_scout', 'Valid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team''s first match in the Gameweek kicks off.'),
     ('power_snow', 'Valid for 1 Gameweek. Any Predicted match played in heavy snow scores DOUBLE points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
@@ -32,7 +32,7 @@ with canonical_card_descriptions (id, description) as (
     ('curse_scoring_drought_5', 'Valid for 1 Gameweek. Opponent''s Star Man must have 0 goals in their last 5 Premier League games. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_random_roulette', 'Valid for 1 Gameweek. Opponent''s Star Man''s nationality must be from a Country with a population of less than 1 million. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_glasses', 'Valid for 1 Gameweek. Any 0-0 prediction that the Opponent makes scores NOTHING. Must be played at least 24 hours before the gameweek''s first KO time.'),
-    ('curse_deleted_match', 'Valid for 1 Gameweek. Choose ONE of the Opponent''s Predictions, Opponent cannot earn points from this game. Must be played at least 24 hours before the gameweek''s first KO time.'),
+    ('curse_deleted_match', 'Valid for 1 Gameweek. Choose ONE of the Opponent''s Predictions, Opponent cannot earn points from this game. Must be played at least 24 hours before the gameweek''s first KO time. Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.'),
     ('curse_tiny_club', 'Valid for 1 Gameweek. Opponent may NOT pick a Star Man from a Top 10 club. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_thief', 'Steal a card from your Opponent. Cannot steal Super Cards. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_even_number', 'Valid for 1 Gameweek. Opponent can only Predict an Even number of goals for all teams. Must be played at least 24 hours before the gameweek''s first KO time. Cannot be picked whilst Curse of The Random is active.'),
@@ -180,6 +180,45 @@ begin
     raise exception 'Curse of the Random cannot be combined with Curse of the Even/Odd Number.';
   end if;
 
+  if card_row.effect_key = 'curse_deleted_match'
+    and new.fixture_id is not null
+    and new.target_user_id is not null
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.played_by_user_id = new.target_user_id
+        and ace.fixture_id = new.fixture_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = 'power_hedge'
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
+  end if;
+
+  if card_row.effect_key = 'power_hedge'
+    and new.fixture_id is not null
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.target_user_id = new.played_by_user_id
+        and ace.fixture_id = new.fixture_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = 'curse_deleted_match'
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
+  end if;
+
   select min(kickoff_at) filter (where status <> 'postponed')
     into first_kickoff
   from public.fixtures
@@ -222,6 +261,81 @@ drop trigger if exists active_card_effects_enforce_card_play_deadline on public.
 create trigger active_card_effects_enforce_card_play_deadline
 before insert on public.active_card_effects
 for each row execute function public.enforce_card_play_deadline();
+
+create or replace function public.enforce_hedge_deleted_match_conflict()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  card_row record;
+  target_gameweek_id bigint;
+begin
+  if coalesce(new.status, 'active') <> 'active' then
+    return new;
+  end if;
+
+  select effect_key
+    into card_row
+  from public.card_definitions
+  where id = new.card_id;
+
+  target_gameweek_id := coalesce(new.start_gameweek_id, new.gameweek_id);
+
+  if target_gameweek_id is null or new.fixture_id is null then
+    return new;
+  end if;
+
+  if card_row.effect_key = 'curse_deleted_match'
+    and new.target_user_id is not null
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.id is distinct from new.id
+        and ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.played_by_user_id = new.target_user_id
+        and ace.fixture_id = new.fixture_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = 'power_hedge'
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
+  end if;
+
+  if card_row.effect_key = 'power_hedge'
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.id is distinct from new.id
+        and ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.target_user_id = new.played_by_user_id
+        and ace.fixture_id = new.fixture_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = 'curse_deleted_match'
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists active_card_effects_enforce_hedge_deleted_match_conflict on public.active_card_effects;
+
+create trigger active_card_effects_enforce_hedge_deleted_match_conflict
+before insert or update of fixture_id, target_user_id, played_by_user_id, status, card_id, gameweek_id, start_gameweek_id
+on public.active_card_effects
+for each row execute function public.enforce_hedge_deleted_match_conflict();
 
 create or replace function public.veto_my_active_curse(
   target_competition_id uuid,

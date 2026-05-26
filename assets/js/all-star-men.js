@@ -364,7 +364,7 @@ function renderEffectMarkers(gameweek, effects) {
         const category = effectCategory(effect);
         const symbol = category === 'curse' ? '&#9760;' : '&#9994;';
         const label = `View ${effectName(effect)}`;
-        return `<button class="${category}-marker" type="button" data-star-effect-gameweek="${gameweek.gameweek_id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">${symbol}</button>`;
+        return `<button class="${category}-marker" type="button" data-star-effect-gameweek="${gameweek.gameweek_id}" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>${symbol}</span></button>`;
       }).join('')}
     </span>
   `;
@@ -398,7 +398,7 @@ function openStarCurseModal(gameweekId) {
   if (titleElement) {
     titleElement.textContent = effects.length === 1 ? 'Active Card' : 'Active Cards';
   }
-  starCurseModalBody.innerHTML = effects.map(curseCardDetailMarkup).join('<div class="curse-audit-separator">AND THEN</div>');
+  starCurseModalBody.innerHTML = effects.map(curseCardDetailMarkup).join('');
   starCurseModal.classList.add('show');
   starCurseModal.setAttribute('aria-hidden', 'false');
 }

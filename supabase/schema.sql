@@ -1583,6 +1583,45 @@ begin
     return new;
   end if;
 
+  if card_row.effect_key = 'curse_deleted_match'
+    and new.fixture_id is not null
+    and new.target_user_id is not null
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.played_by_user_id = new.target_user_id
+        and ace.fixture_id = new.fixture_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = 'power_hedge'
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
+  end if;
+
+  if card_row.effect_key = 'power_hedge'
+    and new.fixture_id is not null
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.target_user_id = new.played_by_user_id
+        and ace.fixture_id = new.fixture_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = 'curse_deleted_match'
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
+  end if;
+
   select min(kickoff_at) filter (where status <> 'postponed')
     into first_kickoff
   from public.fixtures
@@ -1623,6 +1662,79 @@ $$;
 create trigger active_card_effects_enforce_card_play_deadline
 before insert on public.active_card_effects
 for each row execute function public.enforce_card_play_deadline();
+
+create or replace function public.enforce_hedge_deleted_match_conflict()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  card_row record;
+  target_gameweek_id bigint;
+begin
+  if coalesce(new.status, 'active') <> 'active' then
+    return new;
+  end if;
+
+  select effect_key
+    into card_row
+  from public.card_definitions
+  where id = new.card_id;
+
+  target_gameweek_id := coalesce(new.start_gameweek_id, new.gameweek_id);
+
+  if target_gameweek_id is null or new.fixture_id is null then
+    return new;
+  end if;
+
+  if card_row.effect_key = 'curse_deleted_match'
+    and new.target_user_id is not null
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.id is distinct from new.id
+        and ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.played_by_user_id = new.target_user_id
+        and ace.fixture_id = new.fixture_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = 'power_hedge'
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
+  end if;
+
+  if card_row.effect_key = 'power_hedge'
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      where ace.id is distinct from new.id
+        and ace.competition_id = new.competition_id
+        and ace.season_id = new.season_id
+        and ace.target_user_id = new.played_by_user_id
+        and ace.fixture_id = new.fixture_id
+        and ace.status = 'active'
+        and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
+        and cd.effect_key = 'curse_deleted_match'
+    )
+    and not public.is_admin()
+  then
+    raise exception 'Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.';
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger active_card_effects_enforce_hedge_deleted_match_conflict
+before insert or update of fixture_id, target_user_id, played_by_user_id, status, card_id, gameweek_id, start_gameweek_id
+on public.active_card_effects
+for each row execute function public.enforce_hedge_deleted_match_conflict();
 
 create or replace function public.veto_my_active_curse(
   target_competition_id uuid,
