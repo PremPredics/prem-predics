@@ -359,8 +359,6 @@ function playerSearchTokens(player) {
     player.first_name,
     player.last_name,
     player.surname,
-    player.nationality,
-    teamName(player.team_id),
   ]
     .filter(Boolean)
     .flatMap((value) => normaliseText(value).split(' ').filter(Boolean));
@@ -376,8 +374,6 @@ function playerMatchesQuery(player, query) {
     player.first_name,
     player.last_name,
     player.surname,
-    player.nationality,
-    teamName(player.team_id),
   ].filter(Boolean).join(' '));
   const tokens = playerSearchTokens(player);
   return terms.every((term) => (
@@ -1078,6 +1074,11 @@ function renderSearch(slot) {
   const matches = state.players
     .filter((player) => playerMatchesQuery(player, query))
     .filter((player) => String(player.id) !== String(selectedPlayer?.id || ''))
+    .map((player) => ({ player, check: evaluatePlayer(player, slot) }))
+    .sort((left, right) => (
+      Number(right.check.allowed) - Number(left.check.allowed)
+      || String(left.player.display_name || '').localeCompare(String(right.player.display_name || ''))
+    ))
     .slice(0, 10);
 
   if (!matches.length) {
@@ -1086,8 +1087,7 @@ function renderSearch(slot) {
   }
 
   results.classList.add('player-card-results');
-  results.innerHTML = matches.map((player) => {
-    const check = evaluatePlayer(player, slot);
+  results.innerHTML = matches.map(({ player, check }) => {
     const reason = check.allowed ? 'Available' : 'Unavailable';
     const title = check.allowed ? `Choose ${playerLabel(player)}` : check.reasons.join(', ');
     return `

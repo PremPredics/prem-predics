@@ -497,26 +497,27 @@ async function renderPredictionRows(gameweek) {
   const showPessimistPowers = pessimistSucceeded(fixtures, results);
   predictionList.innerHTML = fixtures.map((fixture) => {
     const locked = isPast(fixture.prediction_locks_at);
-    const rawOverride = locked ? curseOverrides.get(fixture.id) : null;
+    const canViewPrediction = locked || sameId(state.selectedUserId, state.user.id);
+    const rawOverride = canViewPrediction ? curseOverrides.get(fixture.id) : null;
     const override = rawOverride && visibleEffectIds.has(String(rawOverride.source_card_effect_id))
       ? rawOverride
       : null;
-    const prediction = locked ? (override || predictions.get(fixture.id)) : null;
+    const prediction = canViewPrediction ? (override || predictions.get(fixture.id)) : null;
     const result = results.get(fixture.id);
     const scored = fixtureScores.get(fixture.id);
     const resultClass = scored
       ? (scored.is_correct_score ? 'correct-score' : scored.is_correct_result ? 'correct-result' : (locked && prediction && result ? 'incorrect' : ''))
       : predictionClass(prediction, result, locked);
     const points = Number(scored?.points || 0);
-    const curses = locked
+    const curses = canViewPrediction
       ? predictionCursesForFixture(fixture, predictionEffects, prediction, override)
       : [];
-    const powers = locked && showPessimistPowers
+    const powers = (locked || sameId(state.selectedUserId, state.user.id)) && showPessimistPowers
       ? predictionPowersForFixture(fixture, predictionEffects)
       : [];
     state.visibleEffectsByFixture.set(`${fixture.id}:curse`, curses);
     state.visibleEffectsByFixture.set(`${fixture.id}:power`, powers);
-    const score = !locked
+    const score = !canViewPrediction
       ? '-'
       : prediction
         ? `${prediction.home_goals}-${prediction.away_goals}`

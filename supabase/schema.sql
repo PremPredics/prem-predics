@@ -1597,30 +1597,6 @@ begin
     return new;
   end if;
 
-  if card_row.effect_key in ('power_lanky_crouch', 'power_small_and_mighty')
-    and not public.is_admin()
-  then
-    if not exists (
-      select 1
-      from public.star_man_picks smp
-      join public.players p on p.id = smp.player_id
-      where smp.competition_id = new.competition_id
-        and smp.season_id = new.season_id
-        and smp.gameweek_id = target_gameweek_id
-        and smp.user_id = new.played_by_user_id
-        and (
-          (card_row.effect_key = 'power_lanky_crouch' and coalesce(p.height_cm, 0) >= 185)
-          or (card_row.effect_key = 'power_small_and_mighty' and coalesce(p.height_cm, 999) <= 175)
-        )
-    ) then
-      if card_row.effect_key = 'power_lanky_crouch' then
-        raise exception 'Power of the Lanky Crouch can only be played when one of your current Star Men is 185cm or taller.';
-      end if;
-
-      raise exception 'Power of the Small and Mighty can only be played when one of your current Star Men is 175cm or shorter.';
-    end if;
-  end if;
-
   if card_row.category = 'curse' then
     play_deadline := first_kickoff - interval '24 hours';
   else
@@ -2198,7 +2174,6 @@ select
   exists (
     select 1 from effect_windows ew
     where ew.competition_id = smp.competition_id
-      and ew.played_by_user_id = smp.user_id
       and ew.target_user_id = smp.user_id
       and ew.effect_key = 'curse_furious'
       and gw.number between ew.start_number and ew.end_number
@@ -2265,17 +2240,22 @@ select
   red_cards,
   (
     (
-      (goals * 3)
-      + assists
-      + case when power_goal_applies then 3 else 0 end
-      + case when assist_king_applies then assists else 0 end
-      - case when super_star_man_applies then 0 else yellow_cards * case when furious_applies then 2 else 1 end end
-      - case when super_star_man_applies then 0 else red_cards * 3 * case when furious_applies then 2 else 1 end end
+      (
+        (goals * 3)
+        + case when power_goal_applies then 3 else 0 end
+        + assists
+        + case when assist_king_applies then assists else 0 end
+      )
+      * case when immigrants_applies then 2 else 1 end
+      * case when lanky_applies then 2 else 1 end
+      * case when small_applies then 2 else 1 end
+      * case when super_star_man_applies then 3 else 1 end
     )
-    * case when immigrants_applies then 2 else 1 end
-    * case when lanky_applies then 2 else 1 end
-    * case when small_applies then 2 else 1 end
-    * case when super_star_man_applies then 3 else 1 end
+    - case
+        when super_star_man_applies then 0
+        else (yellow_cards * case when furious_applies then 2 else 1 end)
+          + (red_cards * 3 * case when furious_applies then 2 else 1 end)
+      end
   )::integer as points
 from star_rows;
 

@@ -95,16 +95,16 @@ function deadlineDisplay(value, options = {}) {
   if (options.enabled === false) {
     return {
       className: 'disabled',
-      action: '',
-      countdown: 'Disabled',
+      action: 'Disabled',
+      countdown: '',
     };
   }
 
   if (!value) {
     return {
       className: 'disabled',
-      action: '',
-      countdown: 'Not Set',
+      action: 'Not Set',
+      countdown: '',
     };
   }
 
@@ -114,16 +114,16 @@ function deadlineDisplay(value, options = {}) {
   if (options.windowOnly) {
     return {
       className: locked ? 'bad locked' : 'good',
-      action: '',
-      countdown,
+      action: locked ? 'Locked' : '',
+      countdown: locked ? '' : countdown,
     };
   }
 
   if (locked && !options.completed) {
     return {
       className: 'bad locked',
-      action: '',
-      countdown,
+      action: 'Locked',
+      countdown: '',
     };
   }
 

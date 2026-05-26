@@ -1926,6 +1926,8 @@ button:disabled {
 .hand { 
   display: flex; 
   flex-wrap: wrap; 
+  align-content: flex-start;
+  align-items: flex-start;
   gap: 7px; 
   flex: 1;
   min-height: 120px;
@@ -3948,6 +3950,26 @@ function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm') {
   });
 }
 
+async function showPlayedCardNotice(cardName, activation = null) {
+  if (activation?.__skipFinalNotice) {
+    return;
+  }
+
+  const title = activation?.__noticeTitle || cardName || 'Card Played';
+  const message = activation?.__noticeMessage || `${cardName || 'This card'} is now in effect.`;
+  const destination = activation?.__noticeDestination || null;
+
+  if (destination?.href && destination?.label) {
+    const shouldGo = await showSiteConfirm(message, title, destination.label);
+    if (shouldGo) {
+      window.location.href = destination.href;
+    }
+    return;
+  }
+
+  showSiteNotice(message, title);
+}
+
 window.alert = (message) => showSiteNotice(message);
 
 // CARD DESCRIPTIONS DATABASE
@@ -3958,9 +3980,9 @@ const cardDescriptions = {
   "Power of the Laundrette": "Power of the Laundrette\n\nValid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power Of The Clean Sweep": "Power Of The Clean Sweep\nValid for 1 Gameweek.\n\nIf you score a point in every game this Gameweek, earn bonus +5 UC pts.\n\nMust be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Pessimist": "Power of the Pessimist\n\nValid for 1 Gameweek. DOUBLE points for all Predictions if no team scores 3+ goals. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Immigrants": "Power of the Immigrants\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Lanky Crouch": "Power of the Lanky Crouch\n\nValid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Small and Mighty": "Power of the Small and Mighty\n\nValid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Immigrants": "Power of the Immigrants\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Lanky Crouch": "Power of the Lanky Crouch\n\nValid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Small and Mighty": "Power of the Small and Mighty\n\nValid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of God": "Power of God\n\nValid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.",
   "Power of the Hedge": "Power of the Hedge\n\nValid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Assist King": "Power of the Assist King\n\nValid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
@@ -5021,7 +5043,8 @@ async function confirmCardPlay() {
       try {
         const drawnCards = await cardRuntime.drawEffectCards(activation.id, superDrawCount);
         drawnCards.forEach((drawn) => gameState.players[player].hand.push(normalizeCardName(drawn.card_name)));
-        alert(`Super Draw added: ${drawnCards.map((drawn) => drawn.card_name).join(', ')}`);
+        activation.__noticeTitle = 'Super Draw';
+        activation.__noticeMessage = `Super Draw added: ${drawnCards.map((drawn) => drawn.card_name).join(', ')}.`;
         syncHandFromDatabase();
       } catch (error) {
         alert(error.message || "Could not draw cards for Super Draw.");
@@ -5154,6 +5177,7 @@ async function confirmSwap() {
   document.getElementById("confirmPickBtn").style.display = "block";
   save();
   render();
+  await showPlayedCardNotice(card, activation);
 }
 
 function pickSwapKeep(index) {
@@ -5203,6 +5227,7 @@ async function confirmPick() {
   document.getElementById("confirmPickBtn").style.display = "none";
   await syncHandFromDatabase({ force: true });
   render();
+  showSiteNotice('Power of the Swap is now complete.', 'Power of the Swap');
 }
 
 function startStealMode(player, activation = null) {
@@ -5244,6 +5269,7 @@ async function confirmSteal() {
   syncHandFromDatabase();
   save();
   render();
+  showSiteNotice('Curse of the Thief is now complete.', 'Curse of the Thief');
 }
 
 function showGameCardPreview() {
@@ -6214,6 +6240,68 @@ async function initializeCardPage() {
     cardEffectRules['Power of the Rocket Man'] = cardEffectRules['Power Of The Clean Sweep'];
     cardEffectRules['Curse of the Bench Warmer'] = cardEffectRules['Curse of the Furious'];
 
+    const starManEffectKeys = new Set([
+      'power_goal',
+      'power_immigrants',
+      'power_lanky_crouch',
+      'power_small_and_mighty',
+      'power_assist_king',
+      'power_late_scout',
+      'super_star_man',
+      'super_sub',
+      'super_duo',
+      'curse_furious',
+      'curse_alphabet_15',
+      'curse_alphabet_20',
+      'curse_scoring_drought_3',
+      'curse_scoring_drought_5',
+      'curse_random_roulette',
+      'curse_tiny_club',
+    ]);
+
+    const predictionEffectKeys = new Set([
+      'power_laundrette',
+      'power_clean_sweep',
+      'power_pessimist',
+      'power_of_god',
+      'power_hedge',
+      'power_snow',
+      'super_golden_gameweek',
+      'curse_hated',
+      'curse_gambler',
+      'curse_glasses',
+      'curse_deleted_match',
+      'curse_even_number',
+      'curse_odd_number',
+    ]);
+
+    function destinationForEffect(effectKey) {
+      if (starManEffectKeys.has(effectKey)) {
+        return {
+          label: 'Go To Star Man',
+          href: leagueModule.leagueUrl('star-man.html', context.league.id),
+        };
+      }
+
+      if (predictionEffectKeys.has(effectKey)) {
+        return {
+          label: 'Go To Make Predictions',
+          href: leagueModule.leagueUrl('predictions.html', context.league.id),
+        };
+      }
+
+      return null;
+    }
+
+    function noticeMessageForEffect(cardName, rule, targetMember) {
+      if (rule.target === 'opponent') {
+        const targetName = targetMember?.display_name || targetMember?.username || 'your opponent';
+        return `${cardName} is now active on ${targetName}.`;
+      }
+
+      return `${cardName} is now in effect.`;
+    }
+
     function chooseFromList(title, items, labelFn) {
       if (!items.length) {
         throw new Error('There is nothing available to choose.');
@@ -6924,8 +7012,13 @@ async function initializeCardPage() {
         playerNameById
       );
       await vetoActiveCurse(chosen.id);
-      showSiteNotice('Curse vetoed.');
-      return { id: chosen.id, vetoed: true, activeGameweek };
+      return {
+        id: chosen.id,
+        vetoed: true,
+        activeGameweek,
+        __noticeTitle: 'Power of the Veto',
+        __noticeMessage: 'Curse vetoed.',
+      };
     }
 
     function rollDie() {
@@ -7083,14 +7176,12 @@ async function initializeCardPage() {
           const chosenFixture = fixtures.find((fixture) => fixture.id === fixtureId);
           const fixtureText = chosenFixture ? fixtureChoiceLabel(chosenFixture) : 'the selected match';
           const playerName = context.profile?.display_name || context.user?.email || 'you';
-          const goToPredictions = await showSiteConfirm(
-            `Additional Prediction for ${fixtureText} is now added for ${playerName}.`,
-            'Power of the Hedge',
-            'Go To Predictions'
-          );
-          if (goToPredictions) {
-            window.location.href = leagueModule.leagueUrl('predictions.html', context.league.id);
-          }
+          effect.__noticeTitle = 'Power of the Hedge';
+          effect.__noticeMessage = `Additional Prediction for ${fixtureText} is now added for ${playerName}.`;
+          effect.__noticeDestination = {
+            label: 'Go To Predictions',
+            href: leagueModule.leagueUrl('predictions.html', context.league.id),
+          };
         }
 
         if (rule.special === 'hated') {
@@ -7124,6 +7215,14 @@ async function initializeCardPage() {
           const { error } = await supabase.from('curse_gambler_rolls').insert(rollRows);
           if (error) throw error;
           await showRandomCurseAppliedSummary(targetMember?.display_name || 'opponent', pendingRandomRollRows);
+          effect.__skipFinalNotice = true;
+        }
+
+        effect.__noticeTitle = effect.__noticeTitle || cardDisplayName;
+        effect.__noticeMessage = effect.__noticeMessage || noticeMessageForEffect(cardDisplayName, rule, targetMember);
+        effect.__noticeDestination = effect.__noticeDestination || destinationForEffect(rule.effectKey);
+        if (rule.effectKey === 'curse_thief') {
+          effect.__skipFinalNotice = true;
         }
 
         return effect;

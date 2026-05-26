@@ -450,8 +450,8 @@ async function renderRows() {
           <span class="star-name">${escapeHtml(pick.player_name)}</span>
           <span class="star-icons" aria-label="Goals, assists, yellow cards, red cards">${statIcons(statRow)}</span>
         </span>
-        ${renderPointsBadge(points)}
         ${renderEffectMarkers(gameweek, effects)}
+        ${renderPointsBadge(points)}
       </div>
     `;
   }).filter(Boolean);

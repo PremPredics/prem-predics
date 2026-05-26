@@ -1023,13 +1023,24 @@ prediction_modes as (
       over (partition by competition_id, user_id, fixture_id) as has_power_of_god_override
   from public.prediction_score_details psd
 ),
+ranked_predictions as (
+  select
+    pm.*,
+    row_number() over (
+      partition by pm.competition_id, pm.user_id, pm.fixture_id, (pm.prediction_slot in ('curse_hated', 'curse_gambler'))
+      order by coalesce(source_effect.played_at, '-infinity'::timestamptz) desc, pm.prediction_id::text desc
+    ) as prediction_rank
+  from prediction_modes pm
+  left join effect_windows source_effect on source_effect.id = pm.source_card_effect_id
+),
 considered_predictions as (
   select *
-  from prediction_modes
+  from ranked_predictions
   where
     (
       has_curse_override
       and prediction_slot in ('curse_hated', 'curse_gambler')
+      and prediction_rank = 1
     )
     or (
       not has_curse_override
@@ -1208,7 +1219,6 @@ star_rows as (
     exists (
       select 1 from effect_windows ew
       where ew.competition_id = smp.competition_id
-        and ew.played_by_user_id = smp.user_id
         and ew.target_user_id = smp.user_id
         and ew.effect_key = 'curse_furious'
         and gw.number between ew.start_number and ew.end_number
@@ -1275,17 +1285,22 @@ select
   red_cards,
   (
     (
-      (goals * 3)
-      + assists
-      + case when power_goal_applies then 3 else 0 end
-      + case when assist_king_applies then assists else 0 end
-      - case when super_star_man_applies then 0 else yellow_cards * case when furious_applies then 2 else 1 end end
-      - case when super_star_man_applies then 0 else red_cards * 3 * case when furious_applies then 2 else 1 end end
+      (
+        (goals * 3)
+        + case when power_goal_applies then 3 else 0 end
+        + assists
+        + case when assist_king_applies then assists else 0 end
+      )
+      * case when immigrants_applies then 2 else 1 end
+      * case when lanky_applies then 2 else 1 end
+      * case when small_applies then 2 else 1 end
+      * case when super_star_man_applies then 3 else 1 end
     )
-    * case when immigrants_applies then 2 else 1 end
-    * case when lanky_applies then 2 else 1 end
-    * case when small_applies then 2 else 1 end
-    * case when super_star_man_applies then 3 else 1 end
+    - case
+        when super_star_man_applies then 0
+        else (yellow_cards * case when furious_applies then 2 else 1 end)
+          + (red_cards * 3 * case when furious_applies then 2 else 1 end)
+      end
   )::integer as points
 from star_rows;
 

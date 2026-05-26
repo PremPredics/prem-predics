@@ -274,14 +274,14 @@ main {
 }
 
 .deadline-action {
-  color: #ffb020;
+  color: var(--deadline-color);
   font-size: 11px;
   font-weight: 950;
   line-height: 1;
   text-align: left;
   text-transform: uppercase;
   white-space: nowrap;
-  text-shadow: 0 0 10px rgba(255, 176, 32, 0.54);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--deadline-color) 54%, transparent);
 }
 
 .deadline-action:empty {
@@ -295,6 +295,10 @@ main {
   text-align: right;
   white-space: nowrap;
   text-shadow: 0 0 11px color-mix(in srgb, var(--deadline-color) 50%, transparent);
+}
+
+.deadline-countdown:empty {
+  display: none;
 }
 
 .deadline-light {
@@ -564,21 +568,21 @@ footer {
 
   .deadline-card {
     min-height: 42px;
-    grid-template-columns: minmax(0, 1fr) auto auto auto;
-    grid-template-rows: 1fr;
-    gap: 8px;
-    align-items: center;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 6px;
     padding: 8px 9px;
   }
 
   .deadline-title {
     font-size: 10px;
     line-height: 1.1;
-    text-align: left;
+    text-align: center;
   }
 
   .deadline-body {
-    display: contents;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 8px;
   }
 
