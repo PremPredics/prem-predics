@@ -262,7 +262,6 @@ Dean Benamar - Crystal Palace - England - 185
 Benjamin Casey - Crystal Palace - England - 178
 Joél Drakes-Thomas - Crystal Palace - England - 178
 Romain Esse - Crystal Palace - England - 178
-Marc Guéhi - Crystal Palace - England - 182
 Eberechi Eze - Crystal Palace - England - 178
 Odsonne Édouard - Crystal Palace - France - 187
 Jordan Pickford - Everton - England - 185

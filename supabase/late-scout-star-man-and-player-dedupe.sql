@@ -98,7 +98,8 @@ create temp table player_dedupe_targets (
 insert into player_dedupe_targets (display_name, canonical_team_pattern, nationality, height_cm)
 values
   ('Adama Traore', 'West Ham%', 'Spain', 178),
-  ('James Ward-Prowse', 'West Ham%', 'England', 177);
+  ('James Ward-Prowse', 'West Ham%', 'England', 177),
+  ('Marc Guehi', 'Manchester City%', 'England', 182);
 
 insert into public.players (display_name, team_id, nationality, height_cm, squad_status, is_active)
 select target.display_name, teams.id, target.nationality, target.height_cm, 'squad_player', true
