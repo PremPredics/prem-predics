@@ -99,7 +99,18 @@ insert into player_dedupe_targets (display_name, canonical_team_pattern, nationa
 values
   ('Adama Traore', 'West Ham%', 'Spain', 178),
   ('James Ward-Prowse', 'West Ham%', 'England', 177),
-  ('Marc Guehi', 'Manchester City%', 'England', 182);
+  ('Marc Guehi', 'Manchester City%', 'England', 182),
+  ('Antoine Semenyo', 'Manchester City%', 'Ghana', 185),
+  ('Brennan Johnson', 'Tottenham Hotspur%', 'Wales', 186),
+  ('Douglas Luiz', 'Aston Villa%', 'Brazil', 175),
+  ('Eberechi Eze', 'Arsenal%', 'England', 178),
+  ('Evann Guessand', 'Crystal Palace%', 'Ivory Coast', 185),
+  ('Facundo Buonanotte', 'Leeds United%', 'Argentina', 174),
+  ('Harvey Elliott', 'Aston Villa%', 'England', 170),
+  ('Jørgen Strand Larsen', 'Crystal Palace%', 'Norway', 193),
+  ('Marc Guiu', 'Chelsea%', 'Spain', 187),
+  ('Oscar Bobb', 'Fulham%', 'Norway', 174),
+  ('Tyrique George', 'Everton%', 'England', 180);
 
 insert into public.players (display_name, team_id, nationality, height_cm, squad_status, is_active)
 select target.display_name, teams.id, target.nationality, target.height_cm, 'squad_player', true

@@ -80,7 +80,6 @@ George Hemmings - Aston Villa - England - 180
 Bradley Burrowes - Aston Villa - England - 178
 Donyell Malen - Aston Villa - Netherlands - 179
 Jamaldeen Jimoh-Aloba - Aston Villa - England - 180
-Evann Guessand - Aston Villa - Ivory Coast - 185
 Kadan Young - Aston Villa - England - 176
 Đorđe Petrović - Bournemouth - Serbia - 194
 Adrien Truffert - Bournemouth - France - 176
@@ -109,7 +108,6 @@ Remy Rees-Dottin - Bournemouth - England - 180
 Julián Araujo - Bournemouth - Mexico - 181
 Hamed Traorè - Bournemouth - Ivory Coast - 177
 Ben Winterburn - Bournemouth - England - 175
-Antoine Semenyo - Bournemouth - Ghana - 185
 Caoimhín Kelleher - Brentford - Republic of Ireland - 188
 Aaron Hickey - Brentford - Scotland - 178
 Rico Henry - Brentford - England - 170
@@ -230,8 +228,6 @@ Alejandro Garnacho - Chelsea - Argentina - 180
 Jesse Derry - Chelsea - England - 174
 Shim Mheuka - Chelsea - England - 188
 Ryan Kavuma-McQueen - Chelsea - England - 178
-Facundo Buonanotte - Chelsea - Argentina - 174
-Tyrique George - Chelsea - England - 180
 Dean Henderson - Crystal Palace - England - 188
 Daniel Muñoz - Crystal Palace - Colombia - 183
 Tyrick Mitchell - Crystal Palace - England - 175
@@ -240,7 +236,6 @@ Ismaïla Sarr - Crystal Palace - Senegal - 185
 Jefferson Lerma - Crystal Palace - Colombia - 179
 Eddie Nketiah - Crystal Palace - England - 175
 Yéremy Pino - Crystal Palace - Spain - 172
-Brennan Johnson - Crystal Palace - Wales - 186
 Christantus Uche - Crystal Palace - Nigeria - 190
 Jean-Philippe Mateta - Crystal Palace - France - 192
 Nathaniel Clyne - Crystal Palace - England - 175
@@ -262,7 +257,6 @@ Dean Benamar - Crystal Palace - England - 185
 Benjamin Casey - Crystal Palace - England - 178
 Joél Drakes-Thomas - Crystal Palace - England - 178
 Romain Esse - Crystal Palace - England - 178
-Eberechi Eze - Crystal Palace - England - 178
 Odsonne Édouard - Crystal Palace - France - 187
 Jordan Pickford - Everton - England - 185
 Nathan Patterson - Everton - Scotland - 183
@@ -368,7 +362,6 @@ Kieran Morrison - Liverpool - Northern Ireland - 180
 Rio Ngumoha - Liverpool - England - 170
 Jayden Danns - Liverpool - England - 183
 Wellity Lucky - Liverpool - England - 190
-Harvey Elliott - Liverpool - England - 170
 Trent Kone-Doherty - Liverpool - Republic of Ireland - 177
 James Trafford - Manchester City - England - 197
 Rúben Dias - Manchester City - Portugal - 187
@@ -394,7 +387,6 @@ Antoine Semenyo - Manchester City - Ghana - 185
 Kalvin Phillips - Manchester City - England - 178
 Abdukodir Khusanov - Manchester City - Uzbekistan - 186
 Phil Foden - Manchester City - England - 171
-Oscar Bobb - Manchester City - Norway - 174
 Ryan McAidoo - Manchester City - England - 175
 Charlie Gray - Manchester City - England - 176
 Divine Mukasa - Manchester City - England - 178
@@ -487,7 +479,6 @@ Ola Aina - Nottingham Forest - Nigeria - 182
 Nicolò Savona - Nottingham Forest - Italy - 192
 Zach Abbott - Nottingham Forest - England - 185
 Jimmy Sinclair - Nottingham Forest - England - 180
-Douglas Luiz - Nottingham Forest - Brazil - 175
 Oleksandr Zinchenko - Nottingham Forest - Ukraine - 175
 Arnaud Kalimuendo - Nottingham Forest - France - 175
 Jota Silva - Nottingham Forest - Portugal - 179
@@ -523,7 +514,6 @@ Dan Neil - Sunderland - England - 183
 Jenson Seelt - Sunderland - Netherlands - 192
 Simon Adingra - Sunderland - Ivory Coast - 175
 Arthur Masuaku - Sunderland - DR Congo - 179
-Marc Guiu - Sunderland - Spain - 187
 Patrick Roberts - Sunderland - England - 167
 Guglielmo Vicario - Tottenham Hotspur - Italy - 194
 Radu Drăgușin - Tottenham Hotspur - Romania - 191
@@ -614,7 +604,6 @@ Ladislav Krejčí - Wolverhampton Wanderers - Czech Republic - 191
 Jackson Tchatchoua - Wolverhampton Wanderers - Cameroon - 186
 Angel Gomes - Wolverhampton Wanderers - England - 168
 Tom Edozie - Wolverhampton Wanderers - England - 175
-Jørgen Strand Larsen - Wolverhampton Wanderers - Norway - 193
 Jhon Arias - Wolverhampton Wanderers - Colombia - 168
 Emmanuel Agbadou - Wolverhampton Wanderers - Ivory Coast - 192
 Marshall Munetsi - Wolverhampton Wanderers - Zimbabwe - 188
