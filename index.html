@@ -197,13 +197,25 @@ header img:hover {
 }
 
 .account-action.logout {
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.24);
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255,255,255,0.78), transparent 20%),
+    linear-gradient(135deg, #ef4444, #b91c1c 62%, #7f1d1d);
+  border: 2px solid rgba(254, 202, 202, 0.78);
   color: #fff;
+  box-shadow:
+    0 0 18px rgba(248, 113, 113, 0.52),
+    0 6px 16px rgba(127, 29, 29, 0.34);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.78),
+    1px -1px 0 rgba(0,0,0,0.78),
+    -1px 1px 0 rgba(0,0,0,0.78),
+    1px 1px 0 rgba(0,0,0,0.78);
 }
 
 .account-action.logout:hover {
-  background: rgba(255,255,255,0.2);
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255,255,255,0.9), transparent 20%),
+    linear-gradient(135deg, #ff3b30, #ef4444 58%, #991b1b);
 }
 
 .home-action-panel {
