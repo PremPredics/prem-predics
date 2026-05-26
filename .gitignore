@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Capacitor/web build output
+dist/
+
+# Native build outputs
+android/.gradle/
+android/app/build/
+android/build/
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Signing files - keep these private
+*.jks
+*.keystore
+key.properties
