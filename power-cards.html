@@ -1120,6 +1120,33 @@ button:disabled {
   box-shadow: 0 0 16px rgba(34, 197, 94, 0.32);
 }
 
+.notice-modal .opponent-target-confirm,
+.notice-modal .opponent-target-cancel {
+  min-width: 170px;
+}
+
+.opponent-target-confirm.notice-star {
+  background: linear-gradient(135deg, #fde68a, #f59e0b 48%, #92400e);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.46);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.76),
+    1px -1px 0 rgba(0,0,0,0.76),
+    -1px 1px 0 rgba(0,0,0,0.76),
+    1px 1px 0 rgba(0,0,0,0.76);
+}
+
+.opponent-target-confirm.notice-predictions {
+  background: linear-gradient(135deg, #7dd3fc, #0ea5e9 52%, #0369a1);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.48);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.72),
+    1px -1px 0 rgba(0,0,0,0.72),
+    -1px 1px 0 rgba(0,0,0,0.72),
+    1px 1px 0 rgba(0,0,0,0.72);
+}
+
 .opponent-target-confirm:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -1326,11 +1353,17 @@ button:disabled {
   gap: 8px;
   padding: 14px;
   border-radius: 12px;
-  background: rgba(120, 53, 15, 0.32);
-  border: 1px solid rgba(250, 204, 21, 0.38);
+  background:
+    radial-gradient(circle at top, rgba(248, 113, 113, 0.18), transparent 36%),
+    linear-gradient(135deg, rgba(46, 16, 102, 0.98), rgba(17, 7, 38, 0.96));
+  border: 3px solid rgba(248, 113, 113, 0.95);
   color: #fff;
   text-align: center;
   font-weight: 900;
+  box-shadow:
+    0 0 24px rgba(239, 68, 68, 0.64),
+    0 0 42px rgba(185, 28, 28, 0.34),
+    inset 0 0 18px rgba(127, 29, 29, 0.26);
 }
 
 @keyframes diceTumble {
@@ -3898,7 +3931,7 @@ function showSiteNotice(message, title = 'Notice') {
   modal.setAttribute('aria-hidden', 'false');
 }
 
-function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm') {
+function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', confirmTone = '') {
   const modal = document.getElementById('siteNoticeModal');
   const titleEl = document.getElementById('siteNoticeTitle');
   const bodyEl = document.getElementById('siteNoticeBody');
@@ -3910,7 +3943,7 @@ function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm') {
 
   return new Promise((resolve) => {
     const confirmButton = document.createElement('button');
-    confirmButton.className = 'opponent-target-confirm';
+    confirmButton.className = ['opponent-target-confirm', confirmTone].filter(Boolean).join(' ');
     confirmButton.type = 'button';
     confirmButton.textContent = confirmText;
     closeButton.textContent = 'Back';
@@ -3971,7 +4004,10 @@ async function showPlayedCardNotice(cardName, activation = null) {
   const destination = activation?.__noticeDestination || null;
 
   if (destination?.href && destination?.label) {
-    const shouldGo = await showSiteConfirm(message, title, destination.label);
+    const destinationTone = destination.tone
+      || (String(destination.href).includes('star-man-hub') ? 'notice-star' : '')
+      || (String(destination.href).includes('prediction-hub') ? 'notice-predictions' : '');
+    const shouldGo = await showSiteConfirm(message, title, destination.label, destinationTone);
     if (shouldGo) {
       window.location.href = destination.href;
     }
@@ -6326,14 +6362,16 @@ async function initializeCardPage() {
       if (starManEffectKeys.has(effectKey)) {
         return {
           label: 'Go To Star Man',
-          href: leagueModule.leagueUrl('star-man.html', context.league.id),
+          href: leagueModule.leagueUrl('star-man-hub.html', context.league.id),
+          tone: 'notice-star',
         };
       }
 
       if (predictionEffectKeys.has(effectKey)) {
         return {
-          label: 'Go To Make Predictions',
-          href: leagueModule.leagueUrl('predictions.html', context.league.id),
+          label: 'Go To Predictions',
+          href: leagueModule.leagueUrl('prediction-hub.html', context.league.id),
+          tone: 'notice-predictions',
         };
       }
 
@@ -7229,7 +7267,8 @@ async function initializeCardPage() {
           effect.__noticeMessage = `Additional Prediction for ${fixtureText} is now added for ${playerName}.`;
           effect.__noticeDestination = {
             label: 'Go To Predictions',
-            href: leagueModule.leagueUrl('predictions.html', context.league.id),
+            href: leagueModule.leagueUrl('prediction-hub.html', context.league.id),
+            tone: 'notice-predictions',
           };
         }
 
