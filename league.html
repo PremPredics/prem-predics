@@ -571,7 +571,7 @@ footer {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
     gap: 6px;
-    padding: 8px 9px;
+    padding: 8px 8px 8px 9px;
   }
 
   .deadline-title {
@@ -582,20 +582,29 @@ footer {
 
   .deadline-body {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) minmax(68px, auto) 20px;
+    gap: 10px;
+    width: 100%;
   }
 
   .deadline-countdown {
+    grid-column: 2;
     font-size: 13px;
     text-align: right;
+    min-width: 68px;
   }
 
   .deadline-action {
+    grid-column: 1;
     font-size: 9px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .deadline-light {
+    grid-column: 3;
+    justify-self: end;
     width: 16px;
     height: 16px;
   }
