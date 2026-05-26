@@ -9,14 +9,16 @@
     "cap:init:android": "npm run build && npx cap add android",
     "cap:sync": "npm run build && npx cap sync android",
     "cap:open": "npm run cap:sync && npx cap open android",
-    "cap:copy": "npm run build && npx cap copy android"
+    "cap:copy": "npm run build && npx cap copy android",
+    "assets:prepare": "node scripts/prepare-native-assets.js",
+    "assets:generate": "npm run assets:prepare && npx capacitor-assets generate --android"
   },
   "dependencies": {
     "@capacitor/android": "latest",
     "@capacitor/core": "latest"
   },
   "devDependencies": {
-    "@capacitor/cli": "latest",
-    "typescript": "^6.0.3"
+    "@capacitor/assets": "latest",
+    "@capacitor/cli": "latest"
   }
 }
