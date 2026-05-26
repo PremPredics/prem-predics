@@ -188,7 +188,6 @@ Florentino Luís - Burnley - Portugal - 184
 Loum Tchaouna - Burnley - France - 180
 Hjalmar Ekdal - Burnley - Sweden - 188
 Zian Flemming - Burnley - Netherlands - 185
-James Ward-Prowse - Burnley - England - 177
 Aaron Ramsey - Burnley - Wales - 180
 Oliver Sonne - Burnley - Peru - 184
 Lucas Pires - Burnley - Brazil - 182
@@ -316,7 +315,6 @@ Ryan Sessegnon - Fulham - England - 178
 Issa Diop - Fulham - France - 194
 Emile Smith Rowe - Fulham - England - 182
 Antonee Robinson - Fulham - United States - 183
-Adama Traoré - Fulham - Spain - 178
 Lucas Perri - Leeds United - Brazil - 197
 Jayden Bogle - Leeds United - England - 178
 Gabriel Gudmundsson - Leeds United - Sweden - 181

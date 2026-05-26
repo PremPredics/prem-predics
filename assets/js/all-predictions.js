@@ -431,11 +431,18 @@ function openCurseModal(fixtureId, kind = 'curse') {
       ? (effects.length === 1 ? 'Active Power' : 'Active Powers')
       : (effects.length === 1 ? 'Active Curse' : 'Active Curses');
   }
+  curseModalBody.classList.toggle('audit-trail', effects.length > 1);
   curseModalBody.innerHTML = effects
     .map(curseCardDetailMarkup)
-    .join('<div class="curse-audit-separator">AND THEN</div>');
+    .join('<div class="curse-audit-separator"><span>AND</span><span>THEN</span></div>');
   curseModal.classList.add('show');
   curseModal.setAttribute('aria-hidden', 'false');
+
+  window.requestAnimationFrame(() => {
+    if (window.matchMedia('(max-width: 650px)').matches && effects.length > 1) {
+      curseModalBody.scrollLeft = curseModalBody.scrollWidth;
+    }
+  });
 }
 
 function closeCurseModal() {

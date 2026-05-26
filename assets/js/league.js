@@ -119,7 +119,7 @@ function deadlineDisplay(value, options = {}) {
     };
   }
 
-  if (locked && !options.completed) {
+  if (locked) {
     return {
       className: 'bad locked',
       action: 'Locked',

@@ -471,16 +471,23 @@ main {
   justify-items: center;
 }
 .curse-audit-separator {
+  display: grid;
+  gap: 0;
+  place-items: center;
   align-self: center;
   color: #fff;
   font-size: clamp(1rem, 3vw, 1.35rem);
   font-weight: 950;
+  line-height: 0.96;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.95),
     1px -1px 0 rgba(0,0,0,0.95),
     -1px 1px 0 rgba(0,0,0,0.95),
     1px 1px 0 rgba(0,0,0,0.95),
     0 0 16px rgba(255,255,255,0.72);
+}
+.curse-audit-separator span {
+  display: block;
 }
 .curse-card-played-by {
   color: #fff;
@@ -622,7 +629,7 @@ main {
     min-width: 24px;
     max-width: 24px;
     font-size: clamp(0.62rem, 0.74vw, 0.82rem);
-    line-height: 1.05;
+    line-height: 0.96;
     overflow-wrap: anywhere;
   }
 
@@ -741,10 +748,26 @@ footer {
     max-width: min(100%, 560px);
     padding-bottom: 8px;
   }
+  .curse-card-list.audit-trail {
+    justify-content: flex-start;
+    align-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: calc(100vw - 18px);
+    padding: 2px 8px 12px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
 
   .curse-card-wrap {
     flex: 0 1 clamp(92px, 28vw, 112px);
     gap: 6px;
+  }
+  .curse-card-list.audit-trail .curse-card-wrap {
+    flex: 0 0 clamp(132px, calc((100vw - 62px) / 2), 158px);
+    max-width: clamp(132px, calc((100vw - 62px) / 2), 158px);
+    scroll-snap-align: end;
   }
 
   .curse-detail-card {
@@ -755,19 +778,29 @@ footer {
     border-radius: 12px;
     padding: 8px 6px;
   }
+  .curse-card-list.audit-trail .curse-detail-card {
+    width: 100%;
+    height: clamp(188px, 58vw, 224px);
+    min-height: clamp(188px, 58vw, 224px);
+    padding: 11px 8px;
+  }
 
   .curse-card-played-by {
     max-width: 112px;
     font-size: 8px;
     line-height: 1.04;
   }
+  .curse-card-list.audit-trail .curse-card-played-by {
+    max-width: 158px;
+    font-size: 9px;
+  }
 
   .curse-audit-separator {
-    flex: 0 0 46px;
-    min-width: 46px;
-    max-width: 46px;
-    font-size: 0.58rem;
-    line-height: 1;
+    flex: 0 0 30px;
+    min-width: 30px;
+    max-width: 30px;
+    font-size: 0.52rem;
+    line-height: 0.96;
     overflow-wrap: anywhere;
   }
 
@@ -780,6 +813,14 @@ footer {
   .curse-detail-card p {
     font-size: 0.43rem;
     line-height: 1.1;
+  }
+  .curse-card-list.audit-trail .curse-detail-card strong {
+    font-size: 0.74rem;
+    line-height: 1.06;
+  }
+  .curse-card-list.audit-trail .curse-detail-card p {
+    font-size: 0.5rem;
+    line-height: 1.14;
   }
   .curse-close {
     min-width: 96px;

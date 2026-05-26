@@ -2043,10 +2043,15 @@ button:disabled {
 
 .card-tile.masked-premium {
   background: linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 27%, #d69e18 42%, #fff5c4 58%, #b7790e 74%, #fff8dc 88%, #7a4d09 100%);
-  color: #3b1c05;
+  color: #fff;
   border-color: #f8d568;
   box-shadow: 0 0 22px rgba(248, 213, 104, 0.82), 0 4px 12px rgba(0,0,0,0.4), inset 0 0 16px rgba(255, 255, 255, 0.22);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.42);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 0 9px rgba(255, 255, 255, 0.42);
 }
 
 .card-tile.masked-game {
@@ -3224,6 +3229,16 @@ button:disabled {
     border-width: 1px;
     font-size: clamp(0.3rem, 1.28vw, 0.38rem);
     line-height: 1.05;
+  }
+
+  .card-tile.masked-premium {
+    color: #fff;
+    font-weight: 950;
+    text-shadow:
+      -0.7px -0.7px 0 rgba(0,0,0,0.95),
+      0.7px -0.7px 0 rgba(0,0,0,0.95),
+      -0.7px 0.7px 0 rgba(0,0,0,0.95),
+      0.7px 0.7px 0 rgba(0,0,0,0.95);
   }
 
   .card-tile:hover,

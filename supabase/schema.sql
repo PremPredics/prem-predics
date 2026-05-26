@@ -3228,15 +3228,8 @@ create policy "users update own star man pick before gameweek lock"
 on public.star_man_picks for update
 to authenticated
 using (
-  public.can_submit_star_man_pick(
-    competition_id,
-    season_id,
-    gameweek_id,
-    user_id,
-    player_id,
-    pick_slot,
-    source_card_effect_id
-  )
+  auth.uid() = user_id
+  and public.is_competition_member(competition_id)
 )
 with check (
   public.can_submit_star_man_pick(
@@ -3255,11 +3248,62 @@ on public.star_man_picks for delete
 to authenticated
 using (
   auth.uid() = user_id
+  and public.is_competition_member(competition_id)
   and exists (
     select 1
     from public.gameweeks gw
     where gw.id = star_man_picks.gameweek_id
       and now() < public.star_man_lock_at_for_gameweek(star_man_picks.season_id, star_man_picks.gameweek_id)
+  )
+  or (
+    auth.uid() = user_id
+    and public.is_competition_member(competition_id)
+    and exists (
+      select 1
+      from public.active_card_effects ace
+      join public.card_definitions cd on cd.id = ace.card_id
+      join public.players p on p.id = star_man_picks.player_id
+      join public.fixtures f
+        on f.season_id = star_man_picks.season_id
+        and f.gameweek_id = star_man_picks.gameweek_id
+        and f.status <> 'postponed'
+      where ace.competition_id = star_man_picks.competition_id
+        and ace.played_by_user_id = star_man_picks.user_id
+        and ace.status = 'active'
+        and cd.effect_key in ('power_late_scout', 'super_sub')
+        and (
+          p.team_id in (f.home_team_id, f.away_team_id)
+          or exists (
+            select 1
+            from public.player_team_assignments pta
+            where pta.player_id = star_man_picks.player_id
+              and pta.season_id = star_man_picks.season_id
+              and pta.team_id in (f.home_team_id, f.away_team_id)
+              and pta.starts_gameweek_id <= star_man_picks.gameweek_id
+              and (pta.ends_gameweek_id is null or pta.ends_gameweek_id >= star_man_picks.gameweek_id)
+          )
+        )
+        and f.kickoff_at = (
+          select min(f2.kickoff_at)
+          from public.fixtures f2
+          where f2.season_id = star_man_picks.season_id
+            and f2.gameweek_id = star_man_picks.gameweek_id
+            and f2.status <> 'postponed'
+            and (
+              p.team_id in (f2.home_team_id, f2.away_team_id)
+              or exists (
+                select 1
+                from public.player_team_assignments pta2
+                where pta2.player_id = star_man_picks.player_id
+                  and pta2.season_id = star_man_picks.season_id
+                  and pta2.team_id in (f2.home_team_id, f2.away_team_id)
+                  and pta2.starts_gameweek_id <= star_man_picks.gameweek_id
+                  and (pta2.ends_gameweek_id is null or pta2.ends_gameweek_id >= star_man_picks.gameweek_id)
+              )
+            )
+        )
+        and now() < f.kickoff_at
+    )
   )
 );
 
