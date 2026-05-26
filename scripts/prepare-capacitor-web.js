@@ -26,6 +26,7 @@ const itemsToCopy = [
   'how-to-play.html',
   'faq.html',
   'global-admin.html',
+  'logo-left.png',
   'assets'
 ];
 
