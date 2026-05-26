@@ -5073,6 +5073,7 @@ async function confirmCardPlay() {
 
   save();
   render();
+  await showPlayedCardNotice(card, activation);
 }
 
 function cardNameFromDrawn(card) {
