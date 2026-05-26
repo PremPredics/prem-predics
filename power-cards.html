@@ -1167,9 +1167,9 @@ button:disabled {
 }
 
 .opponent-target-confirm.notice-star {
-  background: linear-gradient(135deg, #fbbf24, #d97706 54%, #78350f);
+  background: linear-gradient(135deg, #facc15, #f59e0b);
   color: #fff;
-  box-shadow: 0 0 10px rgba(250, 204, 21, 0.24);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.28);
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.76),
     1px -1px 0 rgba(0,0,0,0.76),
@@ -1225,6 +1225,7 @@ button:disabled {
     linear-gradient(135deg, #ff3b30 0%, #ef4444 34%, #b91c1c 70%, #7f1d1d 100%);
   color: #fff;
   font-weight: 950;
+  font-size: 1.08rem;
   cursor: pointer;
   border: 2px solid rgba(254, 202, 202, 0.88);
   box-shadow:
@@ -4010,7 +4011,7 @@ function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', co
     confirmButton.className = ['opponent-target-confirm', confirmTone].filter(Boolean).join(' ');
     confirmButton.type = 'button';
     confirmButton.textContent = confirmText;
-    closeButton.textContent = 'Back';
+    closeButton.textContent = 'Close';
     closeButton.before(confirmButton);
     titleEl.textContent = title;
     setNoticeTitleTone(titleEl, title);
