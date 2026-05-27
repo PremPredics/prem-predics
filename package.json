@@ -10,8 +10,7 @@
     "cap:sync": "npm run build && npx cap sync android",
     "cap:open": "npm run cap:sync && npx cap open android",
     "cap:copy": "npm run build && npx cap copy android",
-    "assets:prepare": "node scripts/prepare-native-assets.js",
-    "assets:generate": "npm run assets:prepare && npx capacitor-assets generate --android"
+    "assets:generate": "npx capacitor-assets generate --android"
   },
   "dependencies": {
     "@capacitor/android": "latest",
