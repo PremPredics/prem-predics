@@ -923,6 +923,8 @@ button:disabled {
   animation: slideInScale 0.3s ease-out;
   max-width: 500px;
   width: 100%;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
 }
 
 @keyframes slideInScale {
@@ -1010,9 +1012,11 @@ button:disabled {
 
 .opponent-target-content {
   width: min(620px, 100%);
-  max-height: calc(100vh - 36px);
-  overflow-y: auto;
+  max-height: min(720px, calc(100dvh - 36px));
+  min-height: 0;
+  overflow: hidden;
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: 22px;
   padding: 26px;
   border-radius: 16px;
@@ -1078,9 +1082,12 @@ button:disabled {
 }
 
 .opponent-target-list {
+  min-height: 0;
+  overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 14px;
+  padding-right: 2px;
 }
 
 .opponent-target-btn {
@@ -1254,6 +1261,8 @@ button:disabled {
 }
 
 .notice-body {
+  min-height: 0;
+  overflow-y: auto;
   margin: 0;
   color: #f5f3ff;
   text-align: center;
@@ -1268,13 +1277,15 @@ button:disabled {
 
 .random-curse-content {
   width: min(760px, 100%);
-  max-height: calc(100vh - 28px);
-  overflow-y: auto;
+  max-height: min(760px, calc(100dvh - 28px));
 }
 
 .random-curse-body {
+  min-height: 0;
+  overflow-y: auto;
   display: grid;
   gap: 16px;
+  padding-right: 2px;
 }
 
 .random-curse-helper {
@@ -1437,7 +1448,7 @@ button:disabled {
 
 @media (max-width: 640px) {
   .opponent-target-modal {
-    align-items: flex-start;
+    align-items: center;
     padding: 10px;
   }
 
@@ -1445,7 +1456,9 @@ button:disabled {
     gap: 12px;
     padding: 14px;
     border-radius: 12px;
-    max-height: calc(100vh - 20px);
+    width: min(100%, 420px);
+    max-height: calc(100dvh - 20px);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
   }
 
   .opponent-target-list,
@@ -1465,8 +1478,18 @@ button:disabled {
   }
 
   .random-curse-content {
-    width: 100%;
+    width: min(100%, 430px);
     padding: 14px;
+  }
+
+  .player-selection-modal {
+    padding: 10px;
+  }
+
+  .player-selection-content {
+    width: min(100%, 420px);
+    max-height: calc(100dvh - 20px);
+    padding: 18px 14px;
   }
 
   .random-roll-row {
@@ -5727,7 +5750,7 @@ async function assertFirstLeagueGameweekCompleted(runtimeContext, client) {
   });
 
   if (stillInFirstWeek) {
-    throw new Error('Cards can be played after the first gameweek in this private league is completed.');
+    throw new Error('Cards can only be played once the first week in your private league has ended.');
   }
 }
 

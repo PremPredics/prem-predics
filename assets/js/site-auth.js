@@ -1,6 +1,7 @@
 import { supabase } from './supabase-client.js';
 
 const loginPage = 'login.html';
+let signOutInProgress = false;
 
 function currentPageName() {
   const path = window.location.pathname;
@@ -120,10 +121,10 @@ function ensureSignOutDialog() {
   dialog.setAttribute('aria-hidden', 'true');
   dialog.innerHTML = `
     <section class="sign-out-panel" role="dialog" aria-modal="true" aria-labelledby="signOutTitle">
-      <h2 id="signOutTitle">Are you sure you'd like to Sign out?</h2>
+      <h2 id="signOutTitle">Are you sure you'd like to Log out?</h2>
       <div class="sign-out-actions">
         <button class="sign-out-back" type="button" data-sign-out-back>Back</button>
-        <button class="sign-out-confirm" type="button" data-sign-out-confirm>Sign Out</button>
+        <button class="sign-out-confirm" type="button" data-sign-out-confirm>Log Out</button>
       </div>
     </section>
   `;
@@ -177,24 +178,41 @@ function confirmSignOut() {
 }
 
 async function handleSignOutClick(event) {
-  event.preventDefault();
-  const confirmed = await confirmSignOut();
-  if (!confirmed) {
+  event?.preventDefault();
+  event?.stopPropagation();
+  if (signOutInProgress) {
     return;
   }
-  await supabase.auth.signOut();
-  redirectToLogin();
+
+  signOutInProgress = true;
+  try {
+    const confirmed = await confirmSignOut();
+    if (!confirmed) {
+      return;
+    }
+    await supabase.auth.signOut();
+    redirectToLogin();
+  } finally {
+    signOutInProgress = false;
+  }
 }
 
 function bindSignOutButtons(root = document) {
   root.querySelectorAll('[data-logout], [data-sign-out]').forEach((button) => {
-    if (button.dataset.signOutBound === 'true') {
-      return;
-    }
     button.dataset.signOutBound = 'true';
-    button.addEventListener('click', handleSignOutClick);
+    if (button.tagName === 'BUTTON' && !button.getAttribute('type')) {
+      button.setAttribute('type', 'button');
+    }
   });
 }
+
+document.addEventListener('click', (event) => {
+  const button = event.target?.closest?.('[data-logout], [data-sign-out]');
+  if (!button) {
+    return;
+  }
+  handleSignOutClick(event);
+}, true);
 
 function getCompetitionIdFromUrl() {
   return new URLSearchParams(window.location.search).get('competition_id');
@@ -262,7 +280,7 @@ function blockedLeaguePage(user, message = 'You need to choose a private league 
           <button data-home type="button" style="padding: 12px 18px; border: 0; border-radius: 8px; background: #7c3aed; color: #fff; font-weight: 700; cursor: pointer;">Home</button>
           <button data-leagues type="button" style="padding: 12px 18px; border: 0; border-radius: 8px; background: #f3e8ff; color: #2e1065; font-weight: 800; cursor: pointer;">Leagues</button>
           <button data-how type="button" style="padding: 12px 18px; border: 0; border-radius: 8px; background: #a78bfa; color: #1f1147; font-weight: 800; cursor: pointer;">How To Play</button>
-          <button data-logout type="button" style="padding: 12px 18px; border: 1px solid rgba(254,202,202,0.72); border-radius: 8px; background: linear-gradient(135deg, #ef4444, #991b1b); color: #fff; font-weight: 800; cursor: pointer;">Sign Out</button>
+          <button data-logout type="button" style="padding: 12px 18px; border: 1px solid rgba(254,202,202,0.72); border-radius: 8px; background: linear-gradient(135deg, #ef4444, #991b1b); color: #fff; font-weight: 800; cursor: pointer;">Log Out</button>
         </div>
       </section>
     </main>
@@ -351,7 +369,7 @@ async function updateAccountPanel(user) {
           <span class="account-action-detail">${safeDisplayName}</span>
         </a>
         <button class="account-action logout" type="button" data-logout>
-          <span class="account-action-title">Sign Out</span>
+          <span class="account-action-title">Log Out</span>
         </button>
       </div>
     </div>

@@ -78,10 +78,13 @@ main {
 }
 
 .toolbar a.how-to-play-link {
-  background: linear-gradient(135deg, #5b21b6, #8b5cf6);
-  border-color: rgba(216, 180, 254, 0.55);
-  color: #fff;
-  box-shadow: 0 0 14px rgba(139, 92, 246, 0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 7, 38, 0.68);
+  border-color: rgba(216, 180, 254, 0.28);
+  color: #f3e8ff;
+  box-shadow: none;
 }
 
 .how-to-play-short {
@@ -299,12 +302,15 @@ main {
 
 .deadline-body {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(76px, auto) 22px;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .deadline-action {
+  grid-column: 1;
+  min-width: 0;
   color: var(--deadline-color);
   font-size: 11px;
   font-weight: 950;
@@ -312,20 +318,29 @@ main {
   text-align: left;
   text-transform: uppercase;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-shadow: 0 0 10px color-mix(in srgb, var(--deadline-color) 54%, transparent);
 }
 
 .deadline-action:empty {
-  display: none;
+  display: block;
+  visibility: hidden;
 }
 
 .deadline-countdown {
+  grid-column: 2;
+  min-width: 76px;
   color: var(--deadline-color);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 950;
   text-align: right;
   white-space: nowrap;
   text-shadow: 0 0 11px color-mix(in srgb, var(--deadline-color) 50%, transparent);
+}
+
+.deadline-card.action .deadline-countdown {
+  font-size: 13px;
 }
 
 .deadline-countdown:empty {
@@ -333,6 +348,7 @@ main {
 }
 
 .deadline-light {
+  grid-column: 3;
   justify-self: end;
   width: 18px;
   height: 18px;
@@ -572,9 +588,9 @@ footer {
 
   .toolbar .how-to-play-link {
     min-width: 0;
-    padding: 6px 0;
-    font-size: 18px;
-    line-height: 1;
+    padding: 6px 4px;
+    font-size: 11px;
+    line-height: 1.05;
     display: grid;
     place-items: center;
   }
@@ -585,6 +601,7 @@ footer {
 
   .how-to-play-short {
     display: inline;
+    white-space: normal;
   }
 
   .join-code {
@@ -707,9 +724,9 @@ footer {
   <div class="toolbar">
     <a href="index.html">Back To Home</a>
     <a href="leagues.html">Back To Leagues</a>
-    <a href="how-to-play.html" class="how-to-play-link" aria-label="How To Play"><span class="how-to-play-full">How To Play</span><span class="how-to-play-short">?</span></a>
+    <a href="how-to-play.html" class="how-to-play-link" aria-label="How To Play"><span class="how-to-play-full">How To Play</span><span class="how-to-play-short">How To<br>Play</span></a>
     <a href="profile.html" data-profile-link class="profile-edit-link"><span>Edit Profile</span><span class="profile-edit-avatar" data-profile-avatar>P</span></a>
-    <button class="sign-out-btn" type="button" data-sign-out>Sign Out</button>
+    <button class="sign-out-btn" type="button" data-sign-out>Log Out</button>
   </div>
 
   <section class="league-panel">

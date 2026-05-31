@@ -63,6 +63,7 @@ main {
 }
 
 .panel {
+  width: 100%;
   background: rgba(46, 16, 102, 0.68);
   border: 2px solid rgba(196, 132, 252, 0.32);
   border-radius: 12px;
@@ -73,6 +74,165 @@ main {
 .round-list {
   display: grid;
   gap: 16px;
+}
+
+.game-history-launch,
+.game-history-panel {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(74, 222, 128, 0.12), transparent 38%),
+    rgba(17, 7, 38, 0.28);
+  border: 1px solid rgba(216, 180, 254, 0.5);
+}
+
+.history-toggle-btn,
+.history-back-btn {
+  min-width: min(260px, 100%);
+  background: linear-gradient(135deg, #4c1d95, #7e22ce);
+  border: 2px solid rgba(216, 180, 254, 0.5);
+  box-shadow: 0 0 18px rgba(124, 58, 237, 0.36);
+}
+
+.game-history-helper {
+  margin: 0;
+  color: #39ff88;
+  font-size: clamp(1rem, 2.7vw, 1.35rem);
+  font-weight: 950;
+  text-align: center;
+  line-height: 1.12;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.86),
+    1px -1px 0 rgba(0,0,0,0.86),
+    -1px 1px 0 rgba(0,0,0,0.86),
+    1px 1px 0 rgba(0,0,0,0.86),
+    0 0 16px rgba(34, 197, 94, 0.82);
+}
+
+.game-history-card-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 12px;
+}
+
+.game-history-card {
+  position: relative;
+  width: min(140px, 100%);
+  aspect-ratio: 0.72;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  padding: 18px 10px 10px;
+  border: 3px solid #6ee7b7;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #052e16 0%, #047857 24%, #10b981 50%, #059669 72%, #a7f3d0 100%);
+  color: #fff;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.06;
+  box-shadow: 0 0 20px rgba(110, 231, 183, 0.54), 0 12px 24px rgba(0,0,0,0.32), inset 0 0 14px rgba(255,255,255,0.14);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9);
+}
+
+.game-history-card.selected {
+  border-color: #fde047;
+  box-shadow: 0 0 24px rgba(253, 224, 71, 0.76), 0 12px 24px rgba(0,0,0,0.32), inset 0 0 14px rgba(255,255,255,0.16);
+}
+
+.history-range-badge {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: rgba(17, 7, 38, 0.76);
+  border: 1px solid rgba(216, 180, 254, 0.34);
+  color: #fde68a;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.game-history-detail {
+  width: 100%;
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(17, 7, 38, 0.28);
+  border: 1px solid rgba(216, 180, 254, 0.28);
+}
+
+.history-result-row {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) 64px repeat(var(--history-week-count), minmax(42px, 54px));
+  gap: 7px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(17, 7, 38, 0.48);
+}
+
+.history-result-head {
+  background: rgba(46, 16, 102, 0.68);
+  color: #ddd6fe;
+  font-size: 12px;
+  font-weight: 950;
+  text-align: center;
+}
+
+.history-player-cell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-player-cell strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.history-avatar {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.82);
+  background: linear-gradient(135deg, #f3e8ff, #a78bfa);
+  color: #2e1065;
+  font-weight: 950;
+}
+
+.history-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.history-final-rank,
+.history-week-rank {
+  color: #fff;
+  text-align: center;
+  font-weight: 950;
+}
+
+.history-final-rank.winner {
+  color: #facc15;
+  text-shadow: 0 0 12px rgba(250, 204, 21, 0.72);
 }
 
 .round-panel {
@@ -399,7 +559,17 @@ footer {
 
 @media (max-width: 760px) {
   main { padding: 22px 10px 34px; }
-  .panel { padding: 14px; }
+  .panel {
+    width: 100%;
+    padding: 12px;
+    margin-inline: auto;
+  }
+  .round-panel,
+  .game-history-launch,
+  .game-history-panel {
+    width: 100%;
+    margin-inline: auto;
+  }
   .active-card-layout {
     grid-template-columns: 1fr;
   }
@@ -446,6 +616,38 @@ footer {
   .toolbar a {
     flex: 1;
     text-align: center;
+  }
+  .game-history-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .game-history-card {
+    width: min(128px, 100%);
+    font-size: 0.78rem;
+  }
+  .game-history-detail {
+    padding: 7px;
+    overflow-x: hidden;
+  }
+  .history-result-row {
+    grid-template-columns: minmax(86px, 1fr) 42px repeat(var(--history-week-count), minmax(24px, 32px));
+    gap: 3px;
+    padding: 6px 4px;
+  }
+  .history-result-head {
+    font-size: 9px;
+  }
+  .history-avatar {
+    width: 26px;
+    height: 26px;
+  }
+  .history-player-cell {
+    gap: 5px;
+  }
+  .history-player-cell strong,
+  .history-final-rank,
+  .history-week-rank {
+    font-size: 10px;
   }
 }
 @media (max-width: 650px) {
@@ -513,5 +715,4 @@ footer {
 <script type="module" src="assets/js/game-card.js?v=20260525-game-card-lights"></script>
 </body>
 </html>
-
 

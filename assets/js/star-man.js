@@ -48,7 +48,10 @@ const state = {
     super_duo: null,
   },
   pendingPlayerPreview: null,
+  historyPage: 0,
 };
+
+const HISTORY_PAGE_SIZE = 6;
 
 const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
 const effectNameOverrides = {
@@ -1168,13 +1171,39 @@ function renderStarManHistory() {
     return;
   }
 
-  historyList.innerHTML = rows.map(({ pick, gameweek, player }) => `
-    <div class="history-row">
-      <strong>GW${escapeHtml(gameweek.gameweek_number)}</strong>
-      <span>${escapeHtml(player.display_name)}</span>
-      <small>${escapeHtml(teamName(player.team_id))}${pick.pick_slot === 'super_duo' ? ' - Super Duo' : ''}</small>
+  const totalPages = Math.max(1, Math.ceil(rows.length / HISTORY_PAGE_SIZE));
+  state.historyPage = Math.min(Math.max(0, state.historyPage), totalPages - 1);
+  const pageRows = rows.slice(state.historyPage * HISTORY_PAGE_SIZE, (state.historyPage + 1) * HISTORY_PAGE_SIZE);
+
+  historyList.innerHTML = `
+    <div class="history-card-grid">
+      ${pageRows.map(({ pick, gameweek, player }) => `
+        <article class="history-star-card">
+          <strong class="history-gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</strong>
+          <span class="history-star-name">${escapeHtml(player.display_name)}</span>
+          ${playerVisualMarkup(player)}
+          <span class="history-star-team">${escapeHtml(teamName(player.team_id))}${pick.pick_slot === 'super_duo' ? ' - Super Duo' : ''}</span>
+        </article>
+      `).join('')}
     </div>
-  `).join('');
+    ${totalPages > 1 ? `
+      <div class="history-pager">
+        <button type="button" data-history-prev ${state.historyPage === 0 ? 'disabled' : ''} aria-label="Previous Star Man history page">&lt;</button>
+        <span>${escapeHtml(state.historyPage + 1)} / ${escapeHtml(totalPages)}</span>
+        <button type="button" data-history-next ${state.historyPage >= totalPages - 1 ? 'disabled' : ''} aria-label="Next Star Man history page">&gt;</button>
+      </div>
+    ` : ''}
+  `;
+
+  historyList.querySelector('[data-history-prev]')?.addEventListener('click', () => {
+    state.historyPage = Math.max(0, state.historyPage - 1);
+    renderStarManHistory();
+  });
+
+  historyList.querySelector('[data-history-next]')?.addEventListener('click', () => {
+    state.historyPage = Math.min(totalPages - 1, state.historyPage + 1);
+    renderStarManHistory();
+  });
 }
 
 async function savePick(slot) {

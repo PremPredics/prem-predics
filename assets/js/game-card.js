@@ -22,6 +22,11 @@ const state = {
   gameweeks: [],
   predictions: new Map(),
   results: new Map(),
+  members: new Map(),
+  roundStandings: new Map(),
+  weekScores: new Map(),
+  historyOpen: false,
+  selectedHistoryRoundId: null,
 };
 
 let countdownTimer = null;
@@ -153,6 +158,35 @@ function roundGameweeks(round) {
     Number(gameweek.gameweek_number) >= startNumber
     && Number(gameweek.gameweek_number) <= endNumber
   ));
+}
+
+function profileForUser(userId) {
+  const profile = state.members.get(String(userId));
+  return profile || { display_name: 'Player', profile_image_url: '' };
+}
+
+function avatarMarkup(profile) {
+  const imageUrl = profile?.profile_image_url || '';
+  const displayName = profile?.display_name || 'Player';
+  if (imageUrl) {
+    return `<span class="history-avatar"><img src="${escapeHtml(imageUrl)}" alt=""></span>`;
+  }
+  return `<span class="history-avatar">${escapeHtml(displayName.trim().charAt(0).toUpperCase() || 'P')}</span>`;
+}
+
+function ordinalRank(value) {
+  const numberValue = Number(value || 0);
+  if (!numberValue) {
+    return '-';
+  }
+  const suffix = numberValue % 10 === 1 && numberValue % 100 !== 11
+    ? 'st'
+    : numberValue % 10 === 2 && numberValue % 100 !== 12
+      ? 'nd'
+      : numberValue % 10 === 3 && numberValue % 100 !== 13
+        ? 'rd'
+        : 'th';
+  return `${numberValue}${suffix}`;
 }
 
 function isCurrentGameweek(gameweek) {
@@ -300,6 +334,80 @@ async function loadPredictionsAndResults() {
   ]));
 }
 
+async function loadHistoryData() {
+  const historyRounds = visibleRoundsForPage().filter((round) => roundStatus(round) === 'history');
+  state.members = new Map();
+  state.roundStandings = new Map();
+  state.weekScores = new Map();
+
+  if (!historyRounds.length) {
+    return;
+  }
+
+  const roundIds = historyRounds.map((round) => round.id);
+
+  const { data: members, error: memberError } = await supabase
+    .from('competition_members')
+    .select('user_id')
+    .eq('competition_id', state.league.id);
+
+  if (memberError) {
+    throw memberError;
+  }
+
+  const memberIds = [...new Set((members || []).map((member) => member.user_id).filter(Boolean))];
+  if (memberIds.length) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, display_name, profile_image_url')
+      .in('id', memberIds);
+
+    (profiles || []).forEach((profile) => {
+      state.members.set(String(profile.id), profile);
+    });
+
+    memberIds.forEach((userId) => {
+      if (!state.members.has(String(userId))) {
+        state.members.set(String(userId), { id: userId, display_name: 'Player', profile_image_url: '' });
+      }
+    });
+  }
+
+  const [{ data: standings, error: standingsError }, { data: scores, error: scoresError }] = await Promise.all([
+    supabase
+      .from('game_card_round_standings')
+      .select('round_id, user_id, round_rank, weekly_wins, total_difference, completed_gameweeks, earns_super_medal')
+      .eq('competition_id', state.league.id)
+      .in('round_id', roundIds),
+    supabase
+      .from('game_card_week_scores')
+      .select('round_id, gameweek_id, gameweek_number, user_id, predicted_value, actual_value, difference, is_weekly_winner')
+      .eq('competition_id', state.league.id)
+      .in('round_id', roundIds),
+  ]);
+
+  if (standingsError) {
+    throw standingsError;
+  }
+  if (scoresError) {
+    throw scoresError;
+  }
+
+  (standings || []).forEach((row) => {
+    const key = String(row.round_id);
+    const rows = state.roundStandings.get(key) || [];
+    rows.push(row);
+    state.roundStandings.set(key, rows);
+  });
+
+  (scores || []).forEach((row) => {
+    const key = String(row.round_id);
+    const rows = state.weekScores.get(key) || [];
+    rows.push(row);
+    state.weekScores.set(key, rows);
+  });
+}
+
 function renderNoRounds() {
   content.innerHTML = `
     <div class="card-copy">
@@ -367,6 +475,116 @@ function renderRound(round) {
   `;
 }
 
+function weeklyRankLookup(round) {
+  const scores = state.weekScores.get(String(round.id)) || [];
+  const byGameweek = new Map();
+  scores.forEach((score) => {
+    const key = String(score.gameweek_id);
+    const rows = byGameweek.get(key) || [];
+    rows.push(score);
+    byGameweek.set(key, rows);
+  });
+
+  const ranks = new Map();
+  byGameweek.forEach((rows, gameweekId) => {
+    rows
+      .sort((a, b) => (
+        Number(a.difference ?? 999999) - Number(b.difference ?? 999999)
+        || Number(a.predicted_value ?? 999999) - Number(b.predicted_value ?? 999999)
+        || String(a.user_id).localeCompare(String(b.user_id))
+      ))
+      .forEach((row, index) => {
+        ranks.set(`${gameweekId}:${row.user_id}`, index + 1);
+      });
+  });
+  return ranks;
+}
+
+function renderHistoryRoundCards(rounds) {
+  return `
+    <div class="game-history-card-grid">
+      ${rounds.map((round) => {
+        const definition = normaliseNested(round.card_definitions);
+        const cardName = definition?.name || 'Game Card';
+        const { startNumber, endNumber } = roundNumbers(round);
+        const selected = String(state.selectedHistoryRoundId || '') === String(round.id);
+        return `
+          <button class="game-history-card ${selected ? 'selected' : ''}" type="button" data-history-card-round="${escapeHtml(round.id)}">
+            <span class="history-range-badge">GW${escapeHtml(startNumber)}-GW${escapeHtml(endNumber)}</span>
+            <span>${escapeHtml(cardName)}</span>
+          </button>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderHistoryDetail(round) {
+  if (!round) {
+    return '';
+  }
+
+  const standings = [...(state.roundStandings.get(String(round.id)) || [])]
+    .sort((a, b) => Number(a.round_rank || 999) - Number(b.round_rank || 999));
+  const gameweeks = roundGameweeks(round);
+  const weeklyRanks = weeklyRankLookup(round);
+
+  if (!standings.length) {
+    return `
+      <div class="game-history-detail">
+        <p class="state-text">Results are not available for this Game Card yet.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
+      <div class="history-result-row history-result-head">
+        <span>Player</span>
+        <span>Final</span>
+        ${gameweeks.map((gameweek) => `<span class="gameweek-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>`).join('')}
+      </div>
+      ${standings.map((row) => {
+        const profile = profileForUser(row.user_id);
+        const rank = Number(row.round_rank || 0);
+        return `
+          <div class="history-result-row">
+            <span class="history-player-cell">
+              ${avatarMarkup(profile)}
+              <strong>${escapeHtml(profile.display_name || 'Player')}</strong>
+            </span>
+            <span class="history-final-rank ${rank === 1 ? 'winner' : ''}">${escapeHtml(ordinalRank(rank))}</span>
+            ${gameweeks.map((gameweek) => {
+              const weeklyRank = weeklyRanks.get(`${gameweek.gameweek_id}:${row.user_id}`);
+              return `<span class="history-week-rank">${weeklyRank ? `#${escapeHtml(weeklyRank)}` : '-'}</span>`;
+            }).join('')}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderHistoryPanel(rounds) {
+  if (!state.historyOpen) {
+    return `
+      <section class="game-history-launch">
+        <button class="history-toggle-btn" type="button" data-open-game-history>View Game Card History</button>
+      </section>
+    `;
+  }
+
+  const selectedRound = rounds.find((round) => String(round.id) === String(state.selectedHistoryRoundId || ''));
+  return `
+    <section class="game-history-panel">
+      <p class="game-history-helper">Click each Game Card to view the results!</p>
+      ${renderHistoryRoundCards(rounds)}
+      ${renderHistoryDetail(selectedRound)}
+      <button class="history-back-btn" type="button" data-close-game-history>Back</button>
+    </section>
+  `;
+}
+
 function renderRounds() {
   if (countdownTimer) {
     window.clearInterval(countdownTimer);
@@ -379,7 +597,20 @@ function renderRounds() {
     return;
   }
 
-  content.innerHTML = `<div class="round-list">${rounds.map(renderRound).join('')}</div>`;
+  const activeRounds = rounds.filter((round) => roundStatus(round) === 'active');
+  const historyRounds = rounds.filter((round) => roundStatus(round) === 'history');
+
+  if (!activeRounds.length && !historyRounds.length) {
+    renderNoRounds();
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="round-list">
+      ${activeRounds.map(renderRound).join('')}
+      ${historyRounds.length ? renderHistoryPanel(historyRounds) : ''}
+    </div>
+  `;
 
   content.querySelectorAll('[data-save-game-card]').forEach((button) => {
     button.addEventListener('click', () => savePrediction(button.closest('[data-gameweek-id]')));
@@ -389,6 +620,25 @@ function renderRounds() {
     button.addEventListener('click', () => {
       const round = state.rounds.find((item) => String(item.id) === String(button.dataset.gameCardPreview));
       openCardModal(normaliseNested(round?.card_definitions));
+    });
+  });
+
+  content.querySelector('[data-open-game-history]')?.addEventListener('click', () => {
+    state.historyOpen = true;
+    state.selectedHistoryRoundId = null;
+    renderRounds();
+  });
+
+  content.querySelector('[data-close-game-history]')?.addEventListener('click', () => {
+    state.historyOpen = false;
+    state.selectedHistoryRoundId = null;
+    renderRounds();
+  });
+
+  content.querySelectorAll('[data-history-card-round]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.selectedHistoryRoundId = button.dataset.historyCardRound;
+      renderRounds();
     });
   });
 
@@ -514,6 +764,7 @@ async function boot() {
 
     await loadRounds();
     await loadPredictionsAndResults();
+    await loadHistoryData();
     renderRounds();
   } catch (error) {
     content.innerHTML = `<p class="state-text">${escapeHtml(error.message || 'Could not load Game Card page.')}</p>`;
