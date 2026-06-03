@@ -128,19 +128,21 @@ function hedgeSlotForIndex(index) {
 async function saveHedgeRowsBeforeAllPredictions() {
   const supabase = getSupabase();
   if (!supabase) {
-    return;
+    return 0;
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
   const user = userData?.user;
   if (userError || !user) {
-    return;
+    return 0;
   }
 
   const hedgeRows = [...document.querySelectorAll('[data-hedge-effect-id]')];
   if (!hedgeRows.length) {
-    return;
+    return 0;
   }
+
+  let savedCount = 0;
 
   for (const [index, row] of hedgeRows.entries()) {
     const effectId = row.dataset.hedgeEffectId;
@@ -232,7 +234,41 @@ async function saveHedgeRowsBeforeAllPredictions() {
     if (saveError) {
       throw new Error(saveError.message || 'Could not save Hedge prediction.');
     }
+
+    savedCount += 1;
   }
+
+  return savedCount;
+}
+
+function waitForPredictionSummaryThenRefresh(savedHedges) {
+  if (!savedHedges) {
+    return;
+  }
+
+  const startedAt = Date.now();
+  const observer = new MutationObserver(() => {
+    const editButton = document.querySelector('[data-edit-predictions]');
+    const message = document.querySelector('[data-prediction-message]');
+    const isSummary = editButton && !editButton.hidden;
+    const saysSaved = (message?.textContent || '').toLowerCase().includes('saved');
+
+    if (isSummary || saysSaved) {
+      observer.disconnect();
+      window.setTimeout(() => window.location.reload(), 350);
+    } else if (Date.now() - startedAt > 7000) {
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    characterData: true,
+  });
+
+  window.setTimeout(() => observer.disconnect(), 7500);
 }
 
 function installSaveAllHedgeHandler() {
@@ -258,10 +294,11 @@ function installSaveAllHedgeHandler() {
     button.disabled = true;
 
     try {
-      setPredictionMessage('Saving predictions...', 'info');
-      await saveHedgeRowsBeforeAllPredictions();
+      setPredictionMessage('Saving predictions and Hedge...', 'info');
+      const savedHedges = await saveHedgeRowsBeforeAllPredictions();
       button.dataset.hedgeSaveBypass = 'true';
       button.disabled = wasDisabled;
+      waitForPredictionSummaryThenRefresh(savedHedges);
       button.click();
     } catch (error) {
       setPredictionMessage(error.message || 'Could not save Hedge prediction.', 'error');
@@ -284,23 +321,30 @@ function injectStarClearStyles() {
       display: none !important;
     }
 
+    [data-pick-slot] {
+      gap: 7px !important;
+      padding-block: 10px !important;
+    }
+
     .star-clear-wrap {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 34px;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) 32px;
+      gap: 7px;
       align-items: center;
     }
 
     .star-clear-wrap > input {
       width: 100%;
       min-width: 0;
+      min-height: 34px !important;
+      padding-block: 6px !important;
     }
 
     .star-clear-button {
-      width: 32px !important;
-      min-width: 32px !important;
-      height: 32px !important;
-      min-height: 32px !important;
+      width: 30px !important;
+      min-width: 30px !important;
+      height: 30px !important;
+      min-height: 30px !important;
       display: inline-grid !important;
       place-items: center !important;
       border: 2px solid rgba(254, 202, 202, 0.9) !important;
@@ -308,16 +352,41 @@ function injectStarClearStyles() {
       padding: 0 !important;
       background: linear-gradient(135deg, #ff3b30, #dc2626 58%, #991b1b) !important;
       color: #fff !important;
-      font-size: 18px !important;
+      font-size: 17px !important;
       font-weight: 950 !important;
       line-height: 1 !important;
-      box-shadow: 0 0 16px rgba(248, 113, 113, 0.66) !important;
+      box-shadow: 0 0 14px rgba(248, 113, 113, 0.56) !important;
       text-shadow: -1px -1px 0 rgba(0,0,0,0.88), 1px -1px 0 rgba(0,0,0,0.88), -1px 1px 0 rgba(0,0,0,0.88), 1px 1px 0 rgba(0,0,0,0.88) !important;
       cursor: pointer !important;
     }
 
     .star-clear-button[hidden] {
       display: none !important;
+    }
+
+    [data-search-results] {
+      min-height: 0 !important;
+      margin-block: 2px !important;
+    }
+
+    [data-search-results] .state-text,
+    [data-message] {
+      min-height: 0 !important;
+      margin: 2px 0 !important;
+      padding: 0 !important;
+      font-size: 0.78rem !important;
+      line-height: 1.12 !important;
+    }
+
+    [data-message]:empty,
+    [data-search-results]:empty {
+      display: none !important;
+    }
+
+    .selected-player-heading {
+      margin-bottom: 3px !important;
+      font-size: 0.8rem !important;
+      line-height: 1.05 !important;
     }
 
     .star-clear-dialog {
@@ -338,8 +407,8 @@ function injectStarClearStyles() {
     .star-clear-panel {
       width: min(430px, 100%);
       display: grid;
-      gap: 18px;
-      padding: 24px;
+      gap: 16px;
+      padding: 22px;
       border-radius: 14px;
       background: linear-gradient(135deg, rgba(46,16,102,0.98), rgba(17,7,38,0.96));
       border: 2px solid rgba(216,180,254,0.42);
@@ -350,18 +419,18 @@ function injectStarClearStyles() {
     .star-clear-panel h2 {
       margin: 0;
       color: #fff;
-      font-size: clamp(1.15rem, 4.8vw, 1.55rem);
+      font-size: clamp(1.05rem, 4.4vw, 1.45rem);
       line-height: 1.18;
     }
 
     .star-clear-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
     }
 
     .star-clear-actions button {
-      min-height: 44px;
+      min-height: 42px;
       border-radius: 10px;
       color: #fff;
       font-weight: 950;
@@ -376,6 +445,20 @@ function injectStarClearStyles() {
     .star-clear-confirm {
       background: linear-gradient(135deg, #ff3b30, #ef4444 42%, #b91c1c);
       border: 2px solid rgba(254, 202, 202, 0.88);
+    }
+
+    @media (max-width: 720px) {
+      [data-pick-slot] {
+        gap: 5px !important;
+        padding-block: 8px !important;
+      }
+
+      [data-search-results] .state-text,
+      [data-message] {
+        font-size: 0.7rem !important;
+        line-height: 1.05 !important;
+        margin: 1px 0 !important;
+      }
     }
   `;
   document.head.appendChild(style);
@@ -436,14 +519,30 @@ function confirmStarClear() {
   });
 }
 
+function compactStarText(value) {
+  const text = String(value || '').trim();
+  const lower = text.toLowerCase();
+  if (lower.includes('save blank to remove') || lower === 'type at least 2 letters.') {
+    return '2+ letters';
+  }
+  if (lower.includes('star man cleared') || lower.includes('super duo cleared')) {
+    return 'Cleared';
+  }
+  if (lower.includes('star man saved') || lower.includes('super duo saved')) {
+    return 'Saved';
+  }
+  return text;
+}
+
 function cleanupStarBlankHelpText() {
   if (currentPageName() !== 'star-man.html') {
     return;
   }
 
-  document.querySelectorAll('.state-text, [data-search-results] p').forEach((node) => {
-    if ((node.textContent || '').toLowerCase().includes('save blank to remove')) {
-      node.textContent = 'Type at least 2 letters.';
+  document.querySelectorAll('.state-text, [data-search-results] p, [data-message]').forEach((node) => {
+    const compact = compactStarText(node.textContent);
+    if (compact !== node.textContent) {
+      node.textContent = compact;
     }
   });
 }
@@ -508,7 +607,7 @@ function installStarManClearControls() {
       window.requestAnimationFrame(refreshStarClearButtons);
     }
   });
-  window.setInterval(refreshStarClearButtons, 1200);
+  window.setInterval(refreshStarClearButtons, 900);
   refreshStarClearButtons();
 }
 
