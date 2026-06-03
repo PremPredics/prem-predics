@@ -15,6 +15,7 @@ const restrictionSummary = document.querySelector('[data-restriction-summary]');
 const leagueBackLink = document.querySelector('[data-league-back]');
 const starBackLink = document.querySelector('[data-star-back]');
 const historyList = document.querySelector('[data-star-man-history]');
+const starPickStatusLight = document.querySelector('[data-star-pick-status]');
 const starCurseModal = document.querySelector('[data-star-curse-modal]');
 const starCursePanel = document.querySelector('.star-curse-panel');
 const starCurseTitle = document.querySelector('[data-star-curse-title]');
@@ -228,8 +229,36 @@ function applySlotSearchState(slot) {
 
 function setMessage(slot, text, type = 'info') {
   const { message } = slotElements(slot);
+  message.classList.remove('saved-flash');
+  message.style.opacity = '';
   message.textContent = text;
   message.dataset.type = type;
+}
+
+function setTemporarySavedMessage(slot, text) {
+  const { message } = slotElements(slot);
+  message.textContent = text;
+  message.dataset.type = 'success';
+  message.classList.add('saved-flash');
+  window.setTimeout(() => {
+    if (message.textContent === text) {
+      message.textContent = '';
+      message.classList.remove('saved-flash');
+      message.style.opacity = '';
+    }
+  }, 3000);
+}
+
+function updateStarPickStatusLight() {
+  if (!starPickStatusLight) {
+    return;
+  }
+
+  const saved = Boolean(state.existingPicks.get('primary'));
+  starPickStatusLight.classList.toggle('saved', saved);
+  const text = saved ? 'Star Man saved' : 'No Star Man saved';
+  starPickStatusLight.setAttribute('aria-label', text);
+  starPickStatusLight.setAttribute('title', text);
 }
 
 function isPast(value) {
@@ -452,6 +481,24 @@ function playedByName(effect) {
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
 }
 
+function playedByMarkup(effect) {
+  const profile = state.effectProfiles.get(effect.played_by_user_id);
+  const name = playedByName(effect);
+  const imageUrl = profile?.profile_image_url?.startsWith('data:image/')
+    ? profile.profile_image_url
+    : '';
+  const fallback = escapeHtml((name || 'P').trim().charAt(0).toUpperCase() || 'P');
+  const avatar = imageUrl
+    ? `<img src="${escapeHtml(imageUrl)}" alt="">`
+    : fallback;
+  return `
+    <span class="star-curse-played-by">
+      <span class="star-curse-played-by-avatar">${avatar}</span>
+      <span>Played by ${escapeHtml(name)}</span>
+    </span>
+  `;
+}
+
 function isEffectForCurrentGameweek(effect) {
   const gameweekId = Number(state.activeGameweek.gameweek_id);
   const directGameweek = !effect.gameweek_id || Number(effect.gameweek_id) === gameweekId;
@@ -515,7 +562,10 @@ function starCardEffects() {
 }
 
 function effectButtonCategory(effect) {
-  return effectCategory(effect) === 'curse' ? 'curse' : 'power';
+  const category = effectCategory(effect);
+  if (category === 'curse') return 'curse';
+  if (category === 'super') return 'super';
+  return 'power';
 }
 
 function activeHeightPowerForPlayer(player) {
@@ -771,7 +821,7 @@ async function loadEffects() {
   if (playedByUserIds.length) {
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, display_name')
+      .select('id, display_name, profile_image_url')
       .in('id', playedByUserIds);
     state.effectProfiles = new Map((profiles || []).map((profile) => [profile.id, profile]));
   }
@@ -890,7 +940,7 @@ function openStarCurseModal(effectId) {
 
   starCurseTitle.textContent = effectName(effect);
   starCurseDescription.textContent = effectDescription(effect);
-  starCursePlayer.textContent = `Played by ${playedByName(effect)}`;
+  starCursePlayer.innerHTML = playedByMarkup(effect);
   starCursePanel?.classList.remove('power-card', 'curse-card', 'super-card');
   starCursePanel?.classList.add(`${effectCategory(effect)}-card`);
   starCurseModal.classList.add('show');
@@ -967,6 +1017,7 @@ async function autoReplaceInvalidPrimaryPick() {
     String(pick.gameweek_id) === String(state.activeGameweek.gameweek_id)
     && invalidSlots.includes(pick.pick_slot)
   ));
+  updateStarPickStatusLight();
 }
 
 function setResultsMessage(results, message) {
@@ -1044,7 +1095,7 @@ function openPlayerPreview(slot, playerId) {
   document.body.classList.add('card-modal-open');
 }
 
-function confirmPlayerPreview() {
+async function confirmPlayerPreview() {
   const preview = state.pendingPlayerPreview;
   if (!preview) {
     closePlayerPreview();
@@ -1054,6 +1105,9 @@ function confirmPlayerPreview() {
   const player = state.players.find((item) => String(item.id) === String(preview.playerId));
   if (player) {
     selectPlayer(preview.slot, player);
+    closePlayerPreview();
+    await savePick(preview.slot);
+    return;
   }
   closePlayerPreview();
 }
@@ -1265,7 +1319,8 @@ async function savePick(slot) {
   updateSaveButton(slot);
   renderSelectedPlayer(slot, player, { saved: true });
   renderStarManHistory();
-  setMessage(slot, slot === 'super_duo' ? 'Super Duo saved.' : 'Star Man saved.', 'success');
+  updateStarPickStatusLight();
+  setTemporarySavedMessage(slot, slot === 'super_duo' ? 'Super Duo Saved.' : 'Star Man Saved.');
 }
 
 async function clearPick(slot) {
@@ -1294,6 +1349,7 @@ async function clearPick(slot) {
 
   const { button, results } = slotElements(slot);
   renderSelectedPlayer(slot, null);
+  updateStarPickStatusLight();
   renderStarManHistory();
   renderSearch(slot);
   if (slot === 'primary') {
@@ -1359,6 +1415,7 @@ async function boot() {
 
     gameweekSummary.textContent = `Gameweek ${state.activeGameweek.gameweek_number} - Star Man Pick locks ${formatDateTime(state.activeGameweek.star_man_locks_at)}`;
     renderRestrictionSummary();
+    updateStarPickStatusLight();
 
     const superDuoSection = slotElements('super_duo').section;
     superDuoSection.hidden = !ownEffect('super_duo');

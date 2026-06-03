@@ -152,6 +152,22 @@ function playedByName(effect) {
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
 }
 
+function playedByMarkup(effect) {
+  const profile = state.effectProfiles.get(effect.played_by_user_id);
+  const name = playedByName(effect);
+  const imageUrl = profile?.profile_image_url?.startsWith('data:image/')
+    ? profile.profile_image_url
+    : '';
+  const fallback = escapeHtml((name || 'P').trim().charAt(0).toUpperCase() || 'P');
+  const avatar = imageUrl
+    ? `<img src="${escapeHtml(imageUrl)}" alt="">`
+    : fallback;
+  return `
+    <span class="played-by-avatar">${avatar}</span>
+    <span>Played by ${escapeHtml(name)}</span>
+  `;
+}
+
 function isPredictionCurse(effect) {
   return predictionCurseKeys.has(effectKey(effect));
 }
@@ -161,6 +177,14 @@ function isPredictionPower(effect) {
 }
 
 function effectCategory(effect) {
+  const definition = effectDefinition(effect) || {};
+  if (definition.category) {
+    return definition.category;
+  }
+  const key = String(definition.effect_key || '');
+  if (key.startsWith('super_')) {
+    return 'super';
+  }
   return isPredictionCurse(effect) ? 'curse' : 'power';
 }
 
@@ -297,7 +321,8 @@ function renderPowerMarker(fixture) {
   }
 
   const label = powers.length === 1 ? 'View active power' : `View ${powers.length} active powers`;
-  return `<button class="power-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="power" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>&#9994;</span></button>`;
+  const markerClass = powers.some((effect) => effectCategory(effect) === 'super') ? 'super-marker' : 'power-marker';
+  return `<button class="${markerClass}" type="button" data-card-fixture="${fixture.id}" data-card-kind="power" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>&#9994;</span></button>`;
 }
 
 function revealedCurseOverride(fixture) {
@@ -538,7 +563,7 @@ async function loadActivePredictionEffects() {
   if (playedByUserIds.length) {
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, display_name')
+      .select('id, display_name, profile_image_url')
       .in('id', playedByUserIds);
     state.effectProfiles = new Map((profiles || []).map((profile) => [profile.id, profile]));
   }
@@ -691,7 +716,8 @@ function renderPowerEffectMarker(effect) {
     return '';
   }
 
-  return `<button class="power-marker" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="View ${escapeHtml(effectName(effect))}"><span>&#9994;</span></button>`;
+  const markerClass = effectCategory(effect) === 'super' ? 'super-marker' : 'power-marker';
+  return `<button class="${markerClass}" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="View ${escapeHtml(effectName(effect))}"><span>&#9994;</span></button>`;
 }
 
 function renderHedgeRows(mode = 'edit') {
@@ -906,8 +932,8 @@ function curseCardDetailMarkup(effect) {
   const category = effectCategory(effect);
   return `
     <div class="curse-card-wrap">
-      <div class="curse-card-played-by">Played by ${escapeHtml(playedByName(effect))}</div>
-      <article class="curse-detail-card ${category === 'power' ? 'power-detail-card' : ''}">
+      <div class="curse-card-played-by">${playedByMarkup(effect)}</div>
+      <article class="curse-detail-card ${category === 'power' ? 'power-detail-card' : ''} ${category === 'super' ? 'super-detail-card' : ''}">
         <strong>${escapeHtml(effectName(effect))}</strong>
         <p>${escapeHtml(effectDescription(effect))}</p>
       </article>
@@ -1028,10 +1054,11 @@ function renderTargetRestrictionPanel() {
       <div class="prediction-restriction-cards" aria-label="Active prediction cards">
         ${visibleEffects.map((effect) => {
           const category = effectCategory(effect);
-          const icon = category === 'power' ? '&#9994;' : '&#9760;';
+          const icon = category === 'curse' ? '&#9760;' : '&#9994;';
+          const cardClass = category === 'curse' ? 'curse-restriction-card' : category === 'super' ? 'super-restriction-card' : 'power-restriction-card';
           return `
           <div class="prediction-restriction-card-wrap">
-            <button class="prediction-restriction-card ${category === 'power' ? 'power-restriction-card' : 'curse-restriction-card'}" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}">
+            <button class="prediction-restriction-card ${cardClass}" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}">
               <span class="prediction-restriction-card-icon" aria-hidden="true">${icon}</span>
               <span class="prediction-restriction-card-name">${escapeHtml(effectName(effect))}</span>
             </button>

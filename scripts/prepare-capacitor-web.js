@@ -1,4 +1,4 @@
-import { cp, mkdir, rm } from 'node:fs/promises';
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
@@ -43,6 +43,22 @@ for (const item of itemsToCopy) {
   }
 
   await cp(source, target, { recursive: true });
+}
+
+const capacitorScript = '<script type="module" src="assets/js/capacitor-app.js"></script>';
+
+for (const item of itemsToCopy.filter((name) => name.endsWith('.html'))) {
+  const target = path.join(distDir, item);
+  if (!existsSync(target)) {
+    continue;
+  }
+
+  const html = await readFile(target, 'utf8');
+  if (html.includes('assets/js/capacitor-app.js') || !html.includes('</body>')) {
+    continue;
+  }
+
+  await writeFile(target, html.replace('</body>', `${capacitorScript}\n</body>`));
 }
 
 console.log('Prepared static web files for Capacitor in dist/.');

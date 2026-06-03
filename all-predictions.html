@@ -248,6 +248,18 @@ main {
   opacity: 0.76;
 }
 
+.prediction-row.unused-hedged {
+  opacity: 0.48;
+  filter: grayscale(0.35);
+}
+
+.prediction-row.hedge-row {
+  border-color: rgba(125, 211, 252, 0.48);
+  background:
+    linear-gradient(90deg, rgba(7, 89, 133, 0.22), rgba(17, 7, 38, 0.5) 34%),
+    rgba(17, 7, 38, 0.48);
+}
+
 .prediction-row.unlocked strong {
   color: #ddd6fe;
   letter-spacing: 0;
@@ -360,7 +372,8 @@ main {
     1px 1px 0 rgba(0,0,0,0.92);
   box-shadow: 0 0 12px rgba(255, 31, 31, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
 }
-.power-marker {
+.power-marker,
+.super-marker {
   width: 25px;
   height: 25px;
   display: inline-flex;
@@ -383,14 +396,24 @@ main {
     1px 1px 0 rgba(0,0,0,0.92);
   box-shadow: 0 0 12px rgba(14, 165, 233, 0.64), inset 0 0 6px rgba(255,255,255,0.24);
 }
-.power-marker span {
+.power-marker span,
+.super-marker span {
   display: block;
   line-height: 1;
   transform: translateY(-0.5px);
 }
+.super-marker {
+  border-color: rgba(254, 243, 199, 0.95);
+  background: radial-gradient(circle at 34% 22%, #fff7ad 0%, #facc15 40%, #b45309 100%);
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.72), inset 0 0 7px rgba(255,255,255,0.24);
+}
 .power-marker:hover {
   transform: translateY(-1px) scale(1.05);
   box-shadow: 0 0 16px rgba(14, 165, 233, 0.82), inset 0 0 7px rgba(255,255,255,0.28);
+}
+.super-marker:hover {
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.84), inset 0 0 7px rgba(255,255,255,0.28);
 }
 .curse-marker span {
   display: grid;
@@ -407,6 +430,18 @@ main {
   color: #fde68a;
   font-size: 11px;
   font-weight: 950;
+}
+.gw-stack {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+.hedge-badge {
+  color: #7dd3fc;
+  font-size: 9px;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(125, 211, 252, 0.62);
 }
 .state-text {
   margin: 0;
@@ -490,6 +525,10 @@ main {
   display: block;
 }
 .curse-card-played-by {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   color: #fff;
   font-weight: 950;
   text-shadow:
@@ -498,6 +537,26 @@ main {
     -1px 1px 0 rgba(0,0,0,0.95),
     1px 1px 0 rgba(0,0,0,0.95),
     0 0 12px rgba(251, 113, 133, 0.7);
+}
+.played-by-avatar {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 2px solid rgba(255,255,255,0.92);
+  border-radius: 999px;
+  background: rgba(17, 7, 38, 0.64);
+  color: #fff;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 0 12px rgba(255,255,255,0.34);
+}
+.played-by-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .curse-detail-card {
   width: 220px;
@@ -525,6 +584,11 @@ main {
   border-color: #7dd3fc;
   background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 24%, #38bdf8 50%, #0ea5e9 72%, #bae6fd 100%);
   box-shadow: 0 0 30px rgba(56, 189, 248, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.18);
+}
+.curse-detail-card.super-detail-card {
+  border-color: #facc15;
+  background: linear-gradient(135deg, #78350f 0%, #b45309 24%, #f59e0b 50%, #facc15 72%, #fff7ad 100%);
+  box-shadow: 0 0 30px rgba(250, 204, 21, 0.7), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.2);
 }
 .curse-detail-card::after {
   content: '';
@@ -566,7 +630,9 @@ main {
   line-height: 1.35;
   overflow-y: auto;
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
 }
 .curse-close {
   justify-self: center;
@@ -761,7 +827,7 @@ footer {
   }
 
   .curse-card-wrap {
-    flex: 0 1 clamp(92px, 28vw, 112px);
+    flex: 0 0 clamp(142px, 44vw, 176px);
     gap: 6px;
   }
   .curse-card-list.audit-trail .curse-card-wrap {
@@ -771,12 +837,12 @@ footer {
   }
 
   .curse-detail-card {
-    width: clamp(92px, 28vw, 112px);
-    height: clamp(136px, 40vw, 164px);
-    min-height: clamp(136px, 40vw, 164px);
+    width: clamp(142px, 44vw, 176px);
+    height: clamp(214px, 62vw, 260px);
+    min-height: clamp(214px, 62vw, 260px);
     border-width: 2px;
     border-radius: 12px;
-    padding: 8px 6px;
+    padding: 11px 8px;
   }
   .curse-card-list.audit-trail .curse-detail-card {
     width: 100%;
@@ -786,9 +852,9 @@ footer {
   }
 
   .curse-card-played-by {
-    max-width: 112px;
-    font-size: 8px;
-    line-height: 1.04;
+    max-width: 176px;
+    font-size: 10px;
+    line-height: 1.08;
   }
   .curse-card-list.audit-trail .curse-card-played-by {
     max-width: 158px;
@@ -805,14 +871,14 @@ footer {
   }
 
   .curse-detail-card strong {
-    font-size: 0.62rem;
-    line-height: 1.04;
+    font-size: 0.82rem;
+    line-height: 1.1;
     padding-bottom: 4px;
   }
 
   .curse-detail-card p {
-    font-size: 0.43rem;
-    line-height: 1.1;
+    font-size: 0.58rem;
+    line-height: 1.18;
   }
   .curse-card-list.audit-trail .curse-detail-card strong {
     font-size: 0.74rem;
@@ -855,6 +921,7 @@ footer {
       <span class="key-uc"><span class="uc-point-badge" aria-hidden="true"></span> = UC Point</span>
       <span class="key-curse"><span class="curse-marker" aria-hidden="true"><span>&#9760;</span></span> = Curse</span>
       <span class="key-power"><span class="power-marker" aria-hidden="true"><span>&#9994;</span></span> = Power</span>
+      <span class="key-super"><span class="super-marker" aria-hidden="true"><span>&#9994;</span></span> = Super</span>
     </div>
     <div class="gameweek-controls">
       <button type="button" data-previous-gameweek>Previous GW</button>

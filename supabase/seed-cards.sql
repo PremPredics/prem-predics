@@ -67,7 +67,7 @@ select
   player_count || ' Player Deck',
   player_count,
   player_count,
-  'Exact ' || player_count || '-player deck. Regular deck uses 26 cards per player, scaled from the original 52-card 2-player deck.',
+  'Exact ' || player_count || '-player deck. Regular deck uses 28 cards per player, keeping the Power and Curse mix balanced.',
   true
 from generate_series(2, 10) as counts(player_count)
 on conflict (id) do update
@@ -128,8 +128,8 @@ regular_scaled as (
     (bq.base_quantity * mc.player_count / 2.0) as raw_quantity,
     floor(bq.base_quantity * mc.player_count / 2.0)::integer as floor_quantity,
     case bq.category
-      when 'power' then 15 * mc.player_count
-      else 11 * mc.player_count
+      when 'power' then 16 * mc.player_count
+      else 12 * mc.player_count
     end as target_category_total
   from member_counts mc
   cross join base_quantities bq

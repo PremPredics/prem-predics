@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@capacitor/android": "latest",
+    "@capacitor/app": "^8.1.0",
     "@capacitor/core": "latest"
   },
   "devDependencies": {

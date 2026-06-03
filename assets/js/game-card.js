@@ -70,6 +70,32 @@ function cardInstruction(cardName) {
   return instructions[cardName] || 'Submit the numeric prediction for this Game Card.';
 }
 
+const GAME_CARD_LIMITS = {
+  'Game of Goals': { min: 0, max: 150 },
+  'Game of Corners': { min: 0, max: 300 },
+  'Game of The Underdog': { min: 0, max: 10 },
+  'Game of The Goalhanger': { min: 0, max: 99 },
+  'Game of War': { min: 0, max: 99 },
+  'Game of The Early Worm': { min: 1, max: 90 },
+  'Game of Time': { min: 0, max: 99 },
+};
+
+function cardLimits(definition) {
+  const name = normaliseNested(definition)?.name || definition?.name || '';
+  return GAME_CARD_LIMITS[name] || { min: 0, max: 999 };
+}
+
+function cleanGameCardInput(input, limits) {
+  const digits = String(input.value || '').replace(/\D/g, '');
+  if (!digits) {
+    input.value = '';
+    return;
+  }
+
+  const value = Math.min(Number(digits), limits.max);
+  input.value = String(value);
+}
+
 function hasEncodingArtifacts(value) {
   return /[\u00f0\u0178\u00e2\ufffd]/.test(String(value || ''));
 }
@@ -418,6 +444,7 @@ function renderNoRounds() {
 }
 
 function renderRows(round) {
+  const limits = cardLimits(round.card_definitions);
   const isActiveRound = roundStatus(round) === 'active';
   const rows = roundGameweeks(round).map((gameweek) => {
     const prediction = state.predictions.get(predictionKey(round.id, gameweek.gameweek_id));
@@ -438,7 +465,7 @@ function renderRows(round) {
         </span>
         <span class="result-value ${result ? '' : 'pending'}">${escapeHtml(resultText)}</span>
         ${isActiveRound ? `
-          <input class="prediction-input" data-prediction-input type="number" inputmode="numeric" min="0" max="999" step="1" value="${escapeHtml(inputValue)}" ${editable ? '' : 'disabled'} aria-label="Game Card prediction for Gameweek ${gameweek.gameweek_number}">
+          <input class="prediction-input" data-prediction-input type="text" inputmode="numeric" pattern="[0-9]*" min="${limits.min}" max="${limits.max}" step="1" value="${escapeHtml(inputValue)}" ${editable ? '' : 'disabled'} aria-label="Game Card prediction for Gameweek ${gameweek.gameweek_number}">
         ` : `
           <span class="prediction-value">${inputValue !== '' ? escapeHtml(inputValue) : 'No pick'}</span>
         `}
@@ -487,15 +514,28 @@ function weeklyRankLookup(round) {
 
   const ranks = new Map();
   byGameweek.forEach((rows, gameweekId) => {
-    rows
-      .sort((a, b) => (
-        Number(a.difference ?? 999999) - Number(b.difference ?? 999999)
-        || Number(a.predicted_value ?? 999999) - Number(b.predicted_value ?? 999999)
-        || String(a.user_id).localeCompare(String(b.user_id))
-      ))
-      .forEach((row, index) => {
-        ranks.set(`${gameweekId}:${row.user_id}`, index + 1);
+    if (rows.every((row) => row.weekly_rank !== null && row.weekly_rank !== undefined)) {
+      rows.forEach((row) => {
+        ranks.set(`${gameweekId}:${row.user_id}`, Number(row.weekly_rank));
       });
+      return;
+    }
+
+    const sorted = rows.sort((a, b) => (
+      Number(a.difference ?? 999999) - Number(b.difference ?? 999999)
+      || Number(a.predicted_value ?? 999999) - Number(b.predicted_value ?? 999999)
+      || String(a.user_id).localeCompare(String(b.user_id))
+    ));
+    let previousDifference = null;
+    let currentRank = 0;
+    sorted.forEach((row, index) => {
+      const difference = Number(row.difference ?? 999999);
+      if (previousDifference === null || difference !== previousDifference) {
+        currentRank = index + 1;
+        previousDifference = difference;
+      }
+      ranks.set(`${gameweekId}:${row.user_id}`, currentRank);
+    });
   });
   return ranks;
 }
@@ -616,6 +656,13 @@ function renderRounds() {
     button.addEventListener('click', () => savePrediction(button.closest('[data-gameweek-id]')));
   });
 
+  content.querySelectorAll('[data-prediction-input]').forEach((input) => {
+    const row = input.closest('[data-round-id]');
+    const round = state.rounds.find((item) => String(item.id) === String(row?.dataset.roundId));
+    const limits = cardLimits(round?.card_definitions);
+    input.addEventListener('input', () => cleanGameCardInput(input, limits));
+  });
+
   content.querySelectorAll('[data-game-card-preview]').forEach((button) => {
     button.addEventListener('click', () => {
       const round = state.rounds.find((item) => String(item.id) === String(button.dataset.gameCardPreview));
@@ -685,9 +732,16 @@ async function savePrediction(row) {
     return;
   }
 
+  const roundDefinition = normaliseNested(round.card_definitions);
+  const limits = cardLimits(roundDefinition);
+  if (!/^\d+$/.test(rawValue)) {
+    setMessage('Enter a whole number.', 'error');
+    return;
+  }
+
   const value = Number(rawValue);
-  if (Number.isNaN(value) || value < 0 || value > 999) {
-    setMessage('Enter a number between 0 and 999.', 'error');
+  if (!Number.isInteger(value) || value < limits.min || value > limits.max) {
+    setMessage(`Enter a whole number between ${limits.min} and ${limits.max}.`, 'error');
     return;
   }
 

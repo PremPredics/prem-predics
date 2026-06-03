@@ -244,6 +244,14 @@ main {
   box-shadow: 0 0 18px rgba(14, 165, 233, 0.42), 0 12px 22px rgba(17, 7, 38, 0.34);
 }
 
+.prediction-restriction-card.super-restriction-card {
+  border-color: rgba(254, 243, 199, 0.95);
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255,255,255,0.28), transparent 24%),
+    linear-gradient(135deg, #78350f 0%, #d97706 34%, #facc15 70%, #fff7ad 100%);
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.48), 0 12px 22px rgba(17, 7, 38, 0.34);
+}
+
 .prediction-restriction-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 24px rgba(255, 47, 47, 0.58), 0 14px 26px rgba(17, 7, 38, 0.42);
@@ -264,6 +272,11 @@ main {
 .power-restriction-card .prediction-restriction-card-icon {
   background: rgba(7, 89, 133, 0.72);
   border-color: rgba(191, 219, 254, 0.78);
+}
+
+.super-restriction-card .prediction-restriction-card-icon {
+  background: rgba(180, 83, 9, 0.74);
+  border-color: rgba(254, 243, 199, 0.86);
 }
 
 .prediction-restriction-card-name {
@@ -333,6 +346,7 @@ main {
   align-items: center;
   justify-self: stretch;
   min-width: 0;
+  overflow: hidden;
 }
 
 .fixture-row::before {
@@ -370,6 +384,7 @@ main {
 }
 
 .hedge-flags {
+  flex-direction: column;
   gap: 5px;
 }
 
@@ -442,7 +457,8 @@ main {
   box-shadow: 0 0 14px rgba(239, 68, 68, 0.66), 0 0 26px rgba(249, 115, 22, 0.28);
 }
 
-.power-marker {
+.power-marker,
+.super-marker {
   width: 26px;
   height: 26px;
   min-width: 26px;
@@ -467,7 +483,19 @@ main {
   box-shadow: 0 0 14px rgba(14, 165, 233, 0.66), 0 0 26px rgba(125, 211, 252, 0.28);
 }
 
+.super-marker {
+  border-color: rgba(254, 243, 199, 0.95);
+  background:
+    radial-gradient(circle at 42% 25%, rgba(254, 243, 199, 0.78), transparent 24%),
+    linear-gradient(135deg, #78350f, #d97706 50%, #facc15);
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.72), 0 0 26px rgba(251, 191, 36, 0.32);
+}
+
 .power-marker:hover {
+  transform: translateY(-1px) scale(1.06);
+}
+
+.super-marker:hover {
   transform: translateY(-1px) scale(1.06);
 }
 
@@ -580,6 +608,25 @@ main {
   font-weight: 900;
 }
 
+html.capacitor-android .fixture-main {
+  grid-template-columns: minmax(0, 1fr) 38px 12px 38px minmax(0, 1fr);
+  gap: 4px;
+}
+
+html.capacitor-android .fixture-team {
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.06;
+  overflow-wrap: break-word;
+  font-size: clamp(10px, 3vw, 13px);
+}
+
+html.capacitor-android .score-input {
+  width: 38px;
+  height: 28px;
+  font-size: 14px;
+}
+
 .fixture-lock {
   text-align: right;
 }
@@ -606,6 +653,11 @@ main {
   justify-content: center;
   gap: 10px;
   margin-top: 10px;
+}
+
+.actions button[data-save-all] {
+  background: linear-gradient(135deg, #075985, #0284c7 62%, #7dd3fc);
+  box-shadow: 0 0 14px rgba(14, 165, 233, 0.36);
 }
 
 button {
@@ -775,6 +827,10 @@ button:disabled {
 }
 
 .curse-card-played-by {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   color: #fff;
   font-weight: 950;
   text-shadow:
@@ -783,6 +839,28 @@ button:disabled {
     -1px 1px 0 rgba(0,0,0,0.95),
     1px 1px 0 rgba(0,0,0,0.95),
     0 0 12px rgba(251, 113, 133, 0.7);
+}
+
+.played-by-avatar {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 2px solid rgba(255,255,255,0.92);
+  border-radius: 999px;
+  background: rgba(17, 7, 38, 0.64);
+  color: #fff;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 0 12px rgba(255,255,255,0.34);
+}
+
+.played-by-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .curse-detail-card {
@@ -813,6 +891,12 @@ button:disabled {
   border-color: #7dd3fc;
   background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 24%, #38bdf8 50%, #0ea5e9 72%, #bae6fd 100%);
   box-shadow: 0 0 30px rgba(56, 189, 248, 0.68), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.18);
+}
+
+.curse-detail-card.super-detail-card {
+  border-color: #facc15;
+  background: linear-gradient(135deg, #78350f 0%, #b45309 24%, #f59e0b 50%, #facc15 72%, #fff7ad 100%);
+  box-shadow: 0 0 30px rgba(250, 204, 21, 0.7), 0 20px 60px rgba(0,0,0,0.8), inset 0 0 22px rgba(255,255,255,0.2);
 }
 
 .curse-detail-card::after {
@@ -859,7 +943,9 @@ button:disabled {
   line-height: 1.35;
   overflow-y: auto;
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
 }
 
 .curse-close {
@@ -1000,8 +1086,9 @@ footer {
   }
 
   .fixture-main {
-    grid-template-columns: minmax(62px, 1fr) 34px 10px 34px minmax(62px, 1fr);
+    grid-template-columns: minmax(0, 1fr) 34px 10px 34px minmax(0, 1fr);
     gap: 4px;
+    overflow: hidden;
   }
 
   .hedge-fixture-row {
@@ -1109,11 +1196,13 @@ footer {
   }
 
   .fixture-team {
-    font-size: 11.5px;
-    overflow: visible;
-    text-overflow: clip;
+    max-width: 100%;
+    font-size: 10.8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: normal;
     line-height: 1.05;
+    overflow-wrap: anywhere;
   }
 
   .fixture-team.home,
@@ -1171,35 +1260,37 @@ footer {
   }
 
   .curse-card-list {
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
     align-content: center;
-    flex-wrap: wrap;
-    gap: 9px;
-    overflow-x: hidden;
-    overflow-y: auto;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
     max-width: min(100%, 560px);
-    padding-bottom: 8px;
+    padding: 2px 6px 10px;
+    scroll-snap-type: x proximity;
   }
 
   .curse-card-wrap {
-    flex: 0 1 clamp(92px, 28vw, 112px);
+    flex: 0 0 clamp(142px, 44vw, 176px);
     gap: 6px;
+    scroll-snap-align: center;
   }
 
   .curse-detail-card {
-    width: clamp(92px, 28vw, 112px);
-    height: clamp(136px, 40vw, 164px);
-    min-height: clamp(136px, 40vw, 164px);
+    width: clamp(142px, 44vw, 176px);
+    height: clamp(214px, 62vw, 260px);
+    min-height: clamp(214px, 62vw, 260px);
     border-width: 2px;
     border-radius: 12px;
-    padding: 8px 6px;
+    padding: 11px 8px;
   }
 
   .curse-card-played-by {
-    max-width: 112px;
-    font-size: 8px;
-    line-height: 1.04;
+    max-width: 176px;
+    font-size: 10px;
+    line-height: 1.08;
   }
 
   .curse-audit-separator {
@@ -1212,14 +1303,14 @@ footer {
   }
 
   .curse-detail-card strong {
-    font-size: 0.62rem;
-    line-height: 1.04;
+    font-size: 0.82rem;
+    line-height: 1.1;
     padding-bottom: 4px;
   }
 
   .curse-detail-card p {
-    font-size: 0.43rem;
-    line-height: 1.1;
+    font-size: 0.58rem;
+    line-height: 1.18;
   }
 
   .curse-close {

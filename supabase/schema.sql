@@ -682,7 +682,7 @@ select
   player_count || ' Player Deck',
   player_count,
   player_count,
-  'Exact ' || player_count || '-player deck. Regular deck uses 26 cards per player, scaled from the original 52-card 2-player deck.'
+  'Exact ' || player_count || '-player deck. Regular deck uses 28 cards per player, keeping the Power and Curse mix balanced.'
 from generate_series(2, 10) as counts(player_count)
 on conflict (id) do nothing;
 
@@ -2430,16 +2430,44 @@ with scored as (
     and gcar.gameweek_id = gcp.gameweek_id
     and gcar.card_id = gcr.card_id
   where coalesce(gcrs.actual_value, gcar.actual_value) is not null
+),
+ranked as (
+  select
+    scored.*,
+    rank() over (
+      partition by round_id, gameweek_id
+      order by difference asc
+    ) as weekly_rank
+  from scored
 )
 select
-  scored.*,
-  scored.difference = min(scored.difference) over (partition by round_id, gameweek_id) as is_weekly_winner
-from scored;
+  ranked.round_id,
+  ranked.competition_id,
+  ranked.season_id,
+  ranked.card_id,
+  ranked.round_number,
+  ranked.gameweek_id,
+  ranked.gameweek_number,
+  ranked.user_id,
+  ranked.predicted_value,
+  ranked.actual_value,
+  ranked.difference,
+  ranked.weekly_rank = 1 as is_weekly_winner
+from ranked;
 
 create or replace view public.game_card_round_standings
 with (security_invoker = true)
 as
-with standings as (
+with scored_with_ranks as (
+  select
+    gcs.*,
+    rank() over (
+      partition by gcs.round_id, gcs.gameweek_id
+      order by gcs.difference asc
+    ) as weekly_rank
+  from public.game_card_week_scores gcs
+),
+standings as (
   select
     round_id,
     competition_id,
@@ -2449,20 +2477,30 @@ with standings as (
     user_id,
     count(distinct gameweek_id) as completed_gameweeks,
     count(*) filter (where is_weekly_winner) as weekly_wins,
-    sum(difference) as total_difference
-  from public.game_card_week_scores
+    sum(difference) as total_difference,
+    sum(weekly_rank) as rank_points
+  from scored_with_ranks
   group by round_id, competition_id, season_id, card_id, round_number, user_id
 ),
 ranked as (
   select
-    standings.*,
+    standings.round_id,
+    standings.competition_id,
+    standings.season_id,
+    standings.card_id,
+    standings.round_number,
+    standings.user_id,
+    standings.completed_gameweeks,
+    standings.weekly_wins,
+    standings.total_difference,
     coalesce(gcrt.uc_points_at_tiebreak, 0) as uc_points_at_tiebreak,
     coalesce(gcrt.random_tiebreak_rank, 999999) as random_tiebreak_rank,
     row_number() over (
       partition by standings.round_id
       order by
+        standings.rank_points asc,
         standings.total_difference asc,
-        coalesce(gcrt.uc_points_at_tiebreak, 0) asc,
+        coalesce(gcrt.uc_points_at_tiebreak, 0) desc,
         coalesce(gcrt.random_tiebreak_rank, 999999) asc,
         standings.user_id asc
     ) as round_rank

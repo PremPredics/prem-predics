@@ -32,6 +32,8 @@ const predictionCurseKeys = new Set([
 
 const predictionPowerKeys = new Set([
   'power_pessimist',
+  'power_hedge',
+  'power_snow',
 ]);
 
 const effectNameOverrides = {
@@ -56,6 +58,7 @@ const state = {
   members: [],
   effectProfiles: new Map(),
   visibleEffectsByFixture: new Map(),
+  fixtureGameStats: new Map(),
   selectedGameweekIndex: 0,
   selectedUserId: null,
 };
@@ -94,6 +97,22 @@ function playedByName(effect) {
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
 }
 
+function playedByMarkup(effect) {
+  const profile = state.effectProfiles.get(effect.played_by_user_id);
+  const name = playedByName(effect);
+  const imageUrl = profile?.profile_image_url?.startsWith('data:image/')
+    ? profile.profile_image_url
+    : '';
+  const fallback = escapeHtml((name || 'P').trim().charAt(0).toUpperCase() || 'P');
+  const avatar = imageUrl
+    ? `<img src="${escapeHtml(imageUrl)}" alt="">`
+    : fallback;
+  return `
+    <span class="played-by-avatar">${avatar}</span>
+    <span>Played by ${escapeHtml(name)}</span>
+  `;
+}
+
 function isPredictionCurse(effect) {
   return predictionCurseKeys.has(effectKey(effect));
 }
@@ -103,6 +122,11 @@ function isPredictionPower(effect) {
 }
 
 function effectCategory(effect) {
+  const definition = effectDefinition(effect);
+  const key = effectKey(effect);
+  if (definition.category === 'super' || key.startsWith('super_')) {
+    return 'super';
+  }
   return isPredictionCurse(effect) ? 'curse' : 'power';
 }
 
@@ -164,22 +188,28 @@ function renderPlayers() {
 
 async function loadPredictions(gameweek, fixtures) {
   if (!fixtures.length) {
-    return new Map();
+    return { primary: new Map(), hedges: [] };
   }
 
   const { data, error } = await supabase
     .from('predictions')
-    .select('fixture_id, home_goals, away_goals, prediction_slot')
+    .select('fixture_id, home_goals, away_goals, prediction_slot, source_card_effect_id, updated_at')
     .eq('competition_id', state.league.id)
     .eq('user_id', state.selectedUserId)
-    .eq('prediction_slot', 'primary')
     .in('fixture_id', fixtures.map((fixture) => fixture.id));
 
   if (error) {
     throw error;
   }
 
-  return new Map((data || []).map((prediction) => [prediction.fixture_id, prediction]));
+  return {
+    primary: new Map((data || [])
+      .filter((prediction) => prediction.prediction_slot === 'primary')
+      .map((prediction) => [prediction.fixture_id, prediction])),
+    hedges: (data || []).filter((prediction) => (
+      prediction.prediction_slot === 'hedge' || /^hedge_\d+$/.test(String(prediction.prediction_slot || ''))
+    )),
+  };
 }
 
 async function loadResults(fixtures) {
@@ -284,7 +314,7 @@ async function loadPredictionEffects(gameweek) {
   if (playedByUserIds.length) {
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
-      .select('id, display_name')
+      .select('id, display_name, profile_image_url')
       .in('id', playedByUserIds);
 
     if (profilesError) {
@@ -353,11 +383,39 @@ function buildLatestCurseOverrideMap(rows, effects) {
   return overrides;
 }
 
-function predictionPowersForFixture(fixture, effects) {
+function predictionPowersForFixture(fixture, effects, context = {}) {
+  const fixtureStats = state.fixtureGameStats.get(String(fixture.id));
   return effects
     .filter(isPredictionPower)
-    .filter((effect) => !effect.fixture_id || sameId(effect.fixture_id, fixture.id))
+    .filter((effect) => {
+      const key = effectKey(effect);
+      if (key === 'power_pessimist') {
+        return Boolean(context.showPessimist);
+      }
+      if (key === 'power_snow') {
+        return Boolean(fixtureStats?.played_in_heavy_snow) && Number(context.points || 0) > 0;
+      }
+      return !effect.fixture_id || sameId(effect.fixture_id, fixture.id);
+    })
     .sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
+}
+
+async function loadFixtureGameStats(fixtures) {
+  state.fixtureGameStats = new Map();
+  if (!fixtures.length) {
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('fixture_game_stats')
+    .select('fixture_id, played_in_heavy_snow')
+    .in('fixture_id', fixtures.map((fixture) => fixture.id));
+
+  if (error) {
+    return;
+  }
+
+  state.fixtureGameStats = new Map((data || []).map((row) => [String(row.fixture_id), row]));
 }
 
 function renderCurseMarker(fixture, curses) {
@@ -375,7 +433,8 @@ function renderPowerMarker(fixture, powers) {
   }
 
   const label = powers.length === 1 ? 'View active power' : `View ${powers.length} active powers`;
-  return `<button class="power-marker" type="button" data-card-fixture="${fixture.id}" data-card-kind="power" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>&#9994;</span></button>`;
+  const markerClass = powers.some((effect) => effectCategory(effect) === 'super') ? 'super-marker' : 'power-marker';
+  return `<button class="${markerClass}" type="button" data-card-fixture="${fixture.id}" data-card-kind="power" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><span>&#9994;</span></button>`;
 }
 
 function pessimistSucceeded(fixtures, results) {
@@ -406,12 +465,41 @@ function predictionClass(prediction, result, locked) {
   return 'incorrect';
 }
 
+function rawPredictionPoints(prediction, result) {
+  if (!prediction || !result) {
+    return 0;
+  }
+
+  const predictedHome = Number(prediction.home_goals);
+  const predictedAway = Number(prediction.away_goals);
+  const actualHome = Number(result.home_goals);
+  const actualAway = Number(result.away_goals);
+
+  if (predictedHome === actualHome && predictedAway === actualAway) {
+    return 3;
+  }
+
+  if (Math.sign(predictedHome - predictedAway) === Math.sign(actualHome - actualAway)) {
+    return 1;
+  }
+
+  return 0;
+}
+
+function hedgeSlotNumber(prediction) {
+  if (prediction.prediction_slot === 'hedge') {
+    return 1;
+  }
+  const match = /^hedge_(\d+)$/.exec(String(prediction.prediction_slot || ''));
+  return match ? Number(match[1]) : 1;
+}
+
 function curseCardDetailMarkup(effect) {
   const category = effectCategory(effect);
   return `
     <div class="curse-card-wrap">
-      <div class="curse-card-played-by">Played by ${escapeHtml(playedByName(effect))}</div>
-      <article class="curse-detail-card ${category === 'power' ? 'power-detail-card' : ''}">
+      <div class="curse-card-played-by">${playedByMarkup(effect)}</div>
+      <article class="curse-detail-card ${category === 'power' ? 'power-detail-card' : ''} ${category === 'super' ? 'super-detail-card' : ''}">
         <strong>${escapeHtml(effectName(effect))}</strong>
         <p>${escapeHtml(effectDescription(effect))}</p>
       </article>
@@ -497,21 +585,36 @@ async function renderPredictionRows(gameweek) {
     loadFixtureScores(gameweek, fixtures),
     loadCurseOverrides(gameweek, fixtures),
     loadPredictionEffects(gameweek),
+    loadFixtureGameStats(fixtures),
   ]);
   state.visibleEffectsByFixture = new Map();
   const visibleEffectIds = new Set(predictionEffects.map((effect) => String(effect.id)));
   const curseOverrides = buildLatestCurseOverrideMap(curseOverrideRows, predictionEffects);
   const showPessimistPowers = pessimistSucceeded(fixtures, results);
-  predictionList.innerHTML = fixtures.map((fixture) => {
+  const primaryPredictions = predictions.primary;
+  const hedgePredictions = predictions.hedges;
+  const hedgesByFixture = new Map();
+  hedgePredictions.forEach((prediction) => {
+    const rows = hedgesByFixture.get(prediction.fixture_id) || [];
+    rows.push(prediction);
+    hedgesByFixture.set(prediction.fixture_id, rows);
+  });
+
+  const fixtureRows = fixtures.map((fixture) => {
     const locked = isPast(fixture.prediction_locks_at);
     const canViewPrediction = locked || sameId(state.selectedUserId, state.user.id);
     const rawOverride = canViewPrediction ? curseOverrides.get(fixture.id) : null;
     const override = rawOverride && visibleEffectIds.has(String(rawOverride.source_card_effect_id))
       ? rawOverride
       : null;
-    const prediction = canViewPrediction ? (override || predictions.get(fixture.id)) : null;
+    const primaryPrediction = primaryPredictions.get(fixture.id);
+    const prediction = canViewPrediction ? (override || primaryPrediction) : null;
     const result = results.get(fixture.id);
     const scored = fixtureScores.get(fixture.id);
+    const fixtureHedges = canViewPrediction ? (hedgesByFixture.get(fixture.id) || []) : [];
+    const primaryRawPoints = rawPredictionPoints(primaryPrediction, result);
+    const bestRawPoints = Math.max(primaryRawPoints, ...fixtureHedges.map((hedge) => rawPredictionPoints(hedge, result)));
+    const primaryUnused = fixtureHedges.length > 0 && primaryPrediction && primaryRawPoints < bestRawPoints;
     const resultClass = scored
       ? (scored.is_correct_score ? 'correct-score' : scored.is_correct_result ? 'correct-result' : (locked && prediction && result ? 'incorrect' : ''))
       : predictionClass(prediction, result, locked);
@@ -519,8 +622,8 @@ async function renderPredictionRows(gameweek) {
     const curses = canViewPrediction
       ? predictionCursesForFixture(fixture, predictionEffects, prediction, override)
       : [];
-    const powers = (locked || sameId(state.selectedUserId, state.user.id)) && showPessimistPowers
-      ? predictionPowersForFixture(fixture, predictionEffects)
+    const powers = (locked || sameId(state.selectedUserId, state.user.id))
+      ? predictionPowersForFixture(fixture, predictionEffects, { showPessimist: showPessimistPowers, points })
       : [];
     state.visibleEffectsByFixture.set(`${fixture.id}:curse`, curses);
     state.visibleEffectsByFixture.set(`${fixture.id}:power`, powers);
@@ -533,7 +636,7 @@ async function renderPredictionRows(gameweek) {
       ? `${result.home_goals}-${result.away_goals}`
       : '-';
     return `
-      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${locked && !prediction ? 'missed' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
+      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${primaryUnused ? 'unused-hedged' : ''} ${locked && !prediction ? 'missed' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
         <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
         <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
         <strong>${escapeHtml(score)}</strong>
@@ -541,7 +644,7 @@ async function renderPredictionRows(gameweek) {
         <span class="row-actions">
           ${renderPowerMarker(fixture, powers)}
           ${renderCurseMarker(fixture, curses)}
-          ${points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}
+          ${!primaryUnused && points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}
         </span>
         <span class="actual-result-row" aria-hidden="true">
           <span class="actual-result-label">FT</span>
@@ -552,7 +655,59 @@ async function renderPredictionRows(gameweek) {
         </span>
       </div>
     `;
-  }).join('');
+  });
+
+  const hedgeRows = hedgePredictions
+    .sort((a, b) => (
+      String(a.fixture_id).localeCompare(String(b.fixture_id))
+      || hedgeSlotNumber(a) - hedgeSlotNumber(b)
+      || String(a.updated_at || '').localeCompare(String(b.updated_at || ''))
+    ))
+    .map((prediction) => {
+      const fixture = fixtures.find((item) => String(item.id) === String(prediction.fixture_id));
+      if (!fixture) {
+        return '';
+      }
+      const locked = isPast(fixture.prediction_locks_at);
+      const canViewPrediction = locked || sameId(state.selectedUserId, state.user.id);
+      if (!canViewPrediction) {
+        return '';
+      }
+      const result = results.get(fixture.id);
+      const scored = fixtureScores.get(fixture.id);
+      const fixtureHedges = hedgesByFixture.get(fixture.id) || [];
+      const primaryPrediction = primaryPredictions.get(fixture.id);
+      const hedgeRawPoints = rawPredictionPoints(prediction, result);
+      const bestRawPoints = Math.max(rawPredictionPoints(primaryPrediction, result), ...fixtureHedges.map((hedge) => rawPredictionPoints(hedge, result)));
+      const hedgeUnused = hedgeRawPoints < bestRawPoints;
+      const resultClass = predictionClass(prediction, result, locked);
+      const powers = predictionPowersForFixture(fixture, predictionEffects, {
+        showPessimist: showPessimistPowers,
+        points: hedgeUnused ? 0 : Number(scored?.points || 0),
+      });
+      const actualScore = result ? `${result.home_goals}-${result.away_goals}` : '-';
+      return `
+        <div class="prediction-row hedge-row ${locked ? 'locked' : 'unlocked'} ${hedgeUnused ? 'unused-hedged' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
+          <span class="gw-stack"><span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span><span class="hedge-badge">Hedge</span></span>
+          <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
+          <strong>${escapeHtml(`${prediction.home_goals}-${prediction.away_goals}`)}</strong>
+          <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
+          <span class="row-actions">
+            ${renderPowerMarker(fixture, powers)}
+            ${!hedgeUnused && Number(scored?.points || 0) ? `<span class="uc-point-badge" aria-label="${Number(scored.points)} UC points">${Number(scored.points)}</span>` : ''}
+          </span>
+          <span class="actual-result-row" aria-hidden="true">
+            <span class="actual-result-label">FT</span>
+            <span class="actual-result-home">${escapeHtml(teamName(fixture.home_team_id))}</span>
+            <strong class="actual-result-score">${escapeHtml(actualScore)}</strong>
+            <span class="actual-result-away">${escapeHtml(teamName(fixture.away_team_id))}</span>
+            <span aria-hidden="true"></span>
+          </span>
+        </div>
+      `;
+    });
+
+  predictionList.innerHTML = [...fixtureRows, ...hedgeRows].join('');
   wireCurseMarkers();
   wireResultRows();
 }

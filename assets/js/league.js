@@ -190,7 +190,7 @@ async function loadStarManCompletion(league, user, activeGameweek) {
 
   const { data, error } = await supabase
     .from('star_man_picks')
-    .select('id')
+    .select('id, player_id')
     .eq('competition_id', league.id)
     .eq('season_id', league.season_id)
     .eq('gameweek_id', activeGameweek.gameweek_id)
@@ -202,7 +202,155 @@ async function loadStarManCompletion(league, user, activeGameweek) {
     return false;
   }
 
-  return Boolean(data?.id);
+  if (!data?.id) {
+    return false;
+  }
+
+  return loadSavedStarManStillValid(league, user, activeGameweek, data.player_id);
+}
+
+const SCRABBLE_SCORES = {
+  a: 1, b: 3, c: 3, d: 2, e: 1, f: 4, g: 2, h: 4, i: 1, j: 8, k: 5, l: 1, m: 3,
+  n: 1, o: 1, p: 3, q: 10, r: 1, s: 1, t: 1, u: 1, v: 4, w: 4, x: 8, y: 4, z: 10,
+};
+
+const MICROSTATE_NATIONALITIES = new Set([
+  'albania', 'andorra', 'antigua and barbuda', 'armenia', 'bahamas', 'bahrain', 'barbados',
+  'belize', 'bhutan', 'bosnia and herzegovina', 'botswana', 'brunei', 'cabo verde', 'croatia',
+  'cyprus', 'djibouti', 'dominica', 'equatorial guinea', 'eritrea', 'eswatini', 'estonia',
+  'fiji', 'gabon', 'gambia', 'georgia', 'grenada', 'guinea bissau', 'guyana', 'iceland',
+  'kiribati', 'kuwait', 'latvia', 'lesotho', 'liechtenstein', 'lithuania', 'luxembourg',
+  'maldives', 'marshall islands', 'mauritius', 'micronesia', 'monaco', 'montenegro', 'mongolia',
+  'namibia', 'nauru', 'north macedonia', 'palau', 'panama', 'qatar', 'saint kitts and nevis',
+  'saint lucia', 'saint vincent and the grenadines', 'samoa', 'san marino', 'sao tome and principe',
+  'seychelles', 'slovenia', 'solomon islands', 'suriname', 'timor leste', 'tonga',
+  'trinidad and tobago', 'tuvalu', 'uruguay', 'vanuatu', 'vatican city',
+]);
+
+function normaliseText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/gi, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function surnameForScrabble(name) {
+  const words = normaliseText(name).split(' ').filter(Boolean);
+  const vanIndex = words.findIndex((word) => word === 'van');
+  if (vanIndex >= 0 && vanIndex < words.length - 1) {
+    return words.slice(vanIndex).join('');
+  }
+  return words.at(-1) || '';
+}
+
+function scrabbleScore(value) {
+  return surnameForScrabble(value)
+    .split('')
+    .reduce((total, letter) => total + (SCRABBLE_SCORES[letter] || 0), 0);
+}
+
+function activeEffectForGameweek(effect, activeGameweek) {
+  const number = Number(activeGameweek.gameweek_number || 0);
+  const direct = !effect.gameweek_id || String(effect.gameweek_id) === String(activeGameweek.gameweek_id);
+  const startOk = !effect.start_gameweek_id || Number(effect.start_gameweek_id) <= number;
+  const endOk = !effect.end_gameweek_id || Number(effect.end_gameweek_id) >= number;
+  return direct && startOk && endOk;
+}
+
+function effectKeyFromRow(effect) {
+  const definition = Array.isArray(effect.card_definitions)
+    ? effect.card_definitions[0]
+    : effect.card_definitions;
+  return definition?.effect_key || '';
+}
+
+async function loadSavedStarManStillValid(league, user, activeGameweek, playerId) {
+  const [{ data: player }, { data: effects, error: effectsError }] = await Promise.all([
+    supabase
+      .from('players')
+      .select('id, display_name, nationality, team_id')
+      .eq('id', playerId)
+      .maybeSingle(),
+    supabase
+      .from('active_card_effects')
+      .select('id, gameweek_id, start_gameweek_id, end_gameweek_id, card_definitions(effect_key)')
+      .eq('competition_id', league.id)
+      .eq('season_id', league.season_id)
+      .eq('target_user_id', user.id)
+      .eq('status', 'active'),
+  ]);
+
+  if (!player || effectsError) {
+    return false;
+  }
+
+  const restrictionKeys = (effects || [])
+    .filter((effect) => activeEffectForGameweek(effect, activeGameweek))
+    .map(effectKeyFromRow)
+    .filter(Boolean);
+
+  if (!restrictionKeys.length) {
+    return true;
+  }
+
+  const surnameScore = scrabbleScore(player.display_name);
+  if (restrictionKeys.includes('curse_alphabet_15') && surnameScore < 15) return false;
+  if (restrictionKeys.includes('curse_alphabet_20') && surnameScore < 20) return false;
+  if (restrictionKeys.includes('curse_random_roulette') && !MICROSTATE_NATIONALITIES.has(normaliseText(player.nationality))) return false;
+
+  if (restrictionKeys.includes('curse_tiny_club')) {
+    const { data: previousGameweeks } = await supabase
+      .from('gameweek_deadlines')
+      .select('gameweek_id, gameweek_number')
+      .eq('season_id', league.season_id)
+      .lt('gameweek_number', activeGameweek.gameweek_number)
+      .order('gameweek_number', { ascending: false })
+      .limit(1);
+    const previousGameweekId = previousGameweeks?.[0]?.gameweek_id;
+    if (previousGameweekId) {
+      const { data: topTenRows } = await supabase
+        .from('team_gameweek_computed_standings')
+        .select('team_id')
+        .eq('season_id', league.season_id)
+        .eq('gameweek_id', previousGameweekId)
+        .lte('league_position', 10);
+      if ((topTenRows || []).some((row) => String(row.team_id) === String(player.team_id))) {
+        return false;
+      }
+    }
+  }
+
+  const droughtWindow = restrictionKeys.includes('curse_scoring_drought_5')
+    ? 5
+    : restrictionKeys.includes('curse_scoring_drought_3')
+      ? 3
+      : 0;
+  if (droughtWindow) {
+    const { data: previousGameweeks } = await supabase
+      .from('gameweek_deadlines')
+      .select('gameweek_id, gameweek_number')
+      .eq('season_id', league.season_id)
+      .lt('gameweek_number', activeGameweek.gameweek_number)
+      .order('gameweek_number', { ascending: false })
+      .limit(droughtWindow);
+    const previousIds = (previousGameweeks || []).map((gameweek) => gameweek.gameweek_id);
+    if (previousIds.length) {
+      const { data: goalRows } = await supabase
+        .from('player_gameweek_stats')
+        .select('goals')
+        .eq('season_id', league.season_id)
+        .eq('player_id', playerId)
+        .in('gameweek_id', previousIds);
+      if ((goalRows || []).some((row) => Number(row.goals || 0) > 0)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 async function loadGameCardCompletion(league, user, activeGameweek) {

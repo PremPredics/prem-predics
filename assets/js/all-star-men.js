@@ -96,7 +96,7 @@ function isStarManPower(effect) {
 function effectCategory(effect) {
   const category = effectDefinition(effect).category;
   if (category) {
-    return category === 'super' ? 'power' : category;
+    return category;
   }
 
   return isStarManCurse(effect) ? 'curse' : 'power';
@@ -298,7 +298,7 @@ async function loadStarManEffects() {
   if (playedByUserIds.length) {
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
-      .select('id, display_name')
+      .select('id, display_name, profile_image_url')
       .in('id', playedByUserIds);
 
     if (profilesError) {
@@ -377,10 +377,17 @@ function renderPointsBadge(points) {
 
 function curseCardDetailMarkup(effect) {
   const category = effectCategory(effect);
+  const profile = state.effectProfiles.get(effect.played_by_user_id);
+  const imageUrl = profile?.profile_image_url || '';
+  const initial = (playedByName(effect) || 'P').trim().charAt(0).toUpperCase() || 'P';
   return `
     <div class="curse-card-wrap">
-      <div class="curse-card-played-by">Played by ${escapeHtml(playedByName(effect))}</div>
-      <article class="curse-detail-card ${category === 'power' ? 'power-detail-card' : ''}">
+      <div class="curse-card-played-by">
+        Played by
+        <span class="played-by-avatar">${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="">` : escapeHtml(initial)}</span>
+        <span>${escapeHtml(playedByName(effect))}</span>
+      </div>
+      <article class="curse-detail-card ${category === 'power' ? 'power-detail-card' : ''} ${category === 'super' ? 'super-detail-card' : ''}">
         <strong>${escapeHtml(effectName(effect))}</strong>
         <p>${escapeHtml(effectDescription(effect))}</p>
       </article>
