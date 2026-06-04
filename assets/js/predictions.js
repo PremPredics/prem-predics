@@ -634,7 +634,6 @@ function renderSummary() {
               effectsMarkup: `${renderPowerMarker(fixture)}${renderCurseMarker(fixture)}`,
             })}
             ${state.godPrediction?.fixture_id === fixture.id ? `<small class="prediction-row-note">Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
-            ${curseOverride ? '<small class="prediction-cursed-label">Cursed</small>' : ''}
           </article>
         `;
       }).join('')}
