@@ -10,3 +10,7 @@ window.premPredicsSupabase = supabase;
 import('./ui-polish.js').catch((error) => {
   console.warn('Prem Predics UI polish failed to load:', error);
 });
+
+import('./desktop-polish.js').catch((error) => {
+  console.warn('Prem Predics desktop polish failed to load:', error);
+});
