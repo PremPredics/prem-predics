@@ -328,7 +328,7 @@ main {
 
 .fixture-row {
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr) minmax(148px, auto);
+  grid-template-columns: 78px minmax(0, 1fr) minmax(132px, auto);
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -341,10 +341,11 @@ main {
 
 .fixture-main {
   display: grid;
-  grid-template-columns: minmax(130px, 1fr) 46px 18px 46px minmax(130px, 1fr);
+  grid-template-columns: minmax(0, 1fr) 42px 12px 42px minmax(0, 1fr);
   gap: 6px;
   align-items: center;
-  justify-self: stretch;
+  justify-self: center;
+  width: min(100%, 680px);
   min-width: 0;
   overflow: hidden;
 }
@@ -534,8 +535,7 @@ main {
 }
 
 .fixture-meta {
-  display: grid;
-  grid-template-columns: minmax(92px, auto) auto;
+  display: flex;
   align-items: center;
   justify-content: end;
   gap: 6px;
@@ -556,6 +556,11 @@ main {
   justify-content: flex-end;
   gap: 4px;
   min-width: 0;
+  order: 1;
+}
+
+.fixture-lock {
+  order: 2;
 }
 
 .fixture-lock {
@@ -693,15 +698,15 @@ button:disabled {
 }
 
 .summary-fixture-row {
-  grid-template-columns: auto minmax(0, 570px) auto;
-  justify-content: center;
-  column-gap: 18px;
+  grid-template-columns: 78px minmax(0, 1fr) minmax(132px, auto);
+  justify-content: stretch;
+  column-gap: 6px;
 }
 
 .summary-fixture-main {
-  grid-template-columns: minmax(150px, 1fr) 32px 12px 32px minmax(150px, 1fr);
+  grid-template-columns: minmax(0, 1fr) 42px 12px 42px minmax(0, 1fr);
   justify-self: center;
-  width: 100%;
+  width: min(100%, 680px);
   justify-items: center;
   gap: 6px;
 }
@@ -752,21 +757,11 @@ button:disabled {
   font-size: 17px;
 }
 
-.summary-fixture-row .fixture-meta {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  min-width: 0;
-}
-
 .summary-fixture-row .fixture-effects {
-  order: 1;
   min-height: 26px;
 }
 
 .summary-fixture-row .fixture-lock {
-  order: 2;
   min-width: 0;
 }
 
@@ -1129,6 +1124,7 @@ footer {
 
   .fixture-main {
     grid-template-columns: minmax(0, 1fr) 34px 10px 34px minmax(0, 1fr);
+    width: 100%;
     gap: 4px;
     overflow: hidden;
   }
@@ -1183,8 +1179,10 @@ footer {
   }
 
   .fixture-meta {
-    grid-template-columns: 1fr;
-    justify-items: end;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
     gap: 2px;
   }
 
