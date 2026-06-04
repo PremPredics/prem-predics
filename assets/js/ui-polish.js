@@ -151,25 +151,22 @@ async function saveHedgeRowsBeforeAllPredictions() {
     const awayInput = row.querySelector('[data-hedge-away]');
     const home = scoreState(homeInput);
     const away = scoreState(awayInput);
+    const hasAnyScore = home.filled || away.filled;
 
     if (!effectId || !homeInput || !awayInput) {
       continue;
     }
 
-    if (!fixtureId && !home.filled && !away.filled) {
+    if (!fixtureId && !hasAnyScore) {
       continue;
     }
 
     if (!fixtureId || home.filled !== away.filled) {
-      throw new Error('Choose a match and enter both Hedge scores before saving all predictions.');
+      throw new Error('Choose a match and enter both Hedge scores, or leave both Hedge scores blank.');
     }
 
     if (!home.valid || !away.valid) {
-      throw new Error('Hedge predictions must be whole numbers from 0 to 100.');
-    }
-
-    if (!home.filled && !away.filled) {
-      continue;
+      throw new Error('Hedge predictions must be blank or whole numbers from 0 to 100.');
     }
 
     const { data: effect, error: effectLoadError } = await supabase
@@ -223,8 +220,8 @@ async function saveHedgeRowsBeforeAllPredictions() {
       fixture_id: fixtureId,
       user_id: user.id,
       prediction_slot: hedgeSlotForIndex(index),
-      home_goals: home.value,
-      away_goals: away.value,
+      home_goals: hasAnyScore ? home.value : null,
+      away_goals: hasAnyScore ? away.value : null,
       source_card_effect_id: effect.id,
       submitted_at: new Date().toISOString(),
     }, {
@@ -246,6 +243,7 @@ function waitForPredictionSummaryThenRefresh(savedHedges) {
     return;
   }
 
+  sessionStorage.setItem('premPredicsReturnToPredictionSummary', 'true');
   const startedAt = Date.now();
   const observer = new MutationObserver(() => {
     const editButton = document.querySelector('[data-edit-predictions]');
@@ -258,6 +256,7 @@ function waitForPredictionSummaryThenRefresh(savedHedges) {
       window.setTimeout(() => window.location.reload(), 350);
     } else if (Date.now() - startedAt > 7000) {
       observer.disconnect();
+      window.setTimeout(() => window.location.reload(), 200);
     }
   });
 
@@ -297,9 +296,12 @@ function installSaveAllHedgeHandler() {
       setPredictionMessage('Saving predictions and Hedge...', 'info');
       const savedHedges = await saveHedgeRowsBeforeAllPredictions();
       button.dataset.hedgeSaveBypass = 'true';
-      button.disabled = wasDisabled;
+      button.disabled = false;
       waitForPredictionSummaryThenRefresh(savedHedges);
       button.click();
+      window.setTimeout(() => {
+        button.disabled = wasDisabled;
+      }, 1000);
     } catch (error) {
       setPredictionMessage(error.message || 'Could not save Hedge prediction.', 'error');
       button.disabled = wasDisabled;
@@ -327,17 +329,21 @@ function injectStarClearStyles() {
     }
 
     .star-clear-wrap {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 32px;
-      gap: 7px;
-      align-items: center;
+      width: min(100%, 520px) !important;
+      margin-inline: auto !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 32px !important;
+      gap: 7px !important;
+      align-items: center !important;
+      justify-items: stretch !important;
     }
 
     .star-clear-wrap > input {
-      width: 100%;
-      min-width: 0;
+      width: 100% !important;
+      min-width: 0 !important;
       min-height: 34px !important;
       padding-block: 6px !important;
+      text-align: center !important;
     }
 
     .star-clear-button {
@@ -358,6 +364,7 @@ function injectStarClearStyles() {
       box-shadow: 0 0 14px rgba(248, 113, 113, 0.56) !important;
       text-shadow: -1px -1px 0 rgba(0,0,0,0.88), 1px -1px 0 rgba(0,0,0,0.88), -1px 1px 0 rgba(0,0,0,0.88), 1px 1px 0 rgba(0,0,0,0.88) !important;
       cursor: pointer !important;
+      justify-self: center !important;
     }
 
     .star-clear-button[hidden] {
@@ -367,6 +374,7 @@ function injectStarClearStyles() {
     [data-search-results] {
       min-height: 0 !important;
       margin-block: 2px !important;
+      text-align: center !important;
     }
 
     [data-search-results] .state-text,
@@ -376,6 +384,7 @@ function injectStarClearStyles() {
       padding: 0 !important;
       font-size: 0.78rem !important;
       line-height: 1.12 !important;
+      text-align: center !important;
     }
 
     [data-message]:empty,
@@ -384,9 +393,19 @@ function injectStarClearStyles() {
     }
 
     .selected-player-heading {
-      margin-bottom: 3px !important;
-      font-size: 0.8rem !important;
-      line-height: 1.05 !important;
+      margin-bottom: 5px !important;
+      font-size: clamp(0.95rem, 3vw, 1.18rem) !important;
+      line-height: 1.08 !important;
+      color: #fff7ad !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.02em !important;
+      text-shadow:
+        -1px -1px 0 rgba(0,0,0,0.92),
+        1px -1px 0 rgba(0,0,0,0.92),
+        -1px 1px 0 rgba(0,0,0,0.92),
+        1px 1px 0 rgba(0,0,0,0.92),
+        0 0 12px rgba(250,204,21,0.95),
+        0 0 24px rgba(250,204,21,0.62) !important;
     }
 
     .star-clear-dialog {
@@ -451,6 +470,12 @@ function injectStarClearStyles() {
       [data-pick-slot] {
         gap: 5px !important;
         padding-block: 8px !important;
+      }
+
+      .star-clear-wrap {
+        width: min(100%, 360px) !important;
+        grid-template-columns: minmax(0, 1fr) 30px !important;
+        gap: 6px !important;
       }
 
       [data-search-results] .state-text,
@@ -522,16 +547,30 @@ function confirmStarClear() {
 function compactStarText(value) {
   const text = String(value || '').trim();
   const lower = text.toLowerCase();
-  if (lower.includes('save blank to remove') || lower === 'type at least 2 letters.') {
-    return '2+ letters';
+  if (lower.includes('save blank to remove') || lower === 'type at least 2 letters.' || lower === '2+ letters') {
+    return 'Enter 2+ Letters For Player Dropdown';
   }
-  if (lower.includes('star man cleared') || lower.includes('super duo cleared')) {
+  if (lower.includes('star man cleared') || lower.includes('super duo cleared') || lower === 'cleared') {
     return 'Cleared';
   }
   if (lower.includes('star man saved') || lower.includes('super duo saved')) {
     return 'Saved';
   }
   return text;
+}
+
+function hideClearedMessageSoon(node) {
+  if (node.dataset.clearMessageTimer === 'true') {
+    return;
+  }
+  node.dataset.clearMessageTimer = 'true';
+  window.setTimeout(() => {
+    if ((node.textContent || '').trim() === 'Cleared') {
+      node.textContent = '';
+      node.dataset.type = 'info';
+    }
+    delete node.dataset.clearMessageTimer;
+  }, 5000);
 }
 
 function cleanupStarBlankHelpText() {
@@ -543,6 +582,9 @@ function cleanupStarBlankHelpText() {
     const compact = compactStarText(node.textContent);
     if (compact !== node.textContent) {
       node.textContent = compact;
+    }
+    if (compact === 'Cleared') {
+      hideClearedMessageSoon(node);
     }
   });
 }
