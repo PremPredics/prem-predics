@@ -107,11 +107,12 @@ function countdownText(value) {
   const totalMinutes = Math.floor(remainingMs / 60000);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
+  const hourText = `${hours}${hours === 1 ? 'hr' : 'hrs'}`;
   const isCompact = window.matchMedia?.('(max-width: 720px)').matches;
   if (isCompact) {
-    return hours >= 1 ? `${hours}hr` : `${Math.max(1, minutes)}m`;
+    return hours >= 1 ? hourText : `${Math.max(1, minutes)}m`;
   }
-  return `${hours}hr ${minutes}m Remaining`;
+  return hours >= 1 ? `${hourText} ${minutes}m` : `${Math.max(1, minutes)}m`;
 }
 
 function fixtureLockText(fixture) {
@@ -623,7 +624,9 @@ function renderSummary() {
             </span>
             <span class="fixture-main summary-fixture-main">
               <span class="fixture-team home">${escapeHtml(teamName(fixture.home_team_id))}</span>
-              <strong class="summary-score ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}-${prediction?.away_goals ?? '-'}</strong>
+              <strong class="summary-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}</strong>
+              <span class="score-separator summary-separator">-</span>
+              <strong class="summary-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.away_goals ?? '-'}</strong>
               <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
             </span>
             <span class="fixture-meta">
@@ -752,7 +755,9 @@ function renderHedgeRow(effect, index, mode = 'edit') {
           </span>
           <span class="fixture-main summary-fixture-main hedge-empty-main">
             <span class="fixture-team home">Choose Match</span>
-            <strong class="summary-score">-</strong>
+            <strong class="summary-goal">-</strong>
+            <span class="score-separator summary-separator">-</span>
+            <strong class="summary-goal">-</strong>
             <span class="fixture-team away">Power of the Hedge</span>
           </span>
           <span class="fixture-meta">
@@ -771,7 +776,9 @@ function renderHedgeRow(effect, index, mode = 'edit') {
         </span>
         <span class="fixture-main summary-fixture-main">
           <span class="fixture-team home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
-          <strong class="summary-score">${prediction?.home_goals ?? '-'}-${prediction?.away_goals ?? '-'}</strong>
+          <strong class="summary-goal">${prediction?.home_goals ?? '-'}</strong>
+          <span class="score-separator summary-separator">-</span>
+          <strong class="summary-goal">${prediction?.away_goals ?? '-'}</strong>
           <span class="fixture-team away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
         </span>
         <span class="fixture-meta">

@@ -693,11 +693,13 @@ button:disabled {
 }
 
 .summary-fixture-row {
-  grid-template-columns: 76px minmax(0, 1fr) minmax(148px, auto);
+  grid-template-columns: 78px minmax(0, 1fr) minmax(104px, auto);
 }
 
 .summary-fixture-main {
-  grid-template-columns: minmax(110px, 1fr) 74px minmax(110px, 1fr);
+  grid-template-columns: minmax(130px, 1fr) 34px 14px 34px minmax(130px, 1fr);
+  justify-items: center;
+  gap: 6px;
 }
 
 .summary-score {
@@ -705,6 +707,22 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 7px;
+}
+
+.summary-goal {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+}
+
+.summary-separator {
+  color: #ddd6fe;
+  font-size: 16px;
 }
 
 .summary-status {
@@ -728,6 +746,23 @@ button:disabled {
 .summary-row strong {
   text-align: center;
   font-size: 17px;
+}
+
+.summary-fixture-row .fixture-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.summary-fixture-row .fixture-effects {
+  order: 1;
+  min-height: 26px;
+}
+
+.summary-fixture-row .fixture-lock {
+  order: 2;
+  min-width: 0;
 }
 
 .summary-row small {
@@ -1114,7 +1149,8 @@ footer {
   }
 
   .summary-fixture-main {
-    grid-template-columns: minmax(56px, 1fr) 44px minmax(56px, 1fr);
+    grid-template-columns: minmax(0, 1fr) 24px 8px 24px minmax(0, 1fr);
+    gap: 3px;
   }
 
   .fixture-row::before {
@@ -1161,6 +1197,15 @@ footer {
   .fixture-gameweek {
     font-size: 11px;
     padding: 3px 4px;
+  }
+
+  .summary-goal {
+    min-width: 20px;
+    font-size: 14px;
+  }
+
+  .summary-separator {
+    font-size: 13px;
   }
 
   .restriction-panel {
