@@ -1755,6 +1755,15 @@ button:disabled {
   display: none;
 }
 
+.active-game-mobile-placeholder {
+  display: none;
+}
+
+.active-game-inline.mobile-bottom-active-game {
+  width: min(100%, 720px);
+  margin: 14px auto 12px;
+}
+
 .side-action-btn {
   width: 100%;
   min-height: 46px;
@@ -4270,32 +4279,32 @@ cardDescriptions["Curse of the Random Roulette"] = cardDescriptions["Curse Of Th
 cardDescriptions["Power of the Rocket Man"] = cardDescriptions["Power Of The Clean Sweep"];
 cardDescriptions["Curse of the Bench Warmer"] = cardDescriptions["Curse of the Furious"];
 
-// POWER CARDS - 30 TOTAL
+// POWER CARDS - 34 TOTAL
 const powerCards = [
-  "Power of the Goal", "Power of the Goal",
+  "Power of the Goal", "Power of the Goal", "Power of the Goal",
   "Power of the Swap", "Power of the Swap", "Power of the Swap",
   "Power of the Veto", "Power of the Veto", "Power of the Veto",
   "Power of the Laundrette", "Power of the Laundrette",
-  "Power Of The Clean Sweep", "Power Of The Clean Sweep", "Power Of The Clean Sweep",
-  "Power of the Pessimist",
-  "Power of the Immigrants", "Power of the Immigrants",
-  "Power of the Lanky Crouch", "Power of the Lanky Crouch",
-  "Power of the Small and Mighty", "Power of the Small and Mighty",
+  "Power Of The Clean Sweep", "Power Of The Clean Sweep",
+  "Power of the Pessimist", "Power of the Pessimist",
+  "Power of the Immigrants", "Power of the Immigrants", "Power of the Immigrants",
+  "Power of the Lanky Crouch", "Power of the Lanky Crouch", "Power of the Lanky Crouch",
+  "Power of the Small and Mighty", "Power of the Small and Mighty", "Power of the Small and Mighty",
   "Power of God", "Power of God",
-  "Power of the Hedge", "Power of the Hedge",
-  "Power of the Assist King",
-  "Power of the Late Scout", "Power of the Late Scout", "Power of the Late Scout",
-  "Power of the Snow", "Power of the Snow"
+  "Power of the Hedge", "Power of the Hedge", "Power of the Hedge",
+  "Power of the Assist King", "Power of the Assist King",
+  "Power of the Late Scout", "Power of the Late Scout",
+  "Power of the Snow"
 ];
 
-// CURSE CARDS - 22 TOTAL
+// CURSE CARDS - 26 TOTAL
 const curseCards = [
   "Curse of the Hated", "Curse of the Hated",
-  "Curse of the Random", "Curse of the Random",
-  "Curse of the Furious", "Curse of the Furious",
-  "Curse of the Alphabet (15+)",
+  "Curse of the Random", "Curse of the Random", "Curse of the Random",
+  "Curse of the Furious", "Curse of the Furious", "Curse of the Furious",
+  "Curse of the Alphabet (15+)", "Curse of the Alphabet (15+)",
   "Curse of the Alphabet (20+)",
-  "Curse of the Scoring Drought (3)",
+  "Curse of the Scoring Drought (3)", "Curse of the Scoring Drought (3)",
   "Curse of the Scoring Drought (5)",
   "Curse Of The Microstate", "Curse Of The Microstate",
   "Curse of the Glasses", "Curse of the Glasses",
@@ -4514,7 +4523,10 @@ function syncMobileFixedActions() {
   const leftPanel = document.querySelector('.left-panel');
   const swapSection = document.getElementById('swapSection');
   const pendingSwap = document.getElementById('pendingSwap');
-  if (!actions || !leftPanel || !swapSection || !pendingSwap) return;
+  const activeGamePanel = document.querySelector('[data-active-game-panel]');
+  const mainGameLayout = document.getElementById('mainGameLayout');
+  const fixedFooter = document.getElementById('fixedFooter');
+  if (!actions || !leftPanel || !swapSection || !pendingSwap || !activeGamePanel || !mainGameLayout || !fixedFooter) return;
 
   const shouldMoveIntoSwap = Boolean(gameState.seasonStarted && document.body.classList.contains('controls-ready') && shouldUseMobileFixedActions());
   document.body.classList.toggle('mobile-controls-fixed', shouldMoveIntoSwap);
@@ -4532,6 +4544,18 @@ function syncMobileFixedActions() {
     }
     actions.classList.add('mobile-in-swap-actions');
     actions.removeAttribute('style');
+
+    let activePlaceholder = document.getElementById('activeGameMobilePlaceholder');
+    if (!activePlaceholder) {
+      activePlaceholder = document.createElement('div');
+      activePlaceholder.id = 'activeGameMobilePlaceholder';
+      activePlaceholder.className = 'active-game-mobile-placeholder';
+    }
+    if (activeGamePanel.parentElement !== fixedFooter.parentElement || activeGamePanel.nextElementSibling !== fixedFooter) {
+      activeGamePanel.parentElement.insertBefore(activePlaceholder, activeGamePanel);
+      fixedFooter.parentElement.insertBefore(activeGamePanel, fixedFooter);
+    }
+    activeGamePanel.classList.add('mobile-bottom-active-game');
   } else {
     const placeholder = document.getElementById('primarySideActionsPlaceholder');
     actions.classList.remove('mobile-in-swap-actions');
@@ -4541,6 +4565,16 @@ function syncMobileFixedActions() {
       placeholder.remove();
     } else if (actions.parentElement !== leftPanel) {
       leftPanel.insertBefore(actions, leftPanel.firstElementChild);
+    }
+
+    const activePlaceholder = document.getElementById('activeGameMobilePlaceholder');
+    activeGamePanel.classList.remove('mobile-bottom-active-game');
+    if (activePlaceholder && activePlaceholder.parentElement) {
+      activePlaceholder.parentElement.insertBefore(activeGamePanel, activePlaceholder);
+      activePlaceholder.remove();
+    } else if (activeGamePanel.parentElement !== leftPanel) {
+      const discardSection = document.getElementById('discardSection');
+      leftPanel.insertBefore(activeGamePanel, discardSection || null);
     }
   }
 }
