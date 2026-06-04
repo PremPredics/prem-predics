@@ -618,26 +618,23 @@ function renderSummary() {
         const curseOverride = revealedCurseOverride(fixture);
         const locked = isPast(fixture.prediction_locks_at);
         return `
-          <article class="fixture-row summary-fixture-row ${curseOverride ? 'curse-override-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride ? 'true' : 'false'}">
-            <span class="fixture-flags">
-              <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
+          <article class="prediction-row-frame ${curseOverride ? 'curse-override-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride ? 'true' : 'false'}">
+            ${predictionRowLeftMarkup(false)}
+            <span class="prediction-score-axis prediction-score-axis--saved">
+              <span class="prediction-team prediction-team--home">${escapeHtml(teamName(fixture.home_team_id))}</span>
+              <strong class="prediction-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}</strong>
+              <span class="prediction-dash">-</span>
+              <strong class="prediction-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.away_goals ?? '-'}</strong>
+              <span class="prediction-team prediction-team--away">${escapeHtml(teamName(fixture.away_team_id))}</span>
             </span>
-            <span class="fixture-main summary-fixture-main">
-              <span class="fixture-team home">${escapeHtml(teamName(fixture.home_team_id))}</span>
-              <strong class="summary-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}</strong>
-              <span class="score-separator summary-separator">-</span>
-              <strong class="summary-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.away_goals ?? '-'}</strong>
-              <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
-            </span>
-            <span class="fixture-meta">
-              <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${fixtureLockText(fixture)}</span>
-              <span class="fixture-effects">
-                ${renderPowerMarker(fixture)}
-                ${renderCurseMarker(fixture)}
-              </span>
-            </span>
-            ${state.godPrediction?.fixture_id === fixture.id ? `<small>Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
-            ${curseOverride ? '<small class="summary-cursed-label">Cursed</small>' : ''}
+            ${predictionRowMetaMarkup({
+              locked,
+              lockAt: fixture.prediction_locks_at,
+              lockText: fixtureLockText(fixture),
+              effectsMarkup: `${renderPowerMarker(fixture)}${renderCurseMarker(fixture)}`,
+            })}
+            ${state.godPrediction?.fixture_id === fixture.id ? `<small class="prediction-row-note">Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
+            ${curseOverride ? '<small class="prediction-cursed-label">Cursed</small>' : ''}
           </article>
         `;
       }).join('')}
@@ -671,24 +668,21 @@ function renderEdit() {
     const curseOverride = revealedCurseOverride(fixture);
     const locked = isPast(fixture.prediction_locks_at);
     return `
-      <article class="fixture-row ${curseOverride ? 'curse-override-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride ? 'true' : 'false'}">
-        <span class="fixture-flags">
-          <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
+      <article class="prediction-row-frame ${curseOverride ? 'curse-override-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride ? 'true' : 'false'}">
+        ${predictionRowLeftMarkup(false)}
+        <span class="prediction-score-axis prediction-score-axis--edit">
+          <span class="prediction-team prediction-team--home">${escapeHtml(teamName(fixture.home_team_id))}</span>
+          <input class="prediction-score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
+          <span class="prediction-dash">-</span>
+          <input class="prediction-score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
+          <span class="prediction-team prediction-team--away">${escapeHtml(teamName(fixture.away_team_id))}</span>
         </span>
-        <span class="fixture-main">
-          <span class="fixture-team home">${escapeHtml(teamName(fixture.home_team_id))}</span>
-          <input class="score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
-          <span class="score-separator">-</span>
-          <input class="score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
-          <span class="fixture-team away">${escapeHtml(teamName(fixture.away_team_id))}</span>
-        </span>
-        <span class="fixture-meta">
-          <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(fixture.prediction_locks_at || '')}">${fixtureLockText(fixture)}</span>
-          <span class="fixture-effects">
-            ${renderPowerMarker(fixture)}
-            ${renderCurseMarker(fixture)}
-          </span>
-        </span>
+        ${predictionRowMetaMarkup({
+          locked,
+          lockAt: fixture.prediction_locks_at,
+          lockText: fixtureLockText(fixture),
+          effectsMarkup: `${renderPowerMarker(fixture)}${renderCurseMarker(fixture)}`,
+        })}
       </article>
     `;
   }).join('')}${renderHedgeRows('edit')}`;
@@ -723,6 +717,25 @@ function renderPowerEffectMarker(effect) {
   return `<button class="${markerClass}" type="button" data-prediction-card-effect="${escapeHtml(effect.id)}" aria-label="View ${escapeHtml(effectName(effect))}" title="View ${escapeHtml(effectName(effect))}"><span>&#9994;</span></button>`;
 }
 
+function predictionRowLeftMarkup(isHedge = false) {
+  return `
+    <span class="prediction-row-left">
+      <span class="prediction-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
+      ${isHedge ? '<span class="prediction-hedge-badge">Hedge</span>' : ''}
+    </span>
+  `;
+}
+
+function predictionRowMetaMarkup({ locked, lockAt, lockText, effectsMarkup = '', extra = '' }) {
+  return `
+    <span class="prediction-row-meta">
+      <span class="prediction-effects">${effectsMarkup}</span>
+      <span class="prediction-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(lockAt || '')}">${lockText}</span>
+      ${extra}
+    </span>
+  `;
+}
+
 function renderHedgeRows(mode = 'edit') {
   const effects = sortedHedgeEffects();
   if (!effects.length) {
@@ -748,65 +761,58 @@ function renderHedgeRow(effect, index, mode = 'edit') {
   if (mode === 'summary') {
     if (!selectedFixture) {
       return `
-        <article class="fixture-row summary-fixture-row hedge-fixture-row" data-hedge-effect-id="${escapeHtml(effect.id)}">
-          <span class="fixture-flags hedge-flags">
-            <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
-            <span class="hedge-badge">Hedge</span>
+        <article class="prediction-row-frame prediction-hedge-row" data-hedge-effect-id="${escapeHtml(effect.id)}">
+          ${predictionRowLeftMarkup(true)}
+          <span class="prediction-score-axis prediction-score-axis--saved">
+            <span class="prediction-team prediction-team--home">Choose Match</span>
+            <strong class="prediction-goal">-</strong>
+            <span class="prediction-dash">-</span>
+            <strong class="prediction-goal">-</strong>
+            <span class="prediction-team prediction-team--away">Power of the Hedge</span>
           </span>
-          <span class="fixture-main summary-fixture-main hedge-empty-main">
-            <span class="fixture-team home">Choose Match</span>
-            <strong class="summary-goal">-</strong>
-            <span class="score-separator summary-separator">-</span>
-            <strong class="summary-goal">-</strong>
-            <span class="fixture-team away">Power of the Hedge</span>
-          </span>
-          <span class="fixture-meta">
-            <span class="fixture-lock remaining">Pending</span>
-            <span class="fixture-effects">${renderPowerEffectMarker(effect)}</span>
+          <span class="prediction-row-meta">
+            <span class="prediction-effects">${renderPowerEffectMarker(effect)}</span>
+            <span class="prediction-lock remaining">Pending</span>
           </span>
         </article>
       `;
     }
 
     return `
-      <article class="fixture-row summary-fixture-row hedge-fixture-row" data-hedge-effect-id="${escapeHtml(effect.id)}" data-hedge-source-fixture="${escapeHtml(selectedFixture.id)}">
-        <span class="fixture-flags hedge-flags">
-          <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
-          <span class="hedge-badge">Hedge</span>
+      <article class="prediction-row-frame prediction-hedge-row" data-hedge-effect-id="${escapeHtml(effect.id)}" data-hedge-source-fixture="${escapeHtml(selectedFixture.id)}">
+        ${predictionRowLeftMarkup(true)}
+        <span class="prediction-score-axis prediction-score-axis--saved">
+          <span class="prediction-team prediction-team--home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
+          <strong class="prediction-goal">${prediction?.home_goals ?? '-'}</strong>
+          <span class="prediction-dash">-</span>
+          <strong class="prediction-goal">${prediction?.away_goals ?? '-'}</strong>
+          <span class="prediction-team prediction-team--away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
         </span>
-        <span class="fixture-main summary-fixture-main">
-          <span class="fixture-team home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
-          <strong class="summary-goal">${prediction?.home_goals ?? '-'}</strong>
-          <span class="score-separator summary-separator">-</span>
-          <strong class="summary-goal">${prediction?.away_goals ?? '-'}</strong>
-          <span class="fixture-team away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
-        </span>
-        <span class="fixture-meta">
-          <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(selectedFixture.prediction_locks_at || '')}">${fixtureLockText(selectedFixture)}</span>
-          <span class="fixture-effects">${powerMarker}</span>
-        </span>
+        ${predictionRowMetaMarkup({
+          locked,
+          lockAt: selectedFixture.prediction_locks_at,
+          lockText: fixtureLockText(selectedFixture),
+          effectsMarkup: powerMarker,
+        })}
       </article>
     `;
   }
 
   if (!selectedFixture || !effect.fixture_id) {
     return `
-      <article class="fixture-row hedge-fixture-row hedge-picker-row" data-hedge-effect-id="${escapeHtml(effect.id)}">
-        <span class="fixture-flags hedge-flags">
-          <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
-          <span class="hedge-badge">Hedge</span>
-        </span>
-        <span class="fixture-main hedge-picker-main">
+      <article class="prediction-row-frame prediction-hedge-row prediction-hedge-picker-row" data-hedge-effect-id="${escapeHtml(effect.id)}">
+        ${predictionRowLeftMarkup(true)}
+        <span class="prediction-hedge-picker-main">
           <select class="hedge-fixture-select" data-hedge-fixture aria-label="Choose Hedge fixture" ${disabled}>
             <option value="">Choose match</option>
             ${fixtureOptions}
           </select>
-          <input class="score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="Hedge home goals">
-          <span class="score-separator">-</span>
-          <input class="score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="Hedge away goals">
+          <input class="prediction-score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="Hedge home goals">
+          <span class="prediction-dash">-</span>
+          <input class="prediction-score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="Hedge away goals">
         </span>
-        <span class="fixture-meta hedge-fixture-meta">
-          <span class="fixture-effects">${renderPowerEffectMarker(effect)}</span>
+        <span class="prediction-row-meta prediction-hedge-meta">
+          <span class="prediction-effects">${renderPowerEffectMarker(effect)}</span>
           <button class="hedge-save-button" type="button" data-save-hedge ${disabled}>Save Hedge</button>
         </span>
       </article>
@@ -814,21 +820,18 @@ function renderHedgeRow(effect, index, mode = 'edit') {
   }
 
   return `
-    <article class="fixture-row hedge-fixture-row" data-hedge-effect-id="${escapeHtml(effect.id)}" data-hedge-source-fixture="${escapeHtml(selectedFixture.id)}">
-      <span class="fixture-flags hedge-flags">
-        <span class="fixture-gameweek">GW${escapeHtml(state.activeGameweek.gameweek_number)}</span>
-        <span class="hedge-badge">Hedge</span>
+    <article class="prediction-row-frame prediction-hedge-row" data-hedge-effect-id="${escapeHtml(effect.id)}" data-hedge-source-fixture="${escapeHtml(selectedFixture.id)}">
+      ${predictionRowLeftMarkup(true)}
+      <span class="prediction-score-axis prediction-score-axis--edit">
+        <span class="prediction-team prediction-team--home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
+        <input class="prediction-score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.home_team_id))} Hedge goals">
+        <span class="prediction-dash">-</span>
+        <input class="prediction-score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.away_team_id))} Hedge goals">
+        <span class="prediction-team prediction-team--away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
       </span>
-      <span class="fixture-main">
-        <span class="fixture-team home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
-        <input class="score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.home_team_id))} Hedge goals">
-        <span class="score-separator">-</span>
-        <input class="score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.away_team_id))} Hedge goals">
-        <span class="fixture-team away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
-      </span>
-      <span class="fixture-meta hedge-fixture-meta">
-        <span class="fixture-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(selectedFixture.prediction_locks_at || '')}">${fixtureLockText(selectedFixture)}</span>
-        <span class="fixture-effects">${powerMarker}</span>
+      <span class="prediction-row-meta prediction-hedge-meta">
+        <span class="prediction-effects">${powerMarker}</span>
+        <span class="prediction-lock ${locked ? 'locked' : 'remaining'}" data-prediction-lock="${escapeHtml(selectedFixture.prediction_locks_at || '')}">${fixtureLockText(selectedFixture)}</span>
         <button class="hedge-save-button" type="button" data-save-hedge ${disabled}>Save Hedge</button>
       </span>
     </article>

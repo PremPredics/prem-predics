@@ -1433,6 +1433,275 @@ footer {
     letter-spacing: 0 !important;
   }
 }
+
+/* dedicated-prediction-row-layout */
+.prediction-summary-list {
+  width: 100%;
+}
+
+.prediction-row-frame {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) 132px;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 42px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(17, 7, 38, 0.44);
+  border: 1px solid rgba(216, 180, 254, 0.2);
+  position: relative;
+}
+
+.prediction-hedge-row {
+  border-color: rgba(125, 211, 252, 0.44);
+  background:
+    linear-gradient(90deg, rgba(7, 89, 133, 0.24), rgba(17, 7, 38, 0.44) 34%),
+    rgba(17, 7, 38, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.14);
+}
+
+.prediction-row-left {
+  display: grid;
+  gap: 3px;
+  place-items: center;
+  min-width: 0;
+}
+
+.prediction-gameweek {
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: rgba(17, 7, 38, 0.72);
+  border: 1px solid rgba(216, 180, 254, 0.24);
+  color: #fde68a;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.prediction-hedge-badge {
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.88),
+    1px -1px 0 rgba(0,0,0,0.88),
+    -1px 1px 0 rgba(0,0,0,0.88),
+    1px 1px 0 rgba(0,0,0,0.88),
+    0 0 10px rgba(125, 211, 252, 0.68);
+}
+
+.prediction-score-axis {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 2.2rem 0.75rem 2.2rem minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.prediction-team {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.08;
+}
+
+.prediction-team--home {
+  text-align: right;
+}
+
+.prediction-team--away {
+  text-align: left;
+}
+
+.prediction-goal,
+.prediction-dash {
+  display: inline-grid;
+  place-items: center;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+}
+
+.prediction-dash {
+  color: #ddd6fe;
+}
+
+.prediction-score-input {
+  width: 40px;
+  height: 30px;
+  border: 1px solid rgba(216, 180, 254, 0.42);
+  border-radius: 7px;
+  background: rgba(17, 7, 38, 0.76);
+  color: #fff;
+  text-align: center;
+  font: 900 15px 'Segoe UI', Arial, sans-serif;
+}
+
+.prediction-score-input:disabled {
+  opacity: 0.58;
+}
+
+.prediction-row-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.prediction-effects {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.prediction-lock {
+  color: #ddd6fe;
+  font-size: 12px;
+  font-weight: 800;
+  min-width: 88px;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.prediction-lock.remaining {
+  color: #86efac;
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.36);
+}
+
+.prediction-lock.locked {
+  color: #ff1f1f;
+  min-width: 34px;
+  font-size: 15px;
+  text-align: center;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 0 10px rgba(255, 31, 31, 0.78);
+}
+
+.prediction-row-note,
+.prediction-cursed-label {
+  grid-column: 2;
+  justify-self: center;
+  color: #bbf7d0;
+  text-align: center;
+  font-weight: 900;
+}
+
+.prediction-cursed-label {
+  color: #ff1f1f;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95),
+    0 0 10px rgba(255, 31, 31, 0.9),
+    0 0 18px rgba(249, 115, 22, 0.58);
+}
+
+.prediction-hedge-picker-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px 0.75rem 40px;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.prediction-hedge-meta {
+  gap: 6px;
+}
+
+@media (max-width: 720px) {
+  .prediction-row-frame {
+    grid-template-columns: 42px minmax(0, 1fr) 72px;
+    gap: 4px;
+    min-height: 34px;
+    padding: 4px 5px;
+  }
+
+  .prediction-row-left {
+    gap: 2px;
+  }
+
+  .prediction-gameweek {
+    padding: 3px 4px;
+    font-size: 10.5px;
+  }
+
+  .prediction-hedge-badge {
+    font-size: 9.5px;
+  }
+
+  .prediction-score-axis {
+    grid-template-columns: minmax(0, 1fr) 1.45rem 0.45rem 1.45rem minmax(0, 1fr);
+    gap: 3px;
+  }
+
+  .prediction-team {
+    font-size: clamp(9px, 2.55vw, 11px);
+    line-height: 1.05;
+  }
+
+  .prediction-goal,
+  .prediction-dash {
+    font-size: 14px;
+  }
+
+  .prediction-score-input {
+    width: 28px;
+    height: 26px;
+    font-size: 13px;
+  }
+
+  .prediction-row-meta {
+    gap: 3px;
+  }
+
+  .prediction-effects {
+    gap: 2px;
+  }
+
+  .prediction-lock {
+    min-width: 0;
+    width: 48px;
+    max-width: 48px;
+    font-size: 9.4px;
+    text-align: right;
+  }
+
+  .prediction-lock.locked {
+    width: 48px;
+    max-width: 48px;
+    font-size: 12px;
+  }
+
+  .prediction-hedge-picker-main {
+    grid-template-columns: minmax(0, 1fr) 28px 0.45rem 28px;
+    gap: 3px;
+  }
+
+  .prediction-hedge-meta {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
 </style>
 </head>
 <body data-require-auth="true" data-require-league="true">
