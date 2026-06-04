@@ -1090,7 +1090,7 @@ button:disabled {
   overflow-x: hidden;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
   gap: 14px;
   padding-right: 2px;
 }
@@ -1102,7 +1102,7 @@ button:disabled {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 132px;
+  min-height: 112px;
   border: 1px solid rgba(216, 180, 254, 0.32);
   border-radius: 12px;
   padding: 14px 10px;
@@ -1131,20 +1131,22 @@ button:disabled {
 
 .opponent-target-btn.selected,
 .veto-curse-btn.selected {
-  border-color: rgba(250, 204, 21, 0.95);
-  box-shadow: 0 0 22px rgba(250, 204, 21, 0.35);
-  background: rgba(46, 16, 102, 0.86);
+  border-color: rgba(251, 146, 60, 0.98);
+  box-shadow:
+    inset 0 0 0 3px rgba(251, 146, 60, 0.9),
+    0 0 18px rgba(251, 146, 60, 0.52);
 }
 
 .veto-curse-list {
-  grid-template-columns: repeat(auto-fit, minmax(126px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
   justify-items: center;
 }
 
 .veto-curse-btn {
   min-height: 0;
-  width: min(150px, 100%);
-  aspect-ratio: 0.72;
+  width: min(190px, 100%);
+  aspect-ratio: auto;
+  min-height: 248px;
   align-items: center;
   justify-items: center;
   gap: 6px;
@@ -1160,7 +1162,7 @@ button:disabled {
 .veto-curse-name {
   display: block;
   color: #fff;
-  font-size: 1rem;
+  font-size: 0.96rem;
   font-weight: 950;
   text-align: center;
 }
@@ -1169,7 +1171,7 @@ button:disabled {
 .veto-curse-description {
   display: block;
   color: #ddd6fe;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   line-height: 1.16;
   text-align: center;
   overflow: hidden;
@@ -1333,28 +1335,74 @@ button:disabled {
   gap: 12px;
 }
 
-.random-fixture-btn {
-  min-height: 78px;
+.fixture-choice-list {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.random-fixture-btn,
+.fixture-choice-btn {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  box-sizing: border-box;
   border: 1px solid rgba(216, 180, 254, 0.32);
   border-radius: 12px;
-  padding: 12px;
+  padding: 10px 12px;
   background: rgba(17, 7, 38, 0.66);
   color: #fff;
   font-weight: 950;
   text-align: center;
   cursor: pointer;
+  overflow: hidden;
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .random-fixture-btn:hover,
-.random-fixture-btn.selected {
+.fixture-choice-btn:hover,
+.random-fixture-btn.selected,
+.fixture-choice-btn.selected {
   transform: translateY(-2px);
-  border-color: rgba(250, 204, 21, 0.9);
-  box-shadow: 0 0 18px rgba(250, 204, 21, 0.26);
+  border-color: rgba(251, 146, 60, 0.98);
+  box-shadow:
+    inset 0 0 0 3px rgba(251, 146, 60, 0.9),
+    0 0 20px rgba(251, 146, 60, 0.42);
 }
 
-.random-fixture-btn.selected {
-  background: linear-gradient(135deg, rgba(120, 53, 15, 0.86), rgba(245, 158, 11, 0.42));
+.fixture-choice-teams {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+  line-height: 1.05;
+}
+
+.fixture-choice-team {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fixture-choice-home {
+  justify-self: end;
+  text-align: right;
+}
+
+.fixture-choice-away {
+  justify-self: start;
+  text-align: left;
+}
+
+.fixture-choice-v {
+  color: #fbbf24;
+  font-size: 0.84em;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.34);
 }
 
 .random-curse-actions {
@@ -1493,7 +1541,8 @@ button:disabled {
   }
 
   .opponent-target-list,
-  .random-fixture-list {
+  .random-fixture-list,
+  .fixture-choice-list {
     grid-template-columns: 1fr;
     gap: 8px;
   }
@@ -1503,9 +1552,30 @@ button:disabled {
     padding: 10px 8px;
   }
 
-  .random-fixture-btn {
-    min-height: 54px;
-    padding: 9px;
+  .random-fixture-btn,
+  .fixture-choice-btn {
+    min-height: 50px;
+    padding: 8px 9px;
+    border-radius: 10px;
+  }
+
+  .fixture-choice-teams {
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+
+  .veto-curse-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .veto-curse-btn {
+    width: 100%;
+    min-height: 178px;
+    padding: 9px 7px;
+  }
+
+  .veto-curse-description {
+    font-size: 0.6rem;
   }
 
   .random-curse-content {
@@ -6626,17 +6696,28 @@ async function initializeCardPage() {
       const titleEl = document.getElementById('opponentTargetTitle');
       const list = document.getElementById('opponentTargetList');
       const cancelButton = document.getElementById('opponentTargetCancel');
+      const isFixtureChoice = items.every((item) => item && ('home_team_name' in item || 'away_team_name' in item));
+      const confirmButton = document.createElement('button');
+      confirmButton.className = 'random-curse-confirm fixture-choice-confirm';
+      confirmButton.type = 'button';
+      confirmButton.textContent = 'Confirm Match';
+      confirmButton.disabled = true;
 
       return new Promise((resolve, reject) => {
         let settled = false;
+        let selectedIndex = null;
         const originalTitle = titleEl.textContent;
+        const originalListClass = list.className;
 
         function cleanup() {
           titleEl.textContent = originalTitle;
+          list.className = originalListClass;
+          confirmButton.remove();
           modal.classList.remove('show');
           modal.setAttribute('aria-hidden', 'true');
           document.body.classList.remove('card-preview-open');
           cancelButton.removeEventListener('click', cancel);
+          confirmButton.removeEventListener('click', confirm);
           modal.removeEventListener('click', modalClick);
           document.removeEventListener('keydown', keydown);
         }
@@ -6655,6 +6736,20 @@ async function initializeCardPage() {
           reject(new Error('Card play cancelled.'));
         }
 
+        function updateSelectedState() {
+          list.querySelectorAll('[data-choice-index]').forEach((button) => {
+            const index = Number(button.dataset.choiceIndex);
+            button.classList.toggle('selected', selectedIndex === index);
+            button.setAttribute('aria-pressed', selectedIndex === index ? 'true' : 'false');
+          });
+          confirmButton.disabled = selectedIndex === null;
+        }
+
+        function confirm() {
+          if (selectedIndex === null) return;
+          finish(items[selectedIndex]);
+        }
+
         function modalClick(event) {
           if (event.target === modal) {
             cancel();
@@ -6668,16 +6763,28 @@ async function initializeCardPage() {
         }
 
         titleEl.textContent = title;
+        list.className = isFixtureChoice ? `${originalListClass} fixture-choice-list` : originalListClass;
         list.innerHTML = items.map((item, index) => `
-          <button class="opponent-target-btn" type="button" data-choice-index="${index}">
-            <span>${escapeHtml(labelFn(item))}</span>
+          <button class="${isFixtureChoice ? 'fixture-choice-btn' : 'opponent-target-btn'}" type="button" data-choice-index="${index}" aria-pressed="false">
+            ${isFixtureChoice ? fixtureChoiceMarkup(item) : `<span>${escapeHtml(labelFn(item))}</span>`}
           </button>
         `).join('');
 
         list.querySelectorAll('[data-choice-index]').forEach((button) => {
-          button.addEventListener('click', () => finish(items[Number(button.dataset.choiceIndex)]));
+          button.addEventListener('click', () => {
+            if (!isFixtureChoice) {
+              finish(items[Number(button.dataset.choiceIndex)]);
+              return;
+            }
+            selectedIndex = Number(button.dataset.choiceIndex);
+            updateSelectedState();
+          });
         });
 
+        if (isFixtureChoice) {
+          cancelButton.parentElement.insertBefore(confirmButton, cancelButton);
+          confirmButton.addEventListener('click', confirm);
+        }
         cancelButton.addEventListener('click', cancel);
         modal.addEventListener('click', modalClick);
         document.addEventListener('keydown', keydown);
@@ -7003,7 +7110,7 @@ async function initializeCardPage() {
           <div class="random-fixture-list">
             ${fixtures.map((fixture, index) => `
               <button class="random-fixture-btn" type="button" data-random-fixture-index="${index}" aria-pressed="false">
-                ${escapeHtml(fixtureChoiceLabel(fixture))}
+                ${fixtureChoiceMarkup(fixture)}
               </button>
             `).join('')}
           </div>
@@ -7227,6 +7334,16 @@ async function initializeCardPage() {
 
     function fixtureChoiceLabel(fixture) {
       return `${fixture.home_team_name || 'Home'} v ${fixture.away_team_name || 'Away'}`;
+    }
+
+    function fixtureChoiceMarkup(fixture) {
+      return `
+        <span class="fixture-choice-teams">
+          <span class="fixture-choice-team fixture-choice-home">${escapeHtml(fixture.home_team_name || 'Home')}</span>
+          <span class="fixture-choice-v">v</span>
+          <span class="fixture-choice-team fixture-choice-away">${escapeHtml(fixture.away_team_name || 'Away')}</span>
+        </span>
+      `;
     }
 
     async function endGameweekId(activeGameweek, duration) {
