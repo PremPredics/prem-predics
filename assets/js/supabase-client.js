@@ -18,3 +18,7 @@ import('./desktop-polish.js').catch((error) => {
 import('./desktop-summary-polish.js').catch((error) => {
   console.warn('Prem Predics desktop summary polish failed to load:', error);
 });
+
+import('./desktop-prediction-final-polish.js').catch((error) => {
+  console.warn('Prem Predics final desktop prediction polish failed to load:', error);
+});
