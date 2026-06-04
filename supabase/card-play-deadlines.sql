@@ -15,7 +15,7 @@ with canonical_card_descriptions (id, description) as (
     ('power_laundrette', 'Valid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_rocket_man', 'Valid for 1 Gameweek. If you score a point in every game this Gameweek, earn bonus +5 UC pts. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_pessimist', 'Valid for 1 Gameweek. DOUBLE points for all Predictions if no team scores 3+ goals. Must be played at least 90 minutes before the gameweek''s first KO time.'),
-    ('power_immigrants', 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
+    ('power_immigrants', 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards do not deduct points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_lanky_crouch', 'Valid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_small_and_mighty', 'Valid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_of_god', 'Valid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.'),

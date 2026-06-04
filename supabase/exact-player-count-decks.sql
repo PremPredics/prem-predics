@@ -1,6 +1,6 @@
 -- Prem Predics exact player-count deck migration
 -- Uses a 56-card regular deck as the 2-player baseline.
--- Regular deck size becomes 28 cards per player:
+-- Regular deck size becomes 30 cards per player:
 -- 2=52, 3=78, 4=104, 5=130, 6=156, 7=182, 8=208, 9=234, 10=260.
 
 insert into public.card_deck_variants (id, name, min_members, max_members, description, is_active)
@@ -9,7 +9,7 @@ select
   player_count || ' Player Deck',
   player_count,
   player_count,
-  'Exact ' || player_count || '-player deck. Regular deck uses 28 cards per player, keeping the Power and Curse mix balanced.',
+  'Exact ' || player_count || '-player deck. Regular deck uses 30 cards per player, keeping the Power and Curse mix balanced.',
   true
 from generate_series(2, 10) as counts(player_count)
 on conflict (id) do update
@@ -136,8 +136,8 @@ regular_scaled as (
     (bq.base_quantity * mc.player_count / 2.0) as raw_quantity,
     floor(bq.base_quantity * mc.player_count / 2.0)::integer as floor_quantity,
     case bq.category
-      when 'power' then 16 * mc.player_count
-      else 12 * mc.player_count
+      when 'power' then 17 * mc.player_count
+      else 13 * mc.player_count
     end as target_category_total
   from member_counts mc
   cross join base_quantities bq
@@ -149,7 +149,8 @@ regular_ranked as (
       partition by deck_variant_id, category
       order by (raw_quantity - floor_quantity) desc, priority asc
     ) as remainder_rank,
-    sum(floor_quantity) over (partition by deck_variant_id, category) as floor_category_total
+    sum(floor_quantity) over (partition by deck_variant_id, category) as floor_category_total,
+    count(*) over (partition by deck_variant_id, category) as category_card_count
   from regular_scaled
 ),
 regular_final as (
@@ -157,8 +158,9 @@ regular_final as (
     deck_variant_id,
     card_id,
     floor_quantity
+      + ((target_category_total - floor_category_total) / category_card_count)
       + case
-          when remainder_rank <= target_category_total - floor_category_total then 1
+          when remainder_rank <= ((target_category_total - floor_category_total) % category_card_count) then 1
           else 0
         end as quantity
   from regular_ranked

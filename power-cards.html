@@ -1087,6 +1087,7 @@ button:disabled {
 
 .opponent-target-list {
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -1098,6 +1099,9 @@ button:disabled {
   display: grid;
   justify-items: center;
   gap: 9px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 132px;
   border: 1px solid rgba(216, 180, 254, 0.32);
   border-radius: 12px;
@@ -1107,11 +1111,13 @@ button:disabled {
   cursor: pointer;
   font-weight: 900;
   text-align: center;
+  overflow: hidden;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .opponent-target-btn > span:not(.opponent-target-avatar) {
   max-width: 100%;
+  min-width: 0;
   overflow-wrap: anywhere;
   word-break: break-word;
   line-height: 1.12;
@@ -2224,7 +2230,8 @@ button:disabled {
     0 0 4px rgba(0,0,0,0.58);
 }
 
-#confirmStealBtn {
+#confirmStealBtn,
+#confirmSwapBtn {
   border: 2px solid rgba(254, 202, 202, 0.92);
   border-radius: 999px;
   padding: 12px 20px;
@@ -3955,17 +3962,6 @@ button:disabled {
         </div>
       </div>
 
-      <div class="active-game-inline" data-active-game-panel>
-        <span>Active Game Card</span>
-        <button class="active-game-card-display" type="button" onclick="showGameCardPreview()" aria-label="View active game card">
-          <strong data-active-game-name>Loading...</strong>
-        </button>
-        <div class="active-game-summary">
-          <p data-active-game-range>Checking active gameweek...</p>
-          <p data-active-game-description></p>
-        </div>
-      </div>
-
       <!-- Pending Swap / Steal -->
       <div class="card-section show" id="swapSection">
         <h2>Pending Swap/Steal</h2>
@@ -3974,6 +3970,17 @@ button:disabled {
           <button id="confirmSwapBtn" onclick="confirmSwap()" style="display:none;">Confirm Discard</button>
           <button id="confirmPickBtn" onclick="confirmPick()" style="display:none;">Confirm Picks</button>
           <button id="confirmStealBtn" onclick="confirmSteal()" style="display:none;">Confirm Steal</button>
+        </div>
+      </div>
+
+      <div class="active-game-inline" data-active-game-panel>
+        <span>Active Game Card</span>
+        <button class="active-game-card-display" type="button" onclick="showGameCardPreview()" aria-label="View active game card">
+          <strong data-active-game-name>Loading...</strong>
+        </button>
+        <div class="active-game-summary">
+          <p data-active-game-range>Checking active gameweek...</p>
+          <p data-active-game-description></p>
         </div>
       </div>
 
@@ -4218,7 +4225,7 @@ const cardDescriptions = {
   "Power of the Laundrette": "Power of the Laundrette\n\nValid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power Of The Clean Sweep": "Power Of The Clean Sweep\nValid for 1 Gameweek.\n\nIf you score a point in every game this Gameweek, earn bonus +5 UC pts.\n\nMust be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Pessimist": "Power of the Pessimist\n\nValid for 1 Gameweek. DOUBLE points for all Predictions if no team scores 3+ goals. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Immigrants": "Power of the Immigrants\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Immigrants": "Power of the Immigrants\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards do not deduct points. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Lanky Crouch": "Power of the Lanky Crouch\n\nValid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Small and Mighty": "Power of the Small and Mighty\n\nValid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of God": "Power of God\n\nValid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.",

@@ -682,7 +682,7 @@ select
   player_count || ' Player Deck',
   player_count,
   player_count,
-  'Exact ' || player_count || '-player deck. Regular deck uses 28 cards per player, keeping the Power and Curse mix balanced.'
+  'Exact ' || player_count || '-player deck. Regular deck uses 30 cards per player, keeping the Power and Curse mix balanced.'
 from generate_series(2, 10) as counts(player_count)
 on conflict (id) do nothing;
 
@@ -2364,7 +2364,7 @@ select
       * case when super_star_man_applies then 3 else 1 end
     )
     - case
-        when super_star_man_applies then 0
+        when super_star_man_applies or immigrants_applies then 0
         else (yellow_cards * case when furious_applies then 2 else 1 end)
           + (red_cards * 3 * case when furious_applies then 2 else 1 end)
       end

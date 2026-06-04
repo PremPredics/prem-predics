@@ -163,24 +163,88 @@ async function loadPredictionCompletion(league, user, fixtures) {
     return false;
   }
 
-  const { data, error } = await supabase
-    .from('predictions')
-    .select('fixture_id, home_goals, away_goals')
-    .eq('competition_id', league.id)
-    .eq('season_id', league.season_id)
-    .eq('user_id', user.id)
-    .eq('prediction_slot', 'primary')
-    .in('fixture_id', activeFixtures.map((fixture) => fixture.id));
+  const fixtureIds = activeFixtures.map((fixture) => fixture.id);
+  const currentGameweekId = activeFixtures[0]?.gameweek_id;
 
-  if (error) {
+  const [primaryResult, hatedResult, randomResult, hedgeEffectResult] = await Promise.all([
+    supabase
+      .from('predictions')
+      .select('fixture_id, home_goals, away_goals')
+      .eq('competition_id', league.id)
+      .eq('season_id', league.season_id)
+      .eq('user_id', user.id)
+      .eq('prediction_slot', 'primary')
+      .in('fixture_id', fixtureIds),
+    supabase
+      .from('curse_hated_forced_predictions')
+      .select('fixture_id, home_goals, away_goals')
+      .eq('competition_id', league.id)
+      .eq('target_user_id', user.id)
+      .in('fixture_id', fixtureIds),
+    supabase
+      .from('curse_gambler_rolls')
+      .select('fixture_id, home_goals, away_goals')
+      .eq('competition_id', league.id)
+      .eq('target_user_id', user.id)
+      .in('fixture_id', fixtureIds),
+    supabase
+      .from('active_card_effects')
+      .select('id, gameweek_id, start_gameweek_id, end_gameweek_id, card_definitions!inner(effect_key)')
+      .eq('competition_id', league.id)
+      .eq('season_id', league.season_id)
+      .eq('played_by_user_id', user.id)
+      .eq('status', 'active')
+      .eq('card_definitions.effect_key', 'power_hedge'),
+  ]);
+
+  if (primaryResult.error || hatedResult.error || randomResult.error || hedgeEffectResult.error) {
     return false;
   }
 
-  const completedFixtureIds = new Set((data || [])
+  const completeRows = [
+    ...(primaryResult.data || []),
+    ...(hatedResult.data || []),
+    ...(randomResult.data || []),
+  ];
+
+  const completedFixtureIds = new Set(completeRows
     .filter((prediction) => Number.isFinite(Number(prediction.home_goals)) && Number.isFinite(Number(prediction.away_goals)))
     .map((prediction) => prediction.fixture_id));
 
-  return activeFixtures.every((fixture) => completedFixtureIds.has(fixture.id));
+  if (!activeFixtures.every((fixture) => completedFixtureIds.has(fixture.id))) {
+    return false;
+  }
+
+  const hedgeEffects = (hedgeEffectResult.data || []).filter((effect) => {
+    const ids = [effect.gameweek_id, effect.start_gameweek_id, effect.end_gameweek_id]
+      .filter((value) => value !== null && value !== undefined)
+      .map((value) => String(value));
+    return !ids.length || ids.includes(String(currentGameweekId));
+  });
+
+  if (!hedgeEffects.length) {
+    return true;
+  }
+
+  const hedgeEffectIds = hedgeEffects.map((effect) => effect.id);
+  const { data: hedgePredictions, error: hedgePredictionError } = await supabase
+    .from('predictions')
+    .select('source_card_effect_id, home_goals, away_goals, prediction_slot')
+    .eq('competition_id', league.id)
+    .eq('season_id', league.season_id)
+    .eq('user_id', user.id)
+    .in('source_card_effect_id', hedgeEffectIds);
+
+  if (hedgePredictionError) {
+    return false;
+  }
+
+  const completedHedgeEffectIds = new Set((hedgePredictions || [])
+    .filter((prediction) => String(prediction.prediction_slot || '').startsWith('hedge'))
+    .filter((prediction) => Number.isFinite(Number(prediction.home_goals)) && Number.isFinite(Number(prediction.away_goals)))
+    .map((prediction) => prediction.source_card_effect_id));
+
+  return hedgeEffectIds.every((effectId) => completedHedgeEffectIds.has(effectId));
 }
 
 async function loadStarManCompletion(league, user, activeGameweek) {

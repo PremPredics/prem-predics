@@ -1,199 +1,157 @@
--- Run this in Supabase SQL Editor.
+-- Run this whole file in Supabase SQL Editor.
 --
 -- Purpose:
 -- - Keep every fixture in its existing gameweek.
--- - Clear entered player stat data.
--- - Clear actual match/fixture/game-card result data.
--- - Set every fixture in GW1 to 27 May 2026 15:00 Europe/London.
--- - Set every later gameweek to the same 15:00 Europe/London kick-off,
---   exactly one week after the previous gameweek.
+-- - Clear global-admin manual entry data for actual scores, fixture stats,
+--   player stats, and game-card actual/result entries.
+-- - Reset Game Card rounds back to scheduled, clearing completed-round
+--   tiebreak snapshots.
+-- - Set GW1 fixtures to 7 June 2026 15:00 Europe/London.
+-- - Set each following gameweek exactly 7 days and 1 minute later:
+--   GW2 = 14 June 2026 15:01, GW3 = 21 June 2026 15:02, etc.
 --
--- Notes:
--- - The fixtures_set_deadlines trigger refreshes prediction_locks_at
---   and second_half_deadline_at whenever kickoff_at changes.
--- - This does not delete user predictions, star man picks, league members,
---   cards, or fixture rows.
--- - Match results are stored as not-null rows, so "blank" means deleting the
---   result rows rather than setting home_goals/away_goals to null.
+-- This does not delete user predictions, Star Man picks, league members,
+-- cards, or fixture rows.
 
-begin;
-
-with target_season as (
+do $$
+declare
+  target_season_id uuid;
+begin
   select id
+    into target_season_id
   from public.seasons
   where name = 'Premier League 2025-26'
   order by created_at desc
-  limit 1
-),
-deleted_rows as (
+  limit 1;
+
+  if target_season_id is null then
+    raise exception 'Premier League 2025-26 season was not found.';
+  end if;
+
   delete from public.player_fixture_stats stats
-  using target_season s
-  where stats.season_id = s.id
-  returning 1
-)
-select 'deleted player_fixture_stats' as action, count(*) as rows_affected
-from deleted_rows;
+  where stats.season_id = target_season_id;
 
-with target_season as (
-  select id
-  from public.seasons
-  where name = 'Premier League 2025-26'
-  order by created_at desc
-  limit 1
-),
-deleted_rows as (
   delete from public.player_gameweek_stats stats
-  using target_season s
-  where stats.season_id = s.id
-  returning 1
-)
-select 'deleted player_gameweek_stats' as action, count(*) as rows_affected
-from deleted_rows;
+  where stats.season_id = target_season_id;
 
-with target_season as (
-  select id
-  from public.seasons
-  where name = 'Premier League 2025-26'
-  order by created_at desc
-  limit 1
-),
-deleted_rows as (
   delete from public.match_results results
-  using public.fixtures fixtures, target_season s
+  using public.fixtures fixtures
   where results.fixture_id = fixtures.id
-    and fixtures.season_id = s.id
-  returning 1
-)
-select 'deleted match_results' as action, count(*) as rows_affected
-from deleted_rows;
+    and fixtures.season_id = target_season_id;
 
-with target_season as (
-  select id
-  from public.seasons
-  where name = 'Premier League 2025-26'
-  order by created_at desc
-  limit 1
-),
-deleted_rows as (
   delete from public.fixture_game_stats stats
-  using public.fixtures fixtures, target_season s
+  using public.fixtures fixtures
   where stats.fixture_id = fixtures.id
-    and fixtures.season_id = s.id
-  returning 1
-)
-select 'deleted fixture_game_stats' as action, count(*) as rows_affected
-from deleted_rows;
+    and fixtures.season_id = target_season_id;
 
-with target_season as (
-  select id
-  from public.seasons
-  where name = 'Premier League 2025-26'
-  order by created_at desc
-  limit 1
-),
-deleted_rows as (
   delete from public.game_card_actual_results results
-  using target_season s
-  where results.season_id = s.id
-  returning 1
-)
-select 'deleted game_card_actual_results' as action, count(*) as rows_affected
-from deleted_rows;
+  where results.season_id = target_season_id;
 
-with target_season as (
-  select id
-  from public.seasons
-  where name = 'Premier League 2025-26'
-  order by created_at desc
-  limit 1
-),
-deleted_rows as (
   delete from public.game_card_results results
-  using public.game_card_rounds rounds, target_season s
+  using public.game_card_rounds rounds
   where results.round_id = rounds.id
-    and rounds.season_id = s.id
-  returning 1
-)
-select 'deleted game_card_results' as action, count(*) as rows_affected
-from deleted_rows;
+    and rounds.season_id = target_season_id;
 
+  delete from public.game_card_round_tiebreaks tiebreaks
+  using public.game_card_rounds rounds
+  where tiebreaks.round_id = rounds.id
+    and rounds.season_id = target_season_id;
+
+  update public.game_card_rounds rounds
+  set
+    status = 'scheduled',
+    finalized_at = null
+  where rounds.season_id = target_season_id;
+
+  update public.fixtures fixtures
+  set
+    kickoff_at = make_timestamptz(
+      extract(year from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
+      extract(month from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
+      extract(day from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
+      15,
+      (gameweeks.number - 1)::integer,
+      0,
+      'Europe/London'
+    ),
+    status = 'scheduled'
+  from public.gameweeks gameweeks
+  where fixtures.gameweek_id = gameweeks.id
+    and fixtures.season_id = gameweeks.season_id
+    and fixtures.season_id = target_season_id;
+
+  update public.gameweeks gameweeks
+  set star_man_locks_at = make_timestamptz(
+      extract(year from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
+      extract(month from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
+      extract(day from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
+      15,
+      (gameweeks.number - 1)::integer,
+      0,
+      'Europe/London'
+    ) - interval '90 minutes'
+  where gameweeks.season_id = target_season_id;
+
+  update public.competitions competitions
+  set
+    starts_at = competition_start_gameweeks.first_kickoff_at - interval '24 hours',
+    member_lock_at = competition_start_gameweeks.first_kickoff_at - interval '90 minutes'
+  from (
+    select
+      competitions.id as competition_id,
+      min(fixtures.kickoff_at) as first_kickoff_at
+    from public.competitions competitions
+    join public.fixtures fixtures
+      on fixtures.season_id = competitions.season_id
+     and fixtures.gameweek_id = competitions.starts_gameweek_id
+    where competitions.season_id = target_season_id
+    group by competitions.id
+  ) competition_start_gameweeks
+  where competitions.id = competition_start_gameweeks.competition_id
+    and competitions.season_id = target_season_id;
+end $$;
+
+-- Verification 1: every manual/admin result table below should show 0.
 with target_season as (
   select id
   from public.seasons
   where name = 'Premier League 2025-26'
   order by created_at desc
   limit 1
-),
-target_gameweeks as (
-  select
-    gw.id,
-    gw.season_id,
-    gw.number,
-    make_timestamptz(2026, 5, 27, 15, 0, 0, 'Europe/London')
-      + ((gw.number - 1) * interval '7 days') as new_kickoff_at
-  from public.gameweeks gw
-  join target_season s on s.id = gw.season_id
 )
-update public.fixtures fixtures
-set
-  kickoff_at = target_gameweeks.new_kickoff_at,
-  status = 'scheduled'
-from target_gameweeks
-where fixtures.gameweek_id = target_gameweeks.id
-  and fixtures.season_id = target_gameweeks.season_id;
+select 'match_results' as table_name, count(*) as rows_remaining
+from public.match_results results
+join public.fixtures fixtures on fixtures.id = results.fixture_id
+join target_season s on s.id = fixtures.season_id
+union all
+select 'fixture_game_stats', count(*)
+from public.fixture_game_stats stats
+join public.fixtures fixtures on fixtures.id = stats.fixture_id
+join target_season s on s.id = fixtures.season_id
+union all
+select 'player_fixture_stats', count(*)
+from public.player_fixture_stats stats
+join target_season s on s.id = stats.season_id
+union all
+select 'player_gameweek_stats', count(*)
+from public.player_gameweek_stats stats
+join target_season s on s.id = stats.season_id
+union all
+select 'game_card_actual_results', count(*)
+from public.game_card_actual_results results
+join target_season s on s.id = results.season_id
+union all
+select 'game_card_results', count(*)
+from public.game_card_results results
+join public.game_card_rounds rounds on rounds.id = results.round_id
+join target_season s on s.id = rounds.season_id
+union all
+select 'game_card_round_tiebreaks', count(*)
+from public.game_card_round_tiebreaks tiebreaks
+join public.game_card_rounds rounds on rounds.id = tiebreaks.round_id
+join target_season s on s.id = rounds.season_id;
 
-with target_season as (
-  select id
-  from public.seasons
-  where name = 'Premier League 2025-26'
-  order by created_at desc
-  limit 1
-),
-target_gameweeks as (
-  select
-    gw.id,
-    gw.season_id,
-    gw.number,
-    make_timestamptz(2026, 5, 27, 15, 0, 0, 'Europe/London')
-      + ((gw.number - 1) * interval '7 days') as new_kickoff_at
-  from public.gameweeks gw
-  join target_season s on s.id = gw.season_id
-)
-update public.gameweeks gw
-set star_man_locks_at = target_gameweeks.new_kickoff_at - interval '90 minutes'
-from target_gameweeks
-where gw.id = target_gameweeks.id
-  and gw.season_id = target_gameweeks.season_id;
-
-with target_season as (
-  select id
-  from public.seasons
-  where name = 'Premier League 2025-26'
-  order by created_at desc
-  limit 1
-),
-competition_start_gameweeks as (
-  select
-    competitions.id as competition_id,
-    competitions.season_id,
-    min(fixtures.kickoff_at) as first_kickoff_at
-  from public.competitions
-  join target_season s on s.id = competitions.season_id
-  join public.fixtures
-    on fixtures.season_id = competitions.season_id
-   and fixtures.gameweek_id = competitions.starts_gameweek_id
-  group by competitions.id, competitions.season_id
-)
-update public.competitions competitions
-set
-  starts_at = competition_start_gameweeks.first_kickoff_at - interval '24 hours',
-  member_lock_at = competition_start_gameweeks.first_kickoff_at - interval '90 minutes'
-from competition_start_gameweeks
-where competitions.id = competition_start_gameweeks.competition_id
-  and competitions.season_id = competition_start_gameweeks.season_id;
-
-commit;
-
+-- Verification 2: first few gameweeks should show 15:00, 15:01, 15:02, etc.
 with target_season as (
   select id
   from public.seasons
@@ -202,51 +160,17 @@ with target_season as (
   limit 1
 )
 select
-  gw.number as gameweek,
+  gameweeks.number as gameweek,
   count(fixtures.id) as fixture_count,
-  min(fixtures.kickoff_at) as first_kickoff_at,
-  max(fixtures.kickoff_at) as last_kickoff_at,
-  min(fixtures.prediction_locks_at) as first_prediction_lock_at,
-  max(fixtures.second_half_deadline_at) as last_second_half_deadline_at,
-  gw.star_man_locks_at
-from public.gameweeks gw
-join target_season s on s.id = gw.season_id
-left join public.fixtures
-  on fixtures.gameweek_id = gw.id
- and fixtures.season_id = gw.season_id
-group by gw.number, gw.star_man_locks_at
-order by gw.number;
-
-with target_season as (
-  select id
-  from public.seasons
-  where name = 'Premier League 2025-26'
-  order by created_at desc
-  limit 1
-)
-select 'remaining match_results' as check_name, count(*) as rows_remaining
-from public.match_results results
-join public.fixtures fixtures on fixtures.id = results.fixture_id
-join target_season s on s.id = fixtures.season_id
-union all
-select 'remaining fixture_game_stats', count(*)
-from public.fixture_game_stats stats
-join public.fixtures fixtures on fixtures.id = stats.fixture_id
-join target_season s on s.id = fixtures.season_id
-union all
-select 'remaining player_fixture_stats', count(*)
-from public.player_fixture_stats stats
-join target_season s on s.id = stats.season_id
-union all
-select 'remaining player_gameweek_stats', count(*)
-from public.player_gameweek_stats stats
-join target_season s on s.id = stats.season_id
-union all
-select 'remaining game_card_actual_results', count(*)
-from public.game_card_actual_results results
-join target_season s on s.id = results.season_id
-union all
-select 'remaining game_card_results', count(*)
-from public.game_card_results results
-join public.game_card_rounds rounds on rounds.id = results.round_id
-join target_season s on s.id = rounds.season_id;
+  min(fixtures.kickoff_at at time zone 'Europe/London') as first_kickoff_london,
+  max(fixtures.kickoff_at at time zone 'Europe/London') as last_kickoff_london,
+  min(fixtures.prediction_locks_at at time zone 'Europe/London') as first_prediction_lock_london,
+  gameweeks.star_man_locks_at at time zone 'Europe/London' as star_man_lock_london
+from public.gameweeks gameweeks
+join target_season s on s.id = gameweeks.season_id
+left join public.fixtures fixtures
+  on fixtures.gameweek_id = gameweeks.id
+ and fixtures.season_id = gameweeks.season_id
+group by gameweeks.number, gameweeks.star_man_locks_at
+order by gameweeks.number
+limit 8;

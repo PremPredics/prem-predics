@@ -2,7 +2,7 @@ update public.card_definitions
 set description = case id
   when 'power_lanky_crouch' then 'Valid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'
   when 'power_small_and_mighty' then 'Valid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'
-  when 'power_immigrants' then 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'
+  when 'power_immigrants' then 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards do not deduct points. Must be played at least 90 minutes before the gameweek''s first KO time.'
   else description
 end
 where id in ('power_lanky_crouch', 'power_small_and_mighty', 'power_immigrants');
@@ -364,7 +364,7 @@ select
       * case when super_star_man_applies then 3 else 1 end
     )
     - case
-        when super_star_man_applies then 0
+        when super_star_man_applies or immigrants_applies then 0
         else (yellow_cards * case when furious_applies then 2 else 1 end)
           + (red_cards * 3 * case when furious_applies then 2 else 1 end)
       end

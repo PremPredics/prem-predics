@@ -9,7 +9,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('power_laundrette', 'Power of the Laundrette', 'power', 'regular', 'power_laundrette', 'Double points for correct results with a clean sheet.'),
     ('power_rocket_man', 'Power Of The Clean Sweep', 'power', 'regular', 'power_clean_sweep', 'Valid for 1 Gameweek. If you score a point in every game, earn bonus +5 UC pts. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_pessimist', 'Power of the Pessimist', 'power', 'regular', 'power_pessimist', 'Double all prediction points if no team scores 3+ goals in the gameweek.'),
-    ('power_immigrants', 'Power of the Immigrants', 'power', 'regular', 'power_immigrants', 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
+    ('power_immigrants', 'Power of the Immigrants', 'power', 'regular', 'power_immigrants', 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards do not deduct points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_lanky_crouch', 'Power of the Lanky Crouch', 'power', 'regular', 'power_lanky_crouch', 'Valid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_small_and_mighty', 'Power of the Small and Mighty', 'power', 'regular', 'power_small_and_mighty', 'Valid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_of_god', 'Power of God', 'power', 'regular', 'power_of_god', 'Change one match prediction before the second-half deadline.'),
@@ -67,7 +67,7 @@ select
   player_count || ' Player Deck',
   player_count,
   player_count,
-  'Exact ' || player_count || '-player deck. Regular deck uses 28 cards per player, keeping the Power and Curse mix balanced.',
+  'Exact ' || player_count || '-player deck. Regular deck uses 30 cards per player, keeping the Power and Curse mix balanced.',
   true
 from generate_series(2, 10) as counts(player_count)
 on conflict (id) do update
@@ -128,8 +128,8 @@ regular_scaled as (
     (bq.base_quantity * mc.player_count / 2.0) as raw_quantity,
     floor(bq.base_quantity * mc.player_count / 2.0)::integer as floor_quantity,
     case bq.category
-      when 'power' then 16 * mc.player_count
-      else 12 * mc.player_count
+      when 'power' then 17 * mc.player_count
+      else 13 * mc.player_count
     end as target_category_total
   from member_counts mc
   cross join base_quantities bq
@@ -141,7 +141,8 @@ regular_ranked as (
       partition by deck_variant_id, category
       order by (raw_quantity - floor_quantity) desc, priority asc
     ) as remainder_rank,
-    sum(floor_quantity) over (partition by deck_variant_id, category) as floor_category_total
+    sum(floor_quantity) over (partition by deck_variant_id, category) as floor_category_total,
+    count(*) over (partition by deck_variant_id, category) as category_card_count
   from regular_scaled
 ),
 regular_final as (
@@ -149,8 +150,9 @@ regular_final as (
     deck_variant_id,
     card_id,
     floor_quantity
+      + ((target_category_total - floor_category_total) / category_card_count)
       + case
-          when remainder_rank <= target_category_total - floor_category_total then 1
+          when remainder_rank <= ((target_category_total - floor_category_total) % category_card_count) then 1
           else 0
         end as quantity
   from regular_ranked
