@@ -327,8 +327,7 @@ main {
 }
 
 .fixture-row {
-  display: grid;
-  grid-template-columns: 78px minmax(0, 1fr) minmax(132px, auto);
+  display: flex;
   gap: 6px;
   align-items: center;
   min-height: 38px;
@@ -344,8 +343,8 @@ main {
   grid-template-columns: minmax(0, 1fr) 42px 12px 42px minmax(0, 1fr);
   gap: 6px;
   align-items: center;
-  justify-self: center;
-  width: min(100%, 680px);
+  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
   overflow: hidden;
 }
@@ -360,6 +359,7 @@ main {
   align-items: center;
   justify-content: center;
   flex-wrap: nowrap;
+  flex: 0 0 76px;
   gap: 4px;
   min-width: 0;
   white-space: nowrap;
@@ -538,6 +538,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: end;
+  flex: 0 0 132px;
   gap: 6px;
   min-width: 0;
 }
@@ -698,15 +699,12 @@ button:disabled {
 }
 
 .summary-fixture-row {
-  grid-template-columns: 78px minmax(0, 1fr) minmax(132px, auto);
-  justify-content: stretch;
-  column-gap: 6px;
+  display: flex;
 }
 
 .summary-fixture-main {
   grid-template-columns: minmax(0, 1fr) 42px 12px 42px minmax(0, 1fr);
-  justify-self: center;
-  width: min(100%, 680px);
+  width: 100%;
   justify-items: center;
   gap: 6px;
 }
@@ -1114,12 +1112,13 @@ footer {
 
   .fixture-row,
   .summary-fixture-row {
-    grid-template-columns: 34px minmax(0, 1fr) minmax(66px, auto);
-    justify-content: stretch;
-    column-gap: 4px;
     min-height: 34px;
     padding: 4px 5px;
     gap: 4px;
+  }
+
+  .fixture-flags {
+    flex-basis: 34px;
   }
 
   .fixture-main {
@@ -1130,7 +1129,11 @@ footer {
   }
 
   .hedge-fixture-row {
-    grid-template-columns: 66px minmax(0, 1fr) minmax(58px, auto);
+    gap: 4px;
+  }
+
+  .hedge-fixture-row .fixture-flags {
+    flex-basis: 54px;
   }
 
   .hedge-flags {
@@ -1183,6 +1186,7 @@ footer {
     flex-direction: column;
     align-items: flex-end;
     justify-content: center;
+    flex: 0 0 66px;
     gap: 2px;
   }
 
@@ -1254,6 +1258,11 @@ footer {
     white-space: normal;
     line-height: 1.05;
     overflow-wrap: anywhere;
+  }
+
+  .summary-fixture-main .fixture-team {
+    white-space: nowrap;
+    overflow-wrap: normal;
   }
 
   .fixture-team.home,
