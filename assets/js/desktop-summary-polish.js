@@ -31,31 +31,32 @@ function injectDesktopSummaryPolish() {
         gap: 8px !important;
         align-items: center !important;
         justify-self: stretch !important;
+        position: relative !important;
       }
 
-      html:not(.capacitor-android) .fixture-main {
-        width: 100% !important;
-        max-width: none !important;
-        margin-inline: 0 !important;
-        grid-template-columns: minmax(180px, 1fr) 46px 18px 46px minmax(180px, 1fr) !important;
-        gap: 6px !important;
-        justify-self: stretch !important;
-      }
-
+      html:not(.capacitor-android) .fixture-main,
       html:not(.capacitor-android) .summary-fixture-main {
-        width: 100% !important;
-        max-width: none !important;
+        width: min(680px, calc(100% - 310px)) !important;
+        max-width: 680px !important;
+        min-width: 520px !important;
         margin-inline: 0 !important;
+        justify-self: auto !important;
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
         display: grid !important;
-        grid-template-columns: minmax(180px, 1fr) 46px 18px 46px minmax(180px, 1fr) !important;
+        grid-template-columns: minmax(190px, 1fr) 46px 18px 46px minmax(190px, 1fr) !important;
         gap: 6px !important;
         align-items: center !important;
-        justify-self: stretch !important;
-        min-width: 0 !important;
+        min-height: 32px !important;
         overflow: visible !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
       }
 
-      html:not(.capacitor-android) .summary-fixture-main .fixture-team.home {
+      html:not(.capacitor-android) .summary-fixture-main .fixture-team.home,
+      html:not(.capacitor-android) .fixture-main .fixture-team.home {
         grid-column: 1 !important;
         text-align: right !important;
       }
@@ -81,9 +82,22 @@ function injectDesktopSummaryPolish() {
         box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 14px rgba(216,180,254,0.18) !important;
       }
 
-      html:not(.capacitor-android) .summary-fixture-main .fixture-team.away {
+      html:not(.capacitor-android) .summary-fixture-main .fixture-team.away,
+      html:not(.capacitor-android) .fixture-main .fixture-team.away {
         grid-column: 5 !important;
         text-align: left !important;
+      }
+
+      html:not(.capacitor-android) .fixture-main .score-input:first-of-type {
+        grid-column: 2 !important;
+      }
+
+      html:not(.capacitor-android) .fixture-main .score-separator {
+        grid-column: 3 !important;
+      }
+
+      html:not(.capacitor-android) .fixture-main .score-input:last-of-type {
+        grid-column: 4 !important;
       }
 
       html:not(.capacitor-android) .fixture-team,
@@ -98,6 +112,11 @@ function injectDesktopSummaryPolish() {
         font-weight: 900 !important;
       }
 
+      html:not(.capacitor-android) .fixture-flags {
+        position: relative !important;
+        z-index: 2 !important;
+      }
+
       html:not(.capacitor-android) .fixture-meta {
         display: grid !important;
         grid-template-columns: minmax(150px, 1fr) auto !important;
@@ -106,6 +125,8 @@ function injectDesktopSummaryPolish() {
         justify-content: stretch !important;
         min-width: 0 !important;
         width: 100% !important;
+        position: relative !important;
+        z-index: 2 !important;
       }
 
       html:not(.capacitor-android) .fixture-lock {
