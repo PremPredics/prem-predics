@@ -693,11 +693,15 @@ button:disabled {
 }
 
 .summary-fixture-row {
-  grid-template-columns: 78px minmax(0, 1fr) minmax(104px, auto);
+  grid-template-columns: auto minmax(0, 570px) auto;
+  justify-content: center;
+  column-gap: 18px;
 }
 
 .summary-fixture-main {
-  grid-template-columns: minmax(130px, 1fr) 34px 14px 34px minmax(130px, 1fr);
+  grid-template-columns: minmax(150px, 1fr) 32px 12px 32px minmax(150px, 1fr);
+  justify-self: center;
+  width: 100%;
   justify-items: center;
   gap: 6px;
 }
@@ -753,6 +757,7 @@ button:disabled {
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
+  min-width: 0;
 }
 
 .summary-fixture-row .fixture-effects {
@@ -1115,6 +1120,8 @@ footer {
   .fixture-row,
   .summary-fixture-row {
     grid-template-columns: 34px minmax(0, 1fr) minmax(66px, auto);
+    justify-content: stretch;
+    column-gap: 4px;
     min-height: 34px;
     padding: 4px 5px;
     gap: 4px;
@@ -1150,6 +1157,7 @@ footer {
 
   .summary-fixture-main {
     grid-template-columns: minmax(0, 1fr) 24px 8px 24px minmax(0, 1fr);
+    width: 100%;
     gap: 3px;
   }
 
