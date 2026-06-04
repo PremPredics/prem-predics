@@ -214,14 +214,31 @@ async function saveHedgeRowsBeforeAllPredictions() {
       }
     }
 
+    if (!hasAnyScore) {
+      const { error: deleteError } = await supabase
+        .from('predictions')
+        .delete()
+        .eq('competition_id', effect.competition_id)
+        .eq('season_id', effect.season_id)
+        .eq('user_id', user.id)
+        .eq('prediction_slot', hedgeSlotForIndex(index));
+
+      if (deleteError) {
+        throw new Error(deleteError.message || 'Could not clear Hedge prediction.');
+      }
+
+      savedCount += 1;
+      continue;
+    }
+
     const { error: saveError } = await supabase.from('predictions').upsert({
       competition_id: effect.competition_id,
       season_id: effect.season_id,
       fixture_id: fixtureId,
       user_id: user.id,
       prediction_slot: hedgeSlotForIndex(index),
-      home_goals: hasAnyScore ? home.value : null,
-      away_goals: hasAnyScore ? away.value : null,
+      home_goals: home.value,
+      away_goals: away.value,
       source_card_effect_id: effect.id,
       submitted_at: new Date().toISOString(),
     }, {
@@ -268,6 +285,40 @@ function waitForPredictionSummaryThenRefresh(savedHedges) {
   });
 
   window.setTimeout(() => observer.disconnect(), 7500);
+}
+
+function installPredictionSummaryReturn() {
+  if (currentPageName() !== 'predictions.html') {
+    return;
+  }
+
+  if (sessionStorage.getItem('premPredicsReturnToPredictionSummary') !== 'true') {
+    return;
+  }
+
+  const startedAt = Date.now();
+  const timer = window.setInterval(() => {
+    const editButton = document.querySelector('[data-edit-predictions]');
+    if (editButton && !editButton.hidden) {
+      sessionStorage.removeItem('premPredicsReturnToPredictionSummary');
+      window.clearInterval(timer);
+      return;
+    }
+
+    const saveButton = document.querySelector('[data-save-all]');
+    if (saveButton && !saveButton.hidden && !saveButton.disabled && Date.now() - startedAt > 600) {
+      sessionStorage.removeItem('premPredicsReturnToPredictionSummary');
+      saveButton.dataset.hedgeSaveBypass = 'true';
+      saveButton.click();
+      window.clearInterval(timer);
+      return;
+    }
+
+    if (Date.now() - startedAt > 9000) {
+      sessionStorage.removeItem('premPredicsReturnToPredictionSummary');
+      window.clearInterval(timer);
+    }
+  }, 300);
 }
 
 function installSaveAllHedgeHandler() {
@@ -332,10 +383,14 @@ function injectStarClearStyles() {
       width: min(100%, 520px) !important;
       margin-inline: auto !important;
       display: grid !important;
-      grid-template-columns: minmax(0, 1fr) 32px !important;
+      grid-template-columns: minmax(0, 1fr) !important;
       gap: 7px !important;
       align-items: center !important;
       justify-items: stretch !important;
+    }
+
+    .star-clear-wrap.star-clear-visible {
+      grid-template-columns: minmax(0, 1fr) 32px !important;
     }
 
     .star-clear-wrap > input {
@@ -474,8 +529,12 @@ function injectStarClearStyles() {
 
       .star-clear-wrap {
         width: min(100%, 360px) !important;
-        grid-template-columns: minmax(0, 1fr) 30px !important;
+        grid-template-columns: minmax(0, 1fr) !important;
         gap: 6px !important;
+      }
+
+      .star-clear-wrap.star-clear-visible {
+        grid-template-columns: minmax(0, 1fr) 30px !important;
       }
 
       [data-search-results] .state-text,
@@ -633,7 +692,9 @@ function refreshStarClearButtons() {
       });
     }
 
-    button.hidden = !input.value.trim();
+    const showClear = Boolean(input.value.trim());
+    button.hidden = !showClear;
+    wrapper.classList.toggle('star-clear-visible', showClear);
   });
 }
 
@@ -657,7 +718,11 @@ injectSharedPolishStyles();
 installSaveAllHedgeHandler();
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', installStarManClearControls, { once: true });
+  document.addEventListener('DOMContentLoaded', () => {
+    installPredictionSummaryReturn();
+    installStarManClearControls();
+  }, { once: true });
 } else {
+  installPredictionSummaryReturn();
   installStarManClearControls();
 }
