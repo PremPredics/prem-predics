@@ -14,3 +14,7 @@ import('./ui-polish.js').catch((error) => {
 import('./desktop-polish.js').catch((error) => {
   console.warn('Prem Predics desktop polish failed to load:', error);
 });
+
+import('./desktop-summary-polish.js').catch((error) => {
+  console.warn('Prem Predics desktop summary polish failed to load:', error);
+});
