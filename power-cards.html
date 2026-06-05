@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prem Predics - Power Cards</title>
+<script src="assets/js/capacitor-app.js"></script>
 <style>
 * {
   box-sizing: border-box;
@@ -3562,14 +3563,16 @@ button:disabled {
   }
 
   .card-tile.used-card .used-card-label {
-    padding: 1px 2px;
-    font-size: clamp(0.2rem, 0.9vw, 0.27rem);
+    padding: 2px 3px;
+    font-size: clamp(0.26rem, 1.05vw, 0.34rem);
   }
 
   html.capacitor-android .card-tile.used-card .used-card-label {
-    width: 100%;
-    padding: 1px 0;
-    font-size: clamp(0.13rem, 0.54vw, 0.18rem);
+    width: 100% !important;
+    padding: 1px 0 !important;
+    font-size: 1.8px !important;
+    letter-spacing: 0 !important;
+    text-shadow: 0 0 1px rgba(0,0,0,0.95) !important;
   }
 
   .card-tile.masked-premium {
@@ -6196,11 +6199,31 @@ function fitPreviewText(nameEl, descEl) {
   });
 }
 
+function isAndroidAppView() {
+  return document.documentElement.classList.contains('capacitor-android')
+    || Boolean(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.getPlatform?.() === 'android')
+    || /\bwv\b/i.test(navigator.userAgent || '');
+}
+
 function fitUsedCardTile(tile) {
   requestAnimationFrame(() => {
     fitTextWithin(tile?.querySelector('.used-card-name'), 4.2);
-    const labelMin = document.documentElement.classList.contains('capacitor-android') ? 1.8 : 3.2;
-    fitTextWithin(tile?.querySelector('.used-card-label'), labelMin);
+    const label = tile?.querySelector('.used-card-label');
+    if (!label) return;
+    label.style.fontSize = '';
+    label.style.width = '';
+    label.style.padding = '';
+    label.style.textShadow = '';
+
+    if (!isAndroidAppView()) {
+      return;
+    }
+
+    label.style.width = '100%';
+    label.style.padding = '1px 0';
+    label.style.fontSize = '1.8px';
+    label.style.textShadow = '0 0 1px rgba(0,0,0,0.95)';
+    fitTextWithin(label, 1.2);
   });
 }
 
