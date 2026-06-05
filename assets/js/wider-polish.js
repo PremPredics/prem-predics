@@ -197,7 +197,36 @@
         filter: brightness(1.06) saturate(1.08);
       }
 
+      .star-curse-back,
+      .star-curse-back:hover,
+      .star-curse-back:focus,
+      .star-curse-back:active {
+        transform: none !important;
+      }
+
       @media (min-width: 721px) {
+        .curse-card-list .curse-card-wrap {
+          display: grid !important;
+          grid-template-rows: auto 1fr !important;
+          align-self: stretch !important;
+        }
+
+        .curse-card-list .curse-card-played-by {
+          min-height: 34px !important;
+        }
+
+        .curse-card-list:not(.audit-trail) .curse-card-wrap {
+          flex: 0 0 190px !important;
+          max-width: 190px !important;
+        }
+
+        .curse-card-list:not(.audit-trail) .curse-detail-card {
+          width: 190px !important;
+          height: 276px !important;
+          min-height: 276px !important;
+          max-height: 276px !important;
+        }
+
         .curse-card-list.audit-trail {
           display: flex !important;
           flex-wrap: wrap !important;
@@ -219,6 +248,7 @@
           width: 174px !important;
           height: 254px !important;
           min-height: 254px !important;
+          max-height: 254px !important;
         }
 
         .curse-card-list.audit-trail .curse-audit-separator {

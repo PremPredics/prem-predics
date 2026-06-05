@@ -285,6 +285,23 @@ main {
   font-weight: 950;
 }
 
+@media (min-width: 721px) {
+  .prediction-restriction-card {
+    width: 84px;
+    height: 104px;
+    min-height: 104px;
+    overflow: hidden;
+  }
+
+  .prediction-restriction-card-name {
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
 .prediction-restriction-played-by {
   display: none;
   color: #fff;
@@ -1550,6 +1567,25 @@ footer {
   opacity: 0.58;
 }
 
+@media (min-width: 721px) {
+  .prediction-score-axis {
+    grid-template-columns: minmax(0, 1fr) 2.35rem 1rem 2.35rem minmax(0, 1fr);
+    column-gap: 10px;
+  }
+
+  .prediction-score-axis--edit {
+    grid-template-columns: minmax(0, 1fr) 44px 1.05rem 44px minmax(0, 1fr);
+  }
+
+  .prediction-team--home {
+    padding-right: 4px;
+  }
+
+  .prediction-team--away {
+    padding-left: 4px;
+  }
+}
+
 .prediction-goal.curse-score {
   color: #ff1f1f;
   text-shadow:
@@ -1791,5 +1827,4 @@ footer {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-
 

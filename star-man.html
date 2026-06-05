@@ -539,6 +539,56 @@ main {
     0 0 12px rgba(250, 204, 21, 0.46);
 }
 
+.available-player-counter {
+  width: min(100%, 520px);
+  justify-self: center;
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 2px solid rgba(250, 204, 21, 0.78);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(120, 53, 15, 0.58), rgba(17, 7, 38, 0.58)),
+    radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.28), transparent 62%);
+  color: #fff7d6;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.2), inset 0 1px 0 rgba(255,255,255,0.14);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9),
+    1px 1px 0 rgba(0,0,0,0.9);
+}
+
+.available-player-counter[hidden] {
+  display: none;
+}
+
+.available-player-counter strong {
+  color: #fef3c7;
+  font-size: clamp(16px, 2.6vw, 22px);
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+.available-player-counter span {
+  color: #bae6fd;
+  font-size: clamp(12px, 1.6vw, 14px);
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.available-player-counter:disabled,
+.available-player-counter[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.78;
+  border-color: rgba(216, 180, 254, 0.42);
+  background:
+    linear-gradient(135deg, rgba(46, 16, 101, 0.5), rgba(17, 7, 38, 0.56)),
+    radial-gradient(circle at 50% 0%, rgba(216, 180, 254, 0.16), transparent 60%);
+}
+
 label {
   color: #ddd6fe;
   font-weight: 800;
@@ -1151,12 +1201,12 @@ body.card-modal-open {
 }
 
 .star-curse-back {
-  position: absolute;
-  left: 50%;
-  bottom: -62px;
-  transform: translateX(-50%);
+  position: static;
+  justify-self: center;
+  transform: none !important;
   width: min(220px, 100%);
   min-height: 42px;
+  margin: 14px auto -2px;
   border: 0;
   border-radius: 12px;
   padding: 10px 16px;
@@ -1172,6 +1222,12 @@ body.card-modal-open {
     1px -1px 0 rgba(0,0,0,0.95),
     -1px 1px 0 rgba(0,0,0,0.95),
     1px 1px 0 rgba(0,0,0,0.95);
+}
+
+.star-curse-back:hover,
+.star-curse-back:focus,
+.star-curse-back:active {
+  transform: none !important;
 }
 
 .player-preview-modal {
@@ -1461,6 +1517,10 @@ footer {
       <div class="pick-grid">
         <section class="pick-card" data-pick-slot="primary">
           <span class="star-pick-status-light" data-star-pick-status aria-label="No Star Man saved" title="No Star Man saved"></span>
+          <button class="available-player-counter" type="button" data-available-player-counter hidden>
+            <strong data-available-player-count>Checking players...</strong>
+            <span data-available-player-action>Loading availability</span>
+          </button>
           <label>
             Start typing a player's name
             <input data-player-search="primary" autocomplete="off" placeholder="Search player">
@@ -1520,4 +1580,3 @@ footer {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-

@@ -16,6 +16,9 @@ const leagueBackLink = document.querySelector('[data-league-back]');
 const starBackLink = document.querySelector('[data-star-back]');
 const historyList = document.querySelector('[data-star-man-history]');
 const starPickStatusLight = document.querySelector('[data-star-pick-status]');
+const availablePlayerCounter = document.querySelector('[data-available-player-counter]');
+const availablePlayerCount = document.querySelector('[data-available-player-count]');
+const availablePlayerAction = document.querySelector('[data-available-player-action]');
 const starCurseModal = document.querySelector('[data-star-curse-modal]');
 const starCursePanel = document.querySelector('.star-curse-panel');
 const starCurseTitle = document.querySelector('[data-star-curse-title]');
@@ -1146,6 +1149,98 @@ function wirePlayerPreviewModal() {
   });
 }
 
+function renderPlayerResultCards(slot, matches) {
+  const { results } = slotElements(slot);
+  if (!results) {
+    return;
+  }
+
+  results.classList.add('player-card-results');
+  results.innerHTML = matches.map(({ player, check }) => {
+    const reason = check.allowed ? 'Available' : 'Unavailable';
+    const title = check.allowed ? `Choose ${playerLabel(player)}` : check.reasons.join(', ');
+    return `
+      <button class="player-result-card${check.allowed ? '' : ' unavailable'}" type="button" data-preview-player="${escapeHtml(player.id)}" data-preview-slot="${escapeHtml(slot)}" title="${escapeHtml(title)}" ${check.allowed ? '' : 'disabled'}>
+        ${playerCardMarkup(player, { allowed: check.allowed, status: reason })}
+      </button>
+    `;
+  }).join('');
+
+  results.querySelectorAll('[data-preview-player]').forEach((resultButton) => {
+    resultButton.addEventListener('click', () => {
+      openPlayerPreview(resultButton.dataset.previewSlot, resultButton.dataset.previewPlayer);
+    });
+  });
+}
+
+function availablePlayerMatches(slot = 'primary') {
+  const selectedPlayer = state.selected[slot];
+  return state.players
+    .filter((player) => String(player.id) !== String(selectedPlayer?.id || ''))
+    .map((player) => ({ player, check: evaluatePlayer(player, slot) }))
+    .filter(({ check }) => check.allowed)
+    .sort((left, right) => String(left.player.display_name || '').localeCompare(String(right.player.display_name || '')));
+}
+
+function updateAvailablePlayerCounter() {
+  if (!availablePlayerCounter || !availablePlayerCount || !availablePlayerAction) {
+    return;
+  }
+
+  if (!state.players.length || !state.activeGameweek) {
+    availablePlayerCounter.hidden = true;
+    return;
+  }
+
+  availablePlayerCounter.hidden = false;
+
+  const canSearch = canSearchSlot('primary');
+  if (!canSearch) {
+    availablePlayerCount.textContent = `0/${state.players.length} Players Available For Selection`;
+    availablePlayerAction.textContent = 'Star Man selection is locked';
+    availablePlayerCounter.disabled = true;
+    availablePlayerCounter.setAttribute('aria-disabled', 'true');
+    return;
+  }
+
+  const available = availablePlayerMatches('primary');
+  availablePlayerCount.textContent = `${available.length}/${state.players.length} Players Available For Selection`;
+
+  if (available.length > 0 && available.length <= 50) {
+    availablePlayerAction.textContent = 'Click to show Available Players';
+    availablePlayerCounter.disabled = false;
+    availablePlayerCounter.removeAttribute('aria-disabled');
+    return;
+  }
+
+  availablePlayerAction.textContent = available.length > 50
+    ? 'Enter 2+ Letters For Player Dropdown'
+    : 'No players currently available';
+  availablePlayerCounter.disabled = true;
+  availablePlayerCounter.setAttribute('aria-disabled', 'true');
+}
+
+function renderAvailablePlayers(slot = 'primary') {
+  if (!canSearchSlot(slot)) {
+    updateAvailablePlayerCounter();
+    return;
+  }
+
+  const matches = availablePlayerMatches(slot);
+  const { results } = slotElements(slot);
+  if (!matches.length) {
+    setResultsMessage(results, 'No players are currently available.');
+    return;
+  }
+
+  if (matches.length > 50) {
+    setResultsMessage(results, 'Enter 2+ letters to narrow the player list.');
+    return;
+  }
+
+  renderPlayerResultCards(slot, matches);
+}
+
 function renderSearch(slot) {
   const { input, results } = slotElements(slot);
   const query = input.value.trim();
@@ -1154,6 +1249,9 @@ function renderSearch(slot) {
 
   renderSelectedPlayer(slot, selectedPlayer, { saved: isExistingPick(slot, selectedPlayer) });
   updateSaveButton(slot);
+  if (slot === 'primary') {
+    updateAvailablePlayerCounter();
+  }
 
   if (!canSearch) {
     return;
@@ -1193,22 +1291,7 @@ function renderSearch(slot) {
     return;
   }
 
-  results.classList.add('player-card-results');
-  results.innerHTML = matches.map(({ player, check }) => {
-    const reason = check.allowed ? 'Available' : 'Unavailable';
-    const title = check.allowed ? `Choose ${playerLabel(player)}` : check.reasons.join(', ');
-    return `
-      <button class="player-result-card${check.allowed ? '' : ' unavailable'}" type="button" data-preview-player="${escapeHtml(player.id)}" data-preview-slot="${escapeHtml(slot)}" title="${escapeHtml(title)}" ${check.allowed ? '' : 'disabled'}>
-        ${playerCardMarkup(player, { allowed: check.allowed, status: reason })}
-      </button>
-    `;
-  }).join('');
-
-  results.querySelectorAll('[data-preview-player]').forEach((resultButton) => {
-    resultButton.addEventListener('click', () => {
-      openPlayerPreview(resultButton.dataset.previewSlot, resultButton.dataset.previewPlayer);
-    });
-  });
+  renderPlayerResultCards(slot, matches);
 }
 
 function renderStarManHistory() {
@@ -1335,6 +1418,7 @@ async function savePick(slot) {
   renderSelectedPlayer(slot, player, { saved: true });
   renderStarManHistory();
   updateStarPickStatusLight();
+  updateAvailablePlayerCounter();
   setTemporarySavedMessage(slot, slot === 'super_duo' ? 'Super Duo Saved.' : 'Star Man Saved.');
 }
 
@@ -1391,6 +1475,12 @@ function wireSlots() {
       renderSearch(slot);
     });
     button.addEventListener('click', () => savePick(slot));
+  });
+
+  availablePlayerCounter?.addEventListener('click', () => {
+    if (!availablePlayerCounter.disabled) {
+      renderAvailablePlayers('primary');
+    }
   });
 }
 
