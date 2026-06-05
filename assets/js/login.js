@@ -153,6 +153,8 @@ form.addEventListener('submit', async (event) => {
   const lastName = String(formData.get('lastName') || '').trim();
   const nationality = String(formData.get('nationality') || '').trim();
   const favoriteColor = String(formData.get('favoriteColor') || '#ffffff');
+  const ageConfirmed = formData.get('ageConfirm') === 'yes';
+  const legalAccepted = formData.get('legalAccept') === 'yes';
   const favoriteTeamOption = favoriteTeamSelect?.selectedOptions?.[0];
   const favoriteTeamId = favoriteTeamOption?.dataset.teamId || null;
   const favoriteTeamName = favoriteTeamOption?.value
@@ -176,6 +178,16 @@ form.addEventListener('submit', async (event) => {
         return;
       }
 
+      if (!ageConfirmed) {
+        setMessage('You must confirm that you are 18 or over to create an account.', 'error');
+        return;
+      }
+
+      if (!legalAccepted) {
+        setMessage('You must accept the Terms of Use and Privacy Policy to create an account.', 'error');
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -188,6 +200,10 @@ form.addEventListener('submit', async (event) => {
             favorite_team_id: favoriteTeamId,
             favorite_team_name: favoriteTeamId ? null : favoriteTeamName,
             favorite_color: favoriteColor,
+            age_confirmed_18_plus: true,
+            legal_terms_accepted: true,
+            legal_terms_version: '2026-06-04',
+            legal_terms_accepted_at: new Date().toISOString(),
           },
         },
       });

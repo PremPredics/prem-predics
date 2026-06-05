@@ -1085,24 +1085,38 @@ button:disabled {
     0 0 14px rgba(52, 211, 153, 0.7);
 }
 
+.opponent-target-title.notice-title-warning {
+  color: #fbbf24;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.92),
+    1px -1px 0 rgba(0,0,0,0.92),
+    -1px 1px 0 rgba(0,0,0,0.92),
+    1px 1px 0 rgba(0,0,0,0.92),
+    0 0 14px rgba(251, 191, 36, 0.9),
+    0 0 26px rgba(245, 158, 11, 0.5);
+}
+
 .opponent-target-list {
+  width: 100%;
+  box-sizing: border-box;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
   gap: 14px;
-  padding-right: 2px;
+  padding: 4px;
 }
 
 .opponent-target-btn {
+  box-sizing: border-box;
   display: grid;
   justify-items: center;
   gap: 9px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 112px;
+  min-height: 100px;
   border: 1px solid rgba(216, 180, 254, 0.32);
   border-radius: 12px;
   padding: 14px 10px;
@@ -1336,7 +1350,7 @@ button:disabled {
 }
 
 .fixture-choice-list {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 10px;
   align-items: stretch;
 }
@@ -1376,17 +1390,18 @@ button:disabled {
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   justify-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  line-height: 1.05;
+  line-height: 1.1;
 }
 
 .fixture-choice-team {
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .fixture-choice-home {
@@ -1552,6 +1567,10 @@ button:disabled {
     padding: 10px 8px;
   }
 
+  .opponent-target-list {
+    padding: 3px;
+  }
+
   .random-fixture-btn,
   .fixture-choice-btn {
     min-height: 50px;
@@ -1560,8 +1579,8 @@ button:disabled {
   }
 
   .fixture-choice-teams {
-    gap: 6px;
-    font-size: 0.9rem;
+    gap: 7px;
+    font-size: 0.84rem;
   }
 
   .veto-curse-list {
@@ -4142,7 +4161,7 @@ button:disabled {
 </div>
 
 <script>
-function showSiteNotice(message, title = 'Notice') {
+function showSiteNotice(message, title = 'Notice', tone = '') {
   const modal = document.getElementById('siteNoticeModal');
   const titleEl = document.getElementById('siteNoticeTitle');
   const bodyEl = document.getElementById('siteNoticeBody');
@@ -4153,7 +4172,7 @@ function showSiteNotice(message, title = 'Notice') {
   }
 
   titleEl.textContent = title;
-  setNoticeTitleTone(titleEl, title);
+  setNoticeTitleTone(titleEl, title, tone);
   bodyEl.textContent = String(message || '');
 
   function close() {
@@ -4257,12 +4276,17 @@ function resetNoticeTitleTone(titleEl) {
     'notice-title-power',
     'notice-title-curse',
     'notice-title-super',
-    'notice-title-game'
+    'notice-title-game',
+    'notice-title-warning'
   );
 }
 
-function setNoticeTitleTone(titleEl, title) {
+function setNoticeTitleTone(titleEl, title, tone = '') {
   resetNoticeTitleTone(titleEl);
+  if (tone === 'warning') {
+    titleEl.classList.add('notice-title-warning');
+    return;
+  }
   if (typeof getCardType === 'function') {
     const cardType = getCardType(title);
     titleEl.classList.add(`notice-title-${cardType}`);
@@ -5014,7 +5038,7 @@ function drawFirstCards() {
 
 function openDeckChoice() {
   if (gameState.pendingSwap?.drawn?.length) {
-    alert('Finish choosing 2 cards from Power of the Swap before drawing or playing anything else.');
+    showSiteNotice('Finish choosing 2 cards from Power of the Swap before drawing or playing anything else.', 'Power of the Swap');
     return;
   }
   updateMedalDisplays();
@@ -5054,20 +5078,20 @@ async function startCardReveal(deckType) {
   }
 
   if (!['regular', 'premium'].includes(deckType)) {
-    alert('Choose either the Regular Deck or Premium Deck.');
+    showSiteNotice('Choose either the Regular Deck or Premium Deck.', 'Draw Card', 'warning');
     return;
   }
 
   const neededBalance = deckType === 'premium' ? medalBalances.super : medalBalances.regular;
   if (neededBalance <= 0) {
-    alert(deckType === 'premium'
+    showSiteNotice(deckType === 'premium'
       ? 'You need a Super medal to draw from the Premium Deck.'
-      : 'You need a Regular medal to draw from the Regular Deck.');
+      : 'You need a Regular medal to draw from the Regular Deck.', 'Draw Card', 'warning');
     return;
   }
 
   if (!cardRuntime?.redeemCardDraw) {
-    alert('Medal card draws are not ready yet. Run the latest card-medals-and-draws.sql in Supabase, then refresh this page.');
+    showSiteNotice('Medal card draws are not ready yet. Run the latest card-medals-and-draws.sql in Supabase, then refresh this page.', 'Draw Card', 'warning');
     return;
   }
 
@@ -5080,7 +5104,7 @@ async function startCardReveal(deckType) {
     await drawAndRevealCard(deckType, getCurrentPlayerKey(), drawn.card_name);
   } catch (error) {
     sequenceInProgress = false;
-    alert(error.message || 'Could not draw that card.');
+    showSiteNotice(error.message || 'Could not draw that card.', 'Draw Card', 'warning');
   }
 }
 
@@ -5130,13 +5154,13 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
   } else {
     deck = gameState.gameCardDeck;
   }
-  
+
   if (!forcedCard && deck.length === 0) {
-    alert("Deck empty!");
+    showSiteNotice('Deck empty!', 'Draw Card', 'warning');
     sequenceInProgress = false;
     return Promise.resolve();
   }
-  
+
   const card = forcedCard || deck.pop();
   if (forcedCard) {
     const matchingIndex = deck.findIndex((deckCard) => deckCard === forcedCard);
@@ -5180,7 +5204,7 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
 
 function drawGameCard() {
   if (gameState.gameCardDeck.length === 0) {
-    alert("Game Deck empty!");
+    showSiteNotice('Game Deck empty!', 'Game Card Deck', 'warning');
     return;
   }
   
@@ -5322,18 +5346,18 @@ async function confirmCardPlay() {
     const opponentsWithCards = (gameState.playerOrder || [])
       .filter((playerKey) => playerKey !== player && (gameState.players[playerKey]?.hand || []).length > 0);
     if (opponentsWithCards.length === 0) {
-      alert("You cannot play Curse of the Thief when your opponent has no cards!");
+      showSiteNotice('You cannot play Curse of the Thief when your opponent has no cards!', 'Curse of the Thief');
       return;
     }
   }
 
   if (card.includes("Power of the Swap")) {
     if (gameState.regularDeck.length < 3) {
-      alert("You need at least 3 cards in the regular deck to play Power of the Swap!");
+      showSiteNotice('You need at least 3 cards in the Regular Deck to play Power of the Swap!', 'Power of the Swap');
       return;
     }
     if (gameState.players[player].hand.length < 2) {
-      alert("You need at least 2 cards in your hand to play Power of the Swap!");
+      showSiteNotice('You need at least 2 cards in your hand to play Power of the Swap!', 'Power of the Swap');
       return;
     }
   }
@@ -5350,7 +5374,7 @@ async function confirmCardPlay() {
   if (card === "Super Draw") {
     const superDrawCount = superDrawCountForLeague();
     if (gameState.regularDeck.length < superDrawCount) {
-      alert(`You need at least ${superDrawCount} cards in the regular deck to play Super Draw!`);
+      showSiteNotice(`You need at least ${superDrawCount} cards in the Regular Deck to play Super Draw!`, 'Super Draw');
       return;
     }
   }
@@ -5366,7 +5390,7 @@ async function confirmCardPlay() {
         }
         return;
       }
-      alert(error.message || "Could not activate this card effect.");
+      showSiteNotice(error.message || 'Could not activate this card effect.', card || 'Card Effect', 'warning');
       return;
     }
   }
@@ -5396,7 +5420,7 @@ async function confirmCardPlay() {
         activation.__noticeMessage = `Super Draw added: ${drawnCards.map((drawn) => drawn.card_name).join(', ')}.`;
         syncHandFromDatabase();
       } catch (error) {
-        alert(error.message || "Could not draw cards for Super Draw.");
+        showSiteNotice(error.message || 'Could not draw cards for Super Draw.', 'Super Draw');
       }
     } else {
       for (let i = 0; i < superDrawCount; i++) {
@@ -5439,7 +5463,7 @@ function startSwap(player, card, options = {}) {
 function pickSwapDiscard(index) {
   if (!gameState.pendingSwap) return;
   if (index === gameState.pendingSwap.playedIndex) {
-    alert("Choose a different card to discard with Power of the Swap.");
+    showSiteNotice('Choose a different card to discard with Power of the Swap.', 'Power of the Swap');
     return;
   }
   gameState.pendingSwap.discardChoice = index;
@@ -5450,7 +5474,7 @@ function pickSwapDiscard(index) {
 async function confirmSwap() {
   const swap = gameState.pendingSwap;
   if (swap.discardChoice === null) {
-    alert("Select one card to discard");
+    showSiteNotice('Select one card to discard.', 'Power of the Swap');
     return;
   }
 
@@ -5475,7 +5499,7 @@ async function confirmSwap() {
       ? await cardRuntime.activateCardEffect(swap.card, swap.player, swap.cardInstanceId)
       : null;
   } catch (error) {
-    alert(error.message || "Could not activate Power of the Swap.");
+    showSiteNotice(error.message || 'Could not activate Power of the Swap.', 'Power of the Swap');
     return;
   }
   swap.effectId = activation?.id || swap.effectId;
@@ -5493,7 +5517,7 @@ async function confirmSwap() {
   try {
     await Promise.all(discardTasks);
   } catch (error) {
-    alert(error.message || "Could not discard cards for Power of the Swap.");
+    showSiteNotice(error.message || 'Could not discard cards for Power of the Swap.', 'Power of the Swap');
     return;
   }
 
@@ -5514,7 +5538,7 @@ async function confirmSwap() {
         name: normalizeCardName(drawn.card_name),
       }));
     } catch (error) {
-      alert(error.message || "Could not draw cards for Power of the Swap.");
+      showSiteNotice(error.message || 'Could not draw cards for Power of the Swap.', 'Power of the Swap');
       return;
     }
   } else {
@@ -5542,7 +5566,7 @@ function pickSwapKeep(index) {
 async function confirmPick() {
   const swap = gameState.pendingSwap;
   if (swap.selectedIndices.length !== 2) {
-    alert("Select exactly 2 cards to keep");
+    showSiteNotice('Select exactly 2 cards to keep.', 'Power of the Swap');
     return;
   }
 
@@ -5569,7 +5593,7 @@ async function confirmPick() {
       await Promise.allSettled(discardTasks);
     }
   } catch (error) {
-    alert(error.message || "Could not finish Power of the Swap.");
+    showSiteNotice(error.message || 'Could not finish Power of the Swap.', 'Power of the Swap');
     return;
   }
 
@@ -5595,7 +5619,7 @@ function selectSteal(opponent, index) {
 
 async function confirmSteal() {
   if (!gameState.selectedSteal) {
-    alert("Select a card");
+    showSiteNotice('Select a card to steal.', 'Curse of the Thief');
     return;
   }
   
@@ -5606,7 +5630,7 @@ async function confirmSteal() {
     try {
       await cardRuntime.stealCard(gameState.stealModeEffectId, gameState.selectedSteal.cardInstanceId);
     } catch (error) {
-      alert(error.message || "Could not steal that card.");
+      showSiteNotice(error.message || 'Could not steal that card.', 'Curse of the Thief');
       return;
     }
   }
@@ -7698,6 +7722,7 @@ async function initializeCardPage() {
 initializeCardPage();
 </script>
 <script type="module" src="assets/js/site-auth.js"></script>
+<script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
 

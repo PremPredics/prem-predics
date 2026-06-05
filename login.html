@@ -150,6 +150,47 @@ select {
   margin-left: 6px;
 }
 
+.signup-consents {
+  display: grid;
+  gap: 10px;
+  margin: 6px 0 16px;
+}
+
+.consent-check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  margin: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(216, 180, 254, 0.32);
+  border-radius: 10px;
+  background: rgba(17, 7, 38, 0.42);
+  color: #f5f3ff;
+  line-height: 1.32;
+}
+
+.consent-check input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  padding: 0;
+  accent-color: #8b5cf6;
+}
+
+.consent-check a {
+  color: #fef08a;
+  font-weight: 900;
+}
+
+.consent-note {
+  margin: 0;
+  color: #ddd6fe;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 750;
+}
+
 .primary-btn {
   width: 100%;
   padding: 13px 16px;
@@ -313,6 +354,20 @@ footer {
           Favourite colour
           <input name="favoriteColor" type="color" value="#ffffff" data-signup-only disabled>
         </label>
+
+        <div class="signup-consents">
+          <label class="consent-check">
+            <input name="ageConfirm" type="checkbox" value="yes" data-signup-only disabled>
+            <span>I confirm that I am 18 or over.</span>
+          </label>
+
+          <label class="consent-check">
+            <input name="legalAccept" type="checkbox" value="yes" data-signup-only disabled>
+            <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+          </label>
+
+          <p class="consent-note">Prem Predics is intended for private league use by adults aged 18 and over.</p>
+        </div>
       </div>
 
       <button class="primary-btn" type="submit" data-auth-submit>Log In</button>
@@ -326,6 +381,7 @@ footer {
 <footer>2026 Prem Predics | Login</footer>
 
 <script type="module" src="assets/js/login.js"></script>
+<script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
 

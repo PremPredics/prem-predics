@@ -25,6 +25,12 @@ const itemsToCopy = [
   'game-card.html',
   'how-to-play.html',
   'faq.html',
+  'terms.html',
+  'privacy.html',
+  'cookies.html',
+  'game-rules.html',
+  'contact.html',
+  'account-deletion.html',
   'global-admin.html',
   'logo-left.png',
   'assets'
