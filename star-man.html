@@ -374,9 +374,9 @@ main {
 }
 
 .star-pick-status-light {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  display: block;
+  justify-self: center;
+  margin: 0 auto 2px;
   width: 18px;
   height: 18px;
   border-radius: 999px;
@@ -1452,7 +1452,6 @@ footer {
         </div>
         <div class="restrictions">
           <strong>Powers &amp; Curses</strong>
-          <span class="star-pick-status-light" data-star-pick-status aria-label="No Star Man saved" title="No Star Man saved"></span>
           <div class="restriction-summary" data-restriction-summary>
             <p class="state-text">Loading...</p>
           </div>
@@ -1461,9 +1460,9 @@ footer {
 
       <div class="pick-grid">
         <section class="pick-card" data-pick-slot="primary">
-          <h3>Star Man</h3>
+          <span class="star-pick-status-light" data-star-pick-status aria-label="No Star Man saved" title="No Star Man saved"></span>
           <label>
-            Start typing a player name
+            Start typing a player's name
             <input data-player-search="primary" autocomplete="off" placeholder="Search player">
           </label>
           <div class="selected-player" data-selected-player="primary"></div>
@@ -1521,5 +1520,4 @@ footer {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-
 

@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prem Predics - Power Cards</title>
+<script>
+if (
+  window.Capacitor?.isNativePlatform?.()
+  || window.Capacitor?.getPlatform?.() === 'android'
+  || location.hostname === 'localhost'
+  || /\bwv\b/i.test(navigator.userAgent || '')
+) {
+  document.documentElement.classList.add('capacitor-android');
+}
+</script>
 <script src="assets/js/capacitor-app.js"></script>
 <style>
 * {
@@ -2207,6 +2217,7 @@ button:disabled {
   flex-wrap: wrap; 
   align-content: flex-start;
   align-items: flex-start;
+  justify-content: flex-start;
   gap: 7px; 
   flex: 1;
   min-height: 120px;
@@ -2216,6 +2227,37 @@ button:disabled {
   overflow-y: auto;
   max-height: 500px;
   position: relative;
+}
+
+@media (min-width: 1201px) {
+  .hand {
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .card-tile {
+    width: 86px;
+    height: 112px;
+    padding: 9px 7px;
+    font-size: clamp(0.54rem, 0.72vw, 0.68rem);
+  }
+
+  .card-tile.used-card {
+    padding: 9px 7px 21px;
+  }
+
+  .card-tile.used-card .used-card-name {
+    font-size: clamp(0.5rem, 0.68vw, 0.64rem);
+  }
+
+  .card-tile.used-card .used-card-label {
+    left: 7px;
+    right: 7px;
+    bottom: 6px;
+    height: 13px;
+    font-size: 0.48rem;
+  }
 }
 
 .dealt-card-target {
@@ -2409,6 +2451,7 @@ button:disabled {
 }
 
 .card-tile.used-card {
+  position: relative;
   filter: grayscale(0.95);
   opacity: 0.62;
   cursor: default;
@@ -2441,15 +2484,23 @@ button:disabled {
 }
 
 .card-tile .used-card-label {
-  display: block;
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
-  max-width: 100%;
+  max-width: none;
+  height: 13px;
+  overflow: hidden;
   margin-top: 0;
   border-radius: 999px;
-  padding: 3px 5px;
+  padding: 0 3px;
   background: rgba(15, 23, 42, 0.72);
   color: #fff;
-  font-size: 0.58rem;
+  font-size: 0.5rem;
   line-height: 1;
   white-space: nowrap;
   text-transform: uppercase;
@@ -2458,6 +2509,32 @@ button:disabled {
     1px -1px 0 rgba(0,0,0,0.85),
     -1px 1px 0 rgba(0,0,0,0.85),
     1px 1px 0 rgba(0,0,0,0.85);
+}
+
+html.capacitor-android .card-tile.used-card .used-card-label {
+  display: none !important;
+}
+
+html.capacitor-android .card-tile.used-card::after {
+  content: "USED\A" attr(data-used-week);
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 7px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 950;
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: pre-line;
+  text-shadow: 0 0 1px rgba(0,0,0,0.95);
 }
 
 .dealt-card-animation {
@@ -3535,44 +3612,78 @@ button:disabled {
   .hand {
     min-height: clamp(138px, calc(100dvh - 360px), 250px);
     max-height: none;
-    gap: 2px;
-    padding: 4px;
+    gap: 4px;
+    padding: 5px;
     border-radius: 8px;
     overflow-y: visible;
     align-content: flex-start;
+    justify-content: center;
   }
 
   .card-tile {
-    width: clamp(34px, 10.8vw, 43px);
-    height: clamp(48px, 14.2vw, 58px);
-    padding: 3px 2px;
-    border-radius: 6px;
+    flex: 0 0 calc((100% - 8px) / 3);
+    width: calc((100% - 8px) / 3);
+    height: auto;
+    aspect-ratio: 0.72;
+    max-width: none;
+    padding: 5px 3px;
+    border-radius: 8px;
     border-width: 1px;
-    font-size: clamp(0.3rem, 1.28vw, 0.38rem);
-    line-height: 1.05;
+    font-size: clamp(0.42rem, 1.55vw, 0.54rem);
+    line-height: 0.98;
   }
 
   .card-tile.used-card {
-    padding: 3px 2px;
-    gap: 2px;
+    padding: 5px 3px 17px;
+    gap: 0;
   }
 
   .card-tile.used-card .used-card-name {
-    font-size: clamp(0.28rem, 1.14vw, 0.36rem);
-    line-height: 0.94;
+    font-size: clamp(0.38rem, 1.34vw, 0.48rem);
+    line-height: 0.92;
   }
 
   .card-tile.used-card .used-card-label {
-    padding: 2px 3px;
-    font-size: clamp(0.26rem, 1.05vw, 0.34rem);
+    left: 4px;
+    right: 4px;
+    bottom: 3px;
+    height: 11px;
+    padding: 0 1px;
+    font-size: clamp(0.29rem, 1.08vw, 0.36rem);
   }
 
-  html.capacitor-android .card-tile.used-card .used-card-label {
-    width: 100% !important;
-    padding: 1px 0 !important;
-    font-size: 1.8px !important;
-    letter-spacing: 0 !important;
-    text-shadow: 0 0 1px rgba(0,0,0,0.95) !important;
+  html.capacitor-android .hand {
+    gap: 4px;
+    padding: 5px;
+  }
+
+  html.capacitor-android .card-tile {
+    flex: 0 0 calc((100% - 8px) / 3);
+    width: calc((100% - 8px) / 3);
+    height: auto;
+    aspect-ratio: 0.72;
+    max-width: none;
+    padding: 5px 3px;
+    border-radius: 8px;
+    font-size: clamp(0.42rem, 1.55vw, 0.54rem);
+    line-height: 0.98;
+  }
+
+  html.capacitor-android .card-tile.used-card {
+    padding: 5px 3px 23px;
+  }
+
+  html.capacitor-android .card-tile.used-card .used-card-name {
+    font-size: clamp(0.38rem, 1.34vw, 0.48rem);
+    line-height: 0.92;
+  }
+
+  html.capacitor-android .card-tile.used-card::after {
+    left: 4px;
+    right: 4px;
+    bottom: 3px;
+    height: 18px;
+    font-size: 7px;
   }
 
   .card-tile.masked-premium {
@@ -6202,28 +6313,33 @@ function fitPreviewText(nameEl, descEl) {
 function isAndroidAppView() {
   return document.documentElement.classList.contains('capacitor-android')
     || Boolean(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.getPlatform?.() === 'android')
+    || location.hostname === 'localhost'
     || /\bwv\b/i.test(navigator.userAgent || '');
 }
 
 function fitUsedCardTile(tile) {
   requestAnimationFrame(() => {
-    fitTextWithin(tile?.querySelector('.used-card-name'), 4.2);
+    if (isAndroidAppView()) {
+      fitTextWithin(tile?.querySelector('.used-card-name'), 4.2);
+      return;
+    }
     const label = tile?.querySelector('.used-card-label');
     if (!label) return;
     label.style.fontSize = '';
     label.style.width = '';
+    label.style.maxWidth = '';
     label.style.padding = '';
     label.style.textShadow = '';
-
-    if (!isAndroidAppView()) {
-      return;
-    }
-
-    label.style.width = '100%';
-    label.style.padding = '1px 0';
-    label.style.fontSize = '1.8px';
-    label.style.textShadow = '0 0 1px rgba(0,0,0,0.95)';
-    fitTextWithin(label, 1.2);
+    label.style.position = '';
+    label.style.left = '';
+    label.style.right = '';
+    label.style.bottom = '';
+    label.style.height = '';
+    label.style.overflow = '';
+    label.style.lineHeight = '';
+    label.style.display = '';
+    label.style.alignItems = '';
+    label.style.justifyContent = '';
   });
 }
 
@@ -6261,6 +6377,7 @@ function render() {
         : `card-tile ${cardType}`;
       if (usedMeta) {
         div.classList.add('used-card');
+        div.dataset.usedWeek = `GW${usedMeta.gameweekNumber || '?'}`;
         div.innerHTML = `
           <span class="used-card-name">${escapeHtml(isOpponentHand ? getMaskedCardLabel(c) : c)}</span>
           <span class="used-card-label">Used GW${escapeHtml(usedMeta.gameweekNumber || '?')}</span>
