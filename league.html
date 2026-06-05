@@ -392,6 +392,30 @@ main {
     inset 0 -3px 6px rgba(0,0,0,0.48);
 }
 
+@media (min-width: 721px) {
+  .deadline-body {
+    grid-template-columns: minmax(82px, 1fr) minmax(54px, auto) 18px;
+    gap: 4px;
+  }
+
+  .deadline-action {
+    font-size: 8.8px;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .deadline-countdown,
+  .deadline-card.action .deadline-countdown {
+    min-width: 54px;
+    font-size: 12px;
+  }
+
+  .deadline-light {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 .copy-code-btn {
   margin-top: 8px;
   border: 0;
@@ -760,5 +784,4 @@ footer {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-
 
