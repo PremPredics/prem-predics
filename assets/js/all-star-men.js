@@ -85,6 +85,18 @@ function playedByName(effect) {
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
 }
 
+function effectGameweekNumber(effect) {
+  if (effect.gameweek_number) return effect.gameweek_number;
+  const effectGameweekId = effect.start_gameweek_id || effect.gameweek_id;
+  const gameweek = state.gameweeks.find((item) => String(item.gameweek_id || '') === String(effectGameweekId || ''));
+  return gameweek?.gameweek_number || null;
+}
+
+function playedByGameweekText(effect) {
+  const gameweekNumber = Number(effectGameweekNumber(effect));
+  return Number.isFinite(gameweekNumber) && gameweekNumber > 0 ? ` in GW${escapeHtml(gameweekNumber)}` : '';
+}
+
 function isStarManCurse(effect) {
   return starManCurseKeys.has(effectKey(effect));
 }
@@ -385,7 +397,7 @@ function curseCardDetailMarkup(effect) {
       <div class="curse-card-played-by">
         Played by
         <span class="played-by-avatar">${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="">` : escapeHtml(initial)}</span>
-        <span>${escapeHtml(playedByName(effect))}</span>
+        <span>${escapeHtml(playedByName(effect))}${playedByGameweekText(effect)}</span>
       </div>
       <article class="curse-detail-card ${category === 'power' ? 'power-detail-card' : ''} ${category === 'super' ? 'super-detail-card' : ''}">
         <strong>${escapeHtml(effectName(effect))}</strong>

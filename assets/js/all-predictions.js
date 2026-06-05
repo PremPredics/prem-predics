@@ -97,6 +97,18 @@ function playedByName(effect) {
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'An opponent';
 }
 
+function effectGameweekNumber(effect) {
+  if (effect.gameweek_number) return effect.gameweek_number;
+  const effectGameweekId = effect.start_gameweek_id || effect.gameweek_id;
+  const gameweek = state.gameweeks.find((item) => String(item.gameweek_id || '') === String(effectGameweekId || ''));
+  return gameweek?.gameweek_number || null;
+}
+
+function playedByGameweekText(effect) {
+  const gameweekNumber = Number(effectGameweekNumber(effect));
+  return Number.isFinite(gameweekNumber) && gameweekNumber > 0 ? ` in GW${escapeHtml(gameweekNumber)}` : '';
+}
+
 function playedByMarkup(effect) {
   const profile = state.effectProfiles.get(effect.played_by_user_id);
   const name = playedByName(effect);
@@ -109,7 +121,7 @@ function playedByMarkup(effect) {
     : fallback;
   return `
     <span class="played-by-avatar">${avatar}</span>
-    <span>Played by ${escapeHtml(name)}</span>
+    <span>Played by ${escapeHtml(name)}${playedByGameweekText(effect)}</span>
   `;
 }
 

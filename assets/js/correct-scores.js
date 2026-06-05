@@ -95,6 +95,35 @@ function playedByName(effect) {
   return state.effectProfiles.get(effect.played_by_user_id)?.display_name || 'another player';
 }
 
+function effectGameweekNumber(effect) {
+  if (effect.gameweek_number) return effect.gameweek_number;
+  const effectGameweekId = effect.start_gameweek_id || effect.gameweek_id;
+  return state.gameweekNumbers.get(String(effectGameweekId || '')) || null;
+}
+
+function playedByGameweekText(effect) {
+  const gameweekNumber = Number(effectGameweekNumber(effect));
+  return Number.isFinite(gameweekNumber) && gameweekNumber > 0 ? ` in GW${escapeHtml(gameweekNumber)}` : '';
+}
+
+function playedByMarkup(effect) {
+  const profile = state.effectProfiles.get(effect.played_by_user_id);
+  const name = playedByName(effect);
+  const imageUrl = profile?.profile_image_url?.startsWith('data:image/')
+    ? profile.profile_image_url
+    : '';
+  const fallback = escapeHtml((name || 'P').trim().charAt(0).toUpperCase() || 'P');
+  const avatar = imageUrl
+    ? `<img src="${escapeHtml(imageUrl)}" alt="">`
+    : fallback;
+  return `
+    <span class="card-effect-player-line">
+      <span class="played-by-avatar">${avatar}</span>
+      <span>Played by ${escapeHtml(name)}${playedByGameweekText(effect)}</span>
+    </span>
+  `;
+}
+
 function scoreKey(score) {
   return `${score.user_id}:${score.fixture_id}`;
 }
@@ -206,7 +235,7 @@ function openEffectModal(effectId) {
   panel.classList.add(`${category}-card`);
   titleElement.textContent = effectName(effect);
   descriptionElement.textContent = effectDescription(effect);
-  playerElement.textContent = `Played by ${playedByName(effect)}`;
+  playerElement.innerHTML = playedByMarkup(effect);
   modal.classList.add('show');
   modal.setAttribute('aria-hidden', 'false');
   document.body.classList.add('card-modal-open');
@@ -383,7 +412,7 @@ async function loadCorrectScores() {
   if (playedByUserIds.length) {
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, display_name')
+      .select('id, display_name, profile_image_url')
       .in('id', playedByUserIds);
     state.effectProfiles = new Map((profiles || []).map((profile) => [profile.id, profile]));
   }

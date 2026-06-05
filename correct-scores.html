@@ -441,6 +441,34 @@ body.card-modal-open {
   font-weight: 950;
 }
 
+.card-effect-player-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.card-effect-player-line .played-by-avatar {
+  width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.92);
+  background: rgba(255,255,255,0.88);
+  color: #2e1065;
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-shadow: none;
+}
+
+.card-effect-player-line .played-by-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .card-effect-back {
   position: absolute;
   left: 50%;
@@ -578,5 +606,4 @@ body.card-modal-open {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-
 

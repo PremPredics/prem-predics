@@ -3562,8 +3562,9 @@ button:disabled {
   }
 
   .card-tile.used-card .used-card-label {
-    padding: 1px 2px;
-    font-size: clamp(0.2rem, 0.9vw, 0.27rem);
+    width: 100%;
+    padding: 1px;
+    font-size: clamp(0.17rem, 0.72vw, 0.23rem);
   }
 
   .card-tile.masked-premium {
@@ -4946,11 +4947,16 @@ function playerAvatarMarkup(userId) {
   return `<span class="card-preview-played-by-avatar">${escapeHtml(initial)}</span>`;
 }
 
-function playedByMarkup(userId, action = 'used') {
+function cardGameweekSuffix(gameweekNumber) {
+  const value = Number(gameweekNumber);
+  return Number.isFinite(value) && value > 0 ? ` in GW${escapeHtml(value)}` : '';
+}
+
+function playedByMarkup(userId, action = 'used', gameweekNumber = null) {
   const playerKey = playerKeyForUserId(userId);
   const name = playerKey ? getPlayerName(playerKey) : 'Player';
   const label = action === 'discarded' ? 'Discarded by' : 'Used by';
-  return `${label} ${playerAvatarMarkup(userId)} <span>${escapeHtml(name)}</span>`;
+  return `${label} ${playerAvatarMarkup(userId)} <span>${escapeHtml(name)}${cardGameweekSuffix(gameweekNumber)}</span>`;
 }
 
 function formatChoiceList(items) {
@@ -5323,7 +5329,7 @@ function showCardPreview(cardName, player, index) {
   fitPreviewText(nameEl, descEl);
 }
 
-function showReadOnlyCardPreview(cardName, playedByUserId = null, action = 'used') {
+function showReadOnlyCardPreview(cardName, playedByUserId = null, action = 'used', gameweekNumber = null) {
   const modal = document.getElementById('cardPreviewModal');
   const discardModal = document.getElementById('discardPileModal');
   const content = document.getElementById('cardPreviewContent');
@@ -5336,7 +5342,7 @@ function showReadOnlyCardPreview(cardName, playedByUserId = null, action = 'used
   question.textContent = 'Card Details';
   if (playedByEl) {
     playedByEl.hidden = !playedByUserId;
-    playedByEl.innerHTML = playedByUserId ? playedByMarkup(playedByUserId, action) : '';
+    playedByEl.innerHTML = playedByUserId ? playedByMarkup(playedByUserId, action, gameweekNumber) : '';
   }
   playButton.hidden = true;
   content.className = `card-preview-content ${cardType}`;
@@ -5745,12 +5751,17 @@ function pileCardAction(card) {
   return typeof card === 'object' && card ? card.action : null;
 }
 
+function pileCardGameweek(card) {
+  return typeof card === 'object' && card ? card.gameweekNumber : null;
+}
+
 function cardTileMarkup(cardName, extraClass = '') {
   const displayName = pileCardName(cardName);
   const playedByUserId = pileCardPlayedBy(cardName);
   const action = pileCardAction(cardName);
+  const gameweekNumber = pileCardGameweek(cardName);
   const cardType = getCardType(displayName);
-  return `<div class="card-tile ${cardType} ${extraClass}" data-card-name="${escapeHtml(displayName)}" ${playedByUserId ? `data-played-by-user-id="${escapeHtml(playedByUserId)}"` : ''} ${action ? `data-card-action="${escapeHtml(action)}"` : ''}>${escapeHtml(displayName)}</div>`;
+  return `<div class="card-tile ${cardType} ${extraClass}" data-card-name="${escapeHtml(displayName)}" ${playedByUserId ? `data-played-by-user-id="${escapeHtml(playedByUserId)}"` : ''} ${action ? `data-card-action="${escapeHtml(action)}"` : ''} ${gameweekNumber ? `data-card-gameweek="${escapeHtml(gameweekNumber)}"` : ''}>${escapeHtml(displayName)}</div>`;
 }
 
 function gameweekHasStartedFromTime(kickoffAt) {
@@ -6295,7 +6306,8 @@ function render() {
     const openDetails = () => showReadOnlyCardPreview(
       tile.dataset.cardName || tile.textContent.trim(),
       tile.dataset.playedByUserId || null,
-      tile.dataset.cardAction || 'used'
+      tile.dataset.cardAction || 'used',
+      tile.dataset.cardGameweek || null
     );
     tile.addEventListener('click', openDetails);
     tile.addEventListener('keydown', (event) => {
@@ -6494,6 +6506,7 @@ async function initializeCardPage() {
           name: cardName,
           playedByUserId: usedMeta?.playedByUserId || row.owner_user_id || null,
           action: usedMeta ? 'used' : 'discarded',
+          gameweekNumber: usedMeta?.gameweekNumber || null,
         };
 
         if (row.zone === 'hand') {
@@ -6938,7 +6951,7 @@ async function initializeCardPage() {
               ? `GW${effect.gameweek_number}`
               : 'Current Gameweek';
             const playedByMarkupHtml = effect.played_by_user_id
-              ? playedByMarkup(effect.played_by_user_id, 'used')
+              ? playedByMarkup(effect.played_by_user_id, 'used', effect.gameweek_number || null)
               : `Played by <span>${escapeHtml(playedBy)}</span>`;
             return `
               <button class="opponent-target-btn veto-curse-btn ${selectedIndex === index ? 'selected' : ''}" type="button" data-veto-index="${index}" aria-pressed="${selectedIndex === index ? 'true' : 'false'}">
