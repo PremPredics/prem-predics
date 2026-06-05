@@ -3562,9 +3562,14 @@ button:disabled {
   }
 
   .card-tile.used-card .used-card-label {
+    padding: 1px 2px;
+    font-size: clamp(0.2rem, 0.9vw, 0.27rem);
+  }
+
+  html.capacitor-android .card-tile.used-card .used-card-label {
     width: 100%;
-    padding: 1px;
-    font-size: clamp(0.17rem, 0.72vw, 0.23rem);
+    padding: 1px 0;
+    font-size: clamp(0.13rem, 0.54vw, 0.18rem);
   }
 
   .card-tile.masked-premium {
@@ -5442,7 +5447,12 @@ async function confirmCardPlay() {
     if (keepPlayedCardInHand) {
       markCardInstanceAsUsed(player, index, activation);
     } else {
-      gameState.discardPile.push(card);
+      gameState.discardPile.push(discardPileItem(
+        card,
+        gameState.playerUserIds?.[player] || null,
+        'used',
+        activation?.gameweek_number || null
+      ));
       discardDatabaseCard(player, card, selectedCardInstanceId);
     }
   }
@@ -5497,6 +5507,7 @@ function startSwap(player, card, options = {}) {
     discardChoiceInstanceId: null,
     drawn: options.drawn || [],
     selectedIndices: [],
+    gameweekNumber: options.gameweekNumber || options.gameweek_number || null,
   };
   document.getElementById("confirmSwapBtn").style.display = "block";
   render();
@@ -5545,9 +5556,11 @@ async function confirmSwap() {
     return;
   }
   swap.effectId = activation?.id || swap.effectId;
+  swap.gameweekNumber = activation?.gameweek_number || swap.gameweekNumber || null;
 
-  gameState.discardPile.push(discardedChoice);
-  gameState.discardPile.push(swap.card);
+  const swapPlayerUserId = gameState.playerUserIds?.[swap.player] || null;
+  gameState.discardPile.push(discardPileItem(discardedChoice, swapPlayerUserId, 'discarded', swap.gameweekNumber));
+  gameState.discardPile.push(discardPileItem(swap.card, swapPlayerUserId, 'used', swap.gameweekNumber));
   const discardTasks = [
     cardRuntime?.discardCardInstance && swap.discardChoiceInstanceId
       ? cardRuntime.discardCardInstance(swap.discardChoiceInstanceId)
@@ -5627,7 +5640,12 @@ async function confirmPick() {
         }
         const cardName = cardNameFromDrawn(card);
         const cardInstanceId = cardInstanceFromDrawn(card);
-        gameState.discardPile.push(cardName);
+        gameState.discardPile.push(discardPileItem(
+          cardName,
+          gameState.playerUserIds?.[swap.player] || null,
+          'discarded',
+          swap.gameweekNumber || null
+        ));
         if (cardInstanceId && cardRuntime?.discardCardInstance) {
           discardTasks.push(cardRuntime.discardCardInstance(cardInstanceId));
         }
@@ -5755,6 +5773,15 @@ function pileCardGameweek(card) {
   return typeof card === 'object' && card ? card.gameweekNumber : null;
 }
 
+function discardPileItem(cardName, playedByUserId, action = 'discarded', gameweekNumber = null) {
+  return {
+    name: cardName,
+    playedByUserId,
+    action,
+    gameweekNumber,
+  };
+}
+
 function cardTileMarkup(cardName, extraClass = '') {
   const displayName = pileCardName(cardName);
   const playedByUserId = pileCardPlayedBy(cardName);
@@ -5766,6 +5793,48 @@ function cardTileMarkup(cardName, extraClass = '') {
 
 function gameweekHasStartedFromTime(kickoffAt) {
   return Boolean(kickoffAt) && Date.now() >= new Date(kickoffAt).getTime();
+}
+
+function gameweekNumberFromEffect(effect, gameweeksById) {
+  const gameweek = gameweeksById?.get?.(String(effect?.start_gameweek_id || effect?.gameweek_id || ''));
+  return gameweek?.gameweek_number || null;
+}
+
+function gameweekNumberFromTimestamp(timestamp, orderedGameweeks = []) {
+  const time = new Date(timestamp || '').getTime();
+  if (!Number.isFinite(time)) return null;
+
+  const gameweeks = orderedGameweeks
+    .filter((gameweek) => gameweek?.first_fixture_kickoff_at)
+    .slice()
+    .sort((a, b) => Number(a.gameweek_number || 0) - Number(b.gameweek_number || 0));
+
+  if (!gameweeks.length) return null;
+
+  const upcoming = gameweeks.find((gameweek) => new Date(gameweek.first_fixture_kickoff_at).getTime() >= time);
+  if (upcoming) return upcoming.gameweek_number;
+
+  return gameweeks[gameweeks.length - 1]?.gameweek_number || null;
+}
+
+function gameweekNumberForDiscard(row, playedEffects = [], gameweeksById = new Map(), orderedGameweeks = []) {
+  const updatedAtMs = new Date(row?.updated_at || '').getTime();
+  if (Number.isFinite(updatedAtMs)) {
+    const fiveMinutesMs = 5 * 60 * 1000;
+    const nearbyEffect = (playedEffects || [])
+      .filter((effect) => String(effect.played_by_user_id || '') === String(row?.owner_user_id || ''))
+      .map((effect) => ({
+        effect,
+        distance: Math.abs(new Date(effect.played_at || '').getTime() - updatedAtMs),
+      }))
+      .filter((item) => Number.isFinite(item.distance) && item.distance <= fiveMinutesMs)
+      .sort((a, b) => a.distance - b.distance)[0]?.effect;
+
+    const nearbyGameweek = gameweekNumberFromEffect(nearbyEffect, gameweeksById);
+    if (nearbyGameweek) return nearbyGameweek;
+  }
+
+  return gameweekNumberFromTimestamp(row?.updated_at, orderedGameweeks);
 }
 
 function isCurseRule(rule) {
@@ -6130,7 +6199,8 @@ function fitPreviewText(nameEl, descEl) {
 function fitUsedCardTile(tile) {
   requestAnimationFrame(() => {
     fitTextWithin(tile?.querySelector('.used-card-name'), 4.2);
-    fitTextWithin(tile?.querySelector('.used-card-label'), 3.2);
+    const labelMin = document.documentElement.classList.contains('capacitor-android') ? 1.8 : 3.2;
+    fitTextWithin(tile?.querySelector('.used-card-label'), labelMin);
   });
 }
 
@@ -6448,23 +6518,19 @@ async function initializeCardPage() {
         throw playedEffectsError;
       }
 
-      const playedGameweekIds = [...new Set((playedEffects || [])
-        .map((effect) => effect.start_gameweek_id || effect.gameweek_id)
-        .filter(Boolean))];
-      let gameweeksById = new Map();
-      if (playedGameweekIds.length) {
-        const { data: gameweeks, error: gameweekError } = await supabase
-          .from('gameweek_deadlines')
-          .select('gameweek_id, gameweek_number, first_fixture_kickoff_at')
-          .eq('season_id', context.league.season_id)
-          .in('gameweek_id', playedGameweekIds);
+      const { data: seasonGameweeks, error: gameweekError } = await supabase
+        .from('gameweek_deadlines')
+        .select('gameweek_id, gameweek_number, first_fixture_kickoff_at')
+        .eq('season_id', context.league.season_id)
+        .order('gameweek_number', { ascending: true });
 
-        if (gameweekError) {
-          throw gameweekError;
-        }
-
-        gameweeksById = new Map((gameweeks || []).map((gameweek) => [String(gameweek.gameweek_id), gameweek]));
+      if (gameweekError) {
+        throw gameweekError;
       }
+
+      const orderedGameweeks = (seasonGameweeks || [])
+        .filter((gameweek) => Number(gameweek.gameweek_id) >= Number(context.league.starts_gameweek_id || 0));
+      const gameweeksById = new Map(orderedGameweeks.map((gameweek) => [String(gameweek.gameweek_id), gameweek]));
 
       (playedEffects || []).forEach((effect) => {
         const gameweek = gameweeksById.get(String(effect.start_gameweek_id || effect.gameweek_id));
@@ -6482,7 +6548,7 @@ async function initializeCardPage() {
 
       const { data: cardRows, error: cardError } = await supabase
         .from('league_cards')
-        .select('id, owner_user_id, zone, card_definitions(name, category, deck_type)')
+        .select('id, owner_user_id, zone, updated_at, card_definitions(name, category, deck_type)')
         .eq('competition_id', context.league.id)
         .in('zone', ['regular_deck', 'premium_deck', 'game_deck', 'hand', 'active', 'discard'])
         .order('updated_at', { ascending: true });
@@ -6502,11 +6568,14 @@ async function initializeCardPage() {
         const cardDefinition = getNestedRecord(row.card_definitions);
         const cardName = normalizeCardName(cardDefinition?.name || row.card_id);
         const usedMeta = gameState.usedCardEffectsByInstance[row.id];
+        const discardGameweekNumber = row.zone === 'discard'
+          ? gameweekNumberForDiscard(row, playedEffects || [], gameweeksById, orderedGameweeks)
+          : null;
         const discardItem = {
           name: cardName,
           playedByUserId: usedMeta?.playedByUserId || row.owner_user_id || null,
           action: usedMeta ? 'used' : 'discarded',
-          gameweekNumber: usedMeta?.gameweekNumber || null,
+          gameweekNumber: usedMeta?.gameweekNumber || discardGameweekNumber || null,
         };
 
         if (row.zone === 'hand') {
