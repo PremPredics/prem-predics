@@ -1453,9 +1453,18 @@ button:disabled {
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
+.random-fixture-btn:hover:not(:disabled):not(.selected),
+.fixture-choice-btn:hover:not(:disabled):not(.selected) {
+  background: rgba(17, 7, 38, 0.66) !important;
+  border-color: rgba(216, 180, 254, 0.32);
+  box-shadow: none;
+  transform: none;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .random-fixture-btn:hover:not(:disabled):not(.selected),
   .fixture-choice-btn:hover:not(:disabled):not(.selected) {
+    background: rgba(17, 7, 38, 0.66) !important;
     transform: translateY(-1px);
     border-color: rgba(251, 146, 60, 0.78);
     box-shadow:
