@@ -1453,13 +1453,15 @@ button:disabled {
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.random-fixture-btn:hover:not(:disabled):not(.selected),
-.fixture-choice-btn:hover:not(:disabled):not(.selected) {
-  transform: translateY(-1px);
-  border-color: rgba(251, 146, 60, 0.78);
-  box-shadow:
-    inset 0 0 0 2px rgba(251, 146, 60, 0.42),
-    0 0 12px rgba(251, 146, 60, 0.24);
+@media (hover: hover) and (pointer: fine) {
+  .random-fixture-btn:hover:not(:disabled):not(.selected),
+  .fixture-choice-btn:hover:not(:disabled):not(.selected) {
+    transform: translateY(-1px);
+    border-color: rgba(251, 146, 60, 0.78);
+    box-shadow:
+      inset 0 0 0 2px rgba(251, 146, 60, 0.42),
+      0 0 12px rgba(251, 146, 60, 0.24);
+  }
 }
 
 .random-fixture-btn.selected,
@@ -1495,18 +1497,21 @@ button:disabled {
 .random-fixture-btn:active:not(:disabled):not(.selected),
 .fixture-choice-btn:active:not(:disabled):not(.selected) {
   background: rgba(17, 7, 38, 0.66) !important;
-}
-
-.random-fixture-btn:focus:not(:focus-visible):not(.selected),
-.fixture-choice-btn:focus:not(:focus-visible):not(.selected) {
+  border-color: rgba(216, 180, 254, 0.32);
   outline: none;
+  box-shadow: none;
+  transform: none;
 }
 
-.random-fixture-btn:focus-visible,
-.fixture-choice-btn:focus-visible {
+.random-fixture-btn:focus:not(.selected),
+.fixture-choice-btn:focus:not(.selected),
+.random-fixture-btn:focus-visible:not(.selected),
+.fixture-choice-btn:focus-visible:not(.selected) {
   background: rgba(17, 7, 38, 0.66) !important;
-  outline: 3px solid rgba(251, 146, 60, 0.96);
-  outline-offset: -6px;
+  border-color: rgba(216, 180, 254, 0.32);
+  outline: none;
+  box-shadow: none;
+  transform: none;
 }
 
 .random-fixture-btn.fixture-blocked,
@@ -7472,7 +7477,7 @@ async function initializeCardPage() {
             }
             selectedIndex = Number(button.dataset.choiceIndex);
             updateSelectedState();
-            button.blur();
+            releaseFixtureChoiceFocus(button);
           });
         });
 
@@ -7487,6 +7492,15 @@ async function initializeCardPage() {
         modal.classList.add('show');
         modal.setAttribute('aria-hidden', 'false');
       });
+    }
+
+    function releaseFixtureChoiceFocus(button) {
+      if (!button || typeof button.blur !== 'function') {
+        return;
+      }
+      button.blur();
+      requestAnimationFrame(() => button.blur());
+      window.setTimeout(() => button.blur(), 80);
     }
 
     function chooseCurseToVetoFromModal(curses, playerNameById) {
@@ -7937,7 +7951,7 @@ async function initializeCardPage() {
               selected.add(index);
             }
             updateSelectedState();
-            button.blur();
+            releaseFixtureChoiceFocus(button);
           });
         });
 
