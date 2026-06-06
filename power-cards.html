@@ -1431,6 +1431,8 @@ button:disabled {
 
 .random-fixture-btn,
 .fixture-choice-btn {
+  appearance: none;
+  -webkit-appearance: none;
   width: calc(100% - 4px);
   max-width: 100%;
   min-width: 0;
@@ -1451,8 +1453,8 @@ button:disabled {
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.random-fixture-btn:hover:not(:disabled),
-.fixture-choice-btn:hover:not(:disabled) {
+.random-fixture-btn:hover:not(:disabled):not(.selected),
+.fixture-choice-btn:hover:not(:disabled):not(.selected) {
   transform: translateY(-1px);
   border-color: rgba(251, 146, 60, 0.78);
   box-shadow:
@@ -1463,13 +1465,36 @@ button:disabled {
 .random-fixture-btn.selected,
 .fixture-choice-btn.selected {
   transform: none;
-  background: rgba(17, 7, 38, 0.66);
+  background: rgba(17, 7, 38, 0.66) !important;
   border-color: rgba(251, 146, 60, 0.98);
   outline: 3px solid rgba(251, 146, 60, 0.98);
   outline-offset: -6px;
   box-shadow:
     inset 0 0 0 2px rgba(255, 237, 213, 0.72),
     0 0 10px rgba(251, 146, 60, 0.3);
+}
+
+.random-fixture-btn.selected:hover,
+.fixture-choice-btn.selected:hover,
+.random-fixture-btn.selected:focus,
+.fixture-choice-btn.selected:focus,
+.random-fixture-btn.selected:active,
+.fixture-choice-btn.selected:active,
+.random-fixture-btn.selected:focus-visible,
+.fixture-choice-btn.selected:focus-visible {
+  transform: none;
+  background: rgba(17, 7, 38, 0.66) !important;
+  border-color: rgba(251, 146, 60, 0.98);
+  outline: 3px solid rgba(251, 146, 60, 0.98);
+  outline-offset: -6px;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 237, 213, 0.72),
+    0 0 10px rgba(251, 146, 60, 0.3);
+}
+
+.random-fixture-btn:active:not(:disabled):not(.selected),
+.fixture-choice-btn:active:not(:disabled):not(.selected) {
+  background: rgba(17, 7, 38, 0.66) !important;
 }
 
 .random-fixture-btn:focus:not(:focus-visible):not(.selected),
@@ -1479,6 +1504,7 @@ button:disabled {
 
 .random-fixture-btn:focus-visible,
 .fixture-choice-btn:focus-visible {
+  background: rgba(17, 7, 38, 0.66) !important;
   outline: 3px solid rgba(251, 146, 60, 0.96);
   outline-offset: -6px;
 }
@@ -7446,6 +7472,7 @@ async function initializeCardPage() {
             }
             selectedIndex = Number(button.dataset.choiceIndex);
             updateSelectedState();
+            button.blur();
           });
         });
 
@@ -7910,6 +7937,7 @@ async function initializeCardPage() {
               selected.add(index);
             }
             updateSelectedState();
+            button.blur();
           });
         });
 
