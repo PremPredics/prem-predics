@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prem Predics - Predictions</title>
+<script src="assets/js/capacitor-app.js"></script>
 <style>
 * {
   box-sizing: border-box;
@@ -216,6 +217,7 @@ main {
 
 .prediction-restriction-card {
   width: 72px;
+  height: 92px;
   min-height: 92px;
   display: grid;
   align-content: center;
@@ -234,6 +236,7 @@ main {
     1px -1px 0 rgba(0,0,0,0.92),
     -1px 1px 0 rgba(0,0,0,0.92),
     1px 1px 0 rgba(0,0,0,0.92);
+  overflow: hidden;
 }
 
 .prediction-restriction-card.power-restriction-card {
@@ -1246,6 +1249,7 @@ footer {
 
   .prediction-restriction-card {
     width: 64px;
+    height: 82px;
     min-height: 82px;
     padding: 8px 6px;
     border-radius: 11px;
@@ -1259,12 +1263,31 @@ footer {
 
   .prediction-restriction-card-name {
     font-size: 8.6px;
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .prediction-restriction-played-by {
     max-width: 84px;
     font-size: 9px;
     line-height: 1.15;
+  }
+
+  html.capacitor-android .prediction-restriction-card {
+    width: 64px;
+    height: 82px;
+    min-height: 82px;
+    max-height: 82px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  html.capacitor-android .prediction-restriction-card-name {
+    font-size: 8.4px;
+    line-height: 1.08;
   }
 
   .fixture-team {
@@ -1611,6 +1634,31 @@ footer {
   box-shadow: 0 0 18px rgba(239, 68, 68, 0.28);
 }
 
+.deleted-match-row .prediction-score-axis {
+  position: relative;
+}
+
+.deleted-match-row .prediction-score-axis::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  z-index: 2;
+  height: 3px;
+  border-radius: 999px;
+  background: #ff1f1f;
+  box-shadow: 0 0 12px rgba(255, 31, 31, 0.9), 0 0 20px rgba(249, 115, 22, 0.58);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.deleted-match-row .prediction-score-input {
+  opacity: 0.72;
+  border-color: rgba(255, 31, 31, 0.6);
+  background: rgba(69, 10, 10, 0.46);
+}
+
 .prediction-row-meta {
   display: flex;
   align-items: center;
@@ -1717,8 +1765,8 @@ footer {
   }
 
   .prediction-score-axis--edit {
-    grid-template-columns: minmax(0, 1fr) 30px 8px 30px minmax(0, 1fr);
-    gap: 5px;
+    grid-template-columns: minmax(0, 1fr) 28px 7px 28px minmax(0, 1fr);
+    gap: 4px;
   }
 
   .prediction-team {
@@ -1742,7 +1790,7 @@ footer {
   }
 
   .prediction-score-axis--edit .prediction-score-input {
-    width: 30px;
+    width: 28px;
     height: 28px;
   }
 
@@ -1827,4 +1875,3 @@ footer {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-

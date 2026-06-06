@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prem Predics - Correct Scores</title>
+<script src="assets/js/capacitor-app.js"></script>
 <style>
 * { box-sizing: border-box; }
 
@@ -36,6 +37,21 @@ header h1 {
   font-size: clamp(2rem, 5.5vw, 3.35rem);
   line-height: 1.05;
   font-weight: 900;
+}
+
+html.capacitor-android header {
+  padding:
+    max(16px, calc(env(safe-area-inset-top, 0px) + 12px))
+    12px
+    12px;
+}
+
+html.capacitor-android header h1 {
+  font-size: clamp(1.45rem, 6vw, 2rem);
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 main {
@@ -606,4 +622,3 @@ body.card-modal-open {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-

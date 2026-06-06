@@ -114,6 +114,17 @@ body {
   font-weight: 900;
 }
 
+.legal-shell a.rules-how-link {
+  color: #7dd3fc;
+  text-decoration: none;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.88),
+    1px -1px 0 rgba(0,0,0,0.88),
+    -1px 1px 0 rgba(0,0,0,0.88),
+    1px 1px 0 rgba(0,0,0,0.88),
+    0 0 14px rgba(56, 189, 248, 0.86);
+}
+
 .legal-shell ul {
   margin: 10px 0 0;
   padding-left: 22px;

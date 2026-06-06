@@ -166,7 +166,7 @@ async function loadPredictionCompletion(league, user, fixtures) {
   const fixtureIds = activeFixtures.map((fixture) => fixture.id);
   const currentGameweekId = activeFixtures[0]?.gameweek_id;
 
-  const [primaryResult, hatedResult, randomResult, hedgeEffectResult] = await Promise.all([
+  const [primaryResult, hatedResult, randomResult, deletedMatchResult, hedgeEffectResult] = await Promise.all([
     supabase
       .from('predictions')
       .select('fixture_id, home_goals, away_goals')
@@ -189,6 +189,15 @@ async function loadPredictionCompletion(league, user, fixtures) {
       .in('fixture_id', fixtureIds),
     supabase
       .from('active_card_effects')
+      .select('fixture_id, card_definitions!inner(effect_key)')
+      .eq('competition_id', league.id)
+      .eq('season_id', league.season_id)
+      .eq('target_user_id', user.id)
+      .eq('status', 'active')
+      .eq('card_definitions.effect_key', 'curse_deleted_match')
+      .in('fixture_id', fixtureIds),
+    supabase
+      .from('active_card_effects')
       .select('id, gameweek_id, start_gameweek_id, end_gameweek_id, card_definitions!inner(effect_key)')
       .eq('competition_id', league.id)
       .eq('season_id', league.season_id)
@@ -197,7 +206,7 @@ async function loadPredictionCompletion(league, user, fixtures) {
       .eq('card_definitions.effect_key', 'power_hedge'),
   ]);
 
-  if (primaryResult.error || hatedResult.error || randomResult.error || hedgeEffectResult.error) {
+  if (primaryResult.error || hatedResult.error || randomResult.error || deletedMatchResult.error || hedgeEffectResult.error) {
     return false;
   }
 
@@ -210,6 +219,11 @@ async function loadPredictionCompletion(league, user, fixtures) {
   const completedFixtureIds = new Set(completeRows
     .filter((prediction) => Number.isFinite(Number(prediction.home_goals)) && Number.isFinite(Number(prediction.away_goals)))
     .map((prediction) => prediction.fixture_id));
+
+  (deletedMatchResult.data || [])
+    .map((effect) => effect.fixture_id)
+    .filter(Boolean)
+    .forEach((fixtureId) => completedFixtureIds.add(fixtureId));
 
   if (!activeFixtures.every((fixture) => completedFixtureIds.has(fixture.id))) {
     return false;

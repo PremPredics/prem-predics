@@ -540,20 +540,21 @@ main {
 }
 
 .available-player-counter {
-  width: min(100%, 520px);
+  width: min(100%, 460px);
   justify-self: center;
   display: grid;
-  gap: 4px;
-  padding: 10px 12px;
-  border: 2px solid rgba(250, 204, 21, 0.78);
-  border-radius: 14px;
+  gap: 2px;
+  margin: 6px auto 4px;
+  padding: 8px 11px;
+  border: 1px solid rgba(125, 211, 252, 0.48);
+  border-radius: 10px;
   background:
-    linear-gradient(135deg, rgba(120, 53, 15, 0.58), rgba(17, 7, 38, 0.58)),
-    radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.28), transparent 62%);
-  color: #fff7d6;
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,0.12), transparent 24%),
+    linear-gradient(135deg, rgba(17, 7, 38, 0.72), rgba(46, 16, 102, 0.56));
+  color: #fff;
   font: inherit;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(250, 204, 21, 0.2), inset 0 1px 0 rgba(255,255,255,0.14);
+  box-shadow: 0 0 14px rgba(125, 211, 252, 0.16), inset 0 0 12px rgba(255,255,255,0.08);
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.9),
     1px -1px 0 rgba(0,0,0,0.9),
@@ -566,15 +567,15 @@ main {
 }
 
 .available-player-counter strong {
-  color: #fef3c7;
-  font-size: clamp(16px, 2.6vw, 22px);
+  color: #fff;
+  font-size: clamp(12px, 2vw, 15px);
   font-weight: 950;
   line-height: 1.05;
 }
 
 .available-player-counter span {
   color: #bae6fd;
-  font-size: clamp(12px, 1.6vw, 14px);
+  font-size: clamp(10px, 1.5vw, 12px);
   font-weight: 900;
   line-height: 1.05;
 }
@@ -1055,7 +1056,7 @@ button.save {
   inset: 0;
   display: none;
   place-items: center;
-  padding: 20px 20px 86px;
+  padding: 20px 20px 94px;
   background: rgba(8, 3, 20, 0.54);
   backdrop-filter: blur(8px);
   z-index: 1000;
@@ -1072,6 +1073,7 @@ body.card-modal-open {
 .star-curse-panel {
   width: min(330px, 100%);
   height: min(430px, calc(100vh - 116px));
+  margin-bottom: 62px;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -1201,12 +1203,14 @@ body.card-modal-open {
 }
 
 .star-curse-back {
-  position: static;
+  position: absolute;
+  left: 50%;
+  bottom: -62px;
   justify-self: center;
-  transform: none !important;
+  transform: translateX(-50%) !important;
   width: min(220px, 100%);
   min-height: 42px;
-  margin: 14px auto -2px;
+  margin: 0;
   border: 0;
   border-radius: 12px;
   padding: 10px 16px;
@@ -1227,7 +1231,7 @@ body.card-modal-open {
 .star-curse-back:hover,
 .star-curse-back:focus,
 .star-curse-back:active {
-  transform: none !important;
+  transform: translateX(-50%) !important;
 }
 
 .player-preview-modal {
@@ -1517,14 +1521,14 @@ footer {
       <div class="pick-grid">
         <section class="pick-card" data-pick-slot="primary">
           <span class="star-pick-status-light" data-star-pick-status aria-label="No Star Man saved" title="No Star Man saved"></span>
-          <button class="available-player-counter" type="button" data-available-player-counter hidden>
-            <strong data-available-player-count>Checking players...</strong>
-            <span data-available-player-action>Loading availability</span>
-          </button>
           <label>
             Start typing a player's name
             <input data-player-search="primary" autocomplete="off" placeholder="Search player">
           </label>
+          <button class="available-player-counter" type="button" data-available-player-counter hidden>
+            <strong data-available-player-count>Checking players...</strong>
+            <span data-available-player-action>Loading availability</span>
+          </button>
           <div class="selected-player" data-selected-player="primary"></div>
           <div class="results" data-search-results="primary"></div>
           <button class="save" type="button" data-save-star-man="primary" disabled hidden>Save Star Man</button>

@@ -201,7 +201,15 @@
       .star-curse-back:hover,
       .star-curse-back:focus,
       .star-curse-back:active {
-        transform: none !important;
+        transform: translateX(-50%) !important;
+      }
+
+      .star-curse-modal {
+        padding-bottom: max(94px, env(safe-area-inset-bottom, 0px) + 86px) !important;
+      }
+
+      .star-curse-panel {
+        margin-bottom: 62px !important;
       }
 
       @media (min-width: 721px) {

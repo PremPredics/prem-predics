@@ -246,8 +246,12 @@ function predictionIsNilNil(prediction) {
     && Number(prediction.away_goals) === 0;
 }
 
+function basePredictionForFixture(fixture) {
+  return revealedCurseOverride(fixture) || state.predictions.get(fixture.id) || null;
+}
+
 function fixturePredictionForEffects(fixture) {
-  return displayPredictionForFixture(fixture);
+  return basePredictionForFixture(fixture);
 }
 
 function curseAppliesToFixture(effect, fixture, prediction = fixturePredictionForEffects(fixture)) {
@@ -283,6 +287,15 @@ function visiblePredictionCursesForFixture(fixture) {
 
 function effectPlayedAtMs(effect) {
   return new Date(effect?.played_at || 0).getTime() || 0;
+}
+
+function currentPredictionCurseForFixture(fixture) {
+  return visiblePredictionCursesForFixture(fixture).at(-1) || null;
+}
+
+function deletedMatchEffectForFixture(fixture) {
+  const currentEffect = currentPredictionCurseForFixture(fixture);
+  return effectKey(currentEffect) === 'curse_deleted_match' ? currentEffect : null;
 }
 
 function renderCurseMarker(fixture) {
@@ -345,12 +358,12 @@ function revealedCurseOverride(fixture) {
 }
 
 function displayPredictionForFixture(fixture) {
-  return revealedCurseOverride(fixture) || state.predictions.get(fixture.id) || null;
+  return deletedMatchEffectForFixture(fixture) ? null : basePredictionForFixture(fixture);
 }
 
 function cleanScoreInput(input) {
   const digits = input.value.replace(/\D/g, '').slice(0, 3);
-  const score = digits === '' ? '' : String(Math.min(Number(digits), 100));
+  const score = digits === '' ? '' : String(Math.min(Number(digits), 99));
   input.value = score;
 }
 
@@ -361,7 +374,7 @@ function scoreInputState(input) {
   }
 
   const value = Number(raw);
-  const valid = Number.isInteger(value) && value >= 0 && value <= 100;
+  const valid = Number.isInteger(value) && value >= 0 && value <= 99;
   const parityOk = !state.predictionParity
     || (state.predictionParity === 'even' && value % 2 === 0)
     || (state.predictionParity === 'odd' && value % 2 === 1);
@@ -432,7 +445,9 @@ function restoreDraftPredictionInputs(draft) {
 
 function setSaveButtonState() {
   const unlockedFixtures = state.fixtures.filter((fixture) => (
-    !isPast(fixture.prediction_locks_at) && !revealedCurseOverride(fixture)
+    !isPast(fixture.prediction_locks_at)
+    && !revealedCurseOverride(fixture)
+    && !deletedMatchEffectForFixture(fixture)
   ));
   saveAllButton.disabled = !unlockedFixtures.length;
 }
@@ -548,6 +563,31 @@ async function loadCurseOverridePredictions() {
     });
 }
 
+async function clearDeletedMatchPrimaryPredictions() {
+  const deletedFixtureIds = state.fixtures
+    .filter((fixture) => deletedMatchEffectForFixture(fixture))
+    .map((fixture) => fixture.id)
+    .filter((fixtureId) => state.predictions.has(fixtureId));
+
+  if (!deletedFixtureIds.length) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from('predictions')
+    .delete()
+    .eq('competition_id', state.league.id)
+    .eq('user_id', state.user.id)
+    .eq('prediction_slot', 'primary')
+    .in('fixture_id', deletedFixtureIds);
+
+  if (error) {
+    throw error;
+  }
+
+  deletedFixtureIds.forEach((fixtureId) => state.predictions.delete(fixtureId));
+}
+
 function isEffectForCurrentGameweek(effect) {
   const gameweekId = Number(state.activeGameweek.gameweek_id);
   const directGameweek = !effect.gameweek_id || Number(effect.gameweek_id) === gameweekId;
@@ -630,9 +670,10 @@ function renderSummary() {
       ${state.fixtures.map((fixture) => {
         const prediction = displayPredictionForFixture(fixture);
         const curseOverride = revealedCurseOverride(fixture);
+        const deletedMatch = deletedMatchEffectForFixture(fixture);
         const locked = isPast(fixture.prediction_locks_at);
         return `
-          <article class="prediction-row-frame ${curseOverride ? 'curse-override-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride ? 'true' : 'false'}">
+          <article class="prediction-row-frame ${curseOverride ? 'curse-override-row' : ''} ${deletedMatch ? 'deleted-match-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride || deletedMatch ? 'true' : 'false'}">
             ${predictionRowLeftMarkup(false)}
             <span class="prediction-score-axis prediction-score-axis--saved">
               <span class="prediction-team prediction-team--home">${escapeHtml(teamName(fixture.home_team_id))}</span>
@@ -679,15 +720,17 @@ function renderEdit() {
   fixturesContainer.innerHTML = `${renderSpecialPanels()}${renderTargetRestrictionPanel()}${state.fixtures.map((fixture) => {
     const prediction = displayPredictionForFixture(fixture);
     const curseOverride = revealedCurseOverride(fixture);
+    const deletedMatch = deletedMatchEffectForFixture(fixture);
     const locked = isPast(fixture.prediction_locks_at);
+    const inputsDisabled = locked || curseOverride || deletedMatch;
     return `
-      <article class="prediction-row-frame ${curseOverride ? 'curse-override-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride ? 'true' : 'false'}">
+      <article class="prediction-row-frame ${curseOverride ? 'curse-override-row' : ''} ${deletedMatch ? 'deleted-match-row' : ''}" data-fixture-id="${fixture.id}" data-curse-override="${curseOverride || deletedMatch ? 'true' : 'false'}">
         ${predictionRowLeftMarkup(false)}
         <span class="prediction-score-axis prediction-score-axis--edit">
           <span class="prediction-team prediction-team--home">${escapeHtml(teamName(fixture.home_team_id))}</span>
-          <input class="prediction-score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
+          <input class="prediction-score-input" data-score-input data-home-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.home_goals ?? ''}" ${inputsDisabled ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.home_team_id))} goals">
           <span class="prediction-dash">-</span>
-          <input class="prediction-score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${locked || curseOverride ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
+          <input class="prediction-score-input" data-score-input data-away-goals type="text" inputmode="numeric" maxlength="2" value="${prediction?.away_goals ?? ''}" ${inputsDisabled ? 'disabled' : ''} aria-label="${escapeHtml(teamName(fixture.away_team_id))} goals">
           <span class="prediction-team prediction-team--away">${escapeHtml(teamName(fixture.away_team_id))}</span>
         </span>
         ${predictionRowMetaMarkup({
@@ -820,9 +863,9 @@ function renderHedgeRow(effect, index, mode = 'edit') {
             <option value="">Choose match</option>
             ${fixtureOptions}
           </select>
-          <input class="prediction-score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="Hedge home goals">
+          <input class="prediction-score-input" data-hedge-home type="text" inputmode="numeric" maxlength="2" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="Hedge home goals">
           <span class="prediction-dash">-</span>
-          <input class="prediction-score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="Hedge away goals">
+          <input class="prediction-score-input" data-hedge-away type="text" inputmode="numeric" maxlength="2" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="Hedge away goals">
         </span>
         <span class="prediction-row-meta prediction-hedge-meta">
           <span class="prediction-effects">${renderPowerEffectMarker(effect)}</span>
@@ -837,9 +880,9 @@ function renderHedgeRow(effect, index, mode = 'edit') {
       ${predictionRowLeftMarkup(true)}
       <span class="prediction-score-axis prediction-score-axis--edit">
         <span class="prediction-team prediction-team--home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
-        <input class="prediction-score-input" data-hedge-home type="text" inputmode="numeric" maxlength="3" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.home_team_id))} Hedge goals">
+        <input class="prediction-score-input" data-hedge-home type="text" inputmode="numeric" maxlength="2" value="${prediction?.home_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.home_team_id))} Hedge goals">
         <span class="prediction-dash">-</span>
-        <input class="prediction-score-input" data-hedge-away type="text" inputmode="numeric" maxlength="3" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.away_team_id))} Hedge goals">
+        <input class="prediction-score-input" data-hedge-away type="text" inputmode="numeric" maxlength="2" value="${prediction?.away_goals ?? ''}" ${disabled} aria-label="${escapeHtml(teamName(selectedFixture.away_team_id))} Hedge goals">
         <span class="prediction-team prediction-team--away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
       </span>
       <span class="prediction-row-meta prediction-hedge-meta">
@@ -874,9 +917,9 @@ function renderGodPanel() {
           <option value="">Choose match</option>
           ${fixtureOptions}
         </select>
-        <input class="score-input" data-god-home type="text" inputmode="numeric" maxlength="3" value="${state.godPrediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God home goals">
+        <input class="score-input" data-god-home type="text" inputmode="numeric" maxlength="2" value="${state.godPrediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God home goals">
         <span class="score-separator">-</span>
-        <input class="score-input" data-god-away type="text" inputmode="numeric" maxlength="3" value="${state.godPrediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God away goals">
+        <input class="score-input" data-god-away type="text" inputmode="numeric" maxlength="2" value="${state.godPrediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God away goals">
         <button type="button" data-save-god ${locked ? 'disabled' : ''}>Save</button>
       </div>
       <p class="state-text">${selectedFixture ? `Deadline: ${countdownText(selectedFixture.second_half_deadline_at)}` : 'Pick a match to see the deadline.'}</p>
@@ -896,9 +939,9 @@ function renderSuperScorePanel() {
       <p class="state-text">Choose one scoreline. Every fixture that finishes with that exact home-away scoreline earns +3 UC pts.</p>
       <div class="hedge-controls scoreline-controls">
         <span class="scoreline-label">Scoreline</span>
-        <input class="score-input" data-super-score-home type="text" inputmode="numeric" maxlength="3" value="${state.superScorePick?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score home goals">
+        <input class="score-input" data-super-score-home type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score home goals">
         <span class="score-separator">-</span>
-        <input class="score-input" data-super-score-away type="text" inputmode="numeric" maxlength="3" value="${state.superScorePick?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score away goals">
+        <input class="score-input" data-super-score-away type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score away goals">
         <button type="button" data-save-super-score ${locked ? 'disabled' : ''}>Save</button>
       </div>
       <p class="state-text">${locked ? 'Super Score is locked for this gameweek.' : `Deadline: ${countdownText(state.activeGameweek.star_man_locks_at)}`}</p>
@@ -1105,7 +1148,9 @@ async function saveAllPredictions() {
   const rows = [];
   const deleteFixtureIds = [];
   const unlockedFixtures = state.fixtures.filter((fixture) => (
-    !isPast(fixture.prediction_locks_at) && !revealedCurseOverride(fixture)
+    !isPast(fixture.prediction_locks_at)
+    && !revealedCurseOverride(fixture)
+    && !deletedMatchEffectForFixture(fixture)
   ));
 
   for (const fixture of unlockedFixtures) {
@@ -1123,7 +1168,7 @@ async function saveAllPredictions() {
     }
 
     if (result.status === 'invalid') {
-      setMessage('Predictions must be whole numbers from 0 to 100.', 'error');
+      setMessage('Predictions must be whole numbers from 0 to 99.', 'error');
       return;
     }
 
@@ -1213,7 +1258,7 @@ async function saveHedgePrediction(effectId) {
   }
 
   if (!home.valid || !away.valid) {
-    setMessage('Hedge predictions must be whole numbers from 0 to 100.', 'error');
+    setMessage('Hedge predictions must be whole numbers from 0 to 99.', 'error');
     return;
   }
 
@@ -1444,6 +1489,7 @@ async function boot() {
     await Promise.all([loadTeams(), loadFixtures(), loadActivePredictionEffects()]);
     await loadExistingPredictions();
     await loadCurseOverridePredictions();
+    await clearDeletedMatchPrimaryPredictions();
     leagueTitle.textContent = `Gameweek ${state.activeGameweek.gameweek_number} Predictions`;
     gameweekSummary.textContent = 'predictions lock 90 mins before kick-off.';
     render();

@@ -53,6 +53,25 @@ function confirmAction(text, confirmText = 'Yes') {
   });
 }
 
+function showJoinedLeagueNotice(league) {
+  return new Promise((resolve) => {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px;background:rgba(8,3,20,.62);backdrop-filter:blur(8px);';
+    modal.innerHTML = `
+      <section style="width:min(460px,100%);display:grid;gap:16px;text-align:center;padding:24px 22px;border-radius:14px;background:linear-gradient(135deg,rgba(46,16,102,.98),rgba(17,7,38,.98));border:2px solid rgba(216,180,254,.42);box-shadow:0 22px 58px rgba(0,0,0,.56),0 0 28px rgba(168,85,247,.22);">
+        <h2 style="margin:0;color:#fff;font-size:clamp(1.25rem,4vw,1.65rem);font-weight:950;text-shadow:-1px -1px 0 rgba(0,0,0,.95),1px -1px 0 rgba(0,0,0,.95),-1px 1px 0 rgba(0,0,0,.95),1px 1px 0 rgba(0,0,0,.95),0 0 14px rgba(216,180,254,.78);">You have successfully joined ${escapeHtml(league.name || 'this league')}!</h2>
+        <button type="button" data-enter-league style="justify-self:center;min-width:170px;border:2px solid rgba(254,243,199,.82);border-radius:999px;padding:13px 20px;background:radial-gradient(circle at 24% 18%,rgba(255,255,255,.7),transparent 22%),linear-gradient(135deg,#facc15,#f59e0b 52%,#92400e);color:#fff;font-weight:950;cursor:pointer;box-shadow:0 0 22px rgba(250,204,21,.64),0 12px 28px rgba(146,64,14,.32);text-shadow:-1px -1px 0 rgba(0,0,0,.94),1px -1px 0 rgba(0,0,0,.94),-1px 1px 0 rgba(0,0,0,.94),1px 1px 0 rgba(0,0,0,.94);">Enter League</button>
+      </section>
+    `;
+
+    modal.querySelector('[data-enter-league]').addEventListener('click', () => {
+      resolve();
+      window.location.href = leagueUrl('league.html', league.id);
+    });
+    document.body.appendChild(modal);
+  });
+}
+
 async function copyText(value, button) {
   try {
     await navigator.clipboard.writeText(value);
@@ -278,7 +297,7 @@ joinForm.addEventListener('submit', async (event) => {
   setMessage('Joining league...', 'info');
 
   try {
-    const { error } = await supabase.rpc('join_competition_by_code', {
+    const { data: competitionId, error } = await supabase.rpc('join_competition_by_code', {
       invite_code: inviteCode,
     });
 
@@ -286,9 +305,16 @@ joinForm.addEventListener('submit', async (event) => {
       throw error;
     }
 
+    const { data: joinedLeague } = await supabase
+      .from('competitions')
+      .select('id, name')
+      .eq('id', competitionId)
+      .maybeSingle();
+
     joinForm.reset();
     setMessage('League joined.', 'success');
     await loadLeagues();
+    await showJoinedLeagueNotice(joinedLeague || { id: competitionId, name: 'this league' });
   } catch (error) {
     setMessage(error.message || 'Could not join league.', 'error');
   }

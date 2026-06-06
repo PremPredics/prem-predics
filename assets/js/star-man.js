@@ -1214,7 +1214,7 @@ function updateAvailablePlayerCounter() {
   }
 
   availablePlayerAction.textContent = available.length > 50
-    ? 'Enter 2+ Letters For Player Dropdown'
+    ? 'Enter 2+ Letters for Player Dropdown'
     : 'No players currently available';
   availablePlayerCounter.disabled = true;
   availablePlayerCounter.setAttribute('aria-disabled', 'true');

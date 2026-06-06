@@ -1114,9 +1114,9 @@ button:disabled {
   overflow-x: hidden;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(142px, 100%), 1fr));
   gap: 12px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   scrollbar-gutter: stable;
 }
 
@@ -1166,15 +1166,15 @@ button:disabled {
 }
 
 .veto-curse-list {
-  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(184px, 100%), 1fr));
   justify-items: center;
 }
 
 .veto-curse-btn {
   min-height: 0;
-  width: min(190px, 100%);
+  width: min(214px, 100%);
   aspect-ratio: auto;
-  min-height: 248px;
+  min-height: 268px;
   align-items: center;
   justify-items: center;
   gap: 6px;
@@ -1190,17 +1190,18 @@ button:disabled {
 .veto-curse-name {
   display: block;
   color: #fff;
-  font-size: 0.96rem;
+  font-size: clamp(0.78rem, 1.25vw, 1rem);
   font-weight: 950;
   text-align: center;
+  line-height: 1.08;
 }
 
 .veto-curse-meta,
 .veto-curse-description {
   display: block;
   color: #ddd6fe;
-  font-size: 0.72rem;
-  line-height: 1.16;
+  font-size: clamp(0.62rem, 0.9vw, 0.74rem);
+  line-height: 1.14;
   text-align: center;
   overflow: hidden;
 }
@@ -1364,7 +1365,7 @@ button:disabled {
 }
 
 .fixture-choice-list {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 10px;
   align-items: stretch;
 }
@@ -1397,6 +1398,11 @@ button:disabled {
   box-shadow:
     inset 0 0 0 3px rgba(251, 146, 60, 0.9),
     0 0 20px rgba(251, 146, 60, 0.42);
+}
+
+.random-fixture-btn.selected,
+.fixture-choice-btn.selected {
+  background: rgba(17, 7, 38, 0.66);
 }
 
 .fixture-choice-teams {
@@ -2135,7 +2141,7 @@ button:disabled {
   grid-template-columns: 1fr 1fr;
   gap: 18px;
   animation: fadeInUp 0.6s ease-out;
-  flex: 1;
+  flex: 0 0 auto;
   align-items: stretch;
 }
 
@@ -2158,7 +2164,8 @@ button:disabled {
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 100%;
+  min-height: 0;
+  height: 100%;
 }
 
 .player-box h2 {
@@ -2231,7 +2238,7 @@ button:disabled {
 
 @media (min-width: 1201px) {
   .hand {
-    justify-content: center;
+    justify-content: flex-start;
     gap: 10px;
     padding: 12px;
   }
@@ -2665,6 +2672,13 @@ html.capacitor-android .card-tile.used-card::after {
   gap: 10px;
   justify-content: center;
   margin-top: 12px;
+}
+
+.drawn-cards .card-tile {
+  flex: 0 0 86px;
+  width: 86px;
+  height: 112px;
+  aspect-ratio: auto;
 }
 
 .discard-pile {
@@ -3610,14 +3624,14 @@ html.capacitor-android .card-tile.used-card::after {
   }
 
   .hand {
-    min-height: clamp(138px, calc(100dvh - 360px), 250px);
+    min-height: 0;
     max-height: none;
     gap: 4px;
     padding: 5px;
     border-radius: 8px;
     overflow-y: visible;
     align-content: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .card-tile {
@@ -3655,6 +3669,8 @@ html.capacitor-android .card-tile.used-card::after {
   html.capacitor-android .hand {
     gap: 4px;
     padding: 5px;
+    min-height: 0;
+    justify-content: flex-start;
   }
 
   html.capacitor-android .card-tile {
@@ -3684,6 +3700,15 @@ html.capacitor-android .card-tile.used-card::after {
     bottom: 3px;
     height: 18px;
     font-size: 7px;
+  }
+
+  .drawn-cards .card-tile,
+  html.capacitor-android .drawn-cards .card-tile {
+    flex: 0 0 82px;
+    width: 82px;
+    height: 114px;
+    max-width: 82px;
+    aspect-ratio: auto;
   }
 
   .card-tile.masked-premium {
@@ -3999,6 +4024,117 @@ html.capacitor-android .card-tile.used-card::after {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+html.capacitor-android body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html.capacitor-android .back-home-btn {
+  top: max(8px, env(safe-area-inset-top, 0px));
+  right: max(8px, env(safe-area-inset-right, 0px));
+  width: auto;
+  min-width: 126px;
+  min-height: 32px;
+  padding: 8px 9px;
+  font-size: 0.66rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+html.capacitor-android body > h1 {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 138px 6px 0 !important;
+  padding: 0 !important;
+  text-align: center !important;
+  font-size: clamp(1.24rem, 5.45vw, 1.54rem) !important;
+  line-height: 1.05 !important;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html.capacitor-android .players-row.show {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+html.capacitor-android .player-box {
+  padding: 8px 6px;
+  border-radius: 12px;
+}
+
+html.capacitor-android .player-box h2 {
+  font-size: 1.05rem;
+  margin-bottom: 5px;
+}
+
+html.capacitor-android .hand {
+  min-height: 0;
+  max-height: none;
+  gap: 4px;
+  padding: 5px;
+  overflow-y: visible;
+  align-content: flex-start;
+  justify-content: flex-start;
+}
+
+html.capacitor-android .card-tile {
+  flex: 0 0 calc((100% - 8px) / 3);
+  width: calc((100% - 8px) / 3);
+  height: auto;
+  aspect-ratio: 0.72;
+  max-width: none;
+  padding: 5px 3px;
+  border-radius: 8px;
+  border-width: 1px;
+  font-size: clamp(0.42rem, 1.55vw, 0.54rem);
+  line-height: 0.98;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html.capacitor-android .card-tile.used-card {
+  padding: 5px 3px 23px;
+}
+
+html.capacitor-android .card-tile.used-card .used-card-name {
+  font-size: clamp(0.38rem, 1.34vw, 0.48rem);
+  line-height: 0.92;
+}
+
+html.capacitor-android .card-tile.used-card::after {
+  left: 4px;
+  right: 4px;
+  bottom: 3px;
+  height: 18px;
+  font-size: 7px;
+}
+
+html.capacitor-android .veto-curse-btn {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html.capacitor-android .veto-curse-btn {
+  width: min(186px, 100%);
+  min-height: 210px;
+  padding: 8px 7px;
+  gap: 4px;
+}
+
+html.capacitor-android .veto-curse-name {
+  font-size: clamp(0.66rem, 2.4vw, 0.84rem);
+  line-height: 1.04;
+}
+
+html.capacitor-android .veto-curse-description {
+  font-size: clamp(0.5rem, 1.76vw, 0.62rem);
+  line-height: 1.08;
 }
 </style>
 </head>
@@ -4478,7 +4614,7 @@ const HEDGE_DELETED_MATCH_CONFLICT_TEXT = 'Power of the Hedge and Curse of the D
 
 // CARD DESCRIPTIONS DATABASE
 const cardDescriptions = {
-  "Power of the Goal": "Power of the Goal\n\nValid for 1 Gameweek. +1 Goal for Star Man this week. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Goal": "Power of the Goal\n\nValid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points). Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Swap": "Power of the Swap\n\nDiscard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand.",
   "Power of the Veto": "Power of the Veto\n\nVeto a Curse played by your opponent.",
   "Power of the Laundrette": "Power of the Laundrette\n\nValid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet. Must be played at least 90 minutes before the gameweek's first KO time.",
@@ -5074,7 +5210,7 @@ function cardGameweekSuffix(gameweekNumber) {
 function playedByMarkup(userId, action = 'used', gameweekNumber = null) {
   const playerKey = playerKeyForUserId(userId);
   const name = playerKey ? getPlayerName(playerKey) : 'Player';
-  const label = action === 'discarded' ? 'Discarded by' : 'Used by';
+  const label = action === 'discarded' ? 'Discarded by' : action === 'vetoed' ? 'Vetoed after use by' : 'Used by';
   return `${label} ${playerAvatarMarkup(userId)} <span>${escapeHtml(name)}${cardGameweekSuffix(gameweekNumber)}</span>`;
 }
 
@@ -5519,6 +5655,15 @@ async function confirmCardPlay() {
     }
     if (gameState.players[player].hand.length < 2) {
       showSiteNotice('You need at least 2 cards in your hand to play Power of the Swap!', 'Power of the Swap');
+      return;
+    }
+  }
+
+  if (cardRuntime?.assertCardInOwnHand) {
+    try {
+      await cardRuntime.assertCardInOwnHand(selectedCardInstanceId, card);
+    } catch (error) {
+      showSiteNotice(error.message || `${card} is no longer available. Your cards have been refreshed.`, card || 'Card unavailable', 'warning');
       return;
     }
   }
@@ -6279,6 +6424,7 @@ function markCardInstanceAsUsed(playerKey, cardIndex, activation) {
   gameState.usedCardEffectsByInstance[cardInstanceId] = {
     effectId: activation.id,
     playedByUserId: activation.played_by_user_id || cardRuntime?.user?.id || null,
+    status: activation.status || 'active',
     gameweekNumber: activation.gameweek_number || '?',
     firstFixtureKickoffAt: activation.first_fixture_kickoff_at || null,
     hasGameweekStarted: gameweekHasStartedFromTime(activation.first_fixture_kickoff_at),
@@ -6680,6 +6826,7 @@ async function initializeCardPage() {
           effectId: effect.id,
           effectKey: definition?.effect_key || '',
           playedByUserId: effect.played_by_user_id || null,
+          status: effect.status || '',
           gameweekNumber: gameweek?.gameweek_number || '?',
           firstFixtureKickoffAt,
           hasGameweekStarted: gameweekHasStartedFromTime(firstFixtureKickoffAt),
@@ -6708,18 +6855,19 @@ async function initializeCardPage() {
         const cardDefinition = getNestedRecord(row.card_definitions);
         const cardName = normalizeCardName(cardDefinition?.name || row.card_id);
         const usedMeta = gameState.usedCardEffectsByInstance[row.id];
+        const usedIsVetoed = usedMeta?.status === 'vetoed';
         const discardGameweekNumber = row.zone === 'discard'
           ? gameweekNumberForDiscard(row, playedEffects || [], gameweeksById, orderedGameweeks)
           : null;
         const discardItem = {
           name: cardName,
           playedByUserId: usedMeta?.playedByUserId || row.owner_user_id || null,
-          action: usedMeta ? 'used' : 'discarded',
+          action: usedIsVetoed ? 'vetoed' : usedMeta ? 'used' : 'discarded',
           gameweekNumber: usedMeta?.gameweekNumber || discardGameweekNumber || null,
         };
 
         if (row.zone === 'hand') {
-          if (usedMeta?.hasGameweekStarted) {
+          if (usedMeta?.hasGameweekStarted || usedIsVetoed) {
             dbDiscardPile.push(discardItem);
             return;
           }
@@ -6736,7 +6884,7 @@ async function initializeCardPage() {
         } else if (row.zone === 'premium_deck') {
           gameState.premiumDeck.push(cardName);
         } else if (row.zone === 'discard') {
-          if (usedMeta && !usedMeta.hasGameweekStarted && usedMeta.effectKey !== 'power_swap') {
+          if (usedMeta && !usedMeta.hasGameweekStarted && !usedIsVetoed && usedMeta.effectKey !== 'power_swap') {
             const playerKey = userIdToPlayerKey.get(row.owner_user_id);
             if (playerKey && gameState.players[playerKey]) {
               gameState.players[playerKey].hand.push(cardName);
@@ -7684,7 +7832,7 @@ async function initializeCardPage() {
           status: 'active',
           payload: { effect_key: rule.effectKey, ...(options.payload || {}) },
         })
-        .select('id, card_instance_id, card_id, fixture_id, target_user_id, gameweek_id, start_gameweek_id')
+        .select('id, card_instance_id, card_id, fixture_id, target_user_id, gameweek_id, start_gameweek_id, status')
         .single();
 
       if (error) throw error;
@@ -7756,6 +7904,35 @@ async function initializeCardPage() {
 
     cardRuntime = {
       refreshHands,
+      async assertCardInOwnHand(cardInstanceId, cardName) {
+        if (!cardInstanceId) {
+          await syncHandFromDatabase({ force: true });
+          render();
+          throw new Error(`${cardName} is no longer available. Your cards have been refreshed.`);
+        }
+
+        const { data, error } = await supabase
+          .from('league_cards')
+          .select('id, owner_user_id, zone, card_definitions(name)')
+          .eq('competition_id', context.league.id)
+          .eq('id', cardInstanceId)
+          .maybeSingle();
+
+        if (error) {
+          throw error;
+        }
+
+        const definition = getNestedRecord(data?.card_definitions);
+        const currentName = normalizeCardName(definition?.name || '');
+        if (!data
+          || data.owner_user_id !== context.user.id
+          || data.zone !== 'hand'
+          || currentName !== normalizeCardName(cardName)) {
+          await syncHandFromDatabase({ force: true });
+          render();
+          throw new Error(`${cardName} is no longer in your hand. Your cards have been refreshed.`);
+        }
+      },
       async discardCard(playerKey, cardName) {
         const cardIds = gameState.cardInstanceIdsByPlayer?.[playerKey]?.[cardName];
         const cardInstanceId = cardIds?.shift();
@@ -7979,7 +8156,7 @@ async function initializeCardPage() {
         if (!document.hidden) {
           syncHandFromDatabase();
         }
-      }, 60000);
+      }, 15000);
     }
   } catch (error) {
     setActiveGameCardPanel('Cards unavailable', error.message || 'Could not load league cards.', '');
