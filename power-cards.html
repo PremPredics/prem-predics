@@ -5076,7 +5076,7 @@ function load() {
     gameState.cardInstanceIdsByPlayer = gameState.cardInstanceIdsByPlayer || {};
     gameState.handCardInstancesByPlayer = gameState.handCardInstancesByPlayer || {};
     gameState.usedCardEffectsByInstance = gameState.usedCardEffectsByInstance || {};
-    if (gameState.pendingSwap && !(gameState.pendingSwap.drawn || []).length) {
+    if (gameState.pendingSwap && !(gameState.pendingSwap.drawn || []).length && !gameState.pendingSwap.effectId) {
       gameState.pendingSwap = null;
     }
     gameState.currentPlayerKey = gameState.currentPlayerKey || 'p1';
@@ -5898,6 +5898,19 @@ async function confirmCardPlay() {
     if (opponentsWithCards.length === 0) {
       showSiteNotice('You cannot play Curse of the Thief when your opponent has no cards!', 'Curse of the Thief');
       return;
+    }
+
+    if (cardRuntime?.canStealFromOpponent) {
+      const targetChecks = await Promise.all(opponentsWithCards.map(async (opponentKey) => {
+        const result = await cardRuntime.canStealFromOpponent(gameState.playerUserIds?.[opponentKey] || null);
+        return { opponentKey, ...result };
+      }));
+      const validTargets = targetChecks.filter((check) => check.canSteal);
+      if (!validTargets.length) {
+        const reason = targetChecks.find((check) => check.message)?.message;
+        showSiteNotice(reason || 'You cannot play Curse of the Thief because there is no valid card to steal.', 'Curse of the Thief');
+        return;
+      }
     }
   }
 
@@ -8390,6 +8403,14 @@ async function initializeCardPage() {
 
         if (error) {
           throw error;
+        }
+      },
+      async canStealFromOpponent(opponentUserId = null) {
+        try {
+          await assertCanStealFromOpponent(opponentUserId);
+          return { canSteal: true, message: '' };
+        } catch (error) {
+          return { canSteal: false, message: error.message || 'That opponent cannot currently be stolen from.' };
         }
       },
       async stealCard(effectId, cardInstanceId, opponentUserId = null) {
