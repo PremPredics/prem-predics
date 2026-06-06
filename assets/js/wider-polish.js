@@ -295,7 +295,14 @@
           max-width: calc(100vw - 18px) !important;
           overflow-x: auto !important;
           overflow-y: hidden !important;
-          padding: 2px 8px 12px !important;
+          padding:
+            2px
+            max(14px, env(safe-area-inset-right, 0px) + 14px)
+            12px
+            max(14px, env(safe-area-inset-left, 0px) + 14px) !important;
+          box-sizing: border-box !important;
+          scroll-padding-left: max(14px, env(safe-area-inset-left, 0px) + 14px) !important;
+          scroll-padding-right: max(14px, env(safe-area-inset-right, 0px) + 14px) !important;
           scroll-snap-type: x proximity !important;
           -webkit-overflow-scrolling: touch;
         }

@@ -1277,12 +1277,21 @@ footer {
   }
 
   html.capacitor-android .prediction-restriction-card {
+    box-sizing: border-box;
+    flex: 0 0 64px;
     width: 64px;
     height: 82px;
     min-height: 82px;
     max-height: 82px;
+    aspect-ratio: auto;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+  }
+
+  html.capacitor-android .prediction-restriction-card-wrap {
+    flex: 0 0 64px;
+    width: 64px;
+    max-width: 64px;
   }
 
   html.capacitor-android .prediction-restriction-card-name {

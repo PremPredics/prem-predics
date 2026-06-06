@@ -128,6 +128,9 @@ function fixtureLabel(fixture) {
 }
 
 function effectDefinition(effect) {
+  if (!effect) {
+    return null;
+  }
   return Array.isArray(effect.card_definitions) ? effect.card_definitions[0] : effect.card_definitions;
 }
 
@@ -295,6 +298,9 @@ function currentPredictionCurseForFixture(fixture) {
 
 function deletedMatchEffectForFixture(fixture) {
   const currentEffect = currentPredictionCurseForFixture(fixture);
+  if (!currentEffect) {
+    return null;
+  }
   return effectKey(currentEffect) === 'curse_deleted_match' ? currentEffect : null;
 }
 

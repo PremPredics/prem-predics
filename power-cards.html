@@ -4098,6 +4098,23 @@ html.capacitor-android .card-tile {
   text-size-adjust: 100%;
 }
 
+html.capacitor-android .discard-pile.has-cards {
+  grid-template-columns: repeat(auto-fit, minmax(72px, 84px));
+  gap: 9px;
+  justify-content: center;
+}
+
+html.capacitor-android .discard-pile .card-tile {
+  flex: 0 0 auto !important;
+  width: 74px !important;
+  height: 104px !important;
+  aspect-ratio: auto !important;
+  max-width: 74px !important;
+  padding: 7px 5px;
+  font-size: clamp(0.46rem, 2vw, 0.56rem);
+  line-height: 1;
+}
+
 html.capacitor-android .card-tile.used-card {
   padding: 5px 3px 23px;
 }
@@ -4125,16 +4142,22 @@ html.capacitor-android .veto-curse-btn {
   min-height: 210px;
   padding: 8px 7px;
   gap: 4px;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  overflow: hidden;
 }
 
 html.capacitor-android .veto-curse-name {
   font-size: clamp(0.66rem, 2.4vw, 0.84rem);
   line-height: 1.04;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 html.capacitor-android .veto-curse-description {
   font-size: clamp(0.5rem, 1.76vw, 0.62rem);
   line-height: 1.08;
+  max-height: 82px;
+  overflow: hidden;
 }
 </style>
 </head>
@@ -4756,6 +4779,8 @@ let currentCompetitionId = new URLSearchParams(window.location.search).get('comp
 let cardRuntime = null;
 let medalBalances = { regular: 0, super: 0 };
 let handRefreshTimer = null;
+let handRefreshSubscription = null;
+let liveHandRefreshTimer = null;
 let currentDeckVariantId = 'players_2';
 
 function shuffle(arr) { 
@@ -5285,6 +5310,19 @@ function syncHandFromDatabase(options = {}) {
   return Promise.resolve();
 }
 
+function scheduleLiveHandRefresh() {
+  if (document.hidden) {
+    return;
+  }
+
+  clearTimeout(liveHandRefreshTimer);
+  liveHandRefreshTimer = window.setTimeout(async () => {
+    await syncHandFromDatabase({ force: true });
+    updateDecksDisplay();
+    render();
+  }, 250);
+}
+
 function discardDatabaseCard(playerKey, cardName, cardInstanceId = null) {
   if (cardRuntime?.discardCard) {
     if (cardInstanceId && cardRuntime?.discardCardInstance) {
@@ -5485,14 +5523,20 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
     setTimeout(() => {
       reveal.classList.remove('show');
       setTimeout(() => {
-        animateCardToHand(card, cardType, player, () => {
-          gameState.players[player].hand.push(card);
-          syncHandFromDatabase();
-          updateDecksDisplay();
-          render();
-          save();
-          sequenceInProgress = false;
-          resolve();
+        animateCardToHand(card, cardType, player, async () => {
+          try {
+            if (forcedCard && cardRuntime?.refreshHands) {
+              await syncHandFromDatabase({ force: true });
+            } else {
+              gameState.players[player].hand.push(card);
+            }
+            updateDecksDisplay();
+            render();
+            save();
+          } finally {
+            sequenceInProgress = false;
+            resolve();
+          }
         });
       }, 300);
     }, 4000);
@@ -5726,10 +5770,9 @@ async function confirmCardPlay() {
     if (cardRuntime?.drawEffectCards && activation?.id) {
       try {
         const drawnCards = await cardRuntime.drawEffectCards(activation.id, superDrawCount);
-        drawnCards.forEach((drawn) => gameState.players[player].hand.push(normalizeCardName(drawn.card_name)));
         activation.__noticeTitle = 'Super Draw';
         activation.__noticeMessage = `Super Draw added: ${drawnCards.map((drawn) => drawn.card_name).join(', ')}.`;
-        syncHandFromDatabase();
+        await syncHandFromDatabase({ force: true });
       } catch (error) {
         showSiteNotice(error.message || 'Could not draw cards for Super Draw.', 'Super Draw');
       }
@@ -6543,6 +6586,10 @@ function render() {
       if (i >= lastHandSizes[p]) div.classList.add('fly');
 
       const handleCardClick = () => {
+        if (sequenceInProgress) {
+          return;
+        }
+
         if (usedMeta) {
           return;
         }
@@ -8157,6 +8204,22 @@ async function initializeCardPage() {
           syncHandFromDatabase();
         }
       }, 15000);
+    }
+
+    if (!handRefreshSubscription && supabase.channel) {
+      handRefreshSubscription = supabase
+        .channel(`league-cards-live-${context.league.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'league_cards',
+            filter: `competition_id=eq.${context.league.id}`,
+          },
+          scheduleLiveHandRefresh
+        )
+        .subscribe();
     }
   } catch (error) {
     setActiveGameCardPanel('Cards unavailable', error.message || 'Could not load league cards.', '');
