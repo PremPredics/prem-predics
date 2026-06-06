@@ -1669,9 +1669,11 @@ footer {
 }
 
 .prediction-row-meta {
-  display: flex;
+  display: grid;
+  grid-template-columns: 36px 86px;
   align-items: center;
   justify-content: flex-end;
+  justify-items: end;
   gap: 6px;
   min-width: 0;
 }
@@ -1681,15 +1683,21 @@ footer {
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-  min-width: 0;
-  flex: 0 0 auto;
+  width: 36px;
+  min-width: 36px;
+  min-height: 26px;
+}
+
+.prediction-effects:empty {
+  visibility: hidden;
 }
 
 .prediction-lock {
   color: #ddd6fe;
   font-size: 12px;
   font-weight: 800;
-  min-width: 88px;
+  width: 86px;
+  min-width: 86px;
   overflow: visible;
   text-overflow: clip;
   white-space: nowrap;
@@ -1703,9 +1711,10 @@ footer {
 
 .prediction-lock.locked {
   color: #ff1f1f;
-  min-width: 34px;
+  width: 86px;
+  min-width: 86px;
   font-size: 15px;
-  text-align: center;
+  text-align: right;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.92),
     1px -1px 0 rgba(0,0,0,0.92),
@@ -1744,7 +1753,14 @@ footer {
 }
 
 .prediction-hedge-meta {
+  grid-template-columns: 36px 86px;
   gap: 6px;
+}
+
+.prediction-hedge-meta .hedge-save-button {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+  margin: 2px 0 0;
 }
 
 @media (max-width: 720px) {
@@ -1804,11 +1820,18 @@ footer {
   }
 
   .prediction-row-meta {
-    gap: 3px;
+    grid-template-columns: 22px 48px;
+    gap: 2px;
+    justify-content: end;
+    align-items: center;
   }
 
   .prediction-effects {
-    gap: 2px;
+    width: 22px;
+    min-width: 22px;
+    min-height: 20px;
+    justify-content: center;
+    gap: 1px;
   }
 
   .prediction-lock {
@@ -1821,8 +1844,10 @@ footer {
 
   .prediction-lock.locked {
     width: 48px;
+    min-width: 48px;
     max-width: 48px;
     font-size: 12px;
+    text-align: right;
   }
 
   .prediction-hedge-picker-main {
@@ -1831,8 +1856,18 @@ footer {
   }
 
   .prediction-hedge-meta {
-    flex-direction: column;
+    grid-template-columns: 22px 48px;
     gap: 2px;
+    justify-content: end;
+    align-items: center;
+  }
+
+  .prediction-hedge-meta .hedge-save-button {
+    grid-column: 1 / -1;
+    min-height: 22px;
+    padding: 3px 5px;
+    font-size: 8.5px;
+    margin-top: 1px;
   }
 }
 </style>
