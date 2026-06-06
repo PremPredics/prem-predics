@@ -1155,6 +1155,33 @@ button:disabled {
   box-shadow: 0 0 18px rgba(248, 113, 113, 0.32);
 }
 
+.opponent-target-btn.disabled,
+.opponent-target-btn:disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
+  filter: grayscale(0.38);
+  transform: none;
+}
+
+.opponent-target-btn.disabled:hover,
+.opponent-target-btn:disabled:hover {
+  transform: none;
+  border-color: rgba(216, 180, 254, 0.32);
+  box-shadow: none;
+}
+
+.opponent-target-disabled-reason {
+  color: #fca5a5;
+  font-size: 0.72rem;
+  line-height: 1.1;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.72),
+    1px -1px 0 rgba(0,0,0,0.72),
+    -1px 1px 0 rgba(0,0,0,0.72),
+    1px 1px 0 rgba(0,0,0,0.72),
+    0 0 10px rgba(248, 113, 113, 0.34);
+}
+
 .opponent-target-btn.selected,
 .veto-curse-btn.selected {
   outline: 3px solid rgba(251, 146, 60, 0.98);
@@ -1255,6 +1282,34 @@ button:disabled {
     1px -1px 0 rgba(0,0,0,0.72),
     -1px 1px 0 rgba(0,0,0,0.72),
     1px 1px 0 rgba(0,0,0,0.72);
+}
+
+.opponent-target-confirm.locked-action-play {
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255,255,255,0.72), transparent 20%),
+    linear-gradient(135deg, #22c55e 0%, #16a34a 42%, #15803d 100%);
+  border: 2px solid rgba(187, 247, 208, 0.92);
+  color: #fff;
+  box-shadow:
+    0 0 18px rgba(34, 197, 94, 0.72),
+    0 0 34px rgba(21, 128, 61, 0.42),
+    inset 0 2px 0 rgba(255,255,255,0.28);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.74),
+    1px -1px 0 rgba(0,0,0,0.74),
+    -1px 1px 0 rgba(0,0,0,0.74),
+    1px 1px 0 rgba(0,0,0,0.74);
+}
+
+.notice-modal .opponent-target-cancel.locked-action-back {
+  background:
+    radial-gradient(circle at 28% 16%, rgba(255,255,255,0.9), transparent 20%),
+    linear-gradient(135deg, #ff3b30 0%, #ef4444 34%, #b91c1c 70%, #7f1d1d 100%);
+  border-color: rgba(254, 202, 202, 0.88);
+  box-shadow:
+    0 0 18px rgba(248, 113, 113, 0.78),
+    0 0 34px rgba(220, 38, 38, 0.48),
+    inset 0 2px 0 rgba(255,255,255,0.36);
 }
 
 .opponent-target-confirm:disabled {
@@ -1362,20 +1417,25 @@ button:disabled {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
+  padding: 3px 4px;
+  box-sizing: border-box;
 }
 
 .fixture-choice-list {
   grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 10px;
   align-items: stretch;
+  padding: 3px 4px;
+  box-sizing: border-box;
 }
 
 .random-fixture-btn,
 .fixture-choice-btn {
-  width: 100%;
+  width: calc(100% - 4px);
   max-width: 100%;
   min-width: 0;
   min-height: 64px;
+  justify-self: center;
   box-sizing: border-box;
   border: 1px solid rgba(216, 180, 254, 0.32);
   border-radius: 12px;
@@ -1386,23 +1446,62 @@ button:disabled {
   text-align: center;
   cursor: pointer;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.random-fixture-btn:hover,
-.fixture-choice-btn:hover,
-.random-fixture-btn.selected,
-.fixture-choice-btn.selected {
-  transform: translateY(-2px);
-  border-color: rgba(251, 146, 60, 0.98);
+.random-fixture-btn:hover:not(:disabled),
+.fixture-choice-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(251, 146, 60, 0.78);
   box-shadow:
-    inset 0 0 0 3px rgba(251, 146, 60, 0.9),
-    0 0 20px rgba(251, 146, 60, 0.42);
+    inset 0 0 0 2px rgba(251, 146, 60, 0.42),
+    0 0 12px rgba(251, 146, 60, 0.24);
 }
 
 .random-fixture-btn.selected,
 .fixture-choice-btn.selected {
+  transform: none;
   background: rgba(17, 7, 38, 0.66);
+  border-color: rgba(251, 146, 60, 0.98);
+  outline: 3px solid rgba(251, 146, 60, 0.98);
+  outline-offset: -6px;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 237, 213, 0.72),
+    0 0 10px rgba(251, 146, 60, 0.3);
+}
+
+.random-fixture-btn:focus:not(:focus-visible):not(.selected),
+.fixture-choice-btn:focus:not(:focus-visible):not(.selected) {
+  outline: none;
+}
+
+.random-fixture-btn:focus-visible,
+.fixture-choice-btn:focus-visible {
+  outline: 3px solid rgba(251, 146, 60, 0.96);
+  outline-offset: -6px;
+}
+
+.random-fixture-btn.fixture-blocked,
+.fixture-choice-btn.fixture-blocked,
+.random-fixture-btn:disabled,
+.fixture-choice-btn:disabled {
+  background: rgba(17, 7, 38, 0.66);
+  border-color: rgba(248, 113, 113, 0.42);
+  color: rgba(255,255,255,0.56);
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+  transform: none;
+  box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.18);
+}
+
+.random-fixture-btn.fixture-blocked:hover,
+.fixture-choice-btn.fixture-blocked:hover,
+.random-fixture-btn:disabled:hover,
+.fixture-choice-btn:disabled:hover {
+  transform: none;
+  box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.18);
 }
 
 .fixture-choice-teams {
@@ -1413,6 +1512,42 @@ button:disabled {
   gap: 10px;
   width: 100%;
   line-height: 1.1;
+}
+
+.fixture-blocked .fixture-choice-teams {
+  position: relative;
+}
+
+.fixture-blocked .fixture-choice-teams::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow:
+    0 0 8px rgba(248, 113, 113, 0.8),
+    0 0 16px rgba(220, 38, 38, 0.46);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.fixture-blocked-label {
+  display: block;
+  margin-top: 5px;
+  color: #fca5a5;
+  font-size: 0.7rem;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.76),
+    1px -1px 0 rgba(0,0,0,0.76),
+    -1px 1px 0 rgba(0,0,0,0.76),
+    1px 1px 0 rgba(0,0,0,0.76),
+    0 0 9px rgba(248, 113, 113, 0.42);
 }
 
 .fixture-choice-team {
@@ -4520,7 +4655,7 @@ function showSiteNotice(message, title = 'Notice', tone = '') {
   modal.setAttribute('aria-hidden', 'false');
 }
 
-function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', confirmTone = '') {
+function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', confirmTone = '', cancelText = 'Close', cancelTone = '') {
   const modal = document.getElementById('siteNoticeModal');
   const titleEl = document.getElementById('siteNoticeTitle');
   const bodyEl = document.getElementById('siteNoticeBody');
@@ -4535,7 +4670,10 @@ function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', co
     confirmButton.className = ['opponent-target-confirm', confirmTone].filter(Boolean).join(' ');
     confirmButton.type = 'button';
     confirmButton.textContent = confirmText;
-    closeButton.textContent = 'Close';
+    closeButton.textContent = cancelText;
+    if (cancelTone) {
+      closeButton.classList.add(cancelTone);
+    }
     closeButton.before(confirmButton);
     titleEl.textContent = title;
     setNoticeTitleTone(titleEl, title);
@@ -4547,6 +4685,9 @@ function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', co
       resetNoticeTitleTone(titleEl);
       document.body.classList.remove('card-preview-open');
       closeButton.textContent = 'Close';
+      if (cancelTone) {
+        closeButton.classList.remove(cancelTone);
+      }
       confirmButton.removeEventListener('click', confirm);
       closeButton.removeEventListener('click', cancel);
       modal.removeEventListener('click', modalClick);
@@ -4583,6 +4724,28 @@ function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', co
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
   });
+}
+
+function lockedActionTextForCard(cardName) {
+  if (cardName === 'Power of the Swap') {
+    return 'Discarding another card in your hand and then picking two cards from three drawn to enter your hand.';
+  }
+  if (cardName === 'Curse of the Thief') {
+    return 'Stealing a Regular Card from an Opponent.';
+  }
+  return 'this action.';
+}
+
+function showLockedCardActionConfirm(cardName) {
+  const actionText = lockedActionTextForCard(cardName);
+  return showSiteConfirm(
+    `Are you sure you would like to play ${cardName}? Once played, you will be locked into ${actionText}`,
+    cardName,
+    'Play Card',
+    'locked-action-play',
+    'Back',
+    'locked-action-back'
+  );
 }
 
 function resetNoticeTitleTone(titleEl) {
@@ -5372,8 +5535,12 @@ function drawFirstCards() {
 }
 
 function openDeckChoice() {
-  if (gameState.pendingSwap?.drawn?.length) {
-    showSiteNotice('Finish choosing 2 cards from Power of the Swap before drawing or playing anything else.', 'Power of the Swap');
+  if (gameState.pendingSwap) {
+    showSiteNotice('Finish Power of the Swap before drawing or playing anything else.', 'Power of the Swap');
+    return;
+  }
+  if (gameState.stealMode) {
+    showSiteNotice('Finish Curse of the Thief before drawing or playing anything else.', 'Curse of the Thief');
     return;
   }
   updateMedalDisplays();
@@ -5677,13 +5844,15 @@ function closeCardPreview() {
 
 async function confirmCardPlay() {
   if (!gameState.cardToPlay) return;
-  
+
   const { name: card, player, index } = gameState.cardToPlay;
   const selectedCardInstanceId = gameState.handCardInstancesByPlayer?.[player]?.[index]?.id || null;
-  
+  const isSwapCard = card === "Power of the Swap";
+  const isThiefCard = card === "Curse of the Thief";
+
   closeCardPreview();
-  
-  if (card.includes("Curse of the Thief")) {
+
+  if (isThiefCard) {
     const opponentsWithCards = (gameState.playerOrder || [])
       .filter((playerKey) => playerKey !== player && (gameState.players[playerKey]?.hand || []).length > 0);
     if (opponentsWithCards.length === 0) {
@@ -5692,7 +5861,7 @@ async function confirmCardPlay() {
     }
   }
 
-  if (card.includes("Power of the Swap")) {
+  if (isSwapCard) {
     if (gameState.regularDeck.length < 3) {
       showSiteNotice('You need at least 3 cards in the Regular Deck to play Power of the Swap!', 'Power of the Swap');
       return;
@@ -5712,13 +5881,11 @@ async function confirmCardPlay() {
     }
   }
 
-  if (card.includes("Power of the Swap")) {
-    startSwap(player, card, {
-      cardInstanceId: selectedCardInstanceId,
-      playedIndex: index,
-    });
-    render();
-    return;
+  if (isSwapCard || isThiefCard) {
+    const confirmedLock = await showLockedCardActionConfirm(card);
+    if (!confirmedLock) {
+      return;
+    }
   }
 
   if (card === "Super Draw") {
@@ -5745,19 +5912,17 @@ async function confirmCardPlay() {
     }
   }
 
-  const keepPlayedCardInHand = !card.includes("Power of the Swap") && shouldKeepPlayedCardInHand(activation);
-  if (!card.includes("Power of the Swap")) {
-    if (keepPlayedCardInHand) {
-      markCardInstanceAsUsed(player, index, activation);
-    } else {
-      gameState.discardPile.push(discardPileItem(
-        card,
-        gameState.playerUserIds?.[player] || null,
-        'used',
-        activation?.gameweek_number || null
-      ));
-      discardDatabaseCard(player, card, selectedCardInstanceId);
-    }
+  const keepPlayedCardInHand = isSwapCard || shouldKeepPlayedCardInHand(activation);
+  if (keepPlayedCardInHand) {
+    markCardInstanceAsUsed(player, index, activation);
+  } else {
+    gameState.discardPile.push(discardPileItem(
+      card,
+      gameState.playerUserIds?.[player] || null,
+      'used',
+      activation?.gameweek_number || null
+    ));
+    discardDatabaseCard(player, card, selectedCardInstanceId);
   }
 
   if (!keepPlayedCardInHand) {
@@ -5782,8 +5947,14 @@ async function confirmCardPlay() {
       }
     }
   }
-  else if (card.includes("Power of the Swap")) startSwap(player, card, activation);
-  else if (card.includes("Curse of the Thief")) startStealMode(player, activation);
+  else if (isSwapCard) {
+    startSwap(player, card, {
+      ...activation,
+      cardInstanceId: activation?.card_instance_id || selectedCardInstanceId,
+      playedIndex: index,
+    });
+  }
+  else if (isThiefCard) startStealMode(player, activation);
 
   save();
   render();
@@ -5849,16 +6020,18 @@ async function confirmSwap() {
   if (!Number.isInteger(discardIndex) || discardIndex < 0) discardIndex = swap.discardChoice;
   const discardedChoice = hand[discardIndex];
   let activation = null;
-  try {
-    activation = cardRuntime?.activateCardEffect
-      ? await cardRuntime.activateCardEffect(swap.card, swap.player, swap.cardInstanceId)
-      : null;
-  } catch (error) {
-    showSiteNotice(error.message || 'Could not activate Power of the Swap.', 'Power of the Swap');
-    return;
+  if (!swap.effectId) {
+    try {
+      activation = cardRuntime?.activateCardEffect
+        ? await cardRuntime.activateCardEffect(swap.card, swap.player, swap.cardInstanceId)
+        : null;
+    } catch (error) {
+      showSiteNotice(error.message || 'Could not activate Power of the Swap.', 'Power of the Swap');
+      return;
+    }
+    swap.effectId = activation?.id || swap.effectId;
+    swap.gameweekNumber = activation?.gameweek_number || swap.gameweekNumber || null;
   }
-  swap.effectId = activation?.id || swap.effectId;
-  swap.gameweekNumber = activation?.gameweek_number || swap.gameweekNumber || null;
 
   const swapPlayerUserId = gameState.playerUserIds?.[swap.player] || null;
   gameState.discardPile.push(discardPileItem(discardedChoice, swapPlayerUserId, 'discarded', swap.gameweekNumber));
@@ -5908,7 +6081,9 @@ async function confirmSwap() {
   document.getElementById("confirmPickBtn").style.display = "block";
   save();
   render();
-  await showPlayedCardNotice(card, activation);
+  if (activation) {
+    await showPlayedCardNotice(card, activation);
+  }
 }
 
 function pickSwapKeep(index) {
@@ -5987,10 +6162,11 @@ async function confirmSteal() {
   
   const { opponent, index } = gameState.selectedSteal;
   const player = gameState.stealMode;
+  const opponentUserId = gameState.playerUserIds?.[opponent] || null;
 
   if (cardRuntime?.stealCard && gameState.stealModeEffectId && gameState.selectedSteal.cardInstanceId) {
     try {
-      await cardRuntime.stealCard(gameState.stealModeEffectId, gameState.selectedSteal.cardInstanceId);
+      await cardRuntime.stealCard(gameState.stealModeEffectId, gameState.selectedSteal.cardInstanceId, opponentUserId);
     } catch (error) {
       showSiteNotice(error.message || 'Could not steal that card.', 'Curse of the Thief');
       return;
@@ -6465,7 +6641,8 @@ function markCardInstanceAsUsed(playerKey, cardIndex, activation) {
 
   gameState.usedCardEffectsByInstance = gameState.usedCardEffectsByInstance || {};
   gameState.usedCardEffectsByInstance[cardInstanceId] = {
-    effectId: activation.id,
+    effectId: activation?.id || null,
+    effectKey: activation?.effect_key || activation?.card_id || '',
     playedByUserId: activation.played_by_user_id || cardRuntime?.user?.id || null,
     status: activation.status || 'active',
     gameweekNumber: activation.gameweek_number || '?',
@@ -6966,6 +7143,7 @@ async function initializeCardPage() {
         }
 
         const drawnIds = (drawEvents || []).map((event) => event.card_instance_id).filter(Boolean);
+        let drawn = [];
         if (drawnIds.length) {
           const { data: drawnCards, error: drawnCardsError } = await supabase
             .from('league_cards')
@@ -6979,28 +7157,30 @@ async function initializeCardPage() {
             throw drawnCardsError;
           }
 
-          const drawn = (drawnCards || []).map((row) => {
+          drawn = (drawnCards || []).map((row) => {
             const definition = getNestedRecord(row.card_definitions);
             return {
               id: row.id,
               name: normalizeCardName(definition?.name || row.card_id),
             };
           });
-
-          if (drawn.length) {
-            gameState.pendingSwap = {
-              player: ownPlayerKey,
-              card: 'Power of the Swap',
-              cardInstanceId: pendingSwapEffect.card_instance_id || null,
-              playedIndex: null,
-              effectId: pendingSwapEffect.id,
-              discardChoice: null,
-              discardChoiceInstanceId: null,
-              drawn,
-              selectedIndices: [],
-            };
-          }
         }
+
+        const swapCardIndex = gameState.handCardInstancesByPlayer?.[ownPlayerKey]?.findIndex((card) => (
+          card.id === pendingSwapEffect.card_instance_id
+        ));
+        gameState.pendingSwap = {
+          player: ownPlayerKey,
+          card: 'Power of the Swap',
+          cardInstanceId: pendingSwapEffect.card_instance_id || null,
+          playedIndex: Number.isInteger(swapCardIndex) && swapCardIndex >= 0 ? swapCardIndex : null,
+          effectId: pendingSwapEffect.id,
+          discardChoice: null,
+          discardChoiceInstanceId: null,
+          drawn,
+          selectedIndices: [],
+          gameweekNumber: gameweekNumberFromEffect(pendingSwapEffect, gameweeksById),
+        };
       }
 
       gameState.discardPile = dbDiscardPile;
@@ -7410,6 +7590,100 @@ async function initializeCardPage() {
       });
     }
 
+    function playerNameForUserId(userId) {
+      const playerKey = Object.entries(gameState.playerUserIds || {})
+        .find(([, currentUserId]) => String(currentUserId || '') === String(userId || ''))?.[0];
+      return playerKey ? getPlayerName(playerKey) : 'that player';
+    }
+
+    async function assertCanStealFromOpponent(opponentUserId) {
+      if (!opponentUserId) {
+        return;
+      }
+
+      const { data: swapEffects, error: swapError } = await supabase
+        .from('active_card_effects')
+        .select('id, card_instance_id, card_definitions!inner(effect_key)')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('played_by_user_id', opponentUserId)
+        .eq('status', 'active')
+        .eq('card_definitions.effect_key', 'power_swap')
+        .limit(1);
+
+      if (swapError) {
+        throw swapError;
+      }
+
+      const pendingSwap = (swapEffects || [])[0];
+      if (!pendingSwap) {
+        return;
+      }
+
+      const { data: drawEvents, error: drawError } = await supabase
+        .from('card_draw_events')
+        .select('id')
+        .eq('competition_id', context.league.id)
+        .eq('user_id', opponentUserId)
+        .eq('source_card_effect_id', pendingSwap.id)
+        .limit(1);
+
+      if (drawError) {
+        throw drawError;
+      }
+
+      if ((drawEvents || []).length) {
+        return;
+      }
+
+      const { data: handCards, error: handError } = await supabase
+        .from('league_cards')
+        .select('id')
+        .eq('competition_id', context.league.id)
+        .eq('owner_user_id', opponentUserId)
+        .eq('zone', 'hand');
+
+      if (handError) {
+        throw handError;
+      }
+
+      const otherCards = (handCards || []).filter((card) => card.id !== pendingSwap.card_instance_id);
+      if (otherCards.length <= 1) {
+        throw new Error(`${playerNameForUserId(opponentUserId)} is locked into Power of the Swap and must keep one card available to discard.`);
+      }
+    }
+
+    async function deletedMatchFixtureIdsForTarget(targetUserId, activeGameweek) {
+      if (!targetUserId || !activeGameweek?.gameweek_id) {
+        return new Set();
+      }
+
+      const { data, error } = await supabase
+        .from('active_card_effects')
+        .select('id, fixture_id, card_definitions!inner(effect_key)')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('gameweek_id', activeGameweek.gameweek_id)
+        .eq('target_user_id', targetUserId)
+        .eq('status', 'active')
+        .eq('card_definitions.effect_key', 'curse_deleted_match');
+
+      if (error) {
+        throw error;
+      }
+
+      return new Set((data || [])
+        .map((effect) => effect.fixture_id)
+        .filter(Boolean)
+        .map((fixtureId) => String(fixtureId)));
+    }
+
+    async function randomFixtureStateForTarget(targetUserId, fixtures, activeGameweek) {
+      const blockedFixtureIds = await deletedMatchFixtureIdsForTarget(targetUserId, activeGameweek);
+      const eligibleFixtures = (fixtures || []).filter((fixture) => !blockedFixtureIds.has(String(fixture.id)));
+      return { blockedFixtureIds, eligibleFixtures };
+    }
+
     function opponentAvatar(member) {
       const imageUrl = member.profile_image_url?.startsWith('data:image/')
         ? member.profile_image_url
@@ -7485,15 +7759,20 @@ async function initializeCardPage() {
         }
 
         list.innerHTML = opponents.map((member, index) => `
-          <button class="opponent-target-btn" type="button" data-opponent-index="${index}">
+          <button class="opponent-target-btn ${member.disabled ? 'disabled' : ''}" type="button" data-opponent-index="${index}" ${member.disabled ? 'disabled aria-disabled="true"' : ''}>
             ${opponentAvatar(member)}
             <span>${escapeHtml(member.display_name)}</span>
+            ${member.disabledReason ? `<small class="opponent-target-disabled-reason">${escapeHtml(member.disabledReason)}</small>` : ''}
           </button>
         `).join('');
 
         list.querySelectorAll('[data-opponent-index]').forEach((button) => {
           button.addEventListener('click', () => {
-            selectedOpponent = opponents[Number(button.dataset.opponentIndex)];
+            const opponent = opponents[Number(button.dataset.opponentIndex)];
+            if (opponent?.disabled) {
+              return;
+            }
+            selectedOpponent = opponent;
             list.querySelectorAll('[data-opponent-index]').forEach((item) => {
               item.classList.toggle('selected', item === button);
               item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
@@ -7540,9 +7819,11 @@ async function initializeCardPage() {
         : `<span class="random-score-box">${value}</span>`;
     }
 
-    function chooseRandomCurseFixturesFromModal(fixtures) {
-      if (fixtures.length < 3) {
-        throw new Error('Curse of the Random needs at least 3 fixtures in this gameweek.');
+    function chooseRandomCurseFixturesFromModal(fixtures, blockedFixtureIds = new Set()) {
+      const blockedIds = new Set([...blockedFixtureIds].map((fixtureId) => String(fixtureId)));
+      const selectableFixtures = (fixtures || []).filter((fixture) => !blockedIds.has(String(fixture.id)));
+      if (selectableFixtures.length < 3) {
+        throw new Error('Curse of the Random needs at least 3 selectable fixtures for that opponent.');
       }
 
       const { modal, body } = randomCurseModalParts();
@@ -7586,6 +7867,11 @@ async function initializeCardPage() {
         function updateSelectedState() {
           body.querySelectorAll('[data-random-fixture-index]').forEach((button) => {
             const index = Number(button.dataset.randomFixtureIndex);
+            if (button.disabled) {
+              button.classList.remove('selected');
+              button.setAttribute('aria-pressed', 'false');
+              return;
+            }
             button.classList.toggle('selected', selected.has(index));
             button.setAttribute('aria-pressed', selected.has(index) ? 'true' : 'false');
           });
@@ -7596,11 +7882,15 @@ async function initializeCardPage() {
         body.innerHTML = `
           <p class="random-curse-helper">Choose exactly 3 fixtures for the dice to decide.</p>
           <div class="random-fixture-list">
-            ${fixtures.map((fixture, index) => `
-              <button class="random-fixture-btn" type="button" data-random-fixture-index="${index}" aria-pressed="false">
+            ${fixtures.map((fixture, index) => {
+              const isBlocked = blockedIds.has(String(fixture.id));
+              return `
+              <button class="random-fixture-btn ${isBlocked ? 'fixture-blocked' : ''}" type="button" data-random-fixture-index="${index}" aria-pressed="false" ${isBlocked ? 'disabled aria-disabled="true"' : ''}>
                 ${fixtureChoiceMarkup(fixture)}
+                ${isBlocked ? '<span class="fixture-blocked-label">Deleted Match</span>' : ''}
               </button>
-            `).join('')}
+            `;
+            }).join('')}
           </div>
           <div class="random-curse-actions">
             <button class="random-curse-confirm" type="button" data-random-fixture-confirm disabled>Confirm 3 Fixtures</button>
@@ -7610,6 +7900,9 @@ async function initializeCardPage() {
 
         body.querySelectorAll('[data-random-fixture-index]').forEach((button) => {
           button.addEventListener('click', () => {
+            if (button.disabled) {
+              return;
+            }
             const index = Number(button.dataset.randomFixtureIndex);
             if (selected.has(index)) {
               selected.delete(index);
@@ -8048,7 +8341,8 @@ async function initializeCardPage() {
           throw error;
         }
       },
-      async stealCard(effectId, cardInstanceId) {
+      async stealCard(effectId, cardInstanceId, opponentUserId = null) {
+        await assertCanStealFromOpponent(opponentUserId);
         const { data, error } = await supabase.rpc('steal_regular_card_from_opponent', {
           target_competition_id: context.league.id,
           target_source_card_effect_id: effectId,
@@ -8099,10 +8393,26 @@ async function initializeCardPage() {
         let fixtureId = null;
         let payload = {};
         let pendingRandomRollRows = [];
+        let randomFixtureState = null;
 
         if (rule.target === 'opponent') {
-          targetMember = await chooseOpponentFromModal(opponents);
+          let opponentOptions = opponents;
+          if (rule.special === 'gambler') {
+            opponentOptions = await Promise.all(opponents.map(async (member) => {
+              const state = await randomFixtureStateForTarget(member.user_id, fixtures, activeGameweek);
+              return {
+                ...member,
+                __randomFixtureState: state,
+                disabled: state.eligibleFixtures.length < 3,
+                disabledReason: state.eligibleFixtures.length < 3
+                  ? `${state.eligibleFixtures.length}/3 fixtures available`
+                  : '',
+              };
+            }));
+          }
+          targetMember = await chooseOpponentFromModal(opponentOptions);
           targetUserId = targetMember.user_id;
+          randomFixtureState = targetMember.__randomFixtureState || null;
           await assertPredictionCurseCompatibility(rule, targetUserId, activeGameweek, context, supabase);
         }
 
@@ -8120,7 +8430,11 @@ async function initializeCardPage() {
         await assertHedgeDeletedMatchCompatibility(rule, fixtureId, targetUserId, activeGameweek, context, supabase);
 
         if (rule.special === 'gambler') {
-          const selectedFixtures = await chooseRandomCurseFixturesFromModal(fixtures);
+          randomFixtureState = randomFixtureState || await randomFixtureStateForTarget(targetUserId, fixtures, activeGameweek);
+          if (randomFixtureState.eligibleFixtures.length < 3) {
+            throw new Error('Curse of the Random needs at least 3 selectable fixtures for that opponent.');
+          }
+          const selectedFixtures = await chooseRandomCurseFixturesFromModal(fixtures, randomFixtureState.blockedFixtureIds);
           pendingRandomRollRows = await rollRandomCurseScoresFromModal(selectedFixtures);
           payload.gambler_fixture_ids = selectedFixtures.map((fixture) => fixture.id);
         }
@@ -8195,7 +8509,7 @@ async function initializeCardPage() {
 
     await Promise.allSettled([
       syncMedals(),
-      refreshHands(),
+      refreshHands({ force: true }),
       loadActiveGameCard(),
     ]);
     if (!handRefreshTimer) {
