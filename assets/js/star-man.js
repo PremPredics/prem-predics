@@ -72,6 +72,12 @@ const starPowerKeys = new Set([
   'super_sub',
   'super_duo',
 ]);
+const starManPickDependentPowerKeys = new Set([
+  'power_goal',
+  'power_assist_king',
+  'power_lanky_crouch',
+  'power_small_and_mighty',
+]);
 const microstateNationalities = new Set([
   'albania',
   'andorra',
@@ -882,6 +888,40 @@ async function loadEffects() {
   }
 }
 
+async function cancelStarManPickDependentPowers() {
+  const effectIds = (state.activeEffects || [])
+    .filter((effect) => String(effect.played_by_user_id || '') === String(state.user?.id || ''))
+    .filter((effect) => starManPickDependentPowerKeys.has(effectKey(effect)))
+    .map((effect) => effect.id)
+    .filter(Boolean);
+
+  if (!effectIds.length) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from('active_card_effects')
+    .update({ status: 'cancelled', resolved_at: new Date().toISOString() })
+    .eq('competition_id', state.league.id)
+    .eq('season_id', state.league.season_id)
+    .eq('gameweek_id', state.activeGameweek.gameweek_id)
+    .eq('played_by_user_id', state.user.id)
+    .in('id', effectIds);
+
+  if (error) {
+    console.warn('Could not restore Star Man power cards after pick removal.', error);
+    return;
+  }
+
+  state.activeEffects = state.activeEffects.filter((effect) => !effectIds.includes(effect.id));
+}
+
+async function cancelStarManPickDependentPowersIfNoPrimaryPick() {
+  if (!state.existingPicks.get('primary')) {
+    await cancelStarManPickDependentPowers();
+  }
+}
+
 async function loadRestrictionData() {
   const activeRestrictions = restrictions();
   const keys = new Set(activeRestrictions.map(effectKey));
@@ -1072,6 +1112,9 @@ async function autoReplaceInvalidPrimaryPick() {
     String(pick.gameweek_id) === String(state.activeGameweek.gameweek_id)
     && invalidSlots.includes(pick.pick_slot)
   ));
+  if (invalidSlots.includes('primary')) {
+    await cancelStarManPickDependentPowers();
+  }
   updateStarPickStatusLight();
 }
 
@@ -1482,6 +1525,9 @@ async function clearPick(slot) {
     String(pick.gameweek_id) === String(state.activeGameweek.gameweek_id)
     && pick.pick_slot === slot
   ));
+  if (slot === 'primary') {
+    await cancelStarManPickDependentPowers();
+  }
 
   const { button, results } = slotElements(slot);
   renderSelectedPlayer(slot, null);
@@ -1554,6 +1600,7 @@ async function boot() {
     await Promise.all([loadTeams(), loadPlayers(), loadFixtures(), loadPicks(), loadEffects()]);
     await loadRestrictionData();
     await autoReplaceInvalidPrimaryPick();
+    await cancelStarManPickDependentPowersIfNoPrimaryPick();
 
     gameweekSummary.textContent = `Gameweek ${state.activeGameweek.gameweek_number} - Star Man Pick locks ${formatDateTime(state.activeGameweek.star_man_locks_at)}`;
     renderRestrictionSummary();

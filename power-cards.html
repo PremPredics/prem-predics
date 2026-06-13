@@ -6446,6 +6446,13 @@ const nonStackingEffectKeys = new Set([
   'super_pen',
 ]);
 
+const starManPickRequiredPowerKeys = new Set([
+  'power_goal',
+  'power_assist_king',
+  'power_lanky_crouch',
+  'power_small_and_mighty',
+]);
+
 const heightPowerOpposites = {
   power_lanky_crouch: { key: 'power_small_and_mighty', name: 'Power of the Small and Mighty' },
   power_small_and_mighty: { key: 'power_lanky_crouch', name: 'Power of the Lanky Crouch' },
@@ -6479,6 +6486,30 @@ async function assertNonStackingCardCanBePlayed(rule, cardName, activeGameweek, 
   const existing = await findOwnActiveEffect(rule.effectKey, activeGameweek, runtimeContext, client);
   if (existing) {
     throw new Error(`${cardName} cannot be played more than once within a Gameweek`);
+  }
+}
+
+async function assertStarManPickExistsForPower(rule, cardName, activeGameweek, runtimeContext, client) {
+  if (!starManPickRequiredPowerKeys.has(rule.effectKey)) {
+    return;
+  }
+
+  const { data, error } = await client
+    .from('star_man_picks')
+    .select('id, player_id')
+    .eq('competition_id', runtimeContext.league.id)
+    .eq('season_id', runtimeContext.league.season_id)
+    .eq('gameweek_id', activeGameweek.gameweek_id)
+    .eq('user_id', runtimeContext.user.id)
+    .eq('pick_slot', 'primary')
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data?.player_id) {
+    throw new Error(`${cardName} can only be played after you have saved your Star Man for this Gameweek.`);
   }
 }
 
@@ -8613,6 +8644,7 @@ async function initializeCardPage() {
         }
         await handleHeightPowerSwap(rule, cardDisplayName, activeGameweek, context, supabase);
         await assertNonStackingCardCanBePlayed(rule, cardDisplayName, activeGameweek, context, supabase);
+        await assertStarManPickExistsForPower(rule, cardDisplayName, activeGameweek, context, supabase);
         await assertHeightPowerCanBePlayed(rule, activeGameweek, context, supabase);
 
         if (rule.special === 'veto') {
