@@ -293,16 +293,21 @@ const SCRABBLE_SCORES = {
 };
 
 const MICROSTATE_NATIONALITIES = new Set([
-  'albania', 'andorra', 'antigua and barbuda', 'armenia', 'bahamas', 'bahrain', 'barbados',
-  'belize', 'bhutan', 'bosnia and herzegovina', 'botswana', 'brunei', 'cabo verde', 'croatia',
-  'cyprus', 'djibouti', 'dominica', 'equatorial guinea', 'eritrea', 'eswatini', 'estonia',
-  'fiji', 'gabon', 'gambia', 'georgia', 'grenada', 'guinea bissau', 'guyana', 'iceland',
-  'kiribati', 'kuwait', 'latvia', 'lesotho', 'liechtenstein', 'lithuania', 'luxembourg',
-  'maldives', 'marshall islands', 'mauritius', 'micronesia', 'monaco', 'montenegro', 'mongolia',
-  'namibia', 'nauru', 'north macedonia', 'palau', 'panama', 'qatar', 'saint kitts and nevis',
+  'albania', 'andorra', 'antigua and barbuda', 'armenia', 'austria', 'bahamas', 'bahrain', 'barbados',
+  'belarus', 'belize', 'bhutan', 'bosnia and herzegovina', 'botswana', 'brunei', 'bulgaria',
+  'cabo verde', 'central african republic', 'congo republic', 'congo republic of the', 'costa rica',
+  'croatia', 'cyprus', 'denmark', 'djibouti', 'dominica', 'el salvador', 'equatorial guinea',
+  'eritrea', 'eswatini', 'estonia', 'fiji', 'finland', 'gabon', 'gambia', 'georgia', 'grenada',
+  'guinea bissau', 'guyana', 'hungary', 'iceland', 'ireland', 'israel', 'kiribati', 'kuwait',
+  'kyrgyzstan', 'laos', 'latvia', 'lebanon', 'lesotho', 'liberia', 'libya', 'liechtenstein',
+  'lithuania', 'luxembourg', 'maldives', 'marshall islands', 'mauritania', 'mauritius', 'micronesia',
+  'monaco', 'montenegro', 'mongolia', 'namibia', 'nauru', 'new zealand', 'nicaragua', 'north macedonia',
+  'norway', 'oman', 'palau', 'panama', 'palestine', 'palestine west bank and gaza', 'paraguay',
+  'qatar', 'republic of congo', 'republic of ireland', 'republic of the congo', 'saint kitts and nevis',
   'saint lucia', 'saint vincent and the grenadines', 'samoa', 'san marino', 'sao tome and principe',
-  'seychelles', 'slovenia', 'solomon islands', 'suriname', 'timor leste', 'tonga',
-  'trinidad and tobago', 'tuvalu', 'uruguay', 'vanuatu', 'vatican city',
+  'serbia', 'seychelles', 'sierra leone', 'singapore', 'slovakia', 'slovenia', 'solomon islands',
+  'suriname', 'switzerland', 'timor leste', 'togo', 'tonga', 'trinidad and tobago', 'turkmenistan',
+  'tuvalu', 'uruguay', 'vanuatu', 'vatican city', 'west bank and gaza',
 ]);
 
 function normaliseText(value) {

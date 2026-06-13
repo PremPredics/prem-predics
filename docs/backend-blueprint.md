@@ -392,7 +392,7 @@ Extra data needed for card effects:
 Specific card data:
 
 - Super Pen uses the weekly `super_pen` value entered in Game Card Results.
-- Curse Of The Microstate uses the legacy `curse_random_roulette` card id and requires the target Star Man nationality to be in the up-to-5-million country list.
+- Curse Of The Microstate uses the legacy `curse_random_roulette` card id and requires the target Star Man nationality to be in the up-to-10-million country list.
 - Curse of the Hated stores the selected target user and fixture, and creates an effective 8-2 prediction for scoring.
 - Curse of the Random stores up to three fixture dice rolls. Die rolls are 0-5 and become the forced goals directly.
 

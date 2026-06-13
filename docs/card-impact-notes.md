@@ -64,7 +64,7 @@ Star Man constraints:
 - Curse of the Alphabet 20+: opponent Star Man surname Scrabble score must be 20+.
 - Curse of the Scoring Drought 3: opponent Star Man must have 0 goals in last 3 PL games.
 - Curse of the Scoring Drought 5: opponent Star Man must have 0 goals in last 5 PL games.
-- Curse Of The Microstate: opponent Star Man nationality must be from a country with a population up to 5 million.
+- Curse Of The Microstate: opponent Star Man nationality must be from a country with a population up to 10 million.
 - Curse of the Tiny Club: opponent cannot pick a Star Man from a top-10 club.
 - If a Star Man restriction is applied after the target has already submitted, the app auto-replaces an invalid current pick with a random eligible player when one exists.
 - If the target has not submitted yet, the selection stays blank and only the restrictions are displayed.
@@ -72,7 +72,7 @@ Star Man constraints:
 Microstate:
 
 - The old `curse_random_roulette` id now represents Curse Of The Microstate so existing hands and played effects migrate cleanly.
-- The target's Star Man must have a nationality in the up-to-5-million country list once the curse activates.
+- The target's Star Man must have a nationality in the up-to-10-million country list once the curse activates.
 
 Card inventory:
 
