@@ -2616,20 +2616,33 @@ button:disabled {
 }
 
 .card-tile.selected { 
-  border: 3px solid #f59e0b;
+  border: 3px solid #ff8a1f;
+  outline: 3px solid rgba(255, 190, 90, 0.98);
+  outline-offset: 2px;
   box-shadow:
-    0 0 24px rgba(245, 158, 11, 0.78),
-    0 0 8px rgba(251, 191, 36, 0.92),
+    0 0 26px rgba(255, 122, 24, 0.95),
+    0 0 11px rgba(255, 237, 171, 0.95),
     inset 0 0 14px rgba(251, 191, 36, 0.18);
 }
 
-.card-tile.keep { 
+.card-tile.keep {
   border: 3px solid #34d399;
+  outline: 3px solid rgba(167, 243, 208, 0.95);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 26px rgba(52, 211, 153, 0.78),
+    0 0 10px rgba(236, 253, 245, 0.86),
+    inset 0 0 14px rgba(16, 185, 129, 0.22);
 }
 
-.card-tile.swap-select { 
-  border: 3px solid #fbbf24;
-  background: linear-gradient(135deg, #ca8a04, #f59e0b);
+.card-tile.swap-select {
+  border: 3px solid #ff8a1f;
+  outline: 3px solid rgba(255, 220, 120, 0.98);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 28px rgba(255, 122, 24, 0.95),
+    0 0 12px rgba(255, 237, 171, 0.95),
+    inset 0 0 16px rgba(251, 146, 60, 0.22);
 }
 
 .card-tile.used-card {
@@ -4965,6 +4978,7 @@ let gameState = {
   discardPile: [],
   lastCard: null,
   pendingSwap: null,
+  pendingRandomCurse: null,
   stealMode: null,
   selectedSteal: null,
   activeGameCard: null,
@@ -5502,7 +5516,7 @@ function setActiveGameCardPanel(cardName, rangeText, description) {
 
 function syncHandFromDatabase(options = {}) {
   const force = Boolean(options.force);
-  if (!force && (gameState.pendingSwap || gameState.stealMode)) {
+  if (!force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode)) {
     return Promise.resolve();
   }
 
@@ -5577,6 +5591,10 @@ function drawFirstCards() {
 function openDeckChoice() {
   if (gameState.pendingSwap) {
     showSiteNotice('Finish Power of the Swap before drawing or playing anything else.', 'Power of the Swap');
+    return;
+  }
+  if (gameState.pendingRandomCurse) {
+    showSiteNotice('Finish Curse of the Random before drawing or playing anything else.', 'Curse of the Random');
     return;
   }
   if (gameState.stealMode) {
@@ -5800,6 +5818,7 @@ function assignCard(player) {
 
 function discardLastCard() {
   if (!gameState.lastCard) return;
+  if (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode) return;
   gameState.discardPile.push(gameState.lastCard.name);
   gameState.lastCard = null;
   save();
@@ -5807,7 +5826,7 @@ function discardLastCard() {
 }
 
 function showCardPreview(cardName, player, index) {
-  if (gameState.pendingSwap || gameState.stealMode) return;
+  if (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode) return;
   
   gameState.cardToPlay = { name: cardName, player, index };
   
@@ -6839,7 +6858,7 @@ function render() {
           return;
         }
 
-        if (!gameState.pendingSwap && !gameState.stealMode) {
+        if (!gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.stealMode) {
           showCardPreview(c, p, i);
         }
       };
@@ -6874,7 +6893,7 @@ function render() {
 
   const swapDiv = document.getElementById("pendingSwap");
   const swapSection = document.getElementById("swapSection");
-  swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.stealMode));
+  swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode));
   if (gameState.pendingSwap) {
     let html = `<strong>Power of the Swap Active!</strong>`;
     if (gameState.pendingSwap.drawn.length === 0) {
@@ -6895,6 +6914,12 @@ function render() {
     swapDiv.querySelectorAll('.card-tile').forEach(fitTileText);
     document.getElementById("confirmSwapBtn").style.display = gameState.pendingSwap.drawn.length === 0 ? "block" : "none";
     document.getElementById("confirmPickBtn").style.display = gameState.pendingSwap.drawn.length > 0 ? "block" : "none";
+    document.getElementById("confirmStealBtn").style.display = "none";
+  } else if (gameState.pendingRandomCurse) {
+    swapDiv.style.display = "block";
+    swapDiv.innerHTML = `<strong>Curse of the Random Active!</strong><p>Finish the dice rolls before drawing or playing anything else.</p>`;
+    document.getElementById("confirmSwapBtn").style.display = "none";
+    document.getElementById("confirmPickBtn").style.display = "none";
     document.getElementById("confirmStealBtn").style.display = "none";
   } else if (gameState.stealMode) {
     const player = getPlayerName(gameState.stealMode);
@@ -7012,7 +7037,7 @@ async function initializeCardPage() {
     }
 
     async function refreshHands(options = {}) {
-      if (!options.force && (gameState.pendingSwap || gameState.stealMode)) {
+      if (!options.force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode)) {
         return;
       }
 
@@ -7183,7 +7208,7 @@ async function initializeCardPage() {
           && definition?.effect_key === 'power_swap';
       });
 
-      if (ownPlayerKey && pendingSwapEffect && !gameState.pendingSwap && !gameState.stealMode) {
+      if (ownPlayerKey && pendingSwapEffect && !gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.stealMode) {
         const { data: drawEvents, error: drawEventsError } = await supabase
           .from('card_draw_events')
           .select('card_instance_id')
@@ -7896,8 +7921,6 @@ async function initializeCardPage() {
         let settled = false;
 
         function cleanup() {
-          document.removeEventListener('keydown', keydown);
-          modal.removeEventListener('click', modalClick);
         }
 
         function finish(result) {
@@ -7907,36 +7930,22 @@ async function initializeCardPage() {
           resolve(result);
         }
 
-        function cancel() {
-          if (settled) return;
-          settled = true;
-          cleanup();
-          closeRandomCurseModal();
-          reject(new Error('Card play cancelled.'));
-        }
-
-        function modalClick(event) {
-          if (event.target === modal) {
-            cancel();
-          }
-        }
-
-        function keydown(event) {
-          if (event.key === 'Escape') {
-            cancel();
-          }
-        }
-
         function updateSelectedState() {
           body.querySelectorAll('[data-random-fixture-index]').forEach((button) => {
             const index = Number(button.dataset.randomFixtureIndex);
+            const isSelected = selected.has(index);
             if (button.disabled) {
               button.classList.remove('selected');
               button.setAttribute('aria-pressed', 'false');
               return;
             }
-            button.classList.toggle('selected', selected.has(index));
-            button.setAttribute('aria-pressed', selected.has(index) ? 'true' : 'false');
+            button.classList.toggle('selected', isSelected);
+            button.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+            if (!isSelected) {
+              button.style.removeProperty('background');
+              button.style.removeProperty('border-color');
+              button.style.removeProperty('box-shadow');
+            }
           });
           const confirm = body.querySelector('[data-random-fixture-confirm]');
           if (confirm) confirm.disabled = selected.size !== 3;
@@ -7957,7 +7966,6 @@ async function initializeCardPage() {
           </div>
           <div class="random-curse-actions">
             <button class="random-curse-confirm" type="button" data-random-fixture-confirm disabled>Confirm 3 Fixtures</button>
-            <button class="opponent-target-cancel" type="button" data-random-cancel>Cancel</button>
           </div>
         `;
 
@@ -7981,28 +7989,25 @@ async function initializeCardPage() {
           if (selected.size !== 3) return;
           finish([...selected].map((index) => fixtures[index]));
         });
-        body.querySelector('[data-random-cancel]')?.addEventListener('click', cancel);
-        modal.addEventListener('click', modalClick);
-        document.addEventListener('keydown', keydown);
         openRandomCurseModal();
       });
     }
 
-    function rollRandomCurseScoresFromModal(selectedFixtures) {
+    function rollRandomCurseScoresFromModal(selectedFixtures, savedRollRows = []) {
       const { modal, body } = randomCurseModalParts();
+      const savedRowsByFixtureId = new Map((savedRollRows || []).map((row) => [String(row.fixture_id), row]));
       const rolls = selectedFixtures.map((fixture, index) => ({
         fixture,
-        roll_number: index + 1,
-        home_die_roll: null,
-        away_die_roll: null,
+        roll_number: Number(savedRowsByFixtureId.get(String(fixture.id))?.roll_number || index + 1),
+        home_die_roll: Number(savedRowsByFixtureId.get(String(fixture.id))?.home_die_roll ?? rollDie()),
+        away_die_roll: Number(savedRowsByFixtureId.get(String(fixture.id))?.away_die_roll ?? rollDie()),
+        revealed: false,
       }));
 
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         let settled = false;
 
         function cleanup() {
-          document.removeEventListener('keydown', keydown);
-          modal.removeEventListener('click', modalClick);
         }
 
         function finish(result) {
@@ -8011,26 +8016,6 @@ async function initializeCardPage() {
           cleanup();
           closeRandomCurseModal();
           resolve(result);
-        }
-
-        function cancel() {
-          if (settled) return;
-          settled = true;
-          cleanup();
-          closeRandomCurseModal();
-          reject(new Error('Card play cancelled.'));
-        }
-
-        function modalClick(event) {
-          if (event.target === modal) {
-            cancel();
-          }
-        }
-
-        function keydown(event) {
-          if (event.key === 'Escape') {
-            cancel();
-          }
         }
 
         function finishRolls() {
@@ -8052,7 +8037,7 @@ async function initializeCardPage() {
         }
 
         function allRolled() {
-          return rolls.every((roll) => roll.home_die_roll !== null && roll.away_die_roll !== null);
+          return rolls.every((roll) => roll.revealed);
         }
 
         body.innerHTML = `
@@ -8073,16 +8058,13 @@ async function initializeCardPage() {
               </div>
             `).join('')}
           </div>
-          <div class="random-curse-actions">
-            <button class="opponent-target-cancel" type="button" data-random-cancel>Cancel</button>
-          </div>
         `;
 
         body.querySelectorAll('[data-random-roll-index]').forEach((button) => {
           button.addEventListener('click', () => {
             const index = Number(button.dataset.randomRollIndex);
             const roll = rolls[index];
-            if (!roll || roll.home_die_roll !== null || button.disabled) return;
+            if (!roll || roll.revealed || button.disabled) return;
 
             const homeFace = button.querySelector('[data-home-die-face]');
             const awayFace = button.querySelector('[data-away-die-face]');
@@ -8095,10 +8077,9 @@ async function initializeCardPage() {
               ticks += 1;
               if (ticks >= 10) {
                 window.clearInterval(interval);
-                roll.home_die_roll = rollDie();
-                roll.away_die_roll = rollDie();
                 homeFace.textContent = roll.home_die_roll;
                 awayFace.textContent = roll.away_die_roll;
+                roll.revealed = true;
                 button.classList.remove('rolling');
                 updateRollRow(index);
                 if (allRolled()) {
@@ -8109,9 +8090,6 @@ async function initializeCardPage() {
           });
         });
 
-        body.querySelector('[data-random-cancel]')?.addEventListener('click', cancel);
-        modal.addEventListener('click', modalClick);
-        document.addEventListener('keydown', keydown);
         openRandomCurseModal();
       });
     }
@@ -8136,6 +8114,189 @@ async function initializeCardPage() {
         }, { once: true });
         openRandomCurseModal();
       });
+    }
+
+    function effectPayload(effect) {
+      return effect?.payload && typeof effect.payload === 'object' ? effect.payload : {};
+    }
+
+    function randomCurseDeadlinePassed(activeGameweek) {
+      const deadline = cardPlayDeadline({ cardId: 'curse_gambler' }, activeGameweek);
+      return Boolean(deadline && Date.now() >= new Date(deadline).getTime());
+    }
+
+    function fixturesFromRandomPayload(effect, fixtures) {
+      const fixtureIds = effectPayload(effect).gambler_fixture_ids || [];
+      const fixturesById = new Map((fixtures || []).map((fixture) => [String(fixture.id), fixture]));
+      return fixtureIds
+        .map((fixtureId) => fixturesById.get(String(fixtureId)))
+        .filter(Boolean);
+    }
+
+    function labelRandomRollRows(rows, fixtures) {
+      const fixturesById = new Map((fixtures || []).map((fixture) => [String(fixture.id), fixture]));
+      return (rows || []).map((row) => {
+        const fixture = fixturesById.get(String(row.fixture_id));
+        return {
+          ...row,
+          fixture_label: fixture ? fixtureChoiceLabel(fixture) : 'Fixture',
+        };
+      });
+    }
+
+    async function loadRandomCurseRollRows(effectId) {
+      const { data, error } = await supabase
+        .from('curse_gambler_rolls')
+        .select('fixture_id, roll_number, home_die_roll, away_die_roll')
+        .eq('card_effect_id', effectId)
+        .order('roll_number', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    }
+
+    async function updateRandomCursePayload(effect, updates) {
+      const payload = { ...effectPayload(effect), ...updates };
+      const { error } = await supabase
+        .from('active_card_effects')
+        .update({ payload })
+        .eq('id', effect.id)
+        .eq('played_by_user_id', context.user.id);
+
+      if (error) throw error;
+      effect.payload = payload;
+      return payload;
+    }
+
+    async function saveRandomCurseRollRows(effect, activeGameweek, selectedFixtures) {
+      if (!effect?.id || !selectedFixtures?.length) {
+        return [];
+      }
+
+      const { error: deleteError } = await supabase
+        .from('curse_gambler_rolls')
+        .delete()
+        .eq('card_effect_id', effect.id)
+        .eq('played_by_user_id', context.user.id);
+
+      if (deleteError) throw deleteError;
+
+      const rows = selectedFixtures.map((fixture, index) => ({
+        card_effect_id: effect.id,
+        competition_id: context.league.id,
+        season_id: context.league.season_id,
+        gameweek_id: activeGameweek.gameweek_id,
+        fixture_id: fixture.id,
+        played_by_user_id: context.user.id,
+        target_user_id: effect.target_user_id,
+        roll_number: index + 1,
+        home_die_roll: rollDie(),
+        away_die_roll: rollDie(),
+      }));
+
+      const { data, error } = await supabase
+        .from('curse_gambler_rolls')
+        .insert(rows)
+        .select('fixture_id, roll_number, home_die_roll, away_die_roll')
+        .order('roll_number', { ascending: true });
+
+      if (error) throw error;
+      await updateRandomCursePayload(effect, {
+        gambler_fixture_ids: selectedFixtures.map((fixture) => fixture.id),
+        gambler_fixture_selection_pending: false,
+        gambler_rolls_finalised: false,
+      });
+      return data || rows;
+    }
+
+    async function completeRandomCurseDiceFlow(effect, activeGameweek, fixtures, targetName = 'opponent') {
+      const selectedFixtures = fixturesFromRandomPayload(effect, fixtures);
+      if (selectedFixtures.length < 3) {
+        const state = await randomFixtureStateForTarget(effect.target_user_id, fixtures, activeGameweek);
+        if (state.eligibleFixtures.length < 3) {
+          throw new Error('Curse of the Random needs at least 3 selectable fixtures for that opponent.');
+        }
+        const chosenFixtures = randomCurseDeadlinePassed(activeGameweek)
+          ? (() => {
+              const autoFixtures = state.eligibleFixtures.slice();
+              shuffle(autoFixtures);
+              return autoFixtures.slice(0, 3);
+            })()
+          : await chooseRandomCurseFixturesFromModal(fixtures, state.blockedFixtureIds);
+        const savedRows = await saveRandomCurseRollRows(effect, activeGameweek, chosenFixtures);
+        return completeRandomCurseDiceFlow(effect, activeGameweek, fixtures, targetName, savedRows);
+      }
+
+      let savedRows = await loadRandomCurseRollRows(effect.id);
+      if (savedRows.length < 3) {
+        savedRows = await saveRandomCurseRollRows(effect, activeGameweek, selectedFixtures);
+      }
+
+      const labelledRows = labelRandomRollRows(savedRows, selectedFixtures);
+      if (randomCurseDeadlinePassed(activeGameweek)) {
+        await updateRandomCursePayload(effect, {
+          gambler_rolls_finalised: true,
+          gambler_rolls_completed_at: new Date().toISOString(),
+        });
+        return labelledRows;
+      }
+
+      gameState.pendingRandomCurse = {
+        effectId: effect.id,
+        targetUserId: effect.target_user_id,
+      };
+      save();
+      render();
+      const revealedRows = await rollRandomCurseScoresFromModal(selectedFixtures, savedRows);
+      await updateRandomCursePayload(effect, {
+        gambler_rolls_finalised: true,
+        gambler_rolls_completed_at: new Date().toISOString(),
+      });
+      gameState.pendingRandomCurse = null;
+      save();
+      render();
+      const labelledRevealedRows = labelRandomRollRows(revealedRows, selectedFixtures);
+      await showRandomCurseAppliedSummary(targetName, labelledRevealedRows);
+      return labelledRevealedRows;
+    }
+
+    async function resumePendingRandomCurse() {
+      if (gameState.pendingRandomCurse) {
+        return;
+      }
+
+      const { activeGameweek } = await gameweekModule.loadActiveGameweek(context.league);
+      if (!activeGameweek) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('active_card_effects')
+        .select('id, card_instance_id, card_id, played_by_user_id, target_user_id, gameweek_id, start_gameweek_id, status, payload, card_definitions!inner(effect_key)')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('played_by_user_id', context.user.id)
+        .eq('gameweek_id', activeGameweek.gameweek_id)
+        .eq('status', 'active')
+        .eq('card_definitions.effect_key', 'curse_gambler')
+        .order('played_at', { ascending: false });
+
+      if (error) throw error;
+      const pendingEffect = (data || []).find((effect) => effectPayload(effect).gambler_rolls_finalised !== true);
+      if (!pendingEffect) {
+        return;
+      }
+
+      const fixtures = await currentGameweekFixtures(activeGameweek);
+      const members = await leagueMembers();
+      const targetName = members.find((member) => member.user_id === pendingEffect.target_user_id)?.display_name || 'opponent';
+      try {
+        await completeRandomCurseDiceFlow(pendingEffect, activeGameweek, fixtures, targetName);
+      } finally {
+        gameState.pendingRandomCurse = null;
+        save();
+        render();
+      }
     }
 
     async function currentGameweekFixtures(activeGameweek) {
@@ -8236,7 +8397,7 @@ async function initializeCardPage() {
           status: 'active',
           payload: { effect_key: rule.effectKey, ...(options.payload || {}) },
         })
-        .select('id, card_instance_id, card_id, fixture_id, target_user_id, gameweek_id, start_gameweek_id, status')
+        .select('id, card_instance_id, card_id, fixture_id, played_by_user_id, target_user_id, gameweek_id, start_gameweek_id, status, payload')
         .single();
 
       if (error) throw error;
@@ -8464,7 +8625,6 @@ async function initializeCardPage() {
         let targetMember = null;
         let fixtureId = null;
         let payload = {};
-        let pendingRandomRollRows = [];
         let randomFixtureState = null;
 
         if (rule.target === 'opponent') {
@@ -8506,9 +8666,18 @@ async function initializeCardPage() {
           if (randomFixtureState.eligibleFixtures.length < 3) {
             throw new Error('Curse of the Random needs at least 3 selectable fixtures for that opponent.');
           }
-          const selectedFixtures = await chooseRandomCurseFixturesFromModal(fixtures, randomFixtureState.blockedFixtureIds);
-          pendingRandomRollRows = await rollRandomCurseScoresFromModal(selectedFixtures);
-          payload.gambler_fixture_ids = selectedFixtures.map((fixture) => fixture.id);
+          payload = {
+            gambler_fixture_ids: [],
+            gambler_fixture_selection_pending: true,
+            gambler_rolls_finalised: false,
+          };
+          const effect = await insertCardEffect(rule, playerKey, activeGameweek, { targetUserId, fixtureId, payload, cardInstanceId });
+          await completeRandomCurseDiceFlow(effect, activeGameweek, fixtures, targetMember?.display_name || 'opponent');
+          effect.__skipFinalNotice = true;
+          effect.__noticeTitle = cardDisplayName;
+          effect.__noticeMessage = noticeMessageForEffect(cardDisplayName, rule, targetMember);
+          effect.__noticeDestination = destinationForEffect(rule.effectKey);
+          return effect;
         }
 
         const effect = await insertCardEffect(rule, playerKey, activeGameweek, { targetUserId, fixtureId, payload, cardInstanceId });
@@ -8541,25 +8710,6 @@ async function initializeCardPage() {
           if (error) throw error;
         }
 
-        if (rule.special === 'gambler') {
-          const rollRows = pendingRandomRollRows.map((roll) => ({
-            card_effect_id: effect.id,
-            competition_id: context.league.id,
-            season_id: context.league.season_id,
-            gameweek_id: activeGameweek.gameweek_id,
-            fixture_id: roll.fixture_id,
-            played_by_user_id: context.user.id,
-            target_user_id: targetUserId,
-            roll_number: roll.roll_number,
-            home_die_roll: roll.home_die_roll,
-            away_die_roll: roll.away_die_roll,
-          }));
-          const { error } = await supabase.from('curse_gambler_rolls').insert(rollRows);
-          if (error) throw error;
-          await showRandomCurseAppliedSummary(targetMember?.display_name || 'opponent', pendingRandomRollRows);
-          effect.__skipFinalNotice = true;
-        }
-
         effect.__noticeTitle = effect.__noticeTitle || cardDisplayName;
         effect.__noticeMessage = effect.__noticeMessage || noticeMessageForEffect(cardDisplayName, rule, targetMember);
         effect.__noticeDestination = effect.__noticeDestination || destinationForEffect(rule.effectKey);
@@ -8584,6 +8734,7 @@ async function initializeCardPage() {
       refreshHands({ force: true }),
       loadActiveGameCard(),
     ]);
+    await resumePendingRandomCurse();
     if (!handRefreshTimer) {
       handRefreshTimer = window.setInterval(() => {
         if (!document.hidden) {
