@@ -238,8 +238,15 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
-const { data } = await supabase.auth.getUser();
-if (data.user) {
+const { data, error } = await supabase.auth.getUser();
+let existingUser = data?.user || null;
+
+if (!existingUser && error && !navigator.onLine) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  existingUser = sessionData?.session?.user || null;
+}
+
+if (existingUser) {
   safeRedirect();
 }
 

@@ -32,6 +32,9 @@ const itemsToCopy = [
   'contact.html',
   'account-deletion.html',
   'global-admin.html',
+  'offline.html',
+  'manifest.webmanifest',
+  'service-worker.js',
   'logo-left.png',
   'assets'
 ];

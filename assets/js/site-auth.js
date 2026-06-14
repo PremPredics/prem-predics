@@ -300,10 +300,16 @@ function blockedLeaguePage(user, message = 'You need to choose a private league 
 
 async function getCurrentUser() {
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
-    return null;
+  if (data?.user) {
+    return data.user;
   }
-  return data.user;
+
+  if (error && !navigator.onLine) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    return sessionData?.session?.user || null;
+  }
+
+  return null;
 }
 
 async function getProfile(userId) {
@@ -404,6 +410,12 @@ async function boot() {
         return;
       }
       blockedLeaguePage(user, 'Choose a private league from your Leagues page first.');
+      return;
+    }
+
+    if (!navigator.onLine) {
+      localStorage.setItem('premPredicsLastCompetitionId', competitionId);
+      updateLeagueBackButtons(competitionId);
       return;
     }
 
