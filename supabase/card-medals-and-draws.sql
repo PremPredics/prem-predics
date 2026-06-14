@@ -873,6 +873,7 @@ declare
   first_source text;
   second_source text;
   starter_unlock_at timestamptz;
+  starter_gameweek_complete boolean := false;
 begin
   select *
     into target_competition
@@ -919,7 +920,24 @@ begin
       and start_deadline.first_fixture_kickoff_at is not null;
   end if;
 
-  if starter_unlock_at is null or now() < starter_unlock_at then
+  select exists (
+      select 1
+      from public.fixtures f
+      where f.season_id = target_competition.season_id
+        and f.gameweek_id = target_competition.starts_gameweek_id
+        and f.status <> 'postponed'
+    )
+    and not exists (
+      select 1
+      from public.fixtures f
+      where f.season_id = target_competition.season_id
+        and f.gameweek_id = target_competition.starts_gameweek_id
+        and f.status <> 'postponed'
+        and f.status <> 'final'
+    )
+    into starter_gameweek_complete;
+
+  if not starter_gameweek_complete and (starter_unlock_at is null or now() < starter_unlock_at) then
     return;
   end if;
 

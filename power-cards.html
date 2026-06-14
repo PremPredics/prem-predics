@@ -5191,12 +5191,17 @@ function appendEmptyHandPlaceholder(container) {
   const placeholder = document.createElement('div');
   placeholder.className = pendingText ? 'starter-card-pending' : 'empty-hand-placeholder';
   placeholder.innerHTML = pendingText
-    ? `<strong>Starter Draw Pending</strong><span>${escapeHtml(pendingText)}</span>`
+    ? `<strong>Starter Cards Draw Pending</strong><span>${escapeHtml(pendingText)}</span>`
     : 'No cards in hand.';
   container.appendChild(placeholder);
 }
 
-function calculateStarterCardsStatus(allGameweeks, startGameweekId) {
+function isStarterGameweekComplete(startFixtures) {
+  const playableFixtures = (startFixtures || []).filter((fixture) => fixture.status !== 'postponed');
+  return playableFixtures.length > 0 && playableFixtures.every((fixture) => fixture.status === 'final');
+}
+
+function calculateStarterCardsStatus(allGameweeks, startGameweekId, startFixtures = []) {
   const ordered = (allGameweeks || [])
     .slice()
     .sort((a, b) => Number(a.gameweek_number || 0) - Number(b.gameweek_number || 0));
@@ -5217,10 +5222,11 @@ function calculateStarterCardsStatus(allGameweeks, startGameweekId) {
   }
 
   const unlockTime = unlocksAt ? new Date(unlocksAt).getTime() : NaN;
+  const starterGameweekComplete = isStarterGameweekComplete(startFixtures);
   return {
     gameweekLabel: startNumber > 0 ? `GW${startNumber}` : 'the next Gameweek',
     unlocksAt,
-    pending: Number.isFinite(unlockTime) && Date.now() < unlockTime,
+    pending: !starterGameweekComplete && Number.isFinite(unlockTime) && Date.now() < unlockTime,
   };
 }
 
@@ -7284,9 +7290,20 @@ async function initializeCardPage() {
         throw gameweekError;
       }
 
+      const { data: starterFixtures, error: starterFixtureError } = await supabase
+        .from('fixtures')
+        .select('id, status')
+        .eq('season_id', context.league.season_id)
+        .eq('gameweek_id', context.league.starts_gameweek_id);
+
+      if (starterFixtureError) {
+        throw starterFixtureError;
+      }
+
       gameState.starterCardsStatus = calculateStarterCardsStatus(
         seasonGameweeks || [],
-        context.league.starts_gameweek_id
+        context.league.starts_gameweek_id,
+        starterFixtures || []
       );
 
       const orderedGameweeks = (seasonGameweeks || [])
