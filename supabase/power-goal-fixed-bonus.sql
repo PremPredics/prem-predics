@@ -1,11 +1,7 @@
--- Fix Power of the Immigrants scoring so yellow/red cards do not deduct
--- points while the card applies, and keep the live card description in sync.
+-- Keep Power of the Goal as a fixed +3 UC Points bonus.
+-- Run this once in Supabase SQL Editor.
 
 begin;
-
-update public.card_definitions
-set description = 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards do not deduct points. Must be played at least 90 minutes before the gameweek''s first KO time.'
-where id = 'power_immigrants';
 
 create or replace view public.star_man_score_details
 with (security_invoker = true)
@@ -133,5 +129,7 @@ select
       end
   )::integer as points
 from star_rows;
+
+grant select on public.star_man_score_details to authenticated;
 
 commit;

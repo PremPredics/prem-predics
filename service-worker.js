@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v4';
+const CACHE_VERSION = 'prem-predics-pwa-v5';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -96,6 +96,14 @@ function isDocumentRequest(request) {
     || request.headers.get('accept')?.includes('text/html');
 }
 
+function isLocalAppAsset(url) {
+  if (url.origin !== self.location.origin) {
+    return false;
+  }
+
+  return /\.(?:css|js|html|webmanifest)$/i.test(url.pathname);
+}
+
 async function putInCache(cacheName, request, response) {
   if (!response || (!response.ok && response.type !== 'opaque')) {
     return;
@@ -180,6 +188,11 @@ self.addEventListener('fetch', (event) => {
 
   if (isDocumentRequest(request)) {
     event.respondWith(networkFirstDocument(request));
+    return;
+  }
+
+  if (isLocalAppAsset(url)) {
+    event.respondWith(networkFirst(request));
     return;
   }
 

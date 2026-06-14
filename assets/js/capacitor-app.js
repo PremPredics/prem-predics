@@ -2,6 +2,19 @@ function isCapacitorApp() {
   return Boolean(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.getPlatform?.() === 'android');
 }
 
+async function unregisterServiceWorkersForNativeApp() {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map((registration) => registration.unregister()));
+  } catch (error) {
+    console.warn('Prem Predics native app service worker cleanup failed:', error);
+  }
+}
+
 function focusInputOnFirstTouch() {
   document.addEventListener('touchstart', (event) => {
     const control = event.target?.closest?.('input, textarea, select');
@@ -32,7 +45,9 @@ async function bindAndroidBackButton() {
 }
 
 if (isCapacitorApp()) {
+  window.__PREM_PREDICS_CAPACITOR_APP__ = true;
   document.documentElement.classList.add('capacitor-android');
+  unregisterServiceWorkersForNativeApp();
   focusInputOnFirstTouch();
   bindAndroidBackButton();
 }

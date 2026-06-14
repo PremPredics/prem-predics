@@ -122,15 +122,15 @@ select
     (
       (goals * 3)
       + assists
-      + case when power_goal_applies then 3 else 0 end
       + case when assist_king_applies then assists else 0 end
-      - case when super_star_man_applies or immigrants_applies then 0 else yellow_cards * case when furious_applies then 2 else 1 end end
-      - case when super_star_man_applies or immigrants_applies then 0 else red_cards * 3 * case when furious_applies then 2 else 1 end end
     )
     * case when immigrants_applies then 2 else 1 end
     * case when lanky_applies then 2 else 1 end
     * case when small_applies then 2 else 1 end
     * case when super_star_man_applies then 3 else 1 end
+    + case when power_goal_applies then 3 else 0 end
+    - case when super_star_man_applies or immigrants_applies then 0 else yellow_cards * case when furious_applies then 2 else 1 end end
+    - case when super_star_man_applies or immigrants_applies then 0 else red_cards * 3 * case when furious_applies then 2 else 1 end end
   )::integer as points
 from star_rows;
 
