@@ -872,6 +872,7 @@ declare
   second_card_id uuid;
   first_source text;
   second_source text;
+  starter_unlock_at timestamptz;
 begin
   select *
     into target_competition
@@ -893,6 +894,34 @@ begin
   where competition_id = target_competition_id
     and owner_user_id is not null
     and source in ('starter_power', 'starter_curse');
+
+  select next_deadline.first_fixture_kickoff_at
+    into starter_unlock_at
+  from public.gameweek_deadlines start_deadline
+  left join lateral (
+    select gd.first_fixture_kickoff_at
+    from public.gameweek_deadlines gd
+    where gd.season_id = target_competition.season_id
+      and gd.gameweek_number > start_deadline.gameweek_number
+      and gd.first_fixture_kickoff_at is not null
+    order by gd.gameweek_number
+    limit 1
+  ) next_deadline on true
+  where start_deadline.season_id = target_competition.season_id
+    and start_deadline.gameweek_id = target_competition.starts_gameweek_id;
+
+  if starter_unlock_at is null then
+    select start_deadline.first_fixture_kickoff_at + interval '7 days'
+      into starter_unlock_at
+    from public.gameweek_deadlines start_deadline
+    where start_deadline.season_id = target_competition.season_id
+      and start_deadline.gameweek_id = target_competition.starts_gameweek_id
+      and start_deadline.first_fixture_kickoff_at is not null;
+  end if;
+
+  if starter_unlock_at is null or now() < starter_unlock_at then
+    return;
+  end if;
 
   for member_row in
     select cm.user_id

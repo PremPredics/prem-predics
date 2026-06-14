@@ -250,6 +250,10 @@ if (existingUser) {
   safeRedirect();
 }
 
-await loadFavoriteTeams();
-populateCountryOptions(nationalityOptions);
-setMode('signin');
+if (!navigator.onLine) {
+  window.location.replace('offline.html');
+} else {
+  await loadFavoriteTeams();
+  populateCountryOptions(nationalityOptions);
+  setMode('signin');
+}

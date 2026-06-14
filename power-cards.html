@@ -2424,6 +2424,52 @@ button:disabled {
   position: relative;
 }
 
+.empty-hand-placeholder,
+.starter-card-pending {
+  width: 100%;
+  min-height: 94px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  color: #ede9fe;
+  background: rgba(17, 7, 38, 0.34);
+  border: 1px solid rgba(216, 180, 254, 0.24);
+  font-weight: 800;
+}
+
+.starter-card-pending {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.22), transparent 42%),
+    linear-gradient(135deg, rgba(46, 16, 102, 0.72), rgba(17, 7, 38, 0.72));
+  border: 2px solid rgba(251, 191, 36, 0.54);
+  box-shadow:
+    0 0 20px rgba(251, 191, 36, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.starter-card-pending strong {
+  color: #facc15;
+  font-size: clamp(0.72rem, 2vw, 0.95rem);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.72),
+    1px -1px 0 rgba(0,0,0,0.72),
+    -1px 1px 0 rgba(0,0,0,0.72),
+    1px 1px 0 rgba(0,0,0,0.72),
+    0 0 12px rgba(250, 204, 21, 0.42);
+}
+
+.starter-card-pending span {
+  display: block;
+  max-width: 22rem;
+  font-size: clamp(0.64rem, 1.7vw, 0.78rem);
+  line-height: 1.35;
+  color: #fff7ed;
+}
+
 @media (min-width: 1201px) {
   .hand {
     justify-content: flex-start;
@@ -5008,7 +5054,8 @@ let gameState = {
   pendingCardEffect: null,
   stealModeEffectId: null,
   selectedDeckType: null,
-  currentPlayer: null
+  currentPlayer: null,
+  starterCardsStatus: null
 };
 
 let lastHandSizes = { p1: 0, p2: 0 };
@@ -5112,7 +5159,7 @@ function cardDescriptionFor(cardName) {
     .replaceAll('{SUPER_DRAW_COUNT}', String(drawCount));
 }
 
-function load() { 
+function load() {
   const saved = localStorage.getItem(getStorageKey()); 
   if (saved) {
     gameState = migrateLegacyCardNames(JSON.parse(saved));
@@ -5124,12 +5171,57 @@ function load() {
     gameState.cardInstanceIdsByPlayer = gameState.cardInstanceIdsByPlayer || {};
     gameState.handCardInstancesByPlayer = gameState.handCardInstancesByPlayer || {};
     gameState.usedCardEffectsByInstance = gameState.usedCardEffectsByInstance || {};
+    gameState.starterCardsStatus = gameState.starterCardsStatus || null;
     if (gameState.pendingSwap && !(gameState.pendingSwap.drawn || []).length && !gameState.pendingSwap.effectId) {
       gameState.pendingSwap = null;
     }
     gameState.currentPlayerKey = gameState.currentPlayerKey || 'p1';
     save();
   }
+}
+
+function starterCardPendingText() {
+  const status = gameState.starterCardsStatus;
+  if (!status?.pending) return '';
+  return `1 Power Card and 1 Curse Card will be drawn at the end of ${status.gameweekLabel || 'the next Gameweek'}`;
+}
+
+function appendEmptyHandPlaceholder(container) {
+  const pendingText = starterCardPendingText();
+  const placeholder = document.createElement('div');
+  placeholder.className = pendingText ? 'starter-card-pending' : 'empty-hand-placeholder';
+  placeholder.innerHTML = pendingText
+    ? `<strong>Starter Draw Pending</strong><span>${escapeHtml(pendingText)}</span>`
+    : 'No cards in hand.';
+  container.appendChild(placeholder);
+}
+
+function calculateStarterCardsStatus(allGameweeks, startGameweekId) {
+  const ordered = (allGameweeks || [])
+    .slice()
+    .sort((a, b) => Number(a.gameweek_number || 0) - Number(b.gameweek_number || 0));
+  const startGameweek = ordered.find((gameweek) => String(gameweek.gameweek_id) === String(startGameweekId))
+    || ordered[0]
+    || null;
+
+  if (!startGameweek) {
+    return null;
+  }
+
+  const startNumber = Number(startGameweek.gameweek_number || 0);
+  const unlockGameweek = ordered.find((gameweek) => Number(gameweek.gameweek_number || 0) > startNumber) || null;
+  let unlocksAt = unlockGameweek?.first_fixture_kickoff_at || null;
+
+  if (!unlocksAt && startGameweek.first_fixture_kickoff_at) {
+    unlocksAt = new Date(new Date(startGameweek.first_fixture_kickoff_at).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  }
+
+  const unlockTime = unlocksAt ? new Date(unlocksAt).getTime() : NaN;
+  return {
+    gameweekLabel: startNumber > 0 ? `GW${startNumber}` : 'the next Gameweek',
+    unlocksAt,
+    pending: Number.isFinite(unlockTime) && Date.now() < unlockTime,
+  };
 }
 
 function toggleCollapsible(btn) {
@@ -6953,6 +7045,11 @@ function render() {
       container.appendChild(div);
       fitTileText(div);
     });
+
+    if (!gameState.players[p].hand.length) {
+      appendEmptyHandPlaceholder(container);
+    }
+
     lastHandSizes[p] = gameState.players[p].hand.length;
   });
 
@@ -7186,6 +7283,11 @@ async function initializeCardPage() {
       if (gameweekError) {
         throw gameweekError;
       }
+
+      gameState.starterCardsStatus = calculateStarterCardsStatus(
+        seasonGameweeks || [],
+        context.league.starts_gameweek_id
+      );
 
       const orderedGameweeks = (seasonGameweeks || [])
         .filter((gameweek) => Number(gameweek.gameweek_id) >= Number(context.league.starts_gameweek_id || 0));

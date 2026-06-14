@@ -13,6 +13,11 @@ function currentPageTarget() {
 }
 
 function redirectToLogin() {
+  if (!navigator.onLine) {
+    window.location.href = 'offline.html';
+    return;
+  }
+
   const target = currentPageTarget();
   window.location.href = `${loginPage}?redirect=${encodeURIComponent(target)}`;
 }

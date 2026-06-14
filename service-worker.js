@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v3';
+const CACHE_VERSION = 'prem-predics-pwa-v4';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -105,6 +105,16 @@ async function putInCache(cacheName, request, response) {
   await cache.put(request, response);
 }
 
+async function networkFirstDocument(request) {
+  try {
+    const response = await fetch(request);
+    await putInCache(RUNTIME_CACHE, request, response.clone());
+    return response;
+  } catch {
+    return caches.match('./offline.html');
+  }
+}
+
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
@@ -169,7 +179,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (isDocumentRequest(request)) {
-    event.respondWith(networkFirst(request));
+    event.respondWith(networkFirstDocument(request));
     return;
   }
 

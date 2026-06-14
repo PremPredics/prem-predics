@@ -53,6 +53,11 @@ export function normaliseNested(value) {
 export async function getSignedInUser(redirectPage = 'login.html') {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
+    if (!navigator.onLine) {
+      window.location.href = 'offline.html';
+      return null;
+    }
+
     const currentPage = `${window.location.pathname.split('/').pop() || 'index.html'}${window.location.search || ''}`;
     window.location.href = `${redirectPage}?redirect=${encodeURIComponent(currentPage)}`;
     return null;

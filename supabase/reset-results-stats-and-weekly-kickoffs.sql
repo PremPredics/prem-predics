@@ -6,9 +6,9 @@
 --   player stats, and game-card actual/result entries.
 -- - Reset Game Card rounds back to scheduled, clearing completed-round
 --   tiebreak snapshots.
--- - Set GW1 fixtures to 7 June 2026 15:00 Europe/London.
--- - Set each following gameweek exactly 7 days and 1 minute later:
---   GW2 = 14 June 2026 15:01, GW3 = 21 June 2026 15:02, etc.
+-- - Set every fixture to 17 June 2026 Europe/London.
+-- - Set each gameweek 1 minute later than the previous one:
+--   GW1 = 15:00, GW2 = 15:01, GW3 = 15:02, etc.
 --
 -- This does not delete user predictions, Star Man picks, league members,
 -- cards, or fixture rows.
@@ -66,9 +66,9 @@ begin
   update public.fixtures fixtures
   set
     kickoff_at = make_timestamptz(
-      extract(year from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
-      extract(month from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
-      extract(day from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
+      extract(year from date '2026-06-17')::integer,
+      extract(month from date '2026-06-17')::integer,
+      extract(day from date '2026-06-17')::integer,
       15,
       (gameweeks.number - 1)::integer,
       0,
@@ -82,9 +82,9 @@ begin
 
   update public.gameweeks gameweeks
   set star_man_locks_at = make_timestamptz(
-      extract(year from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
-      extract(month from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
-      extract(day from (date '2026-06-07' + ((gameweeks.number - 1) * 7)))::integer,
+      extract(year from date '2026-06-17')::integer,
+      extract(month from date '2026-06-17')::integer,
+      extract(day from date '2026-06-17')::integer,
       15,
       (gameweeks.number - 1)::integer,
       0,
@@ -151,7 +151,7 @@ from public.game_card_round_tiebreaks tiebreaks
 join public.game_card_rounds rounds on rounds.id = tiebreaks.round_id
 join target_season s on s.id = rounds.season_id;
 
--- Verification 2: first few gameweeks should show 15:00, 15:01, 15:02, etc.
+-- Verification 2: first few gameweeks should all show 17 June 2026 at 15:00, 15:01, 15:02, etc.
 with target_season as (
   select id
   from public.seasons
