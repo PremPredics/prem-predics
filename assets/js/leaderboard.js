@@ -17,6 +17,7 @@ const profileModalFirstName = document.querySelector('[data-profile-modal-first-
 const closeProfileButton = document.querySelector('[data-close-profile]');
 
 let currentProfilesById = new Map();
+let leaderboardLoadPromise = null;
 
 function numberValue(value) {
   return Number(value || 0);
@@ -121,7 +122,33 @@ async function loadLeaderboard() {
   render(rows || [], profilesById);
 }
 
-loadLeaderboard();
+function refreshLeaderboard() {
+  if (leaderboardLoadPromise) {
+    return leaderboardLoadPromise;
+  }
+
+  leaderboardLoadPromise = loadLeaderboard().finally(() => {
+    leaderboardLoadPromise = null;
+  });
+
+  return leaderboardLoadPromise;
+}
+
+refreshLeaderboard();
+
+window.addEventListener('focus', () => {
+  refreshLeaderboard();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    refreshLeaderboard();
+  }
+});
+
+window.Capacitor?.Plugins?.App?.addListener?.('resume', () => {
+  refreshLeaderboard();
+});
 
 openLegendButton?.addEventListener('click', () => {
   legendModal.classList.add('show');

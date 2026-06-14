@@ -7,6 +7,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsetsController;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import androidx.core.view.WindowCompat;
 import com.getcapacitor.BridgeActivity;
@@ -20,6 +22,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        disableWebViewCaching();
         applySystemBarStyling();
     }
 
@@ -55,6 +58,17 @@ public class MainActivity extends BridgeActivity {
 
         addSystemBarBackgroundOverlay(STATUS_OVERLAY_ID, getSystemBarDimension("status_bar_height"), Gravity.TOP, STATUS_BAR_PURPLE);
         addSystemBarBackgroundOverlay(NAV_OVERLAY_ID, getSystemBarDimension("navigation_bar_height"), Gravity.BOTTOM, NAV_BAR_PURPLE);
+    }
+
+    private void disableWebViewCaching() {
+        if (bridge == null || bridge.getWebView() == null) {
+            return;
+        }
+
+        WebView webView = bridge.getWebView();
+        WebSettings settings = webView.getSettings();
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.clearCache(true);
     }
 
     private void addSystemBarBackgroundOverlay(int viewId, int height, int gravity, int color) {
