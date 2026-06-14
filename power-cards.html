@@ -2244,6 +2244,14 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.deck-choice-card[aria-disabled="true"],
+.deck-choice-card.draw-busy {
+  pointer-events: none;
+  opacity: 0.58;
+  filter: grayscale(0.35);
+  cursor: wait;
+}
+
 .mobile-label {
   display: none;
 }
@@ -5066,6 +5074,8 @@ let medalBalances = { regular: 0, super: 0 };
 let handRefreshTimer = null;
 let handRefreshSubscription = null;
 let liveHandRefreshTimer = null;
+let handRefreshPromise = null;
+let handRefreshQueuedOptions = null;
 let currentDeckVariantId = 'players_2';
 
 async function resumeRandomCurseDiceRolls() {
@@ -5720,7 +5730,26 @@ function drawFirstCards() {
   render();
 }
 
+function setDeckChoiceBusy(isBusy) {
+  document.querySelectorAll('[data-deck-choice]').forEach((choice) => {
+    choice.classList.toggle('draw-busy', isBusy);
+    if (isBusy) {
+      choice.setAttribute('aria-disabled', 'true');
+    } else {
+      choice.removeAttribute('aria-disabled');
+    }
+  });
+
+  document.querySelectorAll('.draw-card-btn').forEach((button) => {
+    button.disabled = isBusy;
+  });
+}
+
 function openDeckChoice() {
+  if (sequenceInProgress) {
+    showSiteNotice('Finish the current card action before drawing again.', 'Draw Card', 'warning');
+    return;
+  }
   if (gameState.pendingSwap) {
     showSiteNotice('Finish Power of the Swap before drawing or playing anything else.', 'Power of the Swap');
     return;
@@ -5790,12 +5819,19 @@ async function startCardReveal(deckType) {
   document.getElementById('deckChoiceModal').classList.remove('show');
   document.body.classList.remove('card-preview-open');
   sequenceInProgress = true;
+  setDeckChoiceBusy(true);
 
   try {
     const drawn = await cardRuntime.redeemCardDraw(deckType);
-    await drawAndRevealCard(deckType, getCurrentPlayerKey(), drawn.card_name);
+    const drawnCardName = normalizeCardName(drawn?.card_name || '');
+    if (!drawn?.card_instance_id || !drawnCardName) {
+      await syncHandFromDatabase({ force: true });
+      throw new Error('The draw completed, but the card details were not returned cleanly. Your hand has been refreshed.');
+    }
+    await drawAndRevealCard(deckType, getCurrentPlayerKey(), drawnCardName);
   } catch (error) {
     sequenceInProgress = false;
+    setDeckChoiceBusy(false);
     showSiteNotice(error.message || 'Could not draw that card.', 'Draw Card', 'warning');
   }
 }
@@ -5850,6 +5886,7 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
   if (!forcedCard && deck.length === 0) {
     showSiteNotice('Deck empty!', 'Draw Card', 'warning');
     sequenceInProgress = false;
+    setDeckChoiceBusy(false);
     return Promise.resolve();
   }
 
@@ -5892,6 +5929,7 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
             save();
           } finally {
             sequenceInProgress = false;
+            setDeckChoiceBusy(false);
             resolve();
           }
         });
@@ -7211,6 +7249,30 @@ async function initializeCardPage() {
     }
 
     async function refreshHands(options = {}) {
+      const requestedOptions = { force: Boolean(options.force) };
+      if (handRefreshPromise) {
+        handRefreshQueuedOptions = {
+          force: Boolean(handRefreshQueuedOptions?.force || requestedOptions.force),
+        };
+        return handRefreshPromise;
+      }
+
+      handRefreshPromise = performRefreshHands(requestedOptions);
+      try {
+        return await handRefreshPromise;
+      } finally {
+        handRefreshPromise = null;
+        if (handRefreshQueuedOptions) {
+          const queuedOptions = handRefreshQueuedOptions;
+          handRefreshQueuedOptions = null;
+          window.setTimeout(() => {
+            refreshHands(queuedOptions).catch(() => {});
+          }, 0);
+        }
+      }
+    }
+
+    async function performRefreshHands(options = {}) {
       if (!options.force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode)) {
         return;
       }
