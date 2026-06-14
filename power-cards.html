@@ -7762,14 +7762,24 @@ async function initializeCardPage() {
 
         titleEl.textContent = title;
         list.className = isFixtureChoice ? `${originalListClass} fixture-choice-list` : originalListClass;
-        list.innerHTML = items.map((item, index) => `
-          <button class="${isFixtureChoice ? 'fixture-choice-btn' : 'opponent-target-btn'}" type="button" data-choice-index="${index}" aria-pressed="false">
+        list.innerHTML = items.map((item, index) => {
+          const disabled = isFixtureChoice && Boolean(item?.disabled || item?.fixtureBlocked || item?.__blocked);
+          const buttonClass = isFixtureChoice
+            ? `fixture-choice-btn${disabled ? ' fixture-blocked' : ''}`
+            : 'opponent-target-btn';
+          return `
+          <button class="${buttonClass}" type="button" data-choice-index="${index}" aria-pressed="false" ${disabled ? 'disabled aria-disabled="true"' : ''}>
             ${isFixtureChoice ? fixtureChoiceMarkup(item) : `<span>${escapeHtml(labelFn(item))}</span>`}
           </button>
-        `).join('');
+        `;
+        }).join('');
 
         list.querySelectorAll('[data-choice-index]').forEach((button) => {
           button.addEventListener('click', () => {
+            if (button.disabled || button.getAttribute('aria-disabled') === 'true') {
+              releaseFixtureChoiceFocus(button);
+              return;
+            }
             if (!isFixtureChoice) {
               finish(items[Number(button.dataset.choiceIndex)]);
               return;
@@ -8633,6 +8643,7 @@ async function initializeCardPage() {
           <span class="fixture-choice-v">v</span>
           <span class="fixture-choice-team fixture-choice-away">${escapeHtml(fixture.away_team_name || 'Away')}</span>
         </span>
+        ${fixture.disabledReason ? `<span class="fixture-blocked-label">${escapeHtml(fixture.disabledReason)}</span>` : ''}
       `;
     }
 
@@ -8939,8 +8950,13 @@ async function initializeCardPage() {
             throw new Error('No fixtures are available for this gameweek.');
           }
           const deletedFixtureIds = await deletedMatchFixtureIdsForTarget(targetUserId, activeGameweek);
-          const hatedFixtures = fixtures.filter((fixture) => !deletedFixtureIds.has(String(fixture.id)));
-          if (!hatedFixtures.length) {
+          const hatedFixtures = fixtures.map((fixture) => {
+            const deleted = deletedFixtureIds.has(String(fixture.id));
+            return deleted
+              ? { ...fixture, disabled: true, disabledReason: 'Deleted Match' }
+              : fixture;
+          });
+          if (!hatedFixtures.some((fixture) => !fixture.disabled)) {
             throw new Error('Curse of the Hated cannot be played because every fixture is already deleted for that opponent.');
           }
           const chosenFixture = await chooseFromList('Choose the match this curse forces to 8-2:', hatedFixtures, fixtureChoiceLabel);
