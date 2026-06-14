@@ -1624,7 +1624,8 @@ button:disabled {
 
 .random-curse-confirm,
 .random-dice-btn,
-.random-curse-done {
+.random-curse-done,
+.random-curse-resume {
   border: 0;
   border-radius: 999px;
   padding: 12px 18px;
@@ -1633,6 +1634,18 @@ button:disabled {
   font-weight: 950;
   cursor: pointer;
   box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.random-curse-resume {
+  margin-top: 4px;
+  background: linear-gradient(135deg, #f59e0b, #facc15 48%, #b45309);
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.78),
+    1px -1px 0 rgba(0,0,0,0.78),
+    -1px 1px 0 rgba(0,0,0,0.78),
+    1px 1px 0 rgba(0,0,0,0.78);
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.54), inset 0 1px 0 rgba(255,255,255,0.35);
 }
 
 .random-curse-done {
@@ -5000,11 +5013,24 @@ let handRefreshSubscription = null;
 let liveHandRefreshTimer = null;
 let currentDeckVariantId = 'players_2';
 
-function shuffle(arr) { 
-  for (let i = arr.length - 1; i > 0; i--) { 
-    const j = Math.floor(Math.random() * (i + 1)); 
-    [arr[i], arr[j]] = [arr[j], arr[i]]; 
-  } 
+async function resumeRandomCurseDiceRolls() {
+  if (!cardRuntime?.resumePendingRandomCurse) {
+    showSiteNotice('Curse of the Random is still loading. Try again in a moment.', 'Curse of the Random', 'warning');
+    return;
+  }
+
+  try {
+    await cardRuntime.resumePendingRandomCurse({ force: true });
+  } catch (error) {
+    showSiteNotice(error.message || 'Could not reopen the dice rolls.', 'Curse of the Random', 'warning');
+  }
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
 }
 
 function getStorageKey() {
@@ -6948,7 +6974,13 @@ function render() {
     document.getElementById("confirmStealBtn").style.display = "none";
   } else if (gameState.pendingRandomCurse) {
     swapDiv.style.display = "block";
-    swapDiv.innerHTML = `<strong>Curse of the Random Active!</strong><p>Finish the dice rolls before drawing or playing anything else.</p>`;
+    swapDiv.innerHTML = `
+      <strong>Curse of the Random Active!</strong>
+      <p>Finish the dice rolls before drawing or playing anything else.</p>
+      <div class="random-curse-actions">
+        <button class="random-curse-resume" type="button" onclick="resumeRandomCurseDiceRolls()">Complete Dice Rolls</button>
+      </div>
+    `;
     document.getElementById("confirmSwapBtn").style.display = "none";
     document.getElementById("confirmPickBtn").style.display = "none";
     document.getElementById("confirmStealBtn").style.display = "none";
@@ -8024,15 +8056,17 @@ async function initializeCardPage() {
       });
     }
 
-    function rollRandomCurseScoresFromModal(selectedFixtures, savedRollRows = []) {
+    function rollRandomCurseScoresFromModal(selectedFixtures, savedRollRows = [], options = {}) {
       const { modal, body } = randomCurseModalParts();
       const savedRowsByFixtureId = new Map((savedRollRows || []).map((row) => [String(row.fixture_id), row]));
+      const revealedFixtureIds = new Set((options.revealedFixtureIds || []).map((fixtureId) => String(fixtureId)));
+      const onReveal = typeof options.onReveal === 'function' ? options.onReveal : null;
       const rolls = selectedFixtures.map((fixture, index) => ({
         fixture,
         roll_number: Number(savedRowsByFixtureId.get(String(fixture.id))?.roll_number || index + 1),
         home_die_roll: Number(savedRowsByFixtureId.get(String(fixture.id))?.home_die_roll ?? rollDie()),
         away_die_roll: Number(savedRowsByFixtureId.get(String(fixture.id))?.away_die_roll ?? rollDie()),
-        revealed: false,
+        revealed: revealedFixtureIds.has(String(fixture.id)),
       }));
 
       return new Promise((resolve) => {
@@ -8063,8 +8097,16 @@ async function initializeCardPage() {
           const roll = rolls[index];
           const row = body.querySelector(`[data-random-roll-row="${index}"]`);
           if (!row) return;
-          row.querySelector('[data-home-score-box]').innerHTML = randomScoreBox(roll.home_die_roll);
-          row.querySelector('[data-away-score-box]').innerHTML = randomScoreBox(roll.away_die_roll);
+          row.querySelector('[data-home-score-box]').innerHTML = randomScoreBox(roll.revealed ? roll.home_die_roll : null);
+          row.querySelector('[data-away-score-box]').innerHTML = randomScoreBox(roll.revealed ? roll.away_die_roll : null);
+          const button = row.querySelector('[data-random-roll-index]');
+          const homeFace = button?.querySelector('[data-home-die-face]');
+          const awayFace = button?.querySelector('[data-away-die-face]');
+          if (button && homeFace && awayFace) {
+            button.disabled = roll.revealed;
+            homeFace.textContent = roll.revealed ? roll.home_die_roll : '?';
+            awayFace.textContent = roll.revealed ? roll.away_die_roll : '?';
+          }
         }
 
         function allRolled() {
@@ -8078,13 +8120,13 @@ async function initializeCardPage() {
               <div class="random-roll-row" data-random-roll-row="${index}">
                 <span class="random-roll-fixture">${escapeHtml(fixtureChoiceLabel(roll.fixture))}</span>
                 <span class="random-roll-score">
-                  <span data-home-score-box>${randomScoreBox(null)}</span>
+                  <span data-home-score-box>${randomScoreBox(roll.revealed ? roll.home_die_roll : null)}</span>
                   <strong>-</strong>
-                  <span data-away-score-box>${randomScoreBox(null)}</span>
+                  <span data-away-score-box>${randomScoreBox(roll.revealed ? roll.away_die_roll : null)}</span>
                 </span>
-                <button class="random-dice-btn" type="button" data-random-roll-index="${index}">
-                  <span class="random-die-face" data-home-die-face>?</span>
-                  <span class="random-die-face" data-away-die-face>?</span>
+                <button class="random-dice-btn" type="button" data-random-roll-index="${index}" ${roll.revealed ? 'disabled' : ''}>
+                  <span class="random-die-face" data-home-die-face>${roll.revealed ? roll.home_die_roll : '?'}</span>
+                  <span class="random-die-face" data-away-die-face>${roll.revealed ? roll.away_die_roll : '?'}</span>
                 </button>
               </div>
             `).join('')}
@@ -8113,15 +8155,22 @@ async function initializeCardPage() {
                 roll.revealed = true;
                 button.classList.remove('rolling');
                 updateRollRow(index);
-                if (allRolled()) {
-                  window.setTimeout(finishRolls, 450);
-                }
+                Promise.resolve(onReveal?.(roll)).catch((error) => {
+                  console.warn('Could not save revealed Curse of the Random roll.', error);
+                }).finally(() => {
+                  if (allRolled()) {
+                    window.setTimeout(finishRolls, 450);
+                  }
+                });
               }
             }, 80);
           });
         });
 
         openRandomCurseModal();
+        if (allRolled()) {
+          window.setTimeout(finishRolls, 450);
+        }
       });
     }
 
@@ -8234,10 +8283,19 @@ async function initializeCardPage() {
       if (error) throw error;
       await updateRandomCursePayload(effect, {
         gambler_fixture_ids: selectedFixtures.map((fixture) => fixture.id),
+        gambler_revealed_fixture_ids: [],
         gambler_fixture_selection_pending: false,
         gambler_rolls_finalised: false,
       });
       return data || rows;
+    }
+
+    async function markRandomCurseRollRevealed(effect, fixtureId) {
+      const revealed = new Set((effectPayload(effect).gambler_revealed_fixture_ids || []).map((id) => String(id)));
+      revealed.add(String(fixtureId));
+      await updateRandomCursePayload(effect, {
+        gambler_revealed_fixture_ids: [...revealed],
+      });
     }
 
     async function completeRandomCurseDiceFlow(effect, activeGameweek, fixtures, targetName = 'opponent') {
@@ -8278,7 +8336,10 @@ async function initializeCardPage() {
       };
       save();
       render();
-      const revealedRows = await rollRandomCurseScoresFromModal(selectedFixtures, savedRows);
+      const revealedRows = await rollRandomCurseScoresFromModal(selectedFixtures, savedRows, {
+        revealedFixtureIds: effectPayload(effect).gambler_revealed_fixture_ids || [],
+        onReveal: (roll) => markRandomCurseRollRevealed(effect, roll.fixture.id),
+      });
       await updateRandomCursePayload(effect, {
         gambler_rolls_finalised: true,
         gambler_rolls_completed_at: new Date().toISOString(),
@@ -8291,8 +8352,8 @@ async function initializeCardPage() {
       return labelledRevealedRows;
     }
 
-    async function resumePendingRandomCurse() {
-      if (gameState.pendingRandomCurse) {
+    async function resumePendingRandomCurse(options = {}) {
+      if (gameState.pendingRandomCurse && !options.force) {
         return;
       }
 
@@ -8315,6 +8376,9 @@ async function initializeCardPage() {
       if (error) throw error;
       const pendingEffect = (data || []).find((effect) => effectPayload(effect).gambler_rolls_finalised !== true);
       if (!pendingEffect) {
+        gameState.pendingRandomCurse = null;
+        save();
+        render();
         return;
       }
 
@@ -8500,6 +8564,7 @@ async function initializeCardPage() {
 
     cardRuntime = {
       refreshHands,
+      resumePendingRandomCurse,
       async assertCardInOwnHand(cardInstanceId, cardName) {
         if (!cardInstanceId) {
           await syncHandFromDatabase({ force: true });
