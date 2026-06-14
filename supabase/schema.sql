@@ -2276,13 +2276,13 @@ select
   coalesce(pgs.red_cards, 0) as red_cards,
   p.nationality,
   p.height_cm,
-  exists (
-    select 1 from effect_windows ew
+  (
+    select count(*)::integer from effect_windows ew
     where ew.competition_id = smp.competition_id
       and ew.played_by_user_id = smp.user_id
       and ew.effect_key = 'power_goal'
       and gw.number between ew.start_number and ew.end_number
-  ) as power_goal_applies,
+  ) as power_goal_count,
   exists (
     select 1 from effect_windows ew
     where ew.competition_id = smp.competition_id
@@ -2362,7 +2362,7 @@ select
       * case when small_applies then 2 else 1 end
       * case when super_star_man_applies then 3 else 1 end
     )
-    + case when power_goal_applies then 3 else 0 end
+    + (power_goal_count * 3)
     - case
         when super_star_man_applies or immigrants_applies then 0
         else (yellow_cards * case when furious_applies then 2 else 1 end)

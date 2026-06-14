@@ -1,7 +1,12 @@
--- Keep Power of the Goal as a fixed +3 UC Points bonus.
+-- Keep each Power of the Goal as a stackable fixed +3 UC Points bonus.
 -- Run this once in Supabase SQL Editor.
 
 begin;
+
+update public.card_definitions
+set description = 'Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek''s first KO time.'
+where id = 'power_goal'
+   or effect_key = 'power_goal';
 
 create or replace view public.star_man_score_details
 with (security_invoker = true)
@@ -35,13 +40,13 @@ star_rows as (
     coalesce(pgs.red_cards, 0) as red_cards,
     p.nationality,
     p.height_cm,
-    exists (
-      select 1 from effect_windows ew
+    (
+      select count(*)::integer from effect_windows ew
       where ew.competition_id = smp.competition_id
         and ew.played_by_user_id = smp.user_id
         and ew.effect_key = 'power_goal'
         and gw.number between ew.start_number and ew.end_number
-    ) as power_goal_applies,
+    ) as power_goal_count,
     exists (
       select 1 from effect_windows ew
       where ew.competition_id = smp.competition_id
@@ -121,7 +126,7 @@ select
       * case when small_applies then 2 else 1 end
       * case when super_star_man_applies then 3 else 1 end
     )
-    + case when power_goal_applies then 3 else 0 end
+    + (power_goal_count * 3)
     - case
         when super_star_man_applies or immigrants_applies then 0
         else (yellow_cards * case when furious_applies then 2 else 1 end)
