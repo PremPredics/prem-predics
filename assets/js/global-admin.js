@@ -73,6 +73,12 @@ function normaliseSearchText(value) {
   return String(value || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[Øø]/g, 'o')
+    .replace(/[Ææ]/g, 'ae')
+    .replace(/[Œœ]/g, 'oe')
+    .replace(/[Đđ]/g, 'd')
+    .replace(/[Þþ]/g, 'th')
+    .replace(/[Łł]/g, 'l')
     .toLowerCase()
     .trim();
 }
