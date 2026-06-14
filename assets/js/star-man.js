@@ -56,6 +56,7 @@ const state = {
 };
 
 const HISTORY_PAGE_SIZE = 6;
+const AVAILABLE_PLAYER_REVEAL_LIMIT = 65;
 
 const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
 const effectNameOverrides = {
@@ -1286,14 +1287,14 @@ function updateAvailablePlayerCounter() {
   const available = availablePlayerMatches('primary');
   availablePlayerCount.textContent = `${available.length}/${state.players.length} Players Available For Selection`;
 
-  if (available.length > 0 && available.length <= 50) {
+  if (available.length > 0 && available.length <= AVAILABLE_PLAYER_REVEAL_LIMIT) {
     availablePlayerAction.textContent = 'Click to show Available Players';
     availablePlayerCounter.disabled = false;
     availablePlayerCounter.removeAttribute('aria-disabled');
     return;
   }
 
-  availablePlayerAction.textContent = available.length > 50
+  availablePlayerAction.textContent = available.length > AVAILABLE_PLAYER_REVEAL_LIMIT
     ? 'Enter 2+ Letters for Player Dropdown'
     : 'No players currently available';
   availablePlayerCounter.disabled = true;
@@ -1313,7 +1314,7 @@ function renderAvailablePlayers(slot = 'primary') {
     return;
   }
 
-  if (matches.length > 50) {
+  if (matches.length > AVAILABLE_PLAYER_REVEAL_LIMIT) {
     setResultsMessage(results, 'Enter 2+ letters to narrow the player list.');
     return;
   }
