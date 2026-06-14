@@ -361,11 +361,23 @@ function curseAppliesToFixture(effect, fixture, prediction, override) {
   return true;
 }
 
-function predictionCursesForFixture(fixture, effects, prediction, override) {
+function allPredictionCursesForFixture(fixture, effects, prediction, override) {
   return effects
     .filter(isPredictionCurse)
     .filter((effect) => curseAppliesToFixture(effect, fixture, prediction, override))
     .sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
+}
+
+function predictionCursesForFixture(fixture, effects, prediction, override) {
+  const curses = allPredictionCursesForFixture(fixture, effects, prediction, override);
+  const deletedMatchCurses = curses.filter((effect) => effectKey(effect) === 'curse_deleted_match');
+  return deletedMatchCurses.length ? deletedMatchCurses : curses;
+}
+
+function deletedMatchCurseForFixture(fixture, effects) {
+  return allPredictionCursesForFixture(fixture, effects, null, null)
+    .filter((effect) => effectKey(effect) === 'curse_deleted_match')
+    .at(-1) || null;
 }
 
 function effectPlayedAtMs(effect) {
@@ -620,7 +632,10 @@ async function renderPredictionRows(gameweek) {
       ? rawOverride
       : null;
     const primaryPrediction = primaryPredictions.get(fixture.id);
-    const prediction = canViewPrediction ? (override || primaryPrediction) : null;
+    const deletedMatch = canViewPrediction ? deletedMatchCurseForFixture(fixture, predictionEffects) : null;
+    const prediction = canViewPrediction
+      ? (deletedMatch ? null : (override || primaryPrediction))
+      : null;
     const result = results.get(fixture.id);
     const scored = fixtureScores.get(fixture.id);
     const fixtureHedges = canViewPrediction ? (hedgesByFixture.get(fixture.id) || []) : [];

@@ -199,7 +199,11 @@ function effectsForScore(score) {
 
   const unique = new Map();
   effects.forEach((effect) => unique.set(String(effect.id), effect));
-  return [...unique.values()].sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
+  const sortedEffects = [...unique.values()].sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
+  const deletedMatchEffects = sortedEffects.filter((effect) => (
+    effectCategory(effect) === 'curse' && effectKey(effect) === 'curse_deleted_match'
+  ));
+  return deletedMatchEffects.length ? deletedMatchEffects : sortedEffects;
 }
 
 function renderEffectButtons(score) {

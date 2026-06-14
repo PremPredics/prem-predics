@@ -283,9 +283,11 @@ function predictionCursesForFixture(fixture) {
 }
 
 function visiblePredictionCursesForFixture(fixture) {
-  return predictionCursesForFixture(fixture)
+  const curses = predictionCursesForFixture(fixture)
     .filter((effect) => curseRevealAllowed(effect, fixture))
     .sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0));
+  const deletedMatchCurses = curses.filter((effect) => effectKey(effect) === 'curse_deleted_match');
+  return deletedMatchCurses.length ? deletedMatchCurses : curses;
 }
 
 function effectPlayedAtMs(effect) {
@@ -297,11 +299,10 @@ function currentPredictionCurseForFixture(fixture) {
 }
 
 function deletedMatchEffectForFixture(fixture) {
-  const currentEffect = currentPredictionCurseForFixture(fixture);
-  if (!currentEffect) {
-    return null;
-  }
-  return effectKey(currentEffect) === 'curse_deleted_match' ? currentEffect : null;
+  return predictionCursesForFixture(fixture)
+    .filter((effect) => effectKey(effect) === 'curse_deleted_match')
+    .sort((a, b) => new Date(a.played_at || 0) - new Date(b.played_at || 0))
+    .at(-1) || null;
 }
 
 function renderCurseMarker(fixture) {
@@ -814,11 +815,15 @@ function renderHedgeRow(effect, index, mode = 'edit') {
   const locked = selectedFixture ? isPast(selectedFixture.prediction_locks_at) : false;
   const disabled = locked ? 'disabled' : '';
   const powerMarker = selectedFixture ? renderPowerMarker(selectedFixture) : renderPowerEffectMarker(effect);
-  const fixtureOptions = state.fixtures.map((fixture) => `
-    <option value="${fixture.id}" ${fixture.id === selectedFixtureId ? 'selected' : ''}>
+  const fixtureOptions = state.fixtures.map((fixture) => {
+    const deletedMatch = deletedMatchEffectForFixture(fixture);
+    const selected = fixture.id === selectedFixtureId;
+    return `
+    <option value="${fixture.id}" ${selected ? 'selected' : ''} ${deletedMatch && !selected ? 'disabled' : ''}>
       ${escapeHtml(fixtureLabel(fixture))}
     </option>
-  `).join('');
+  `;
+  }).join('');
 
   if (mode === 'summary') {
     if (!selectedFixture) {
@@ -1276,6 +1281,11 @@ async function saveHedgePrediction(effectId) {
   const fixture = state.fixtures.find((item) => item.id === fixtureId);
   if (!fixture || isPast(fixture.prediction_locks_at)) {
     setMessage('This match is locked.', 'error');
+    return;
+  }
+
+  if (deletedMatchEffectForFixture(fixture)) {
+    setMessage(HEDGE_DELETED_MATCH_CONFLICT_TEXT, 'error');
     return;
   }
 

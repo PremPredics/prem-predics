@@ -8938,7 +8938,12 @@ async function initializeCardPage() {
           if (!fixtures.length) {
             throw new Error('No fixtures are available for this gameweek.');
           }
-          const chosenFixture = await chooseFromList('Choose the match this curse forces to 8-2:', fixtures, fixtureChoiceLabel);
+          const deletedFixtureIds = await deletedMatchFixtureIdsForTarget(targetUserId, activeGameweek);
+          const hatedFixtures = fixtures.filter((fixture) => !deletedFixtureIds.has(String(fixture.id)));
+          if (!hatedFixtures.length) {
+            throw new Error('Curse of the Hated cannot be played because every fixture is already deleted for that opponent.');
+          }
+          const chosenFixture = await chooseFromList('Choose the match this curse forces to 8-2:', hatedFixtures, fixtureChoiceLabel);
           fixtureId = chosenFixture.id;
           payload.chosen_fixture = true;
         } else if (rule.fixture) {

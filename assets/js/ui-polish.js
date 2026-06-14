@@ -183,26 +183,26 @@ async function saveHedgeRowsBeforeAllPredictions() {
       throw new Error('You can only save your own Hedge prediction.');
     }
 
+    const { data: conflictRows, error: conflictError } = await supabase
+      .from('active_card_effects')
+      .select('id, card_definitions!inner(effect_key)')
+      .eq('competition_id', effect.competition_id)
+      .eq('season_id', effect.season_id)
+      .eq('target_user_id', user.id)
+      .eq('fixture_id', fixtureId)
+      .eq('status', 'active')
+      .eq('card_definitions.effect_key', 'curse_deleted_match')
+      .limit(1);
+
+    if (conflictError) {
+      throw new Error(conflictError.message || 'Could not check Hedge fixture.');
+    }
+
+    if ((conflictRows || []).length) {
+      throw new Error('Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.');
+    }
+
     if (!effect.fixture_id || effect.fixture_id !== fixtureId) {
-      const { data: conflictRows, error: conflictError } = await supabase
-        .from('active_card_effects')
-        .select('id, card_definitions!inner(effect_key)')
-        .eq('competition_id', effect.competition_id)
-        .eq('season_id', effect.season_id)
-        .eq('target_user_id', user.id)
-        .eq('fixture_id', fixtureId)
-        .eq('status', 'active')
-        .eq('card_definitions.effect_key', 'curse_deleted_match')
-        .limit(1);
-
-      if (conflictError) {
-        throw new Error(conflictError.message || 'Could not check Hedge fixture.');
-      }
-
-      if ((conflictRows || []).length) {
-        throw new Error('Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.');
-      }
-
       const { error: updateError } = await supabase
         .from('active_card_effects')
         .update({ fixture_id: fixtureId })
