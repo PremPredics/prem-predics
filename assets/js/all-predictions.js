@@ -31,6 +31,7 @@ const predictionCurseKeys = new Set([
 ]);
 
 const predictionPowerKeys = new Set([
+  'power_laundrette',
   'power_pessimist',
   'power_hedge',
   'power_snow',
@@ -231,7 +232,7 @@ async function loadResults(fixtures) {
 
   const { data, error } = await supabase
     .from('match_results')
-    .select('fixture_id, home_goals, away_goals')
+    .select('fixture_id, home_goals, away_goals, had_clean_sheet')
     .in('fixture_id', fixtures.map((fixture) => fixture.id));
 
   if (error) {
@@ -415,6 +416,9 @@ function predictionPowersForFixture(fixture, effects, context = {}) {
       const key = effectKey(effect);
       if (key === 'power_pessimist') {
         return Boolean(context.showPessimist);
+      }
+      if (key === 'power_laundrette') {
+        return Boolean(context.isCorrectResult && context.hadCleanSheet && Number(context.points || 0) > 0);
       }
       if (key === 'power_snow') {
         return Boolean(fixtureStats?.played_in_heavy_snow) && Number(context.points || 0) > 0;
@@ -638,6 +642,7 @@ async function renderPredictionRows(gameweek) {
       : null;
     const result = results.get(fixture.id);
     const scored = fixtureScores.get(fixture.id);
+    const hadCleanSheet = Boolean(result?.had_clean_sheet || Number(result?.home_goals) === 0 || Number(result?.away_goals) === 0);
     const fixtureHedges = canViewPrediction ? (hedgesByFixture.get(fixture.id) || []) : [];
     const primaryRawPoints = rawPredictionPoints(primaryPrediction, result);
     const bestRawPoints = Math.max(primaryRawPoints, ...fixtureHedges.map((hedge) => rawPredictionPoints(hedge, result)));
@@ -650,7 +655,12 @@ async function renderPredictionRows(gameweek) {
       ? predictionCursesForFixture(fixture, predictionEffects, prediction, override)
       : [];
     const powers = (locked || sameId(state.selectedUserId, state.user.id))
-      ? predictionPowersForFixture(fixture, predictionEffects, { showPessimist: showPessimistPowers, points })
+      ? predictionPowersForFixture(fixture, predictionEffects, {
+        showPessimist: showPessimistPowers,
+        points,
+        isCorrectResult: Boolean(scored?.is_correct_result),
+        hadCleanSheet,
+      })
       : [];
     state.visibleEffectsByFixture.set(`${fixture.id}:curse`, curses);
     state.visibleEffectsByFixture.set(`${fixture.id}:power`, powers);
@@ -702,6 +712,7 @@ async function renderPredictionRows(gameweek) {
       }
       const result = results.get(fixture.id);
       const scored = fixtureScores.get(fixture.id);
+      const hadCleanSheet = Boolean(result?.had_clean_sheet || Number(result?.home_goals) === 0 || Number(result?.away_goals) === 0);
       const fixtureHedges = hedgesByFixture.get(fixture.id) || [];
       const primaryPrediction = primaryPredictions.get(fixture.id);
       const hedgeRawPoints = rawPredictionPoints(prediction, result);
@@ -711,6 +722,8 @@ async function renderPredictionRows(gameweek) {
       const powers = predictionPowersForFixture(fixture, predictionEffects, {
         showPessimist: showPessimistPowers,
         points: hedgeUnused ? 0 : Number(scored?.points || 0),
+        isCorrectResult: Boolean(scored?.is_correct_result),
+        hadCleanSheet,
       });
       const actualScore = result ? `${result.home_goals}-${result.away_goals}` : '-';
       return `

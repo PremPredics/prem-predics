@@ -1,11 +1,15 @@
--- Fix Power of the Immigrants scoring so yellow/red cards do not deduct
--- points while the card applies, and keep the live card description in sync.
+-- Fix Power of the Immigrants scoring so yellow/red cards deduct normally
+-- while the card applies, and keep live card descriptions in sync.
 
 begin;
 
 update public.card_definitions
-set description = 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards do not deduct points. Must be played at least 90 minutes before the gameweek''s first KO time.'
+set description = 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'
 where id = 'power_immigrants';
+
+update public.card_definitions
+set description = 'Valid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek''s first KO time.'
+where id = 'power_laundrette';
 
 create or replace view public.star_man_score_details
 with (security_invoker = true)
@@ -127,11 +131,13 @@ select
     )
     + (power_goal_count * 3)
     - case
-        when super_star_man_applies or immigrants_applies then 0
+        when super_star_man_applies then 0
         else (yellow_cards * case when furious_applies then 2 else 1 end)
           + (red_cards * 3 * case when furious_applies then 2 else 1 end)
       end
   )::integer as points
 from star_rows;
+
+grant select on public.star_man_score_details to authenticated;
 
 commit;

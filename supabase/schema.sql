@@ -2364,7 +2364,7 @@ select
     )
     + (power_goal_count * 3)
     - case
-        when super_star_man_applies or immigrants_applies then 0
+        when super_star_man_applies then 0
         else (yellow_cards * case when furious_applies then 2 else 1 end)
           + (red_cards * 3 * case when furious_applies then 2 else 1 end)
       end
