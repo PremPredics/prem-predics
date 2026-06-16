@@ -734,6 +734,186 @@ button:disabled {
   color: #fff;
 }
 
+/* ===== SUPER DRAW REVEAL ===== */
+.super-draw-reveal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 42px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.92), transparent 12%),
+    radial-gradient(circle at 24% 16%, rgba(254, 240, 138, 0.9), transparent 28%),
+    radial-gradient(circle at 80% 72%, rgba(245, 158, 11, 0.74), transparent 32%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 18%, #facc15 43%, #fff7ad 62%, #d97706 100%);
+}
+
+.super-draw-reveal.show {
+  display: flex;
+}
+
+.super-draw-reveal::before,
+.super-draw-reveal::after {
+  content: '';
+  position: absolute;
+  inset: -24%;
+  pointer-events: none;
+}
+
+.super-draw-reveal::before {
+  background:
+    repeating-conic-gradient(from 15deg, rgba(255, 255, 255, 0.18) 0 8deg, transparent 8deg 20deg);
+  animation: superDrawRays 18s linear infinite;
+  mix-blend-mode: screen;
+}
+
+.super-draw-reveal::after {
+  background:
+    radial-gradient(circle at 32% 35%, rgba(255, 255, 255, 0.76) 0 2px, transparent 3px),
+    radial-gradient(circle at 62% 20%, rgba(255, 255, 255, 0.72) 0 2px, transparent 3px),
+    radial-gradient(circle at 76% 62%, rgba(255, 255, 255, 0.66) 0 2px, transparent 3px),
+    radial-gradient(circle at 18% 74%, rgba(255, 255, 255, 0.64) 0 2px, transparent 3px);
+  animation: superDrawSparkles 3s ease-in-out infinite;
+}
+
+@keyframes superDrawRays {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes superDrawSparkles {
+  0%, 100% { opacity: 0.55; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.super-draw-stage {
+  position: relative;
+  z-index: 1;
+  width: min(980px, 100%);
+  min-height: min(680px, calc(100vh - 34px));
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(16px, 3vw, 28px);
+  padding: clamp(20px, 4vw, 38px);
+  border-radius: 26px;
+  border: 4px solid rgba(255, 255, 255, 0.72);
+  background:
+    radial-gradient(circle at 50% 14%, rgba(255, 255, 255, 0.24), transparent 30%),
+    linear-gradient(135deg, rgba(69, 35, 3, 0.78), rgba(146, 64, 14, 0.6), rgba(59, 7, 100, 0.76));
+  box-shadow:
+    0 0 58px rgba(253, 224, 71, 0.92),
+    0 26px 80px rgba(0, 0, 0, 0.48),
+    inset 0 0 34px rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.super-draw-title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2.4rem, 6vw, 5.6rem);
+  line-height: 0.95;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-shadow:
+    -2px -2px 0 rgba(0, 0, 0, 0.94),
+    2px -2px 0 rgba(0, 0, 0, 0.94),
+    -2px 2px 0 rgba(0, 0, 0, 0.94),
+    2px 2px 0 rgba(0, 0, 0, 0.94),
+    0 0 26px rgba(255, 255, 255, 0.9),
+    0 0 44px rgba(253, 224, 71, 0.9);
+}
+
+.super-draw-subtitle {
+  min-height: 1.4em;
+  margin: 0;
+  color: #fff8c5;
+  font-size: clamp(1rem, 2.8vw, 1.45rem);
+  font-weight: 900;
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.92),
+    1px -1px 0 rgba(0, 0, 0, 0.92),
+    -1px 1px 0 rgba(0, 0, 0, 0.92),
+    1px 1px 0 rgba(0, 0, 0, 0.92),
+    0 0 14px rgba(253, 224, 71, 0.82);
+}
+
+.super-draw-cards {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2vw, 20px);
+  min-height: clamp(150px, 28vh, 238px);
+}
+
+.super-draw-cards .card-tile {
+  width: clamp(90px, 13vw, 128px);
+  height: clamp(126px, 18.2vw, 178px);
+  max-width: none;
+  flex: 0 0 auto;
+  padding: clamp(8px, 1.4vw, 13px) clamp(6px, 1vw, 10px);
+  border-radius: 16px;
+  border-width: 3px;
+  font-size: clamp(0.62rem, 1.35vw, 0.88rem);
+  line-height: 1.02;
+  cursor: default;
+  animation: superDrawCardIn 0.58s cubic-bezier(0.2, 1.32, 0.42, 1) both;
+}
+
+.super-draw-cards .card-tile:hover {
+  transform: none;
+}
+
+@keyframes superDrawCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(46px) rotate(var(--draw-tilt, 0deg)) scale(0.72);
+    filter: blur(5px) brightness(1.4);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--draw-tilt, 0deg)) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .super-draw-reveal {
+    padding: 14px;
+  }
+
+  .super-draw-stage {
+    min-height: min(650px, calc(100vh - 28px));
+    gap: 14px;
+    padding: 20px 12px;
+    border-radius: 20px;
+  }
+
+  .super-draw-title {
+    font-size: clamp(2.25rem, 12vw, 3.55rem);
+  }
+
+  .super-draw-subtitle {
+    font-size: clamp(0.9rem, 4.3vw, 1.08rem);
+  }
+
+  .super-draw-cards {
+    gap: 10px;
+    min-height: 268px;
+  }
+
+  .super-draw-cards .card-tile {
+    width: min(29vw, 104px);
+    height: min(40.8vw, 146px);
+    border-radius: 14px;
+    font-size: clamp(0.54rem, 2.55vw, 0.7rem);
+  }
+}
+
 /* ===== DECK CHOICE MODAL ===== */
 .deck-choice-modal {
   display: none;
@@ -4460,6 +4640,15 @@ html.capacitor-android .veto-curse-description {
     </div>
   </div>
 
+  <!-- Super Draw Reveal -->
+  <div class="super-draw-reveal" id="superDrawReveal" aria-hidden="true">
+    <div class="super-draw-stage">
+      <h2 class="super-draw-title">Super Draw</h2>
+      <p class="super-draw-subtitle" id="superDrawSubtitle"></p>
+      <div class="super-draw-cards" id="superDrawCards"></div>
+    </div>
+  </div>
+
   <!-- Deck Choice Modal -->
   <div class="deck-choice-modal" id="deckChoiceModal">
     <div class="deck-choice-wrapper">
@@ -5159,11 +5348,16 @@ function superDrawCountForLeague() {
   return superDrawCountForDeckVariant(currentDeckVariantId);
 }
 
-function cardDescriptionFor(cardName) {
+function cardDescriptionFor(cardName, options = {}) {
   const normalizedCardName = normalizeCardName(cardName);
   const duration = superDurationForDeckVariant(currentDeckVariantId);
   const drawCount = superDrawCountForLeague();
   const durationText = `${duration} ${duration === 1 ? 'Gameweek' : 'Gameweeks'}`;
+
+  if (normalizedCardName === 'Super Draw' && options.context === 'hand-preview') {
+    return `Draw ${drawCount} Regular Deck ${drawCount === 1 ? 'card' : 'cards'} for this league.`;
+  }
+
   return (cardDescriptions[normalizedCardName] || cardDescriptions[cardName] || 'No description available.')
     .replaceAll('{SUPER_DURATION}', durationText)
     .replaceAll('{SUPER_DRAW_COUNT}', String(drawCount));
@@ -6017,8 +6211,8 @@ function showCardPreview(cardName, player, index) {
   const nameEl = document.getElementById('cardPreviewName');
   const descEl = document.getElementById('cardPreviewDescription');
   nameEl.textContent = cardName;
-  descEl.textContent = cardDescriptionFor(cardName);
-  
+  descEl.textContent = cardDescriptionFor(cardName, { context: 'hand-preview' });
+
   document.body.classList.add('card-preview-open');
   modal.classList.add('show');
   fitPreviewText(nameEl, descEl);
@@ -6069,6 +6263,50 @@ function closeCardPreview() {
     document.body.classList.remove('card-preview-open');
   }
   gameState.cardToPlay = null;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function drawnCardName(card) {
+  return card?.card_name || card?.name || cardNameFromDrawn(card) || String(card || '');
+}
+
+async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
+  const reveal = document.getElementById('superDrawReveal');
+  const subtitle = document.getElementById('superDrawSubtitle');
+  const cardsContainer = document.getElementById('superDrawCards');
+  const cards = (drawnCards || []).map(drawnCardName).filter(Boolean);
+
+  if (!reveal || !subtitle || !cardsContainer || cards.length === 0) {
+    return;
+  }
+
+  cardsContainer.innerHTML = '';
+  subtitle.textContent = `Drawing ${expectedCount || cards.length} Regular Deck ${cards.length === 1 ? 'card' : 'cards'}...`;
+  document.body.classList.add('card-preview-open');
+  reveal.classList.add('show');
+  reveal.setAttribute('aria-hidden', 'false');
+
+  for (const [cardIndex, cardName] of cards.entries()) {
+    const card = document.createElement('div');
+    card.className = `card-tile ${getCardType(cardName)}`;
+    card.textContent = cardName;
+    card.style.setProperty('--draw-tilt', `${(cardIndex - (cards.length - 1) / 2) * 3.5}deg`);
+    cardsContainer.appendChild(card);
+    fitTileText(card);
+    await wait(560);
+  }
+
+  subtitle.textContent = `${cards.length} ${cards.length === 1 ? 'card' : 'cards'} added to your hand.`;
+  await wait(6000);
+  reveal.classList.remove('show');
+  reveal.setAttribute('aria-hidden', 'true');
+  cardsContainer.innerHTML = '';
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show')) {
+    document.body.classList.remove('card-preview-open');
+  }
 }
 
 async function confirmCardPlay() {
@@ -6174,19 +6412,30 @@ async function confirmCardPlay() {
 
   if (card === "Super Draw") {
     const superDrawCount = superDrawCountForLeague();
+    activation = activation || {};
+    activation.__skipFinalNotice = true;
     if (cardRuntime?.drawEffectCards && activation?.id) {
       try {
         const drawnCards = await cardRuntime.drawEffectCards(activation.id, superDrawCount);
-        activation.__noticeTitle = 'Super Draw';
-        activation.__noticeMessage = `Super Draw added: ${drawnCards.map((drawn) => drawn.card_name).join(', ')}.`;
+        await showSuperDrawReveal(drawnCards, superDrawCount);
         await syncHandFromDatabase({ force: true });
       } catch (error) {
         showSiteNotice(error.message || 'Could not draw cards for Super Draw.', 'Super Draw');
+        await syncHandFromDatabase({ force: true });
+        save();
+        render();
+        return;
       }
     } else {
+      const drawnCards = [];
       for (let i = 0; i < superDrawCount; i++) {
-        if (gameState.regularDeck.length > 0) gameState.players[player].hand.push(gameState.regularDeck.pop());
+        if (gameState.regularDeck.length > 0) {
+          const drawnCard = gameState.regularDeck.pop();
+          drawnCards.push(drawnCard);
+          gameState.players[player].hand.push(drawnCard);
+        }
       }
+      await showSuperDrawReveal(drawnCards, superDrawCount);
     }
   }
   else if (isSwapCard) {
