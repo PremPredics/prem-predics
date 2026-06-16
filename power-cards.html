@@ -5879,11 +5879,11 @@ function scheduleLiveHandRefresh() {
 function discardDatabaseCard(playerKey, cardName, cardInstanceId = null) {
   if (cardRuntime?.discardCard) {
     if (cardInstanceId && cardRuntime?.discardCardInstance) {
-      cardRuntime.discardCardInstance(cardInstanceId).catch(() => {});
-      return;
+      return cardRuntime.discardCardInstance(cardInstanceId).catch(() => {});
     }
-    cardRuntime.discardCard(playerKey, cardName).catch(() => {});
+    return cardRuntime.discardCard(playerKey, cardName).catch(() => {});
   }
+  return Promise.resolve();
 }
 
 function drawFirstCards() {
@@ -6393,6 +6393,7 @@ async function confirmCardPlay() {
   }
 
   const keepPlayedCardInHand = isSwapCard || shouldKeepPlayedCardInHand(activation);
+  let discardPlayedCardPromise = Promise.resolve();
   if (keepPlayedCardInHand) {
     markCardInstanceAsUsed(player, index, activation);
   } else {
@@ -6402,7 +6403,7 @@ async function confirmCardPlay() {
       'used',
       activation?.gameweek_number || null
     ));
-    discardDatabaseCard(player, card, selectedCardInstanceId);
+    discardPlayedCardPromise = discardDatabaseCard(player, card, selectedCardInstanceId);
   }
 
   if (!keepPlayedCardInHand) {
@@ -6418,9 +6419,11 @@ async function confirmCardPlay() {
       try {
         const drawnCards = await cardRuntime.drawEffectCards(activation.id, superDrawCount);
         await showSuperDrawReveal(drawnCards, superDrawCount);
+        await discardPlayedCardPromise;
         await syncHandFromDatabase({ force: true });
       } catch (error) {
         showSiteNotice(error.message || 'Could not draw cards for Super Draw.', 'Super Draw');
+        await discardPlayedCardPromise;
         await syncHandFromDatabase({ force: true });
         save();
         render();
