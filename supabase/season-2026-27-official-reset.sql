@@ -38,13 +38,13 @@ set
   is_active = true
 where name = 'Premier League 2026-27';
 
-drop table if exists pg_temp.current_premier_league_teams;
-create temp table pg_temp.current_premier_league_teams (
+drop table if exists public._season_reset_current_premier_league_teams;
+create table public._season_reset_current_premier_league_teams (
   team_name text primary key,
   short_name text not null
-) on commit drop;
+);
 
-insert into pg_temp.current_premier_league_teams (team_name, short_name)
+insert into public._season_reset_current_premier_league_teams (team_name, short_name)
 values
   ('Arsenal', 'ARS'),
   ('Aston Villa', 'AVL'),
@@ -69,21 +69,21 @@ values
 
 insert into public.teams (name, short_name)
 select team_name, short_name
-from pg_temp.current_premier_league_teams
+from public._season_reset_current_premier_league_teams
 on conflict (name) do update
 set short_name = excluded.short_name;
 
-drop table if exists pg_temp.fixture_seed_2026_27;
-create temp table pg_temp.fixture_seed_2026_27 (
+drop table if exists public._season_reset_fixture_seed_2026_27;
+create table public._season_reset_fixture_seed_2026_27 (
   gameweek_number integer not null check (gameweek_number between 1 and 38),
   sort_order integer not null check (sort_order between 1 and 10),
   home_team_name text not null,
   away_team_name text not null,
   kickoff_local text not null,
   primary key (gameweek_number, sort_order)
-) on commit drop;
+);
 
-insert into pg_temp.fixture_seed_2026_27 (
+insert into public._season_reset_fixture_seed_2026_27 (
   gameweek_number,
   sort_order,
   home_team_name,
@@ -474,7 +474,7 @@ values
 
 do $$
 begin
-  if (select count(*) from pg_temp.fixture_seed_2026_27) <> 380 then
+  if (select count(*) from public._season_reset_fixture_seed_2026_27) <> 380 then
     raise exception 'Fixture seed must contain 380 rows.';
   end if;
 
@@ -483,7 +483,7 @@ begin
     from generate_series(1, 38) as gw(number)
     left join (
       select gameweek_number, count(*) as fixture_count
-      from pg_temp.fixture_seed_2026_27
+      from public._season_reset_fixture_seed_2026_27
       group by gameweek_number
     ) counts on counts.gameweek_number = gw.number
     where coalesce(counts.fixture_count, 0) <> 10
@@ -493,7 +493,7 @@ begin
 
   if exists (
     select 1
-    from pg_temp.fixture_seed_2026_27 seed
+    from public._season_reset_fixture_seed_2026_27 seed
     left join public.teams home_team on home_team.name = seed.home_team_name
     left join public.teams away_team on away_team.name = seed.away_team_name
     where home_team.id is null or away_team.id is null
@@ -503,12 +503,12 @@ begin
         select string_agg(distinct missing_team, ', ' order by missing_team)
         from (
           select seed.home_team_name as missing_team
-          from pg_temp.fixture_seed_2026_27 seed
+          from public._season_reset_fixture_seed_2026_27 seed
           left join public.teams teams on teams.name = seed.home_team_name
           where teams.id is null
           union
           select seed.away_team_name as missing_team
-          from pg_temp.fixture_seed_2026_27 seed
+          from public._season_reset_fixture_seed_2026_27 seed
           left join public.teams teams on teams.name = seed.away_team_name
           where teams.id is null
         ) missing
@@ -631,7 +631,7 @@ select
   fixture_seed.kickoff_local::timestamp at time zone 'Europe/London',
   fixture_seed.sort_order,
   'scheduled'
-from pg_temp.fixture_seed_2026_27 fixture_seed
+from public._season_reset_fixture_seed_2026_27 fixture_seed
 cross join target_season
 join public.gameweeks gameweeks
   on gameweeks.season_id = target_season.id
@@ -664,7 +664,7 @@ from locks, target_season
 where gameweeks.season_id = target_season.id
   and gameweeks.id = locks.gameweek_id;
 
-create or replace function pg_temp.star_man_norm(input_text text)
+create or replace function public._season_reset_star_man_norm(input_text text)
 returns text
 language sql
 immutable
@@ -672,7 +672,7 @@ as $$
   select regexp_replace(lower(extensions.unaccent(coalesce(input_text, ''))), '[^a-z0-9]+', '', 'g');
 $$;
 
-create or replace function pg_temp.star_man_first_name(input_text text)
+create or replace function public._season_reset_star_man_first_name(input_text text)
 returns text
 language plpgsql
 immutable
@@ -692,7 +692,7 @@ begin
 end;
 $$;
 
-create or replace function pg_temp.star_man_last_name(input_text text)
+create or replace function public._season_reset_star_man_last_name(input_text text)
 returns text
 language plpgsql
 immutable
@@ -727,17 +727,17 @@ begin
 end;
 $$;
 
-drop table if exists pg_temp.promoted_player_seed_2026_27;
-create temp table pg_temp.promoted_player_seed_2026_27 (
+drop table if exists public._season_reset_promoted_player_seed_2026_27;
+create table public._season_reset_promoted_player_seed_2026_27 (
   display_name text not null,
   team_name text not null,
   nationality text not null,
   height_cm integer not null check (height_cm > 0),
   norm_name text,
   primary key (display_name, team_name)
-) on commit drop;
+);
 
-insert into pg_temp.promoted_player_seed_2026_27 (display_name, team_name, nationality, height_cm)
+insert into public._season_reset_promoted_player_seed_2026_27 (display_name, team_name, nationality, height_cm)
 values
     ('Alex Palmer', 'Ipswich', 'England', 183),
     ('Leif Davis', 'Ipswich', 'England', 166),
@@ -815,24 +815,24 @@ values
     ('Paddy McNair', 'Hull', 'Northern Ireland', 183),
     ('Cathal McCarthy', 'Hull', 'Republic of Ireland', 185);
 
-update pg_temp.promoted_player_seed_2026_27
-set norm_name = pg_temp.star_man_norm(display_name);
+update public._season_reset_promoted_player_seed_2026_27
+set norm_name = public._season_reset_star_man_norm(display_name);
 
-alter table pg_temp.promoted_player_seed_2026_27
+alter table public._season_reset_promoted_player_seed_2026_27
 alter column norm_name set not null;
 
 do $$
 begin
   if exists (
     select 1
-    from pg_temp.promoted_player_seed_2026_27 seed
+    from public._season_reset_promoted_player_seed_2026_27 seed
     left join public.teams teams on teams.name = seed.team_name
     where teams.id is null
   ) then
     raise exception 'Some promoted player team names do not match public.teams: %',
       (
         select string_agg(distinct seed.team_name, ', ' order by seed.team_name)
-        from pg_temp.promoted_player_seed_2026_27 seed
+        from public._season_reset_promoted_player_seed_2026_27 seed
         left join public.teams teams on teams.name = seed.team_name
         where teams.id is null
       );
@@ -854,25 +854,25 @@ insert into public.players (
 )
 select
   seed.display_name,
-  pg_temp.star_man_first_name(seed.display_name),
-  pg_temp.star_man_last_name(seed.display_name),
-  pg_temp.star_man_last_name(seed.display_name),
-  pg_temp.star_man_last_name(seed.display_name),
+  public._season_reset_star_man_first_name(seed.display_name),
+  public._season_reset_star_man_last_name(seed.display_name),
+  public._season_reset_star_man_last_name(seed.display_name),
+  public._season_reset_star_man_last_name(seed.display_name),
   teams.id,
   'squad_player',
   seed.nationality,
   seed.height_cm,
   true
-from pg_temp.promoted_player_seed_2026_27 seed
+from public._season_reset_promoted_player_seed_2026_27 seed
 join public.teams teams on teams.name = seed.team_name
 where not exists (
   select 1
   from public.players players
-  where pg_temp.star_man_norm(players.display_name) = seed.norm_name
+  where public._season_reset_star_man_norm(players.display_name) = seed.norm_name
 );
 
-drop table if exists pg_temp.promoted_player_canonical_2026_27;
-create temp table pg_temp.promoted_player_canonical_2026_27 as
+drop table if exists public._season_reset_promoted_player_canonical_2026_27;
+create table public._season_reset_promoted_player_canonical_2026_27 as
 select distinct on (seed.display_name, seed.team_name)
   seed.display_name,
   seed.team_name,
@@ -881,11 +881,11 @@ select distinct on (seed.display_name, seed.team_name)
   seed.norm_name,
   teams.id as team_id,
   players.id as player_id
-from pg_temp.promoted_player_seed_2026_27 seed
+from public._season_reset_promoted_player_seed_2026_27 seed
 join public.teams teams
   on teams.name = seed.team_name
 join public.players players
-  on pg_temp.star_man_norm(players.display_name) = seed.norm_name
+  on public._season_reset_star_man_norm(players.display_name) = seed.norm_name
 order by
   seed.display_name,
   seed.team_name,
@@ -896,22 +896,22 @@ order by
 update public.players players
 set
   display_name = canonical.display_name,
-  first_name = pg_temp.star_man_first_name(canonical.display_name),
-  last_name = pg_temp.star_man_last_name(canonical.display_name),
-  surname = pg_temp.star_man_last_name(canonical.display_name),
-  scrabble_name = pg_temp.star_man_last_name(canonical.display_name),
+  first_name = public._season_reset_star_man_first_name(canonical.display_name),
+  last_name = public._season_reset_star_man_last_name(canonical.display_name),
+  surname = public._season_reset_star_man_last_name(canonical.display_name),
+  scrabble_name = public._season_reset_star_man_last_name(canonical.display_name),
   team_id = canonical.team_id,
   squad_status = 'squad_player',
   nationality = canonical.nationality,
   height_cm = canonical.height_cm,
   is_active = true
-from pg_temp.promoted_player_canonical_2026_27 canonical
+from public._season_reset_promoted_player_canonical_2026_27 canonical
 where players.id = canonical.player_id;
 
 update public.players players
 set is_active = false
-from pg_temp.promoted_player_canonical_2026_27 canonical
-where pg_temp.star_man_norm(players.display_name) = canonical.norm_name
+from public._season_reset_promoted_player_canonical_2026_27 canonical
+where public._season_reset_star_man_norm(players.display_name) = canonical.norm_name
   and players.id <> canonical.player_id;
 
 update public.players players
@@ -921,7 +921,7 @@ where players.team_id = teams.id
   and teams.name in ('Burnley', 'West Ham', 'West Ham United', 'Wolverhampton', 'Wolverhampton Wanderers', 'Wolves')
   and not exists (
     select 1
-    from pg_temp.promoted_player_canonical_2026_27 canonical
+    from public._season_reset_promoted_player_canonical_2026_27 canonical
     where canonical.player_id = players.id
   );
 
@@ -964,11 +964,19 @@ select
   null
 from public.players players
 join public.teams teams on teams.id = players.team_id
-join pg_temp.current_premier_league_teams current_teams on current_teams.team_name = teams.name
+join public._season_reset_current_premier_league_teams current_teams on current_teams.team_name = teams.name
 cross join target_season
 cross join start_gameweek
 where players.is_active = true
   and players.team_id is not null;
+
+drop table if exists public._season_reset_promoted_player_canonical_2026_27;
+drop table if exists public._season_reset_promoted_player_seed_2026_27;
+drop table if exists public._season_reset_fixture_seed_2026_27;
+drop table if exists public._season_reset_current_premier_league_teams;
+drop function if exists public._season_reset_star_man_last_name(text);
+drop function if exists public._season_reset_star_man_first_name(text);
+drop function if exists public._season_reset_star_man_norm(text);
 
 commit;
 
