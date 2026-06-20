@@ -14,6 +14,7 @@ const state = {
   gameweeks: [],
   teams: [],
   teamsById: new Map(),
+  currentSeasonTeamIds: new Set(),
   fixtures: [],
   players: [],
   rosterPlayers: [],
@@ -214,6 +215,9 @@ async function loadReferenceData() {
   state.teamsById = new Map(state.teams.map((team) => [team.id, team]));
   state.gameweeks = (gameweekResponse.data || []).filter((gameweek) => gameweek.season_id === state.season?.id);
   state.fixtures = (fixtureResponse.data || []).filter((fixture) => fixture.season_id === state.season?.id);
+  state.currentSeasonTeamIds = new Set(
+    state.fixtures.flatMap((fixture) => [fixture.home_team_id, fixture.away_team_id]).filter(Boolean).map(String),
+  );
   state.players = playerResponse.data || [];
   state.rosterPlayers = rosterPlayerResponse.data || [];
   state.cards = (cardResponse.data || []).filter((card) => card.deck_type === 'game' || card.id === 'super_pen');
@@ -1440,6 +1444,14 @@ async function renderTeamStandings() {
       return;
     }
 
+    const currentRows = (data || [])
+      .filter((row) => state.currentSeasonTeamIds.has(String(row.team_id)))
+      .sort((a, b) => {
+        const positionDelta = Number(a.league_position) - Number(b.league_position);
+        return positionDelta || String(a.team_name || '').localeCompare(String(b.team_name || ''));
+      })
+      .map((row, index) => ({ ...row, display_position: index + 1 }));
+
     list.innerHTML = `
       <div class="admin-row team-standing">
         <strong>Pos</strong>
@@ -1453,9 +1465,9 @@ async function renderTeamStandings() {
         <strong>GD</strong>
         <strong>Pts</strong>
       </div>
-      ${(data || []).map((row) => `
+      ${currentRows.map((row) => `
         <div class="admin-row team-standing" data-team-id="${row.team_id}">
-          <strong>${row.league_position}</strong>
+          <strong>${row.display_position}</strong>
           <strong>${escapeHtml(row.team_name)}</strong>
           <span>${row.played}</span>
           <span>${row.wins}</span>

@@ -1433,6 +1433,19 @@ with match_rows as (
   join public.gameweeks gw on gw.id = f.gameweek_id
   join public.match_results mr on mr.fixture_id = f.id
 ),
+season_teams as (
+  select distinct
+    f.season_id,
+    f.home_team_id as team_id
+  from public.fixtures f
+
+  union
+
+  select distinct
+    f.season_id,
+    f.away_team_id as team_id
+  from public.fixtures f
+),
 cumulative as (
   select
     gw.season_id,
@@ -1448,7 +1461,10 @@ cumulative as (
     coalesce(sum(mr.goals_against) filter (where mr.gameweek_number <= gw.number), 0)::integer as goals_against,
     coalesce(sum(mr.points) filter (where mr.gameweek_number <= gw.number), 0)::integer as points
   from public.gameweeks gw
-  cross join public.teams t
+  join season_teams st
+    on st.season_id = gw.season_id
+  join public.teams t
+    on t.id = st.team_id
   left join match_rows mr
     on mr.season_id = gw.season_id
    and mr.team_id = t.id
