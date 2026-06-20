@@ -16,27 +16,29 @@ let isSubmitting = false;
 let isRedirecting = false;
 
 const fallbackPremierLeagueTeams = [
-  'AFC Bournemouth',
+  'Bournemouth',
   'Arsenal',
   'Aston Villa',
   'Brentford',
-  'Brighton & Hove Albion',
-  'Burnley',
+  'Brighton',
   'Chelsea',
+  'Coventry',
   'Crystal Palace',
   'Everton',
   'Fulham',
-  'Leeds United',
+  'Hull',
+  'Ipswich',
+  'Leeds',
   'Liverpool',
   'Manchester City',
   'Manchester United',
-  'Newcastle United',
+  'Newcastle',
   'Nottingham Forest',
   'Sunderland',
-  'Tottenham Hotspur',
-  'West Ham United',
-  'Wolverhampton Wanderers',
+  'Tottenham',
 ];
+
+const currentPremierLeagueTeamNames = new Set(fallbackPremierLeagueTeams);
 
 function redirectTarget() {
   const params = new URLSearchParams(window.location.search);
@@ -118,7 +120,8 @@ async function loadFavoriteTeams() {
       throw error || new Error('No teams returned.');
     }
 
-    setTeamOptions(data, 'database');
+    const currentTeams = data.filter((team) => currentPremierLeagueTeamNames.has(team.name));
+    setTeamOptions(currentTeams.length ? currentTeams : data, 'database');
   } catch {
     setTeamOptions(
       fallbackPremierLeagueTeams.map((name) => ({ name })),

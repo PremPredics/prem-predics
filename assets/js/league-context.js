@@ -35,12 +35,20 @@ export function formatDateTime(value) {
 export function shortTeamName(name) {
   const teamName = String(name || '');
   const names = {
+    'AFC Bournemouth': 'Bournemouth',
+    'Brighton & Hove Albion': 'Brighton',
+    'Coventry City': 'Coventry',
+    'Hull City': 'Hull',
+    'Ipswich Town': 'Ipswich',
+    'Leeds United': 'Leeds',
     'Manchester United': 'Man U',
     'Manchester City': 'Man City',
+    'Newcastle United': 'Newcastle',
     'Wolverhampton Wanderers': 'Wolves',
     Wolverhampton: 'Wolves',
     'Nottingham Forest': "Nott'm Forest",
     'Nottigham Forest': "Nott'm Forest",
+    'Tottenham Hotspur': 'Tottenham',
   };
 
   return names[teamName] || teamName;
