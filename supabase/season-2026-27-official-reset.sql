@@ -39,7 +39,7 @@ set
 where name = 'Premier League 2026-27';
 
 drop table if exists pg_temp.current_premier_league_teams;
-create temp table current_premier_league_teams (
+create temp table pg_temp.current_premier_league_teams (
   team_name text primary key,
   short_name text not null
 ) on commit drop;
@@ -74,7 +74,7 @@ on conflict (name) do update
 set short_name = excluded.short_name;
 
 drop table if exists pg_temp.fixture_seed_2026_27;
-create temp table fixture_seed_2026_27 (
+create temp table pg_temp.fixture_seed_2026_27 (
   gameweek_number integer not null check (gameweek_number between 1 and 38),
   sort_order integer not null check (sort_order between 1 and 10),
   home_team_name text not null,
@@ -728,7 +728,7 @@ end;
 $$;
 
 drop table if exists pg_temp.promoted_player_seed_2026_27;
-create temp table promoted_player_seed_2026_27 (
+create temp table pg_temp.promoted_player_seed_2026_27 (
   display_name text not null,
   team_name text not null,
   nationality text not null,
@@ -872,7 +872,7 @@ where not exists (
 );
 
 drop table if exists pg_temp.promoted_player_canonical_2026_27;
-create temp table promoted_player_canonical_2026_27 as
+create temp table pg_temp.promoted_player_canonical_2026_27 as
 select distinct on (seed.display_name, seed.team_name)
   seed.display_name,
   seed.team_name,
