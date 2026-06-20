@@ -349,6 +349,25 @@ main {
   display: none;
 }
 
+.deadline-card.message .deadline-body {
+  grid-template-columns: minmax(0, 1fr) 22px;
+}
+
+.deadline-card.message .deadline-action {
+  grid-column: 1;
+  justify-self: center;
+  text-align: center;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: 9.5px;
+  line-height: 1.08;
+}
+
+.deadline-card.message .deadline-light {
+  grid-column: 2;
+}
+
 .deadline-light {
   grid-column: 3;
   justify-self: end;
@@ -415,6 +434,14 @@ main {
   .deadline-light {
     width: 16px;
     height: 16px;
+  }
+
+  .deadline-card.message .deadline-body {
+    grid-template-columns: minmax(0, 1fr) 16px;
+  }
+
+  .deadline-card.message .deadline-action {
+    font-size: 8.4px;
   }
 }
 
@@ -714,6 +741,15 @@ footer {
     justify-self: end;
     width: 16px;
     height: 16px;
+  }
+
+  .deadline-card.message .deadline-body {
+    grid-template-columns: minmax(0, 1fr) 20px;
+  }
+
+  .deadline-card.message .deadline-action {
+    font-size: 9px;
+    line-height: 1.05;
   }
 
   .play-group.primary,

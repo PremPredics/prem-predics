@@ -92,6 +92,15 @@ function compactCountdownText(value) {
 }
 
 function deadlineDisplay(value, options = {}) {
+  if (options.message) {
+    return {
+      className: options.messageClassName || 'bad locked message',
+      action: options.message,
+      countdown: '',
+      isMessage: true,
+    };
+  }
+
   if (options.enabled === false) {
     return {
       className: 'disabled',
@@ -144,12 +153,13 @@ function deadlineDisplay(value, options = {}) {
 
 function renderDeadlineCard(label, value, options = {}) {
   const display = deadlineDisplay(value, options);
+  const messageClass = display.isMessage ? ' deadline-message' : '';
 
   return `
     <div class="deadline-card ${escapeHtml(display.className)}">
       <span class="deadline-title">${escapeHtml(label)}</span>
       <div class="deadline-body">
-        <span class="deadline-action">${escapeHtml(display.action || '')}</span>
+        <span class="deadline-action${messageClass}">${escapeHtml(display.action || '')}</span>
         <strong class="deadline-countdown">${escapeHtml(display.countdown)}</strong>
         <span class="deadline-light" aria-hidden="true"></span>
       </div>
@@ -517,6 +527,14 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
   const curseDeadlineMs = firstKickoffMs ? firstKickoffMs - (24 * 60 * 60 * 1000) : null;
   const starDeadline = activeGameweek?.star_man_locks_at || isoFromMs(predictionDeadlineMs);
   const gameweekLabelText = `GW${activeGameweek?.gameweek_number || 'X'}`;
+  const cardsBeginAfterGameweekOne = Number(activeGameweek?.gameweek_number || 0) <= 1;
+  const cardDeadlineOptions = cardsBeginAfterGameweekOne
+    ? {
+        windowOnly: true,
+        message: 'Cards Begin When Gameweek 1 Ends',
+        messageClassName: 'bad locked message',
+      }
+    : { windowOnly: true };
   const [predictionsCompleted, starManCompleted, gameCardCompletion] = await Promise.all([
     loadPredictionCompletion(league, user, fixtures),
     loadStarManCompletion(league, user, activeGameweek),
@@ -528,8 +546,8 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
       renderDeadlineCard(`${gameweekLabelText} Predictions Deadline`, isoFromMs(predictionDeadlineMs), { completed: predictionsCompleted }),
       renderDeadlineCard(`${gameweekLabelText} Star Man Deadline`, starDeadline, { completed: starManCompleted }),
       renderDeadlineCard(`${gameweekLabelText} Game Card Deadline`, starDeadline, { completed: gameCardCompletion.completed, enabled: gameCardCompletion.enabled }),
-      renderDeadlineCard('Play Power Card Deadline', isoFromMs(predictionDeadlineMs), { windowOnly: true }),
-      renderDeadlineCard('Play Curse Card Deadline', isoFromMs(curseDeadlineMs), { windowOnly: true }),
+      renderDeadlineCard('Play Power Card Deadline', isoFromMs(predictionDeadlineMs), cardDeadlineOptions),
+      renderDeadlineCard('Play Curse Card Deadline', isoFromMs(curseDeadlineMs), cardDeadlineOptions),
     ].join('');
   }
 
