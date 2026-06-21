@@ -20,12 +20,21 @@ function injectHomeActionStyles() {
       gap: 10px !important;
       padding: 10px !important;
       border-radius: 13px !important;
-      border: 3px solid #8a00c4 !important;
+      border: 3px solid #f5d76e !important;
       box-shadow:
-        0 0 20px rgba(218, 0, 255, 0.82),
-        0 0 44px rgba(176, 0, 224, 0.52),
-        0 0 72px rgba(233, 107, 255, 0.28),
+        0 0 18px rgba(245, 215, 110, 0.82),
+        0 0 42px rgba(250, 204, 21, 0.46),
+        0 0 72px rgba(255, 244, 184, 0.24),
         inset 0 1px 0 rgba(255,255,255,0.12) !important;
+    }
+
+    .home-action-title {
+      color: #fff !important;
+      text-shadow:
+        -1px -1px 0 rgba(0,0,0,0.95),
+        1px -1px 0 rgba(0,0,0,0.95),
+        -1px 1px 0 rgba(0,0,0,0.95),
+        1px 1px 0 rgba(0,0,0,0.95) !important;
     }
 
     .home-action-league-pill {
