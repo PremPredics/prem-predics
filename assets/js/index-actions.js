@@ -9,12 +9,35 @@ function isPast(value) {
   return value ? Date.now() >= new Date(value).getTime() : false;
 }
 
-function statusMarkup(completed) {
-  return `<span class="home-action-status ${completed ? 'complete' : 'required'}">${completed ? 'Completed' : 'Action Required'}</span>`;
+function normaliseActionState(state) {
+  if (state === true) {
+    return 'complete';
+  }
+  if (state === false) {
+    return 'required';
+  }
+  return ['complete', 'required', 'na'].includes(state) ? state : 'na';
 }
 
-function actionStatus(label, completed) {
-  return `<span class="home-action-status-line"><strong>${escapeHtml(label)}:</strong> ${statusMarkup(completed)}</span>`;
+function statusMarkup(state) {
+  const actionState = normaliseActionState(state);
+  const labels = {
+    complete: 'Completed',
+    required: 'Action Required',
+    na: 'N/A',
+  };
+
+  return `<span class="home-action-status ${actionState}">${labels[actionState]}</span>`;
+}
+
+function actionStatus(label, state) {
+  return `<span class="home-action-status-line"><strong>${escapeHtml(label)}:</strong> ${statusMarkup(state)}</span>`;
+}
+
+function hasSavedGameCardValue(row) {
+  return row?.predicted_value !== null
+    && row?.predicted_value !== undefined
+    && String(row.predicted_value) !== '';
 }
 
 async function predictionStatus(userId, league, activeGameweek) {
@@ -70,15 +93,80 @@ async function starManStatus(userId, league, activeGameweek) {
   return Boolean(data);
 }
 
+async function gameCardStatus(userId, league, activeGameweek) {
+  if (!activeGameweek) {
+    return 'na';
+  }
+
+  try {
+    await supabase.rpc('ensure_game_card_rounds', {
+      target_competition_id: league.id,
+    });
+
+    const [{ data: gameweeks, error: gameweekError }, { data: rounds, error: roundError }] = await Promise.all([
+      supabase
+        .from('gameweeks')
+        .select('id, number')
+        .eq('season_id', league.season_id),
+      supabase
+        .from('game_card_rounds')
+        .select('id, start_gameweek_id, end_gameweek_id, status')
+        .eq('competition_id', league.id)
+        .eq('season_id', league.season_id)
+        .order('round_number', { ascending: true }),
+    ]);
+
+    if (gameweekError || roundError) {
+      return 'na';
+    }
+
+    const numberById = new Map((gameweeks || []).map((gameweek) => [String(gameweek.id), Number(gameweek.number)]));
+    const activeNumber = Number(activeGameweek.gameweek_number || 0);
+    const activeRound = (rounds || []).find((round) => {
+      const startNumber = numberById.get(String(round.start_gameweek_id));
+      const endNumber = numberById.get(String(round.end_gameweek_id));
+      return Number.isFinite(startNumber)
+        && Number.isFinite(endNumber)
+        && activeNumber >= startNumber
+        && activeNumber <= endNumber;
+    });
+
+    if (!activeRound) {
+      return 'na';
+    }
+
+    const { data, error } = await supabase
+      .from('game_card_predictions')
+      .select('id, predicted_value')
+      .eq('round_id', activeRound.id)
+      .eq('gameweek_id', activeGameweek.gameweek_id)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) {
+      return 'na';
+    }
+
+    if (hasSavedGameCardValue(data)) {
+      return 'complete';
+    }
+
+    return isPast(activeGameweek.star_man_locks_at) ? 'na' : 'required';
+  } catch {
+    return 'na';
+  }
+}
+
 async function leagueRow(userId, league) {
   const { activeGameweek } = await loadActiveGameweek(league);
   if (!activeGameweek) {
     return '';
   }
 
-  const [predictionsComplete, starManComplete] = await Promise.all([
+  const [predictionsComplete, starManComplete, gameCardActionStatus] = await Promise.all([
     predictionStatus(userId, league, activeGameweek),
     starManStatus(userId, league, activeGameweek),
+    gameCardStatus(userId, league, activeGameweek),
   ]);
 
   return `
@@ -86,6 +174,7 @@ async function leagueRow(userId, league) {
       <strong>${escapeHtml(league.name)}<br><small>GW${escapeHtml(activeGameweek.gameweek_number)}</small></strong>
       ${actionStatus('Predictions', predictionsComplete)}
       ${actionStatus('Star Man', starManComplete)}
+      ${actionStatus('Game Card', gameCardActionStatus)}
       <a href="${leagueUrl('league.html', league.id)}">Open</a>
     </div>
   `;
