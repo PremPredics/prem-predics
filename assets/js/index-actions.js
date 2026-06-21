@@ -41,17 +41,18 @@ function injectHomeActionStyles() {
     .home-action-league-copy {
       min-width: 0 !important;
       display: flex !important;
-      flex-direction: column !important;
+      flex-direction: row !important;
       align-items: center !important;
       justify-content: center !important;
-      gap: 1px !important;
+      gap: 8px !important;
       text-align: center !important;
+      white-space: nowrap !important;
     }
 
     .home-action-league-name {
       max-width: 100% !important;
       color: #fff !important;
-      font-weight: 950 !important;
+      font-weight: 1000 !important;
       line-height: 1.05 !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
@@ -59,8 +60,14 @@ function injectHomeActionStyles() {
     }
 
     .home-action-gameweek {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 2px 7px !important;
+      border-radius: 999px !important;
+      background: rgba(17, 7, 38, 0.28) !important;
       color: #ede9fe !important;
-      font-weight: 900 !important;
+      font-weight: 1000 !important;
       line-height: 1.05 !important;
     }
 
@@ -73,12 +80,13 @@ function injectHomeActionStyles() {
       text-decoration: none !important;
       border-radius: 999px !important;
       background:
-        radial-gradient(circle at 26% 18%, rgba(255,255,255,0.38), transparent 22%),
-        linear-gradient(135deg, #a78bfa, #7c3aed 72%) !important;
-      border: 1px solid rgba(255,255,255,0.28) !important;
+        radial-gradient(circle at 26% 18%, rgba(255,255,255,0.48), transparent 22%),
+        linear-gradient(135deg, #34d399, #16a34a 62%, #047857) !important;
+      border: 1px solid rgba(187, 247, 208, 0.72) !important;
       text-align: center !important;
       box-shadow:
-        0 6px 14px rgba(46, 16, 102, 0.28),
+        0 0 18px rgba(34, 197, 94, 0.42),
+        0 6px 14px rgba(6, 78, 59, 0.28),
         inset 0 1px 0 rgba(255,255,255,0.18) !important;
     }
 
@@ -110,15 +118,16 @@ function injectHomeActionStyles() {
       }
 
       .home-action-league-name {
-        font-size: 13px !important;
+        font-size: 13.5px !important;
       }
 
       .home-action-gameweek {
-        font-size: 10px !important;
+        font-size: 10.5px !important;
+        padding: 2px 6px !important;
       }
 
       .home-action-open {
-        min-width: 56px !important;
+        min-width: 62px !important;
         padding: 8px 12px !important;
         font-size: 12px !important;
       }
@@ -318,7 +327,7 @@ async function leagueRow(userId, league) {
           <strong class="home-action-league-name">${escapeHtml(league.name)}</strong>
           <small class="home-action-gameweek">GW${escapeHtml(activeGameweek.gameweek_number)}</small>
         </span>
-        <a class="home-action-open" href="${leagueUrl('league.html', league.id)}">Open</a>
+        <a class="home-action-open" href="${leagueUrl('league.html', league.id)}">Enter</a>
       </div>
       <div class="home-action-status-grid">
         ${actionStatus('Predictions', predictionsComplete)}

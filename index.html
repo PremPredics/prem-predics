@@ -250,7 +250,7 @@ header img:hover {
   margin: 0;
   text-align: center;
   color: #fff;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 950;
   letter-spacing: 0;
   text-shadow:
@@ -298,18 +298,19 @@ header img:hover {
 .home-action-league-copy {
   min-width: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 1px;
+  gap: 8px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .home-action-league-name {
   max-width: 100%;
   color: #fff;
   font-size: 15px;
-  font-weight: 950;
+  font-weight: 1000;
   line-height: 1.05;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -317,9 +318,15 @@ header img:hover {
 }
 
 .home-action-gameweek {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(17, 7, 38, 0.28);
   color: #ede9fe;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 1000;
   line-height: 1.05;
 }
 
@@ -330,12 +337,13 @@ header img:hover {
   padding: 9px 15px;
   border-radius: 999px;
   background:
-    radial-gradient(circle at 26% 18%, rgba(255,255,255,0.38), transparent 22%),
-    linear-gradient(135deg, #a78bfa, #7c3aed 72%);
-  border: 1px solid rgba(255,255,255,0.28);
+    radial-gradient(circle at 26% 18%, rgba(255,255,255,0.48), transparent 22%),
+    linear-gradient(135deg, #34d399, #16a34a 62%, #047857);
+  border: 1px solid rgba(187, 247, 208, 0.72);
   text-align: center;
   box-shadow:
-    0 6px 14px rgba(46, 16, 102, 0.28),
+    0 0 18px rgba(34, 197, 94, 0.42),
+    0 6px 14px rgba(6, 78, 59, 0.28),
     inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
@@ -586,7 +594,7 @@ footer {
   }
 
   .home-action-title {
-    font-size: 16px;
+    font-size: 17px;
   }
 
   .home-action-list {
@@ -599,15 +607,16 @@ footer {
   }
 
   .home-action-league-name {
-    font-size: 13px;
+    font-size: 13.5px;
   }
 
   .home-action-gameweek {
-    font-size: 10px;
+    font-size: 10.5px;
+    padding: 2px 6px;
   }
 
   .home-action-open {
-    min-width: 56px;
+    min-width: 62px;
     padding: 8px 12px;
     font-size: 12px;
   }
@@ -780,7 +789,7 @@ footer {
 <div class="container">
   <div class="account-panel" data-auth-panel></div>
   <section class="home-action-panel" data-home-action-panel hidden>
-    <h2 class="home-action-title">Gameweek Actions</h2>
+    <h2 class="home-action-title">Quick Access - All Leagues</h2>
     <div class="home-action-list" data-home-action-list></div>
   </section>
 
@@ -843,7 +852,7 @@ footer {
 </script>
 <script type="module" src="assets/js/site-auth.js"></script>
 <script type="module" src="assets/js/index-admin.js"></script>
-<script type="module" src="assets/js/index-actions.js"></script>
+<script type="module" src="assets/js/index-actions.js?v=12"></script>
 
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
