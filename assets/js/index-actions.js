@@ -20,10 +20,11 @@ function injectHomeActionStyles() {
       gap: 10px !important;
       padding: 10px !important;
       border-radius: 13px !important;
-      border: 3px solid rgba(176, 0, 224, 0.9) !important;
+      border: 3px solid #8a00c4 !important;
       box-shadow:
-        0 0 18px rgba(176, 0, 224, 0.62),
-        0 0 38px rgba(233, 107, 255, 0.34),
+        0 0 20px rgba(218, 0, 255, 0.82),
+        0 0 44px rgba(176, 0, 224, 0.52),
+        0 0 72px rgba(233, 107, 255, 0.28),
         inset 0 1px 0 rgba(255,255,255,0.12) !important;
     }
 
@@ -35,11 +36,11 @@ function injectHomeActionStyles() {
       padding: 9px 9px 9px 16px !important;
       border-radius: 999px !important;
       background:
-        radial-gradient(circle at 12% 12%, rgba(255,255,255,0.22), transparent 22%),
-        linear-gradient(135deg, #f07bff, #e96bff 58%, #dd57f6) !important;
-      border: 1px solid rgba(250, 218, 255, 0.62) !important;
+        radial-gradient(circle at 12% 12%, rgba(255,255,255,0.18), transparent 22%),
+        linear-gradient(135deg, #9a12d3, #8a00c4 62%, #7600aa) !important;
+      border: 1px solid rgba(232, 170, 255, 0.66) !important;
       box-shadow:
-        0 0 15px rgba(233, 107, 255, 0.32),
+        0 0 17px rgba(218, 0, 255, 0.46),
         0 8px 18px rgba(17, 7, 38, 0.22),
         inset 0 1px 0 rgba(255,255,255,0.18) !important;
     }
@@ -111,11 +112,11 @@ function injectHomeActionStyles() {
       min-height: 58px !important;
       padding: 8px 6px !important;
       border-radius: 11px !important;
-      background: #e96bff !important;
-      border: 1px solid rgba(250, 218, 255, 0.56) !important;
+      background: #8a00c4 !important;
+      border: 1px solid rgba(232, 170, 255, 0.58) !important;
       text-align: center !important;
       box-shadow:
-        0 0 12px rgba(233, 107, 255, 0.28),
+        0 0 15px rgba(218, 0, 255, 0.46),
         inset 0 1px 0 rgba(255,255,255,0.16) !important;
     }
 
