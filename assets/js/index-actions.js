@@ -31,7 +31,12 @@ function statusMarkup(state) {
 }
 
 function actionStatus(label, state) {
-  return `<span class="home-action-status-line"><strong>${escapeHtml(label)}:</strong> ${statusMarkup(state)}</span>`;
+  return `
+    <span class="home-action-status-line">
+      <strong>${escapeHtml(label)}:</strong>
+      ${statusMarkup(state)}
+    </span>
+  `;
 }
 
 function hasSavedGameCardValue(row) {
@@ -171,11 +176,18 @@ async function leagueRow(userId, league) {
 
   return `
     <div class="home-action-row">
-      <strong>${escapeHtml(league.name)}<br><small>GW${escapeHtml(activeGameweek.gameweek_number)}</small></strong>
-      ${actionStatus('Predictions', predictionsComplete)}
-      ${actionStatus('Star Man', starManComplete)}
-      ${actionStatus('Game Card', gameCardActionStatus)}
-      <a href="${leagueUrl('league.html', league.id)}">Open</a>
+      <div class="home-action-league-pill">
+        <span class="home-action-league-copy">
+          <strong class="home-action-league-name">${escapeHtml(league.name)}</strong>
+          <small class="home-action-gameweek">GW${escapeHtml(activeGameweek.gameweek_number)}</small>
+        </span>
+        <a class="home-action-open" href="${leagueUrl('league.html', league.id)}">Open</a>
+      </div>
+      <div class="home-action-status-grid">
+        ${actionStatus('Predictions', predictionsComplete)}
+        ${actionStatus('Star Man', starManComplete)}
+        ${actionStatus('Game Card', gameCardActionStatus)}
+      </div>
     </div>
   `;
 }
