@@ -20,6 +20,11 @@ function injectHomeActionStyles() {
       gap: 10px !important;
       padding: 10px !important;
       border-radius: 13px !important;
+      border: 1px solid rgba(176, 0, 224, 0.76) !important;
+      box-shadow:
+        0 0 18px rgba(176, 0, 224, 0.4),
+        0 0 34px rgba(233, 107, 255, 0.22),
+        inset 0 1px 0 rgba(255,255,255,0.1) !important;
     }
 
     .home-action-league-pill {
@@ -30,12 +35,13 @@ function injectHomeActionStyles() {
       padding: 9px 9px 9px 16px !important;
       border-radius: 999px !important;
       background:
-        radial-gradient(circle at 12% 8%, rgba(255,255,255,0.18), transparent 28%),
-        linear-gradient(135deg, rgba(139, 92, 246, 0.78), rgba(91, 33, 182, 0.72)) !important;
-      border: 1px solid rgba(233, 213, 255, 0.34) !important;
+        radial-gradient(circle at 13% 10%, rgba(255,255,255,0.32), transparent 27%),
+        linear-gradient(135deg, rgba(249, 188, 255, 0.9), rgba(233, 107, 255, 0.86) 40%, rgba(174, 46, 242, 0.82) 74%, rgba(96, 24, 157, 0.8)) !important;
+      border: 1px solid rgba(250, 218, 255, 0.62) !important;
       box-shadow:
+        0 0 16px rgba(233, 107, 255, 0.34),
         0 8px 18px rgba(17, 7, 38, 0.22),
-        inset 0 1px 0 rgba(255,255,255,0.12) !important;
+        inset 0 1px 0 rgba(255,255,255,0.18) !important;
     }
 
     .home-action-league-copy {
