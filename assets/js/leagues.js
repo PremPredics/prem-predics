@@ -72,6 +72,32 @@ function showJoinedLeagueNotice(league) {
   });
 }
 
+function showLeagueNotice(text, title = 'Notice') {
+  return new Promise((resolve) => {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px;background:rgba(8,3,20,.62);backdrop-filter:blur(8px);';
+    modal.innerHTML = `
+      <section style="width:min(460px,100%);display:grid;gap:16px;text-align:center;padding:24px 22px;border-radius:14px;background:linear-gradient(135deg,rgba(46,16,102,.98),rgba(17,7,38,.98));border:2px solid rgba(248,113,113,.58);box-shadow:0 22px 58px rgba(0,0,0,.56),0 0 30px rgba(248,113,113,.22);">
+        <h2 style="margin:0;color:#fff;font-size:clamp(1.25rem,4vw,1.65rem);font-weight:950;text-shadow:-1px -1px 0 rgba(0,0,0,.95),1px -1px 0 rgba(0,0,0,.95),-1px 1px 0 rgba(0,0,0,.95),1px 1px 0 rgba(0,0,0,.95),0 0 14px rgba(248,113,113,.72);">${escapeHtml(title)}</h2>
+        <p style="margin:0;color:#fef2f2;line-height:1.45;font-weight:850;">${escapeHtml(text)}</p>
+        <button type="button" data-close-notice style="justify-self:center;min-width:150px;border:2px solid rgba(254,202,202,.82);border-radius:999px;padding:12px 20px;background:radial-gradient(circle at 24% 18%,rgba(255,255,255,.7),transparent 22%),linear-gradient(135deg,#ef4444,#dc2626 52%,#7f1d1d);color:#fff;font-size:1rem;font-weight:950;cursor:pointer;box-shadow:0 0 22px rgba(248,113,113,.64),0 12px 28px rgba(127,29,29,.32);text-shadow:-1px -1px 0 rgba(0,0,0,.94),1px -1px 0 rgba(0,0,0,.94),-1px 1px 0 rgba(0,0,0,.94),1px 1px 0 rgba(0,0,0,.94);">Close</button>
+      </section>
+    `;
+
+    modal.querySelector('[data-close-notice]').addEventListener('click', () => {
+      modal.remove();
+      resolve();
+    });
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.remove();
+        resolve();
+      }
+    });
+    document.body.appendChild(modal);
+  });
+}
+
 async function copyText(value, button) {
   try {
     await navigator.clipboard.writeText(value);
@@ -248,6 +274,13 @@ createForm.addEventListener('submit', async (event) => {
     const startGameweek = await getStartGameweek();
     if (!startGameweek) {
       throw new Error('No gameweek data found.');
+    }
+
+    if (Number(startGameweek.gameweek_number || 0) >= 37) {
+      const lockMessage = 'Leagues cannot be created in the final 2 Gameweeks of the Season.';
+      setMessage(lockMessage, 'error');
+      await showLeagueNotice(lockMessage, 'League Creation Locked');
+      return;
     }
 
     const firstKickoffAt = new Date(startGameweek.first_fixture_kickoff_at).toISOString();

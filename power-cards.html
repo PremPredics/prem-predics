@@ -5390,6 +5390,14 @@ function starterCardPendingText() {
   return `1 Power Card and 1 Curse Card will be drawn at the end of ${status.gameweekLabel || 'the next Gameweek'}`;
 }
 
+function starterCardDrawLocked() {
+  return Boolean(gameState.starterCardsStatus?.pending);
+}
+
+function starterCardDrawLockedText() {
+  return 'Cards can only be drawn after Gameweek 1';
+}
+
 function appendEmptyHandPlaceholder(container) {
   const pendingText = starterCardPendingText();
   const placeholder = document.createElement('div');
@@ -5944,6 +5952,10 @@ function openDeckChoice() {
     showSiteNotice('Finish the current card action before drawing again.', 'Draw Card', 'warning');
     return;
   }
+  if (starterCardDrawLocked()) {
+    showSiteNotice(starterCardDrawLockedText(), 'Draw Card', 'warning');
+    return;
+  }
   if (gameState.pendingSwap) {
     showSiteNotice('Finish Power of the Swap before drawing or playing anything else.', 'Power of the Swap');
     return;
@@ -5989,6 +6001,13 @@ function closeDiscardPile() {
 
 async function startCardReveal(deckType) {
   if (sequenceInProgress) {
+    return;
+  }
+
+  if (starterCardDrawLocked()) {
+    document.getElementById('deckChoiceModal').classList.remove('show');
+    document.body.classList.remove('card-preview-open');
+    showSiteNotice(starterCardDrawLockedText(), 'Draw Card', 'warning');
     return;
   }
 

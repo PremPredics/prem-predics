@@ -639,6 +639,72 @@ begin
 end;
 $$;
 
+create or replace function public.league_card_draws_unlocked(target_competition_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  target_competition public.competitions;
+  starter_unlock_at timestamptz;
+  starter_gameweek_complete boolean := false;
+begin
+  select *
+    into target_competition
+  from public.competitions
+  where id = target_competition_id;
+
+  if target_competition.id is null then
+    raise exception 'Competition not found.';
+  end if;
+
+  select next_deadline.first_fixture_kickoff_at
+    into starter_unlock_at
+  from public.gameweek_deadlines start_deadline
+  left join lateral (
+    select gd.first_fixture_kickoff_at
+    from public.gameweek_deadlines gd
+    where gd.season_id = target_competition.season_id
+      and gd.gameweek_number > start_deadline.gameweek_number
+      and gd.first_fixture_kickoff_at is not null
+    order by gd.gameweek_number
+    limit 1
+  ) next_deadline on true
+  where start_deadline.season_id = target_competition.season_id
+    and start_deadline.gameweek_id = target_competition.starts_gameweek_id;
+
+  if starter_unlock_at is null then
+    select start_deadline.first_fixture_kickoff_at + interval '7 days'
+      into starter_unlock_at
+    from public.gameweek_deadlines start_deadline
+    where start_deadline.season_id = target_competition.season_id
+      and start_deadline.gameweek_id = target_competition.starts_gameweek_id
+      and start_deadline.first_fixture_kickoff_at is not null;
+  end if;
+
+  select exists (
+      select 1
+      from public.fixtures f
+      where f.season_id = target_competition.season_id
+        and f.gameweek_id = target_competition.starts_gameweek_id
+        and f.status <> 'postponed'
+    )
+    and not exists (
+      select 1
+      from public.fixtures f
+      where f.season_id = target_competition.season_id
+        and f.gameweek_id = target_competition.starts_gameweek_id
+        and f.status <> 'postponed'
+        and f.status <> 'final'
+    )
+    into starter_gameweek_complete;
+
+  return starter_gameweek_complete
+    or (starter_unlock_at is not null and now() >= starter_unlock_at);
+end;
+$$;
+
 create or replace function public.redeem_card_draw_token(
   target_competition_id uuid,
   target_deck_type text
@@ -680,6 +746,10 @@ begin
 
   if not public.is_competition_member(target_competition_id) then
     raise exception 'You are not a member of this private league.';
+  end if;
+
+  if not public.league_card_draws_unlocked(target_competition_id) then
+    raise exception 'Cards can only be drawn after Gameweek 1';
   end if;
 
   perform public.sync_my_card_draw_tokens(target_competition_id);
@@ -1075,6 +1145,7 @@ $$;
 grant execute on function public.ensure_league_card_decks(uuid) to authenticated;
 grant execute on function public.ensure_game_card_tiebreaks(uuid) to authenticated;
 grant execute on function public.sync_my_card_draw_tokens(uuid) to authenticated;
+grant execute on function public.league_card_draws_unlocked(uuid) to authenticated;
 grant execute on function public.redeem_card_draw_token(uuid, text) to authenticated;
 grant execute on function public.ensure_game_card_rounds(uuid) to authenticated;
 grant execute on function public.ensure_competition_starter_cards(uuid) to authenticated;
