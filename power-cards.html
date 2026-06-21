@@ -749,10 +749,13 @@ button:disabled {
     radial-gradient(circle at 24% 16%, rgba(254, 240, 138, 0.9), transparent 28%),
     radial-gradient(circle at 80% 72%, rgba(245, 158, 11, 0.74), transparent 32%),
     linear-gradient(135deg, #5f3905 0%, #b7790e 18%, #facc15 43%, #fff7ad 62%, #d97706 100%);
+  opacity: 0;
+  filter: saturate(1.16) brightness(0.82);
 }
 
 .super-draw-reveal.show {
   display: flex;
+  animation: superDrawGoldFade 1.1s ease-out forwards;
 }
 
 .super-draw-reveal::before,
@@ -788,6 +791,21 @@ button:disabled {
   50% { opacity: 1; transform: scale(1.02); }
 }
 
+@keyframes superDrawGoldFade {
+  0% {
+    opacity: 0;
+    filter: saturate(1.4) brightness(0.38);
+  }
+  45% {
+    opacity: 1;
+    filter: saturate(1.35) brightness(1.22);
+  }
+  100% {
+    opacity: 1;
+    filter: saturate(1.16) brightness(1);
+  }
+}
+
 .super-draw-stage {
   position: relative;
   z-index: 1;
@@ -808,6 +826,85 @@ button:disabled {
     0 26px 80px rgba(0, 0, 0, 0.48),
     inset 0 0 34px rgba(255, 255, 255, 0.2);
   text-align: center;
+  opacity: 0;
+  transform: translateY(30px) scale(0.94);
+}
+
+.super-draw-reveal.show .super-draw-stage {
+  animation: superDrawStageIn 0.9s cubic-bezier(0.18, 1.18, 0.28, 1) 0.42s forwards;
+}
+
+@keyframes superDrawStageIn {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.super-draw-countdown {
+  position: absolute;
+  top: clamp(12px, 2.6vw, 22px);
+  right: clamp(12px, 2.6vw, 22px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #fff;
+  font-size: clamp(0.82rem, 1.7vw, 1rem);
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.94),
+    1px -1px 0 rgba(0, 0, 0, 0.94),
+    -1px 1px 0 rgba(0, 0, 0, 0.94),
+    1px 1px 0 rgba(0, 0, 0, 0.94),
+    0 0 16px rgba(255, 255, 255, 0.72);
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.super-draw-reveal.show .super-draw-countdown {
+  animation: superDrawTextIn 0.55s ease-out 1.15s forwards;
+}
+
+.super-draw-countdown-clock {
+  width: clamp(44px, 5.8vw, 58px);
+  height: clamp(44px, 5.8vw, 58px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  color: #fff;
+  font-size: clamp(1.15rem, 2.6vw, 1.65rem);
+  font-weight: 1000;
+  background:
+    radial-gradient(circle at 38% 26%, rgba(255, 255, 255, 0.42), transparent 28%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.2), rgba(120, 53, 15, 0.82));
+  box-shadow:
+    0 0 18px rgba(255, 255, 255, 0.72),
+    0 0 34px rgba(250, 204, 21, 0.78),
+    inset 0 0 10px rgba(255, 255, 255, 0.24);
+  position: relative;
+}
+
+.super-draw-countdown-clock::before,
+.super-draw-countdown-clock::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 35%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  transform-origin: center bottom;
+  transform: translate(-50%, -100%) rotate(0deg);
+  opacity: 0.45;
+}
+
+.super-draw-countdown-clock::after {
+  height: 27%;
+  transform: translate(-50%, -100%) rotate(95deg);
+  opacity: 0.32;
 }
 
 .super-draw-title {
@@ -824,6 +921,12 @@ button:disabled {
     2px 2px 0 rgba(0, 0, 0, 0.94),
     0 0 26px rgba(255, 255, 255, 0.9),
     0 0 44px rgba(253, 224, 71, 0.9);
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+}
+
+.super-draw-reveal.show .super-draw-title {
+  animation: superDrawTextIn 0.72s cubic-bezier(0.18, 1.25, 0.28, 1) 1s forwards;
 }
 
 .super-draw-subtitle {
@@ -838,6 +941,19 @@ button:disabled {
     -1px 1px 0 rgba(0, 0, 0, 0.92),
     1px 1px 0 rgba(0, 0, 0, 0.92),
     0 0 14px rgba(253, 224, 71, 0.82);
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.super-draw-reveal.show .super-draw-subtitle {
+  animation: superDrawTextIn 0.55s ease-out 1.45s forwards;
+}
+
+@keyframes superDrawTextIn {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .super-draw-cards {
@@ -861,7 +977,7 @@ button:disabled {
   font-size: clamp(0.62rem, 1.35vw, 0.88rem);
   line-height: 1.02;
   cursor: default;
-  animation: superDrawCardIn 0.58s cubic-bezier(0.2, 1.32, 0.42, 1) both;
+  animation: superDrawCardIn 0.82s cubic-bezier(0.2, 1.32, 0.42, 1) both;
 }
 
 .super-draw-cards .card-tile:hover {
@@ -889,8 +1005,18 @@ button:disabled {
   .super-draw-stage {
     min-height: min(650px, calc(100vh - 28px));
     gap: 14px;
-    padding: 20px 12px;
+    padding: 72px 12px 20px;
     border-radius: 20px;
+  }
+
+  .super-draw-countdown {
+    top: 12px;
+    right: 12px;
+    gap: 7px;
+  }
+
+  .super-draw-countdown-label {
+    font-size: 0.78rem;
   }
 
   .super-draw-title {
@@ -4643,6 +4769,10 @@ html.capacitor-android .veto-curse-description {
   <!-- Super Draw Reveal -->
   <div class="super-draw-reveal" id="superDrawReveal" aria-hidden="true">
     <div class="super-draw-stage">
+      <div class="super-draw-countdown" aria-live="polite">
+        <span class="super-draw-countdown-label">Returns in</span>
+        <span class="super-draw-countdown-clock" id="superDrawCountdown">10</span>
+      </div>
       <h2 class="super-draw-title">Super Draw</h2>
       <p class="super-draw-subtitle" id="superDrawSubtitle"></p>
       <div class="super-draw-cards" id="superDrawCards"></div>
@@ -6296,17 +6426,36 @@ async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
   const reveal = document.getElementById('superDrawReveal');
   const subtitle = document.getElementById('superDrawSubtitle');
   const cardsContainer = document.getElementById('superDrawCards');
+  const countdown = document.getElementById('superDrawCountdown');
   const cards = (drawnCards || []).map(drawnCardName).filter(Boolean);
 
   if (!reveal || !subtitle || !cardsContainer || cards.length === 0) {
     return;
   }
 
+  const introDelay = 1900;
+  const perCardDelay = 880;
+  const holdDelay = 8200;
+  const totalDuration = introDelay + (cards.length * perCardDelay) + holdDelay;
+  const revealStartedAt = Date.now();
+  let countdownTimer = null;
+
+  const updateCountdown = () => {
+    if (!countdown) return;
+    const remainingMs = Math.max(0, totalDuration - (Date.now() - revealStartedAt));
+    countdown.textContent = String(Math.ceil(remainingMs / 1000));
+  };
+
   cardsContainer.innerHTML = '';
-  subtitle.textContent = `Drawing ${expectedCount || cards.length} Regular Deck ${cards.length === 1 ? 'card' : 'cards'}...`;
+  subtitle.textContent = 'The Premium Deck answers...';
+  updateCountdown();
   document.body.classList.add('card-preview-open');
   reveal.classList.add('show');
   reveal.setAttribute('aria-hidden', 'false');
+  countdownTimer = window.setInterval(updateCountdown, 250);
+
+  await wait(introDelay);
+  subtitle.textContent = `Drawing ${expectedCount || cards.length} Regular Deck ${cards.length === 1 ? 'card' : 'cards'}...`;
 
   for (const [cardIndex, cardName] of cards.entries()) {
     const card = document.createElement('div');
@@ -6315,14 +6464,21 @@ async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
     card.style.setProperty('--draw-tilt', `${(cardIndex - (cards.length - 1) / 2) * 3.5}deg`);
     cardsContainer.appendChild(card);
     fitTileText(card);
-    await wait(560);
+    await wait(perCardDelay);
   }
 
-  subtitle.textContent = `${cards.length} ${cards.length === 1 ? 'card' : 'cards'} added to your hand.`;
-  await wait(6000);
+  subtitle.textContent = `${cards.length} ${cards.length === 1 ? 'card is' : 'cards are'} entering your hand.`;
+  await wait(holdDelay);
+  if (countdownTimer) {
+    window.clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
   reveal.classList.remove('show');
   reveal.setAttribute('aria-hidden', 'true');
   cardsContainer.innerHTML = '';
+  if (countdown) {
+    countdown.textContent = '0';
+  }
   if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show')) {
     document.body.classList.remove('card-preview-open');
   }
