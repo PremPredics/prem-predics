@@ -749,89 +749,12 @@ button:disabled {
     radial-gradient(circle at 24% 16%, rgba(254, 240, 138, 0.9), transparent 28%),
     radial-gradient(circle at 80% 72%, rgba(245, 158, 11, 0.74), transparent 32%),
     linear-gradient(135deg, #5f3905 0%, #b7790e 18%, #facc15 43%, #fff7ad 62%, #d97706 100%);
-  opacity: 0;
+  opacity: 1;
   transform: translateZ(0);
 }
 
 .super-draw-reveal.show {
   display: flex;
-  animation: superDrawRevealWake 0.16s ease-out forwards;
-}
-
-.super-draw-reveal::before,
-.super-draw-reveal::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  will-change: transform, opacity, clip-path;
-}
-
-.super-draw-reveal::before {
-  background:
-    radial-gradient(circle at 50% 34%, rgba(126, 34, 206, 0.48), transparent 34%),
-    linear-gradient(135deg, #16051f 0%, #260638 48%, #120312 100%);
-  opacity: 1;
-  clip-path: inset(0 0 0 0);
-  animation: superDrawGoldTakeover 1.45s steps(18, end) forwards;
-}
-
-.super-draw-reveal::after {
-  inset: -10%;
-  background:
-    repeating-radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.8) 0 1px, transparent 1px 7px),
-    repeating-radial-gradient(circle at 62% 28%, rgba(254, 240, 138, 0.82) 0 1px, transparent 1px 8px),
-    repeating-radial-gradient(circle at 82% 68%, rgba(245, 158, 11, 0.56) 0 1px, transparent 1px 6px),
-    linear-gradient(180deg, transparent 0 12%, rgba(255, 255, 255, 0.34) 34%, rgba(250, 204, 21, 0.38) 58%, transparent 82%);
-  mix-blend-mode: screen;
-  opacity: 0;
-  transform: translate3d(0, -18%, 0) scale(1.02);
-  animation: superDrawPixelWash 1.5s steps(16, end) forwards;
-}
-
-@keyframes superDrawRevealWake {
-  to { opacity: 1; }
-}
-
-@keyframes superDrawGoldTakeover {
-  0% {
-    opacity: 1;
-    clip-path: inset(0 0 0 0);
-  }
-  22% {
-    opacity: 1;
-    clip-path: inset(14% 0 0 0);
-  }
-  46% {
-    opacity: 0.96;
-    clip-path: inset(42% 0 0 0);
-  }
-  72% {
-    opacity: 0.72;
-    clip-path: inset(78% 0 0 0);
-  }
-  100% {
-    opacity: 0;
-    clip-path: inset(100% 0 0 0);
-  }
-}
-
-@keyframes superDrawPixelWash {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, -18%, 0) scale(1.02);
-  }
-  18% {
-    opacity: 1;
-  }
-  72% {
-    opacity: 0.84;
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(0, 12%, 0) scale(1);
-  }
 }
 
 .super-draw-stage {
@@ -1082,39 +1005,11 @@ button:disabled {
     radial-gradient(circle at 18% 16%, rgba(254, 240, 138, 0.88), transparent 28%),
     radial-gradient(circle at 82% 76%, rgba(245, 158, 11, 0.74), transparent 32%),
     linear-gradient(135deg, #5f3905 0%, #b7790e 18%, #facc15 43%, #fff7ad 62%, #d97706 100%);
-  opacity: 0;
+  opacity: 1;
 }
 
 .super-sub-reveal.show {
   display: flex;
-  animation: superDrawRevealWake 0.16s ease-out forwards;
-}
-
-.super-sub-reveal::before,
-.super-sub-reveal::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.super-sub-reveal::before {
-  background:
-    radial-gradient(circle at 50% 34%, rgba(126, 34, 206, 0.48), transparent 34%),
-    linear-gradient(135deg, #16051f 0%, #260638 48%, #120312 100%);
-  animation: superDrawGoldTakeover 1.25s steps(18, end) forwards;
-}
-
-.super-sub-reveal::after {
-  inset: -10%;
-  background:
-    repeating-radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.78) 0 1px, transparent 1px 7px),
-    repeating-radial-gradient(circle at 62% 28%, rgba(254, 240, 138, 0.82) 0 1px, transparent 1px 8px),
-    linear-gradient(180deg, transparent 0 12%, rgba(255, 255, 255, 0.3) 34%, rgba(250, 204, 21, 0.36) 58%, transparent 82%);
-  mix-blend-mode: screen;
-  opacity: 0;
-  animation: superDrawPixelWash 1.25s steps(16, end) forwards;
 }
 
 .super-sub-stage {
