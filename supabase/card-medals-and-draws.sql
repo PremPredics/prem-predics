@@ -1417,7 +1417,15 @@ star_rows as (
         and ew.played_by_user_id = smp.user_id
         and ew.effect_key = 'super_star_man'
         and gw.number between ew.start_number and ew.end_number
-    ) as super_star_man_applies
+    ) as super_star_man_applies,
+    exists (
+      select 1 from effect_windows ew
+      where ew.id = smp.source_card_effect_id
+        and ew.competition_id = smp.competition_id
+        and ew.played_by_user_id = smp.user_id
+        and ew.effect_key = 'super_sub'
+        and gw.number between ew.start_number and ew.end_number
+    ) as super_sub_applies
   from public.star_man_picks smp
   join public.gameweeks gw on gw.id = smp.gameweek_id
   left join public.player_gameweek_stat_totals pgs
@@ -1453,7 +1461,7 @@ select
     )
     + (power_goal_count * 3)
     - case
-        when super_star_man_applies then 0
+        when super_star_man_applies or super_sub_applies then 0
         else (yellow_cards * case when furious_applies then 2 else 1 end)
           + (red_cards * 3 * case when furious_applies then 2 else 1 end)
       end

@@ -39,7 +39,7 @@ with canonical_card_descriptions (id, description) as (
     ('curse_odd_number', 'Valid for 1 Gameweek. Opponent can only Predict an Odd number of goals for all teams. Must be played at least 24 hours before the gameweek''s first KO time. Cannot be picked whilst Curse of The Random is active.'),
     ('super_star_man', 'Star Man points are TRIPLED. Yellow and Red cards are 0pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),
     ('super_golden_gameweek', 'Prediction League points for all games are DOUBLED. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),
-    ('super_sub', 'Star Man can be swapped at any time for any other Star Man whose match has not kicked off within the same Gameweek. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),
+    ('super_sub', 'Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don''t earn negative points. Curse Cards don''t apply on the Super Sub, Power Cards Apply.'),
     ('super_score', 'Choose one scoreline, for example 0-0, 1-0, or 1-2. Each time that exact scoreline happens, earn +3 UC pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),
     ('super_draw', 'Draw Regular Deck cards. Draw count: 3 cards in 2-3 player leagues, 4 cards in 4-6 player leagues, and 5 cards in 7-10 player leagues.'),
     ('super_duo', 'Two Star Men can be chosen during the active range. Must choose both players before the relevant Gameweek starts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),

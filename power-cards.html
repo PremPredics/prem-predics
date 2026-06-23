@@ -1067,6 +1067,421 @@ button:disabled {
   }
 }
 
+/* ===== SUPER SUB REVEAL ===== */
+.super-sub-reveal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3120;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(14px, 3vw, 34px);
+  overflow: auto;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.86), transparent 12%),
+    radial-gradient(circle at 18% 16%, rgba(254, 240, 138, 0.88), transparent 28%),
+    radial-gradient(circle at 82% 76%, rgba(245, 158, 11, 0.74), transparent 32%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 18%, #facc15 43%, #fff7ad 62%, #d97706 100%);
+  opacity: 0;
+}
+
+.super-sub-reveal.show {
+  display: flex;
+  animation: superDrawRevealWake 0.16s ease-out forwards;
+}
+
+.super-sub-reveal::before,
+.super-sub-reveal::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.super-sub-reveal::before {
+  background:
+    radial-gradient(circle at 50% 34%, rgba(126, 34, 206, 0.48), transparent 34%),
+    linear-gradient(135deg, #16051f 0%, #260638 48%, #120312 100%);
+  animation: superDrawGoldTakeover 1.25s steps(18, end) forwards;
+}
+
+.super-sub-reveal::after {
+  inset: -10%;
+  background:
+    repeating-radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.78) 0 1px, transparent 1px 7px),
+    repeating-radial-gradient(circle at 62% 28%, rgba(254, 240, 138, 0.82) 0 1px, transparent 1px 8px),
+    linear-gradient(180deg, transparent 0 12%, rgba(255, 255, 255, 0.3) 34%, rgba(250, 204, 21, 0.36) 58%, transparent 82%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: superDrawPixelWash 1.25s steps(16, end) forwards;
+}
+
+.super-sub-stage {
+  position: relative;
+  z-index: 1;
+  width: min(1040px, 100%);
+  max-height: calc(100vh - 28px);
+  overflow: auto;
+  display: grid;
+  justify-items: center;
+  gap: clamp(12px, 2vw, 22px);
+  padding: clamp(18px, 3vw, 34px);
+  border-radius: 26px;
+  border: 4px solid rgba(255, 255, 255, 0.72);
+  background:
+    radial-gradient(circle at 50% 14%, rgba(255, 255, 255, 0.24), transparent 30%),
+    linear-gradient(135deg, rgba(69, 35, 3, 0.82), rgba(146, 64, 14, 0.64), rgba(59, 7, 100, 0.8));
+  box-shadow:
+    0 0 58px rgba(253, 224, 71, 0.92),
+    0 26px 80px rgba(0, 0, 0, 0.48),
+    inset 0 0 34px rgba(255, 255, 255, 0.2);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px) scale(0.94);
+}
+
+.super-sub-reveal.show .super-sub-stage {
+  animation: superDrawStageIn 0.78s cubic-bezier(0.18, 1.18, 0.28, 1) 0.12s forwards;
+}
+
+.super-sub-board {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: clamp(10px, 2.6vw, 24px);
+}
+
+.super-sub-column {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.super-sub-label {
+  color: #fff;
+  font-size: clamp(1rem, 2.3vw, 1.35rem);
+  font-weight: 1000;
+  text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000,
+    0 0 18px rgba(255, 255, 255, 0.65);
+}
+
+.super-sub-arrow {
+  color: #fff;
+  font-size: clamp(2.4rem, 7vw, 4.8rem);
+  font-weight: 1000;
+  line-height: 1;
+  text-shadow:
+    -3px -3px 0 #000,
+    3px -3px 0 #000,
+    -3px 3px 0 #000,
+    3px 3px 0 #000,
+    0 0 22px rgba(255, 255, 255, 0.95);
+}
+
+.super-sub-slot {
+  min-height: clamp(185px, 25vw, 252px);
+  display: grid;
+  place-items: center;
+}
+
+.super-sub-player-card,
+.super-sub-empty-card,
+.super-sub-search-card,
+.super-sub-preview-card {
+  width: clamp(128px, 18vw, 170px);
+  aspect-ratio: 0.72;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 7px;
+  align-items: center;
+  justify-items: center;
+  padding: 10px 8px;
+  border-radius: 15px;
+  border: 3px solid rgba(255, 244, 180, 0.9);
+  color: #fff;
+  background:
+    radial-gradient(circle at 24% 14%, rgba(255, 255, 255, 0.76), transparent 20%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 22%, #facc15 46%, #fff3a3 62%, #d97706 100%);
+  box-shadow:
+    0 0 22px rgba(253, 224, 71, 0.72),
+    inset 0 0 18px rgba(255, 255, 255, 0.2);
+  text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000;
+  overflow: hidden;
+}
+
+.super-sub-empty-card {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.28), transparent 24%),
+    linear-gradient(135deg, rgba(31, 10, 57, 0.96), rgba(91, 33, 182, 0.9));
+  border-color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(1.1rem, 3vw, 1.45rem);
+  font-weight: 1000;
+}
+
+.super-sub-player-name {
+  font-size: clamp(0.76rem, 1.45vw, 1rem);
+  line-height: 0.98;
+  font-weight: 1000;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.super-sub-flag {
+  width: 92%;
+  height: 100%;
+  min-height: 72px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.34), transparent 34%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.18), rgba(255, 255, 255, 0.08));
+  border: 2px solid rgba(255, 255, 255, 0.34);
+}
+
+.super-sub-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.super-sub-flag-fallback {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 1000;
+}
+
+.super-sub-footer {
+  display: grid;
+  gap: 2px;
+  font-size: clamp(0.58rem, 1.1vw, 0.72rem);
+  line-height: 1.05;
+  font-weight: 950;
+}
+
+.super-sub-search-panel {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  padding: 14px;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.58);
+  background: rgba(45, 17, 89, 0.56);
+  box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.18);
+}
+
+.super-sub-search-panel label {
+  color: #fff;
+  font-weight: 1000;
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  text-shadow: -1px -1px 0 #000, 1px 1px 0 #000;
+}
+
+.super-sub-search-input {
+  width: min(520px, 100%);
+  min-height: 48px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.74);
+  padding: 12px 18px;
+  text-align: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1rem;
+  background: rgba(16, 3, 38, 0.86);
+  outline: none;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.18);
+}
+
+.super-sub-search-input:focus {
+  border-color: #67e8f9;
+  box-shadow: 0 0 22px rgba(103, 232, 249, 0.58);
+}
+
+.super-sub-results {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  min-height: 42px;
+}
+
+.super-sub-search-card {
+  width: clamp(104px, 13vw, 136px);
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+}
+
+.super-sub-search-card:hover,
+.super-sub-search-card:focus-visible {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 0 28px rgba(253, 224, 71, 0.94);
+}
+
+.super-sub-search-card.unavailable {
+  opacity: 0.42;
+  filter: grayscale(0.68);
+  cursor: not-allowed;
+}
+
+.super-sub-message {
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.95rem;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+.super-sub-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.super-sub-confirm,
+.super-sub-back,
+.super-sub-choose,
+.super-sub-preview-back {
+  min-width: 170px;
+  min-height: 48px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 1000;
+  cursor: pointer;
+  text-shadow: -1px -1px 0 #000, 1px 1px 0 #000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.super-sub-confirm,
+.super-sub-choose {
+  background: linear-gradient(135deg, #059669, #34d399);
+  border: 2px solid rgba(167, 243, 208, 0.88);
+  box-shadow: 0 0 22px rgba(52, 211, 153, 0.58);
+}
+
+.super-sub-confirm:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+  box-shadow: none;
+}
+
+.super-sub-back,
+.super-sub-preview-back {
+  background: linear-gradient(135deg, #991b1b, #ef4444);
+  border: 2px solid rgba(254, 202, 202, 0.88);
+}
+
+.super-sub-preview-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3140;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(6px);
+}
+
+.super-sub-preview-modal.show {
+  display: flex;
+}
+
+.super-sub-preview-shell {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  padding: 20px;
+  border-radius: 22px;
+  border: 3px solid rgba(255, 244, 180, 0.85);
+  background:
+    radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.2), transparent 30%),
+    linear-gradient(135deg, rgba(70, 28, 7, 0.94), rgba(91, 33, 182, 0.92));
+  box-shadow: 0 0 40px rgba(250, 204, 21, 0.5);
+}
+
+.super-sub-preview-card {
+  width: clamp(150px, 30vw, 210px);
+}
+
+@media (max-width: 640px) {
+  .super-sub-reveal {
+    padding: 10px;
+  }
+
+  .super-sub-stage {
+    max-height: calc(100vh - 20px);
+    gap: 12px;
+    padding: 18px 10px;
+    border-radius: 20px;
+  }
+
+  .super-sub-board {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .super-sub-slot {
+    min-height: 172px;
+  }
+
+  .super-sub-player-card,
+  .super-sub-empty-card {
+    width: min(33vw, 128px);
+    border-radius: 13px;
+    padding: 8px 5px;
+  }
+
+  .super-sub-search-card {
+    width: min(28vw, 108px);
+    padding: 7px 4px;
+    border-radius: 12px;
+  }
+
+  .super-sub-player-name {
+    font-size: clamp(0.64rem, 2.9vw, 0.82rem);
+  }
+
+  .super-sub-footer {
+    font-size: clamp(0.5rem, 2.2vw, 0.64rem);
+  }
+
+  .super-sub-arrow {
+    font-size: clamp(1.9rem, 8vw, 2.7rem);
+  }
+
+  .super-sub-search-panel {
+    padding: 10px;
+  }
+
+  .super-sub-actions {
+    width: 100%;
+  }
+
+  .super-sub-confirm,
+  .super-sub-back {
+    flex: 1 1 135px;
+    min-width: 0;
+  }
+}
+
 /* ===== DECK CHOICE MODAL ===== */
 .deck-choice-modal {
   display: none;
@@ -4806,6 +5221,44 @@ html.capacitor-android .veto-curse-description {
     </div>
   </div>
 
+  <!-- Super Sub Reveal -->
+  <div class="super-sub-reveal" id="superSubReveal" aria-hidden="true">
+    <div class="super-sub-stage">
+      <h2 class="super-draw-title">Super Sub</h2>
+      <p class="super-draw-subtitle">Swap your Star Man before the replacement player's first Gameweek kick-off.</p>
+      <div class="super-sub-board">
+        <section class="super-sub-column" aria-label="Current Star Man">
+          <div class="super-sub-label">Current Star Man</div>
+          <div class="super-sub-slot" id="superSubCurrentCard"></div>
+        </section>
+        <div class="super-sub-arrow" aria-hidden="true">➜</div>
+        <section class="super-sub-column" aria-label="Super Sub replacement">
+          <div class="super-sub-label">Super Sub</div>
+          <div class="super-sub-slot" id="superSubNewCard"></div>
+        </section>
+      </div>
+      <div class="super-sub-search-panel">
+        <label for="superSubSearchInput">Choose your Super Sub</label>
+        <input class="super-sub-search-input" id="superSubSearchInput" type="search" autocomplete="off" placeholder="Start typing a player's name">
+        <div class="super-sub-results" id="superSubSearchResults"></div>
+      </div>
+      <div class="super-sub-actions">
+        <button class="super-sub-confirm" id="superSubConfirmBtn" type="button" onclick="confirmSuperSubSelection()" disabled>Confirm</button>
+        <button class="super-sub-back" type="button" onclick="cancelSuperSubFlow()">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="super-sub-preview-modal" id="superSubPreviewModal" aria-hidden="true">
+    <div class="super-sub-preview-shell">
+      <div class="super-sub-preview-card" id="superSubPreviewCard"></div>
+      <div class="super-sub-actions">
+        <button class="super-sub-choose" type="button" onclick="chooseSuperSubPreviewPlayer()">Choose Player</button>
+        <button class="super-sub-preview-back" type="button" onclick="closeSuperSubPreview()">Back</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Deck Choice Modal -->
   <div class="deck-choice-modal" id="deckChoiceModal">
     <div class="deck-choice-wrapper">
@@ -5306,7 +5759,7 @@ const cardDescriptions = {
 
   "Super Star Man": "Super Star Man\n\nStar Man points are TRIPLED. Yellow and Red cards are 0pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
   "Super Golden Gameweek": "Super Golden Gameweek\n\nPrediction League points for all games are DOUBLED. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
-  "Super Sub": "Super Sub\n\nStar Man can be swapped at any time for any other Star Man whose match has not kicked off within the same Gameweek. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Sub": "Super Sub\n\nStar Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don't earn negative points. Curse Cards don't apply on the Super Sub, Power Cards Apply.",
   "Super Score": "Super Score\n\nChoose one scoreline, for example 0-0, 1-0, or 1-2. Each time that exact scoreline happens, earn +3 UC pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
   "Super Draw": "Super Draw\n\nDraw Regular Deck cards. Draw count: 3 cards in 2-3 player leagues, 4 cards in 4-6 player leagues, and 5 cards in 7-10 player leagues.",
   "Super Duo": "Super Duo\n\nTwo Star Men can be chosen during the active range. Must choose both players before the relevant Gameweek starts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
@@ -5400,6 +5853,7 @@ let gameState = {
   lastCard: null,
   pendingSwap: null,
   pendingRandomCurse: null,
+  pendingSuperSub: null,
   stealMode: null,
   selectedSteal: null,
   activeGameCard: null,
@@ -5461,6 +5915,22 @@ function normalizeCardName(cardName) {
   if (cardName === "Power of the Rocket Man") return "Power Of The Clean Sweep";
   if (cardName === "Curse of the Bench Warmer") return "Curse of the Furious";
   return cardName;
+}
+
+function normaliseText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[Øø]/g, 'o')
+    .replace(/[Ææ]/g, 'ae')
+    .replace(/[Œœ]/g, 'oe')
+    .replace(/[Đđ]/g, 'd')
+    .replace(/[Þþ]/g, 'th')
+    .replace(/[Łł]/g, 'l')
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/gi, ' ')
+    .trim()
+    .toLowerCase();
 }
 
 function migrateLegacyCardNames(value) {
@@ -6017,7 +6487,7 @@ function setActiveGameCardPanel(cardName, rangeText, description) {
 
 function syncHandFromDatabase(options = {}) {
   const force = Boolean(options.force);
-  if (!force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode)) {
+  if (!force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.stealMode)) {
     return Promise.resolve();
   }
 
@@ -6119,6 +6589,10 @@ function openDeckChoice() {
   }
   if (gameState.pendingRandomCurse) {
     showSiteNotice('Finish Curse of the Random before drawing or playing anything else.', 'Curse of the Random');
+    return;
+  }
+  if (gameState.pendingSuperSub) {
+    openSuperSubFlow();
     return;
   }
   if (gameState.stealMode) {
@@ -6511,6 +6985,257 @@ async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
   }
 }
 
+const superSubFlagCodes = {
+  albania: 'AL', algeria: 'DZ', argentina: 'AR', austria: 'AT', belgium: 'BE', brazil: 'BR',
+  bulgaria: 'BG', cameroon: 'CM', colombia: 'CO', croatia: 'HR', 'czech republic': 'CZ',
+  denmark: 'DK', 'dr congo': 'CD', ecuador: 'EC', egypt: 'EG', england: 'GB-ENG',
+  france: 'FR', gambia: 'GM', georgia: 'GE', germany: 'DE', ghana: 'GH', greece: 'GR',
+  hungary: 'HU', iceland: 'IS', ireland: 'IE', italy: 'IT', 'ivory coast': 'CI',
+  jamaica: 'JM', japan: 'JP', mexico: 'MX', morocco: 'MA', netherlands: 'NL',
+  'new zealand': 'NZ', nigeria: 'NG', norway: 'NO', 'northern ireland': 'GB-NIR',
+  paraguay: 'PY', peru: 'PE', poland: 'PL', portugal: 'PT', romania: 'RO',
+  'republic of ireland': 'IE', scotland: 'GB-SCT', senegal: 'SN', serbia: 'RS',
+  slovakia: 'SK', slovenia: 'SI', 'south africa': 'ZA', 'south korea': 'KR',
+  spain: 'ES', sweden: 'SE', switzerland: 'CH', 'trinidad and tobago': 'TT',
+  tunisia: 'TN', turkey: 'TR', ukraine: 'UA', uruguay: 'UY', 'united states': 'US',
+  wales: 'GB-WLS', zimbabwe: 'ZW',
+};
+
+let superSubUiState = {
+  currentPlayer: null,
+  selectedPlayer: null,
+  previewPlayer: null,
+  candidates: [],
+  query: '',
+  teamNames: {},
+};
+
+function superSubTeamName(player) {
+  return superSubShortTeamLabel(superSubUiState.teamNames?.[player?.team_id] || 'Team');
+}
+
+function superSubPlayerInitials(player) {
+  const parts = String(player?.display_name || 'Player').split(/\s+/).filter(Boolean);
+  return `${parts[0]?.[0] || 'P'}${parts.length > 1 ? parts[parts.length - 1][0] : ''}`.toUpperCase();
+}
+
+function superSubFlagCode(nationality) {
+  return superSubFlagCodes[normaliseText(nationality)] || 'INT';
+}
+
+function superSubShortTeamLabel(name) {
+  const teamName = String(name || '');
+  const names = {
+    'Manchester United': 'Man U',
+    'Manchester City': 'Man City',
+    'Wolverhampton Wanderers': 'Wolves',
+    Wolverhampton: 'Wolves',
+    'Nottingham Forest': "Nott'm Forest",
+    'Nottigham Forest': "Nott'm Forest",
+  };
+
+  return names[teamName] || teamName;
+}
+
+function superSubPlayerCardMarkup(player, options = {}) {
+  if (!player) {
+    return '<div class="super-sub-empty-card">N/A</div>';
+  }
+
+  const code = superSubFlagCode(player.nationality);
+  const flagUrl = code && code !== 'INT' ? `https://flagcdn.com/w160/${String(code).toLowerCase()}.png` : '';
+  const status = options.status || 'Available';
+  const footer = options.compact
+    ? status
+    : [superSubTeamName(player), player.height_cm ? `${player.height_cm}cm` : 'Star Man Pick'].filter(Boolean).join(' | ');
+
+  const inner = `
+      <span class="super-sub-player-name">${escapeHtml(player.display_name || 'Player')}</span>
+      <span class="super-sub-flag" aria-label="${escapeHtml(player.nationality || 'Nationality')}">
+        ${flagUrl ? `<img src="${escapeHtml(flagUrl)}" alt="" loading="lazy" onerror="this.remove();">` : `<span class="super-sub-flag-fallback">${escapeHtml(code === 'INT' ? superSubPlayerInitials(player) : code)}</span>`}
+      </span>
+      <span class="super-sub-footer">${escapeHtml(footer)}</span>
+  `;
+  if (options.bare) {
+    return inner;
+  }
+
+  return `<div class="${options.className || 'super-sub-player-card'}">${inner}</div>`;
+}
+
+function playerMatchesSuperSubQuery(player, query) {
+  const terms = normaliseText(query).split(' ').filter(Boolean);
+  if (!terms.length) return false;
+  const haystack = normaliseText([
+    player.display_name,
+    player.first_name,
+    player.last_name,
+    player.surname,
+  ].filter(Boolean).join(' '));
+  return terms.every((term) => haystack.includes(term));
+}
+
+function renderSuperSubFlow() {
+  const currentCard = document.getElementById('superSubCurrentCard');
+  const newCard = document.getElementById('superSubNewCard');
+  const input = document.getElementById('superSubSearchInput');
+  const results = document.getElementById('superSubSearchResults');
+  const confirmButton = document.getElementById('superSubConfirmBtn');
+  if (!currentCard || !newCard || !input || !results || !confirmButton) return;
+
+  currentCard.innerHTML = superSubPlayerCardMarkup(superSubUiState.currentPlayer);
+  newCard.innerHTML = superSubUiState.selectedPlayer
+    ? superSubPlayerCardMarkup(superSubUiState.selectedPlayer)
+    : '<div class="super-sub-empty-card">Choose<br>A Player</div>';
+  confirmButton.disabled = !superSubUiState.selectedPlayer;
+  input.value = superSubUiState.query || '';
+
+  const query = String(superSubUiState.query || '');
+  if (normaliseText(query).length < 2) {
+    results.innerHTML = '<div class="super-sub-message">Enter 2+ letters for player cards.</div>';
+    return;
+  }
+
+  const matches = (superSubUiState.candidates || [])
+    .filter(({ player }) => playerMatchesSuperSubQuery(player, query))
+    .sort((a, b) => Number(b.allowed) - Number(a.allowed) || String(a.player.display_name).localeCompare(String(b.player.display_name)))
+    .slice(0, 18);
+
+  if (!matches.length) {
+    results.innerHTML = '<div class="super-sub-message">No players found.</div>';
+    return;
+  }
+
+  results.innerHTML = matches.map(({ player, allowed, reason }) => `
+    <button class="super-sub-search-card ${allowed ? '' : 'unavailable'}" type="button" ${allowed ? `onclick="previewSuperSubPlayer('${escapeHtml(player.id)}')"` : 'disabled'} title="${escapeHtml(allowed ? 'Choose player' : reason)}">
+      ${superSubPlayerCardMarkup(player, { bare: true, compact: true, status: allowed ? 'Available' : reason })}
+    </button>
+  `).join('');
+}
+
+async function startSuperSubFlow(player, card, index, cardInstanceId) {
+  gameState.pendingSuperSub = {
+    player,
+    card,
+    playedIndex: index,
+    cardInstanceId,
+    startedAt: new Date().toISOString(),
+  };
+  save();
+  await openSuperSubFlow();
+}
+
+async function openSuperSubFlow() {
+  if (!gameState.pendingSuperSub) return;
+  if (!cardRuntime?.prepareSuperSubFlow) {
+    showSiteNotice('Super Sub is still loading. Try again in a moment.', 'Super Sub', 'warning');
+    return;
+  }
+
+  try {
+    superSubUiState = {
+      ...(await cardRuntime.prepareSuperSubFlow(gameState.pendingSuperSub)),
+      selectedPlayer: superSubUiState.selectedPlayer || null,
+      previewPlayer: null,
+      query: superSubUiState.query || '',
+    };
+    const reveal = document.getElementById('superSubReveal');
+    const input = document.getElementById('superSubSearchInput');
+    reveal?.classList.add('show');
+    reveal?.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('card-preview-open');
+    renderSuperSubFlow();
+    window.setTimeout(() => input?.focus(), 220);
+  } catch (error) {
+    showSiteNotice(error.message || 'Could not open Super Sub.', 'Super Sub', 'warning');
+  }
+}
+
+function closeSuperSubReveal() {
+  const reveal = document.getElementById('superSubReveal');
+  reveal?.classList.remove('show');
+  reveal?.setAttribute('aria-hidden', 'true');
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-sub-preview-modal.show')) {
+    document.body.classList.remove('card-preview-open');
+  }
+}
+
+function cancelSuperSubFlow() {
+  gameState.pendingSuperSub = null;
+  save();
+  closeSuperSubPreview();
+  closeSuperSubReveal();
+  render();
+}
+
+function handleSuperSubSearchInput(event) {
+  superSubUiState.query = event?.target?.value || '';
+  renderSuperSubFlow();
+}
+
+function previewSuperSubPlayer(playerId) {
+  const record = (superSubUiState.candidates || []).find((candidate) => String(candidate.player.id) === String(playerId));
+  if (!record?.allowed) return;
+  superSubUiState.previewPlayer = record.player;
+  const modal = document.getElementById('superSubPreviewModal');
+  const card = document.getElementById('superSubPreviewCard');
+  if (card) {
+    card.innerHTML = superSubPlayerCardMarkup(record.player, { className: 'super-sub-preview-card' });
+  }
+  modal?.classList.add('show');
+  modal?.setAttribute('aria-hidden', 'false');
+}
+
+function closeSuperSubPreview() {
+  const modal = document.getElementById('superSubPreviewModal');
+  modal?.classList.remove('show');
+  modal?.setAttribute('aria-hidden', 'true');
+  superSubUiState.previewPlayer = null;
+}
+
+function chooseSuperSubPreviewPlayer() {
+  if (!superSubUiState.previewPlayer) return;
+  superSubUiState.selectedPlayer = superSubUiState.previewPlayer;
+  closeSuperSubPreview();
+  renderSuperSubFlow();
+}
+
+async function confirmSuperSubSelection() {
+  if (!superSubUiState.selectedPlayer || !gameState.pendingSuperSub || !cardRuntime?.confirmSuperSubSelection) {
+    return;
+  }
+
+  const confirmButton = document.getElementById('superSubConfirmBtn');
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Saving...';
+  }
+
+  try {
+    const result = await cardRuntime.confirmSuperSubSelection(gameState.pendingSuperSub, superSubUiState.selectedPlayer.id);
+    gameState.pendingSuperSub = null;
+    superSubUiState.selectedPlayer = null;
+    save();
+    closeSuperSubReveal();
+    await syncHandFromDatabase({ force: true });
+    render();
+    showSiteNotice(`OUT: ${result?.oldPlayerName || 'N/A'}\nIN: ${result?.newPlayerName || 'N/A'}`, 'Super Sub Successful', 'success');
+  } catch (error) {
+    showSiteNotice(error.message || 'Could not complete Super Sub.', 'Super Sub', 'warning');
+  } finally {
+    if (confirmButton) {
+      confirmButton.textContent = 'Confirm';
+      confirmButton.disabled = !superSubUiState.selectedPlayer;
+    }
+  }
+}
+
+document.addEventListener('input', (event) => {
+  if (event.target?.id === 'superSubSearchInput') {
+    handleSuperSubSearchInput(event);
+  }
+});
+
 async function confirmCardPlay() {
   if (!gameState.cardToPlay) return;
 
@@ -6518,6 +7243,7 @@ async function confirmCardPlay() {
   const selectedCardInstanceId = gameState.handCardInstancesByPlayer?.[player]?.[index]?.id || null;
   const isSwapCard = card === "Power of the Swap";
   const isThiefCard = card === "Curse of the Thief";
+  const isSuperSubCard = card === "Super Sub";
 
   closeCardPreview();
 
@@ -6561,6 +7287,11 @@ async function confirmCardPlay() {
       showSiteNotice(error.message || `${card} is no longer available. Your cards have been refreshed.`, card || 'Card unavailable', 'warning');
       return;
     }
+  }
+
+  if (isSuperSubCard) {
+    await startSuperSubFlow(player, card, index, selectedCardInstanceId);
+    return;
   }
 
   if (isSwapCard || isThiefCard) {
@@ -7513,6 +8244,11 @@ function render() {
           return;
         }
 
+        if (gameState.pendingSuperSub) {
+          openSuperSubFlow();
+          return;
+        }
+
         if (!gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.stealMode) {
           showCardPreview(c, p, i);
         }
@@ -7553,7 +8289,7 @@ function render() {
 
   const swapDiv = document.getElementById("pendingSwap");
   const swapSection = document.getElementById("swapSection");
-  swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode));
+  swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.stealMode));
   if (gameState.pendingSwap) {
     let html = `<strong>Power of the Swap Active!</strong>`;
     if (gameState.pendingSwap.drawn.length === 0) {
@@ -7582,6 +8318,18 @@ function render() {
       <p>Finish the dice rolls before drawing or playing anything else.</p>
       <div class="random-curse-actions">
         <button class="random-curse-resume" type="button" onclick="resumeRandomCurseDiceRolls()">Complete Dice Rolls</button>
+      </div>
+    `;
+    document.getElementById("confirmSwapBtn").style.display = "none";
+    document.getElementById("confirmPickBtn").style.display = "none";
+    document.getElementById("confirmStealBtn").style.display = "none";
+  } else if (gameState.pendingSuperSub) {
+    swapDiv.style.display = "block";
+    swapDiv.innerHTML = `
+      <strong>Super Sub Active!</strong>
+      <p>Choose and confirm your replacement Star Man before playing anything else.</p>
+      <div class="random-curse-actions">
+        <button class="random-curse-resume" type="button" onclick="openSuperSubFlow()">Complete Super Sub</button>
       </div>
     `;
     document.getElementById("confirmSwapBtn").style.display = "none";
@@ -7727,7 +8475,7 @@ async function initializeCardPage() {
     }
 
     async function performRefreshHands(options = {}) {
-      if (!options.force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.stealMode)) {
+      if (!options.force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.stealMode)) {
         return;
       }
 
@@ -7892,7 +8640,11 @@ async function initializeCardPage() {
         } else if (row.zone === 'premium_deck') {
           gameState.premiumDeck.push(cardName);
         } else if (row.zone === 'discard') {
-          if (usedMeta && !usedMeta.hasGameweekStarted && !usedIsVetoed && usedMeta.effectKey !== 'power_swap') {
+          const keepUsedCardInHandBeforeKickoff = usedMeta
+            && !usedMeta.hasGameweekStarted
+            && !usedIsVetoed
+            && !['power_swap', 'super_sub', 'super_draw'].includes(usedMeta.effectKey);
+          if (keepUsedCardInHandBeforeKickoff) {
             const playerKey = userIdToPlayerKey.get(row.owner_user_id);
             if (playerKey && gameState.players[playerKey]) {
               gameState.players[playerKey].hand.push(cardName);
@@ -7914,7 +8666,7 @@ async function initializeCardPage() {
           && definition?.effect_key === 'power_swap';
       });
 
-      if (ownPlayerKey && pendingSwapEffect && !gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.stealMode) {
+      if (ownPlayerKey && pendingSwapEffect && !gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.pendingSuperSub && !gameState.stealMode) {
         const { data: drawEvents, error: drawEventsError } = await supabase
           .from('card_draw_events')
           .select('card_instance_id')
@@ -8064,7 +8816,7 @@ async function initializeCardPage() {
       'Curse of the Odd Number': { cardId: 'curse_odd_number', effectKey: 'curse_odd_number', duration: 1, target: 'opponent' },
       'Super Star Man': { cardId: 'super_star_man', effectKey: 'super_star_man', duration: 1, target: 'self' },
       'Super Golden Gameweek': { cardId: 'super_golden_gameweek', effectKey: 'super_golden_gameweek', duration: 1, target: 'self' },
-      'Super Sub': { cardId: 'super_sub', effectKey: 'super_sub', duration: 1, target: 'self' },
+      'Super Sub': { cardId: 'super_sub', effectKey: 'super_sub', duration: 1, target: 'self', deadlineExempt: true },
       'Super Score': { cardId: 'super_score', effectKey: 'super_score', duration: 1, target: 'self' },
       'Super Draw': { cardId: 'super_draw', effectKey: 'super_draw', duration: 1, target: 'self' },
       'Super Duo': { cardId: 'super_duo', effectKey: 'super_duo', duration: 1, target: 'self' },
@@ -9212,6 +9964,184 @@ async function initializeCardPage() {
       };
     }
 
+    function firstFixtureForPlayer(player, fixtures) {
+      return (fixtures || [])
+        .filter((fixture) => fixture.status !== 'postponed'
+          && (String(player.team_id) === String(fixture.home_team_id) || String(player.team_id) === String(fixture.away_team_id)))
+        .sort((a, b) => new Date(a.kickoff_at).getTime() - new Date(b.kickoff_at).getTime())[0] || null;
+    }
+
+    function superSubPlayerStatus(player, contextData) {
+      const currentPlayerId = contextData.currentPick?.player_id || null;
+      if (currentPlayerId && String(player.id) === String(currentPlayerId)) {
+        return { allowed: false, reason: 'Current Star Man' };
+      }
+      if (contextData.usedPlayerIds.has(String(player.id))) {
+        return { allowed: false, reason: 'Used already' };
+      }
+
+      const firstFixture = firstFixtureForPlayer(player, contextData.fixtures);
+      if (!firstFixture) {
+        return { allowed: false, reason: 'No fixture' };
+      }
+      if (Date.now() >= new Date(firstFixture.kickoff_at).getTime()) {
+        return { allowed: false, reason: 'Team kicked off' };
+      }
+
+      return { allowed: true, reason: 'Available' };
+    }
+
+    async function loadSuperSubContext() {
+      const { activeGameweek } = await gameweekModule.loadActiveGameweek(context.league);
+      if (!activeGameweek) {
+        throw new Error('No active gameweek found.');
+      }
+
+      await assertFirstLeagueGameweekCompleted(context, supabase);
+      const fixtures = await currentGameweekFixtures(activeGameweek);
+
+      const { data: players, error: playerError } = await supabase
+        .from('players')
+        .select('id, display_name, first_name, last_name, surname, nationality, team_id, height_cm, is_active')
+        .eq('is_active', true)
+        .order('display_name', { ascending: true });
+
+      if (playerError) throw playerError;
+
+      const teamIds = [...new Set((players || []).map((player) => player.team_id).filter(Boolean))];
+      const { data: teams, error: teamError } = teamIds.length
+        ? await supabase.from('teams').select('id, name').in('id', teamIds)
+        : { data: [], error: null };
+
+      if (teamError) throw teamError;
+
+      const { data: currentPick, error: pickError } = await supabase
+        .from('star_man_picks')
+        .select('id, player_id, pick_slot')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('gameweek_id', activeGameweek.gameweek_id)
+        .eq('user_id', context.user.id)
+        .eq('pick_slot', 'primary')
+        .maybeSingle();
+
+      if (pickError) throw pickError;
+
+      const { data: seasonPicks, error: seasonPickError } = await supabase
+        .from('star_man_picks')
+        .select('player_id, gameweek_id')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('user_id', context.user.id)
+        .eq('pick_slot', 'primary');
+
+      if (seasonPickError) throw seasonPickError;
+
+      const usedPlayerIds = new Set(
+        (seasonPicks || [])
+          .filter((pick) => String(pick.gameweek_id) !== String(activeGameweek.gameweek_id))
+          .map((pick) => String(pick.player_id))
+          .filter(Boolean)
+      );
+
+      return {
+        activeGameweek,
+        fixtures,
+        players: players || [],
+        currentPick: currentPick || null,
+        usedPlayerIds,
+        teamNames: Object.fromEntries((teams || []).map((team) => [team.id, team.name])),
+      };
+    }
+
+    async function prepareSuperSubFlow(pending) {
+      if (!pending?.cardInstanceId) {
+        throw new Error('Super Sub is no longer available. Your cards have been refreshed.');
+      }
+
+      await cardRuntime.assertCardInOwnHand(pending.cardInstanceId, 'Super Sub');
+      const contextData = await loadSuperSubContext();
+      const currentPlayer = contextData.players.find((player) => String(player.id) === String(contextData.currentPick?.player_id)) || null;
+      const candidates = contextData.players
+        .filter((player) => player.team_id)
+        .map((player) => {
+          const status = superSubPlayerStatus(player, contextData);
+          return { player, ...status };
+        });
+
+      return {
+        currentPlayer,
+        candidates,
+        teamNames: contextData.teamNames,
+      };
+    }
+
+    async function confirmSuperSubSelectionRuntime(pending, replacementPlayerId) {
+      if (!pending?.cardInstanceId) {
+        throw new Error('Super Sub is no longer available. Your cards have been refreshed.');
+      }
+
+      await cardRuntime.assertCardInOwnHand(pending.cardInstanceId, 'Super Sub');
+      const contextData = await loadSuperSubContext();
+      const replacement = contextData.players.find((player) => String(player.id) === String(replacementPlayerId));
+      if (!replacement) {
+        throw new Error('Choose a replacement Star Man.');
+      }
+
+      const replacementStatus = superSubPlayerStatus(replacement, contextData);
+      if (!replacementStatus.allowed) {
+        throw new Error(replacementStatus.reason || 'That player cannot be chosen.');
+      }
+
+      const rule = cardEffectRules['Super Sub'];
+      await assertNonStackingCardCanBePlayed(rule, 'Super Sub', contextData.activeGameweek, context, supabase);
+      const effect = await insertCardEffect(rule, pending.player, contextData.activeGameweek, {
+        cardInstanceId: pending.cardInstanceId,
+      });
+
+      const { error: pickSaveError } = await supabase.from('star_man_picks').upsert({
+        competition_id: context.league.id,
+        season_id: context.league.season_id,
+        gameweek_id: contextData.activeGameweek.gameweek_id,
+        user_id: context.user.id,
+        player_id: replacement.id,
+        pick_slot: 'primary',
+        source_card_effect_id: effect.id,
+      }, {
+        onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
+      });
+
+      if (pickSaveError) throw pickSaveError;
+
+      const { error: discardError } = await supabase.rpc('discard_my_league_card', {
+        target_competition_id: context.league.id,
+        target_card_instance_id: pending.cardInstanceId,
+      });
+
+      if (discardError) throw discardError;
+
+      const hand = gameState.players[pending.player]?.hand || [];
+      const instances = gameState.handCardInstancesByPlayer?.[pending.player] || [];
+      const localIndex = instances.findIndex((instance) => String(instance.id) === String(pending.cardInstanceId));
+      if (localIndex >= 0) {
+        hand.splice(localIndex, 1);
+        instances.splice(localIndex, 1);
+      }
+      gameState.discardPile.push(discardPileItem(
+        'Super Sub',
+        context.user.id,
+        'used',
+        contextData.activeGameweek.gameweek_number
+      ));
+
+      const oldPlayer = contextData.players.find((player) => String(player.id) === String(contextData.currentPick?.player_id)) || null;
+      return {
+        effect,
+        oldPlayerName: oldPlayer?.display_name || 'N/A',
+        newPlayerName: replacement.display_name || 'N/A',
+      };
+    }
+
     function rollDie() {
       return Math.floor(Math.random() * 6);
     }
@@ -9219,6 +10149,8 @@ async function initializeCardPage() {
     cardRuntime = {
       refreshHands,
       resumePendingRandomCurse,
+      prepareSuperSubFlow,
+      confirmSuperSubSelection: confirmSuperSubSelectionRuntime,
       async assertCardInOwnHand(cardInstanceId, cardName) {
         if (!cardInstanceId) {
           await syncHandFromDatabase({ force: true });
@@ -9496,6 +10428,9 @@ async function initializeCardPage() {
       loadActiveGameCard(),
     ]);
     await resumePendingRandomCurse();
+    if (gameState.pendingSuperSub) {
+      await openSuperSubFlow();
+    }
     if (!handRefreshTimer) {
       handRefreshTimer = window.setInterval(() => {
         if (!document.hidden) {

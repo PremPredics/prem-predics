@@ -35,7 +35,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
 
     ('super_star_man', 'Super Star Man', 'super', 'premium', 'super_star_man', 'Star Man points are tripled; yellow and red cards are 0 points.'),
     ('super_golden_gameweek', 'Super Golden Gameweek', 'super', 'premium', 'super_golden_gameweek', 'Prediction League points for all games are doubled.'),
-    ('super_sub', 'Super Sub', 'super', 'premium', 'super_sub', 'Star Man can be swapped before the new player fixture kicks off.'),
+    ('super_sub', 'Super Sub', 'super', 'premium', 'super_sub', 'Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don''t earn negative points. Curse Cards don''t apply on the Super Sub, Power Cards Apply.'),
     ('super_score', 'Super Score', 'super', 'premium', 'super_score', 'Choose one exact scoreline; each matching real fixture earns +3 UC points.'),
     ('super_draw', 'Super Draw', 'super', 'premium', 'super_draw', 'Draw 3, 4, or 5 Regular Deck cards depending on league size.'),
     ('super_duo', 'Super Duo', 'super', 'premium', 'super_duo', 'Choose a second Star Man for the active gameweek range.'),

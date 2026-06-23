@@ -38,6 +38,7 @@ const state = {
   teams: new Map(),
   players: [],
   existingPicks: new Map(),
+  existingPickSources: new Map(),
   seasonPicks: [],
   gameweeks: [],
   usedStarManIds: new Set(),
@@ -246,7 +247,7 @@ function canSearchSlot(slot) {
 
   const hasExistingPick = Boolean(state.existingPicks.get(slot));
   if (hasExistingPick) {
-    return Boolean(ownEffect('super_sub') || ownEffect('power_late_scout'));
+    return Boolean(ownEffect('power_late_scout'));
   }
 
   return Boolean(ownEffect('power_late_scout'));
@@ -701,11 +702,6 @@ function deadlineCheck(player, slot) {
     return { allowed: true, reason: '', sourceCardEffectId: lateScout.id };
   }
 
-  const superSub = ownEffect('super_sub');
-  if (superSub && fixture && !isPast(fixture.kickoff_at)) {
-    return { allowed: true, reason: '', sourceCardEffectId: superSub.id };
-  }
-
   return { allowed: false, reason: 'Star Man deadline has passed.', sourceCardEffectId: null };
 }
 
@@ -821,7 +817,7 @@ async function loadPicks() {
   ] = await Promise.all([
     supabase
       .from('star_man_picks')
-      .select('player_id, pick_slot')
+      .select('player_id, pick_slot, source_card_effect_id')
       .eq('competition_id', state.league.id)
       .eq('user_id', state.user.id)
       .eq('gameweek_id', state.activeGameweek.gameweek_id),
@@ -849,6 +845,7 @@ async function loadPicks() {
   }
 
   state.existingPicks = new Map((currentPicks || []).map((pick) => [pick.pick_slot, pick.player_id]));
+  state.existingPickSources = new Map((currentPicks || []).map((pick) => [pick.pick_slot, pick.source_card_effect_id || null]));
   state.seasonPicks = seasonPicks || [];
   state.gameweeks = gameweeks || [];
   state.usedStarManIds = new Set(
@@ -1087,11 +1084,23 @@ function randomItem(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+function slotUsesSuperSub(slot) {
+  const sourceEffectId = state.existingPickSources.get(slot);
+  if (!sourceEffectId) {
+    return false;
+  }
+
+  return state.activeEffects.some((effect) => (
+    String(effect.id) === String(sourceEffectId)
+    && effect.card_definitions?.effect_key === 'super_sub'
+  ));
+}
+
 async function autoReplaceInvalidPrimaryPick() {
   const invalidSlots = ['primary', 'super_duo'].filter((slot) => {
     const existingPlayerId = state.existingPicks.get(slot);
     const existingPlayer = state.players.find((item) => item.id === existingPlayerId);
-    return Boolean(existingPlayer && restrictionReasons(existingPlayer).length);
+    return Boolean(existingPlayer && restrictionReasons(existingPlayer).length && !slotUsesSuperSub(slot));
   });
 
   if (!invalidSlots.length) {
@@ -1113,6 +1122,7 @@ async function autoReplaceInvalidPrimaryPick() {
 
   invalidSlots.forEach((slot) => {
     state.existingPicks.delete(slot);
+    state.existingPickSources.delete(slot);
     state.selected[slot] = null;
   });
   state.seasonPicks = state.seasonPicks.filter((pick) => !(
@@ -1488,10 +1498,12 @@ async function savePick(slot) {
   }
 
   state.existingPicks.set(slot, player.id);
+  state.existingPickSources.set(slot, check.sourceCardEffectId || null);
   const savedPick = {
     player_id: player.id,
     gameweek_id: state.activeGameweek.gameweek_id,
     pick_slot: slot,
+    source_card_effect_id: check.sourceCardEffectId || null,
   };
   const existingIndex = state.seasonPicks.findIndex((pick) => (
     String(pick.gameweek_id) === String(savedPick.gameweek_id) && pick.pick_slot === slot
@@ -1527,6 +1539,7 @@ async function clearPick(slot) {
   }
 
   state.existingPicks.delete(slot);
+  state.existingPickSources.delete(slot);
   state.selected[slot] = null;
   state.seasonPicks = state.seasonPicks.filter((pick) => !(
     String(pick.gameweek_id) === String(state.activeGameweek.gameweek_id)
