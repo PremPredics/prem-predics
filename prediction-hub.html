@@ -33,9 +33,9 @@ header h1 {
   line-height: 1.05;
 }
 main {
-  width: min(920px, 100%);
+  width: min(1020px, 100%);
   margin: 0 auto;
-  padding: 24px 14px 42px;
+  padding: 30px 14px 48px;
 }
 .toolbar {
   display: flex;
@@ -46,24 +46,51 @@ main {
   color: #f3e8ff;
   text-decoration: none;
   font-weight: 900;
-  background: rgba(17, 7, 38, 0.68);
-  border: 1px solid rgba(216, 180, 254, 0.28);
-  border-radius: 8px;
-  padding: 10px 13px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,0.18), transparent 28%),
+    linear-gradient(135deg, rgba(46, 16, 101, 0.96), rgba(30, 10, 72, 0.96));
+  border: 1px solid rgba(216, 180, 254, 0.38);
+  border-radius: 11px;
+  padding: 12px 18px;
+  box-shadow: 0 12px 24px rgba(46, 16, 101, 0.28), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 .panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
-  gap: 14px;
-  padding: 20px 22px 22px;
-  background: rgba(46, 16, 102, 0.68);
-  border: 2px solid rgba(196, 132, 252, 0.32);
-  border-radius: 12px;
-  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+  gap: 18px;
+  padding: 28px clamp(20px, 4vw, 34px) 30px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.18), transparent 30%),
+    radial-gradient(circle at 86% 10%, rgba(250, 204, 21, 0.18), transparent 28%),
+    linear-gradient(145deg, rgba(76, 29, 149, 0.92), rgba(46, 16, 101, 0.96));
+  border: 3px solid rgba(245, 215, 110, 0.76);
+  border-radius: 20px;
+  box-shadow:
+    0 0 22px rgba(245, 215, 110, 0.48),
+    0 0 50px rgba(250, 204, 21, 0.18),
+    0 18px 38px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.12);
   text-align: center;
+}
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.08) 38%, transparent 64%),
+    radial-gradient(circle at 50% 118%, rgba(34, 211, 238, 0.18), transparent 42%);
+  pointer-events: none;
 }
 .panel h2 {
   margin: 0;
-  font-size: clamp(1.5rem, 4vw, 2.15rem);
+  color: #fff;
+  font-size: clamp(1.85rem, 4.2vw, 2.7rem);
+  line-height: 1.05;
+  font-weight: 950;
+  text-shadow: 0 0 18px rgba(216, 180, 254, 0.38);
 }
 .panel p {
   display: none;
@@ -74,36 +101,77 @@ main {
 .choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(220px, 1fr));
-  gap: 14px;
+  gap: 18px;
 }
 .choice-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
-  gap: 8px;
-  min-height: 150px;
+  gap: 12px;
+  min-height: 178px;
   align-content: center;
-  padding: 22px 18px;
-  border-radius: 10px;
+  padding: 26px 22px 24px 28px;
+  border-radius: 18px;
   color: #fff;
   text-decoration: none;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.1), transparent 35%),
-    linear-gradient(135deg, rgba(17, 7, 38, 0.94), rgba(49, 18, 91, 0.9));
-  border: 1px solid rgba(216, 180, 254, 0.3);
-  box-shadow: 0 14px 28px rgba(0,0,0,0.28);
+    radial-gradient(circle at 20% 8%, rgba(255,255,255,0.14), transparent 24%),
+    linear-gradient(145deg, rgba(17, 7, 38, 0.98), rgba(49, 18, 91, 0.94));
+  border: 1px solid rgba(216, 180, 254, 0.38);
+  box-shadow:
+    0 16px 30px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.choice-card:first-child { border-left: 7px solid #00e5ff; }
-.choice-card:last-child { border-left: 7px solid #facc15; }
+.choice-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 9px;
+  background: var(--choice-accent, #22d3ee);
+  box-shadow: 0 0 24px var(--choice-glow, rgba(34, 211, 238, 0.7));
+}
+.choice-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(115deg, transparent, rgba(255,255,255,0.08), transparent);
+  transform: translateX(-48%);
+  pointer-events: none;
+}
+.choice-card:first-child {
+  --choice-accent: #22d3ee;
+  --choice-glow: rgba(34, 211, 238, 0.78);
+}
+.choice-card:last-child {
+  --choice-accent: #facc15;
+  --choice-glow: rgba(250, 204, 21, 0.72);
+}
 .choice-card strong {
-  font-size: 24px;
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
+  line-height: 1.05;
   font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.88),
+    1px -1px 0 rgba(0,0,0,0.88),
+    -1px 1px 0 rgba(0,0,0,0.88),
+    1px 1px 0 rgba(0,0,0,0.88),
+    0 0 16px var(--choice-glow, rgba(216, 180, 254, 0.4));
 }
 .choice-card span {
   color: #f5f3ff;
-  line-height: 1.35;
+  font-size: clamp(1rem, 1.45vw, 1.15rem);
+  line-height: 1.4;
 }
 .choice-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255,255,255,0.5);
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,0.62);
+  box-shadow:
+    0 0 24px var(--choice-glow, rgba(216, 180, 254, 0.35)),
+    0 18px 34px rgba(0,0,0,0.32),
+    inset 0 1px 0 rgba(255,255,255,0.14);
 }
 .toolbar a[aria-disabled="true"],
 .choice-card[aria-disabled="true"] {
@@ -131,14 +199,18 @@ footer {
   main { padding: 16px 10px 34px; }
   .toolbar { margin-bottom: 12px; }
   .panel {
-    gap: 11px;
-    padding: 16px 12px 14px;
+    gap: 14px;
+    padding: 18px 14px 17px;
+    border-radius: 18px;
   }
   .panel h2 {
-    font-size: 1.34rem;
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
   }
   .choice-grid { grid-template-columns: 1fr; }
-  .choice-card { min-height: 118px; }
+  .choice-card {
+    min-height: 138px;
+    padding: 22px 18px 20px 25px;
+  }
 }
 </style>
 <link rel="manifest" href="manifest.webmanifest">

@@ -129,16 +129,28 @@ button {
   justify-content: center;
   min-width: 96px;
   min-height: 42px;
-  border-radius: 8px;
-  padding: 10px 14px;
-  background: #f3e8ff;
-  color: #2e1065;
+  border-radius: 999px;
+  padding: 11px 20px;
+  background:
+    radial-gradient(circle at 26% 18%, rgba(255,255,255,0.48), transparent 22%),
+    linear-gradient(135deg, #34d399, #16a34a 62%, #047857);
+  border: 1px solid rgba(187, 247, 208, 0.72);
+  color: #fff;
   font-weight: 900;
   text-decoration: none;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.82),
+    1px -1px 0 rgba(0,0,0,0.82),
+    -1px 1px 0 rgba(0,0,0,0.82),
+    1px 1px 0 rgba(0,0,0,0.82);
+  box-shadow:
+    0 0 18px rgba(34, 197, 94, 0.42),
+    0 6px 14px rgba(6, 78, 59, 0.28),
+    inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
 .play-action:hover {
-  background: #fff;
+  filter: brightness(1.08);
 }
 
 .secondary-action {
@@ -167,15 +179,37 @@ button {
 }
 
 .league-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
   align-items: center;
-  padding: 18px;
-  border-radius: 10px;
-  background: rgba(17, 7, 38, 0.42);
-  border: 1px solid rgba(216, 180, 254, 0.24);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 14px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255,255,255,0.13), transparent 25%),
+    linear-gradient(145deg, rgba(46, 16, 101, 0.96), rgba(30, 10, 72, 0.98));
+  border: 4px solid #f5d76e;
+  box-shadow:
+    0 0 20px rgba(245, 215, 110, 0.82),
+    0 0 44px rgba(250, 204, 21, 0.46),
+    0 16px 30px rgba(17, 7, 38, 0.32),
+    inset 0 1px 0 rgba(255,255,255,0.12);
   min-width: 0;
+}
+
+.league-row::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: 14px;
+  background:
+    linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.08) 38%, transparent 66%),
+    radial-gradient(circle at 84% 8%, rgba(34, 211, 238, 0.13), transparent 26%);
+  pointer-events: none;
 }
 
 .league-row h3 {
@@ -186,6 +220,12 @@ button {
   font-weight: 900;
   letter-spacing: 0;
   overflow-wrap: anywhere;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.82),
+    1px -1px 0 rgba(0,0,0,0.82),
+    -1px 1px 0 rgba(0,0,0,0.82),
+    1px 1px 0 rgba(0,0,0,0.82),
+    0 0 14px rgba(245, 215, 110, 0.22);
 }
 
 .league-row p,
@@ -201,13 +241,33 @@ button {
 }
 
 .join-code {
-  text-align: right;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 178px;
+  padding: 10px 12px;
+  border-radius: 17px;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255,255,255,0.18), transparent 22%),
+    linear-gradient(135deg, #9a12d3, #8a00c4 62%, #7600aa);
+  border: 1px solid rgba(232, 170, 255, 0.66);
+  box-shadow:
+    0 0 17px rgba(218, 0, 255, 0.38),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+  text-align: center;
 }
 
 .league-actions {
   display: grid;
-  justify-items: end;
+  grid-template-columns: auto minmax(180px, auto);
+  align-items: center;
+  justify-items: stretch;
   gap: 10px;
+}
+
+.league-actions .secondary-action,
+.league-actions .danger-action {
+  grid-column: 1 / -1;
 }
 
 .join-code span {
@@ -218,9 +278,10 @@ button {
 
 .join-code strong {
   display: block;
-  margin-top: 4px;
+  margin-top: 0;
   font-size: 18px;
   letter-spacing: 0;
+  color: #fff;
 }
 
 .copy-code-btn {
@@ -283,7 +344,6 @@ footer {
   .toolbar,
   .league-row {
     align-items: stretch;
-    flex-direction: column;
   }
 
   .toolbar {
@@ -299,10 +359,11 @@ footer {
   }
 
   .join-code {
-    text-align: left;
+    text-align: center;
   }
 
   .league-actions {
+    grid-template-columns: 1fr;
     justify-items: stretch;
   }
 }
@@ -423,6 +484,7 @@ footer {
     position: relative;
     isolation: isolate;
     overflow: hidden;
+    grid-template-columns: 1fr;
     gap: 15px;
     padding: 18px clamp(14px, 4.5vw, 20px);
     border-radius: 18px;
@@ -430,8 +492,10 @@ footer {
       radial-gradient(circle at 16% 12%, rgba(250, 204, 21, 0.16), transparent 22%),
       radial-gradient(circle at 88% 0%, rgba(125, 211, 252, 0.14), transparent 30%),
       linear-gradient(145deg, rgba(30, 10, 72, 0.98), rgba(46, 16, 101, 0.96));
-    border: 1px solid rgba(216, 180, 254, 0.32);
+    border: 4px solid #f5d76e;
     box-shadow:
+      0 0 20px rgba(245, 215, 110, 0.82),
+      0 0 42px rgba(250, 204, 21, 0.46),
       0 14px 26px rgba(17, 7, 38, 0.34),
       inset 0 1px 0 rgba(255,255,255,0.11);
   }
@@ -455,6 +519,7 @@ footer {
 
   .league-actions {
     display: grid;
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 
@@ -470,11 +535,14 @@ footer {
 
   .play-action {
     background:
-      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.7), transparent 24%),
-      linear-gradient(135deg, #f7e9ff, #fff 52%, #d8b4fe);
-    color: #2e1065;
-    border: 1px solid rgba(255,255,255,0.72);
-    box-shadow: 0 0 20px rgba(216, 180, 254, 0.42), inset 0 2px 0 rgba(255,255,255,0.76);
+      radial-gradient(circle at 26% 18%, rgba(255,255,255,0.48), transparent 22%),
+      linear-gradient(135deg, #34d399, #16a34a 62%, #047857);
+    color: #fff;
+    border: 1px solid rgba(187, 247, 208, 0.72);
+    box-shadow:
+      0 0 18px rgba(34, 197, 94, 0.42),
+      0 6px 14px rgba(6, 78, 59, 0.28),
+      inset 0 1px 0 rgba(255,255,255,0.18);
   }
 
   .join-code {
@@ -483,9 +551,13 @@ footer {
     gap: 7px;
     padding: 12px 12px 14px;
     border-radius: 16px;
-    background: linear-gradient(135deg, rgba(17, 7, 38, 0.52), rgba(76, 29, 149, 0.36));
-    border: 1px solid rgba(216, 180, 254, 0.2);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    background:
+      radial-gradient(circle at 12% 12%, rgba(255,255,255,0.18), transparent 22%),
+      linear-gradient(135deg, #9a12d3, #8a00c4 62%, #7600aa);
+    border: 1px solid rgba(232, 170, 255, 0.66);
+    box-shadow:
+      0 0 17px rgba(218, 0, 255, 0.38),
+      inset 0 1px 0 rgba(255,255,255,0.18);
     text-align: center;
   }
 
