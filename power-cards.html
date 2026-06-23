@@ -777,15 +777,19 @@ button:disabled {
     0 26px 80px rgba(0, 0, 0, 0.48),
     inset 0 0 34px rgba(255, 255, 255, 0.2);
   text-align: center;
-  opacity: 0;
-  transform: translateY(30px) scale(0.94);
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .super-draw-reveal.show .super-draw-stage {
-  animation: superDrawStageIn 0.82s cubic-bezier(0.18, 1.18, 0.28, 1) 0.12s forwards;
+  animation: superDrawStageIn 0.22s ease-out both;
 }
 
 @keyframes superDrawStageIn {
+  from {
+    opacity: 0.9;
+    transform: translateY(8px) scale(0.985);
+  }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -809,12 +813,12 @@ button:disabled {
     -1px 1px 0 rgba(0, 0, 0, 0.94),
     1px 1px 0 rgba(0, 0, 0, 0.94),
     0 0 16px rgba(255, 255, 255, 0.72);
-  opacity: 0;
-  transform: translateY(-10px);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .super-draw-reveal.show .super-draw-countdown {
-  animation: superDrawTextIn 0.48s ease-out 0.72s forwards;
+  animation: superDrawTextIn 0.2s ease-out both;
 }
 
 .super-draw-countdown-clock {
@@ -872,12 +876,12 @@ button:disabled {
     2px 2px 0 rgba(0, 0, 0, 0.94),
     0 0 26px rgba(255, 255, 255, 0.9),
     0 0 44px rgba(253, 224, 71, 0.9);
-  opacity: 0;
-  transform: translateY(20px) scale(0.9);
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .super-draw-reveal.show .super-draw-title {
-  animation: superDrawTextIn 0.68s cubic-bezier(0.18, 1.25, 0.28, 1) 0.54s forwards;
+  animation: superDrawTextIn 0.24s ease-out both;
 }
 
 .super-draw-subtitle {
@@ -892,15 +896,19 @@ button:disabled {
     -1px 1px 0 rgba(0, 0, 0, 0.92),
     1px 1px 0 rgba(0, 0, 0, 0.92),
     0 0 14px rgba(253, 224, 71, 0.82);
-  opacity: 0;
-  transform: translateY(14px);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .super-draw-reveal.show .super-draw-subtitle {
-  animation: superDrawTextIn 0.52s ease-out 0.98s forwards;
+  animation: superDrawTextIn 0.22s ease-out both;
 }
 
 @keyframes superDrawTextIn {
+  from {
+    opacity: 0.92;
+    transform: translateY(6px) scale(0.99);
+  }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -1032,12 +1040,12 @@ button:disabled {
     0 26px 80px rgba(0, 0, 0, 0.48),
     inset 0 0 34px rgba(255, 255, 255, 0.2);
   text-align: center;
-  opacity: 0;
-  transform: translateY(30px) scale(0.94);
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .super-sub-reveal.show .super-sub-stage {
-  animation: superDrawStageIn 0.78s cubic-bezier(0.18, 1.18, 0.28, 1) 0.12s forwards;
+  animation: superDrawStageIn 0.22s ease-out both;
 }
 
 .super-sub-board {
@@ -1058,13 +1066,15 @@ button:disabled {
 
 .super-sub-label {
   color: #fff;
-  font-size: clamp(1rem, 2.3vw, 1.35rem);
+  font-size: clamp(0.92rem, 2vw, 1.22rem);
   font-weight: 1000;
+  line-height: 1;
+  white-space: nowrap;
   text-shadow:
-    -2px -2px 0 #000,
-    2px -2px 0 #000,
-    -2px 2px 0 #000,
-    2px 2px 0 #000,
+    -1.5px -1.5px 0 #000,
+    1.5px -1.5px 0 #000,
+    -1.5px 1.5px 0 #000,
+    1.5px 1.5px 0 #000,
     0 0 18px rgba(255, 255, 255, 0.65);
 }
 
@@ -1094,12 +1104,8 @@ button:disabled {
   position: relative;
   width: clamp(138px, 15vw, 180px);
   aspect-ratio: 0.72;
-  display: grid;
-  grid-template-rows: minmax(34px, auto) 1fr minmax(22px, auto);
-  gap: 8px;
-  align-items: center;
-  justify-items: center;
-  padding: 10px 9px 9px;
+  display: block;
+  padding: 0;
   border-radius: 15px;
   border: 2px solid #f8d568;
   color: #fff;
@@ -1151,16 +1157,26 @@ button:disabled {
   line-height: 1.05;
 }
 
+.super-sub-empty-card span {
+  display: block;
+  max-width: 92%;
+  text-align: center;
+}
+
 .super-sub-player-name {
-  position: relative;
+  position: absolute;
   z-index: 5;
-  min-height: 2.1em;
-  display: grid;
-  place-items: center;
+  top: 8px;
+  left: 7px;
+  right: 7px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: clamp(0.72rem, 1.18vw, 0.92rem);
   line-height: 0.98;
   font-weight: 1000;
-  max-width: 100%;
+  max-width: calc(100% - 14px);
   text-align: center;
   overflow: hidden;
   overflow-wrap: normal;
@@ -1170,12 +1186,16 @@ button:disabled {
 
 .super-sub-flag {
   z-index: 3;
-  width: 92%;
-  height: 100%;
-  min-height: 72px;
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 48px;
+  bottom: 34px;
+  width: auto;
+  height: auto;
+  min-height: 0;
   display: grid;
   place-items: center;
-  position: relative;
   border-radius: 12px;
   overflow: hidden;
   background:
@@ -1196,9 +1216,12 @@ button:disabled {
 }
 
 .super-sub-footer {
-  position: relative;
+  position: absolute;
   z-index: 5;
-  width: 100%;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  width: auto;
   display: block;
   border-radius: 999px;
   padding: 3px 6px;
@@ -1374,6 +1397,29 @@ button:disabled {
   transform: none;
 }
 
+.super-sub-preview-card .super-sub-player-name {
+  top: 12px;
+  left: 10px;
+  right: 10px;
+  height: 42px;
+  max-width: calc(100% - 20px);
+  font-size: clamp(0.82rem, 1.7vw, 1.08rem);
+}
+
+.super-sub-preview-card .super-sub-flag {
+  top: 60px;
+  bottom: 42px;
+  left: 14px;
+  right: 14px;
+}
+
+.super-sub-preview-card .super-sub-footer {
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  font-size: clamp(0.62rem, 1.25vw, 0.82rem);
+}
+
 @media (max-width: 640px) {
   .super-sub-reveal {
     padding: 10px;
@@ -1399,21 +1445,44 @@ button:disabled {
   .super-sub-empty-card {
     width: min(34vw, 136px);
     border-radius: 13px;
-    padding: 8px 5px;
   }
 
   .super-sub-search-card {
     width: min(30vw, 118px);
-    padding: 7px 4px;
     border-radius: 12px;
   }
 
+  .super-sub-label {
+    font-size: clamp(0.78rem, 3.8vw, 1rem);
+    text-shadow:
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000,
+      0 0 14px rgba(255, 255, 255, 0.58);
+  }
+
   .super-sub-player-name {
-    min-height: 2em;
+    top: 7px;
+    left: 6px;
+    right: 6px;
+    height: 30px;
+    max-width: calc(100% - 12px);
     font-size: clamp(0.64rem, 2.7vw, 0.8rem);
   }
 
+  .super-sub-flag {
+    top: 42px;
+    bottom: 30px;
+    left: 8px;
+    right: 8px;
+    border-radius: 10px;
+  }
+
   .super-sub-footer {
+    left: 7px;
+    right: 7px;
+    bottom: 7px;
     font-size: clamp(0.5rem, 1.95vw, 0.62rem);
   }
 
@@ -7040,6 +7109,40 @@ function drawnCardName(card) {
   return card?.card_name || card?.name || cardNameFromDrawn(card) || String(card || '');
 }
 
+function openSuperDrawRevealShell(expectedCount = 0, subtitleText = '') {
+  const reveal = document.getElementById('superDrawReveal');
+  const subtitle = document.getElementById('superDrawSubtitle');
+  const cardsContainer = document.getElementById('superDrawCards');
+  const countdown = document.getElementById('superDrawCountdown');
+  if (!reveal || !subtitle || !cardsContainer) return;
+
+  cardsContainer.innerHTML = '';
+  subtitle.textContent = subtitleText || `Preparing ${expectedCount || ''} Regular Deck ${expectedCount === 1 ? 'card' : 'cards'}...`;
+  if (countdown) {
+    countdown.textContent = '';
+  }
+  document.body.classList.add('card-preview-open');
+  reveal.classList.add('show');
+  reveal.setAttribute('aria-hidden', 'false');
+}
+
+function closeSuperDrawRevealShell() {
+  const reveal = document.getElementById('superDrawReveal');
+  const cardsContainer = document.getElementById('superDrawCards');
+  const countdown = document.getElementById('superDrawCountdown');
+  reveal?.classList.remove('show');
+  reveal?.setAttribute('aria-hidden', 'true');
+  if (cardsContainer) {
+    cardsContainer.innerHTML = '';
+  }
+  if (countdown) {
+    countdown.textContent = '0';
+  }
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-sub-reveal.show, .super-sub-preview-modal.show')) {
+    document.body.classList.remove('card-preview-open');
+  }
+}
+
 async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
   const reveal = document.getElementById('superDrawReveal');
   const subtitle = document.getElementById('superDrawSubtitle');
@@ -7048,6 +7151,7 @@ async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
   const cards = (drawnCards || []).map(drawnCardName).filter(Boolean);
 
   if (!reveal || !subtitle || !cardsContainer || cards.length === 0) {
+    closeSuperDrawRevealShell();
     return;
   }
 
@@ -7091,15 +7195,7 @@ async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
     window.clearInterval(countdownTimer);
     countdownTimer = null;
   }
-  reveal.classList.remove('show');
-  reveal.setAttribute('aria-hidden', 'true');
-  cardsContainer.innerHTML = '';
-  if (countdown) {
-    countdown.textContent = '0';
-  }
-  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show')) {
-    document.body.classList.remove('card-preview-open');
-  }
+  closeSuperDrawRevealShell();
 }
 
 const superSubFlagCodes = {
@@ -7249,6 +7345,30 @@ async function openSuperSubFlow() {
     return;
   }
 
+  const reveal = document.getElementById('superSubReveal');
+  const input = document.getElementById('superSubSearchInput');
+  const currentCard = document.getElementById('superSubCurrentCard');
+  const newCard = document.getElementById('superSubNewCard');
+  const results = document.getElementById('superSubSearchResults');
+  const confirmButton = document.getElementById('superSubConfirmBtn');
+
+  if (currentCard) {
+    currentCard.innerHTML = '<div class="super-sub-empty-card"><span>Loading</span></div>';
+  }
+  if (newCard) {
+    newCard.innerHTML = '<div class="super-sub-empty-card"><span>Choose A Player</span></div>';
+  }
+  if (results) {
+    results.innerHTML = '<div class="super-sub-message">Loading available players...</div>';
+  }
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Confirm';
+  }
+  reveal?.classList.add('show');
+  reveal?.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('card-preview-open');
+
   try {
     superSubUiState = {
       ...(await cardRuntime.prepareSuperSubFlow(gameState.pendingSuperSub)),
@@ -7256,14 +7376,10 @@ async function openSuperSubFlow() {
       previewPlayer: null,
       query: superSubUiState.query || '',
     };
-    const reveal = document.getElementById('superSubReveal');
-    const input = document.getElementById('superSubSearchInput');
-    reveal?.classList.add('show');
-    reveal?.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('card-preview-open');
     renderSuperSubFlow();
     window.setTimeout(() => input?.focus(), 220);
   } catch (error) {
+    closeSuperSubReveal();
     showSiteNotice(error.message || 'Could not open Super Sub.', 'Super Sub', 'warning');
   }
 }
@@ -7323,26 +7439,45 @@ async function confirmSuperSubSelection() {
   }
 
   const confirmButton = document.getElementById('superSubConfirmBtn');
+  const backButton = document.querySelector('.super-sub-back');
   if (confirmButton) {
     confirmButton.disabled = true;
     confirmButton.textContent = 'Saving...';
   }
+  if (backButton) {
+    backButton.disabled = true;
+  }
 
+  let completed = false;
   try {
     const result = await cardRuntime.confirmSuperSubSelection(gameState.pendingSuperSub, superSubUiState.selectedPlayer.id);
+    const oldPlayerName = result?.oldPlayerName || 'N/A';
+    const newPlayerName = result?.newPlayerName || 'N/A';
     gameState.pendingSuperSub = null;
     superSubUiState.selectedPlayer = null;
+    superSubUiState.previewPlayer = null;
     save();
+    completed = true;
+    closeSuperSubPreview();
     closeSuperSubReveal();
-    await syncHandFromDatabase({ force: true });
-    render();
-    showSuperSubSuccessNotice(result?.oldPlayerName || 'N/A', result?.newPlayerName || 'N/A');
+    showSuperSubSuccessNotice(oldPlayerName, newPlayerName);
+    syncHandFromDatabase({ force: true })
+      .then(() => {
+        save();
+        render();
+      })
+      .catch((syncError) => {
+        console.warn('Super Sub hand refresh failed after save', syncError);
+      });
   } catch (error) {
     showSiteNotice(error.message || 'Could not complete Super Sub.', 'Super Sub', 'warning');
   } finally {
-    if (confirmButton) {
+    if (confirmButton && !completed) {
       confirmButton.textContent = 'Confirm';
       confirmButton.disabled = !superSubUiState.selectedPlayer;
+    }
+    if (backButton && !completed) {
+      backButton.disabled = false;
     }
   }
 }
@@ -7446,6 +7581,7 @@ async function confirmCardPlay() {
       showSiteNotice(`You need at least ${superDrawCount} cards in the Regular Deck to play Super Draw!`, 'Super Draw');
       return;
     }
+    openSuperDrawRevealShell(superDrawCount, 'Preparing Super Draw...');
   }
 
   let activation = null;
@@ -7458,6 +7594,9 @@ async function confirmCardPlay() {
           showCardPreview(card, player, index);
         }
         return;
+      }
+      if (card === 'Super Draw') {
+        closeSuperDrawRevealShell();
       }
       showSiteNotice(error.message || 'Could not activate this card effect.', card || 'Card Effect', 'warning');
       return;
@@ -7494,6 +7633,7 @@ async function confirmCardPlay() {
         await discardPlayedCardPromise;
         await syncHandFromDatabase({ force: true });
       } catch (error) {
+        closeSuperDrawRevealShell();
         showSiteNotice(error.message || 'Could not draw cards for Super Draw.', 'Super Draw');
         await discardPlayedCardPromise;
         await syncHandFromDatabase({ force: true });
