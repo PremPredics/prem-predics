@@ -1091,29 +1091,49 @@ button:disabled {
 .super-sub-empty-card,
 .super-sub-search-card,
 .super-sub-preview-card {
-  width: clamp(128px, 18vw, 170px);
+  position: relative;
+  width: clamp(138px, 15vw, 180px);
   aspect-ratio: 0.72;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 7px;
+  grid-template-rows: minmax(34px, auto) 1fr minmax(22px, auto);
+  gap: 8px;
   align-items: center;
   justify-items: center;
-  padding: 10px 8px;
+  padding: 10px 9px 9px;
   border-radius: 15px;
-  border: 3px solid rgba(255, 244, 180, 0.9);
+  border: 2px solid #f8d568;
   color: #fff;
   background:
-    radial-gradient(circle at 24% 14%, rgba(255, 255, 255, 0.76), transparent 20%),
-    linear-gradient(135deg, #5f3905 0%, #b7790e 22%, #facc15 46%, #fff3a3 62%, #d97706 100%);
+    radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.36), transparent 18%),
+    radial-gradient(circle at 82% 88%, rgba(255, 255, 255, 0.24), transparent 22%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 14%, #ffe9a3 29%, #d69e18 44%, #fff5c4 61%, #b7790e 76%, #7a4d09 100%);
   box-shadow:
-    0 0 22px rgba(253, 224, 71, 0.72),
-    inset 0 0 18px rgba(255, 255, 255, 0.2);
+    0 0 18px rgba(248, 213, 104, 0.56),
+    0 9px 20px rgba(0, 0, 0, 0.28),
+    inset 0 0 16px rgba(255, 255, 255, 0.18);
   text-shadow:
     -2px -2px 0 #000,
     2px -2px 0 #000,
     -2px 2px 0 #000,
     2px 2px 0 #000;
   overflow: hidden;
+  transform: none;
+  transform-style: flat;
+  perspective: none;
+}
+
+.super-sub-player-card::after,
+.super-sub-search-card::after,
+.super-sub-preview-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(42deg, rgba(255,255,255,0.16) 0 12%, transparent 12% 28%, rgba(255,255,255,0.1) 28% 40%, transparent 40% 100%),
+    radial-gradient(circle at 50% 96%, rgba(255,255,255,0.16), transparent 34%);
+  pointer-events: none;
+  z-index: 4;
 }
 
 .super-sub-empty-card {
@@ -1121,19 +1141,35 @@ button:disabled {
     radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.28), transparent 24%),
     linear-gradient(135deg, rgba(31, 10, 57, 0.96), rgba(91, 33, 182, 0.9));
   border-color: rgba(255, 255, 255, 0.72);
-  font-size: clamp(1.1rem, 3vw, 1.45rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  text-align: center;
+  font-size: clamp(1.04rem, 2.3vw, 1.42rem);
   font-weight: 1000;
+  line-height: 1.05;
 }
 
 .super-sub-player-name {
-  font-size: clamp(0.76rem, 1.45vw, 1rem);
+  position: relative;
+  z-index: 5;
+  min-height: 2.1em;
+  display: grid;
+  place-items: center;
+  font-size: clamp(0.72rem, 1.18vw, 0.92rem);
   line-height: 0.98;
   font-weight: 1000;
   max-width: 100%;
-  overflow-wrap: anywhere;
+  text-align: center;
+  overflow: hidden;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 .super-sub-flag {
+  z-index: 3;
   width: 92%;
   height: 100%;
   min-height: 72px;
@@ -1160,11 +1196,21 @@ button:disabled {
 }
 
 .super-sub-footer {
-  display: grid;
-  gap: 2px;
-  font-size: clamp(0.58rem, 1.1vw, 0.72rem);
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  display: block;
+  border-radius: 999px;
+  padding: 3px 6px;
+  background: rgba(68, 38, 4, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  color: #fff7d6;
+  font-size: clamp(0.54rem, 0.95vw, 0.66rem);
   line-height: 1.05;
   font-weight: 950;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .super-sub-search-panel {
@@ -1216,15 +1262,20 @@ button:disabled {
 }
 
 .super-sub-search-card {
-  width: clamp(104px, 13vw, 136px);
+  width: clamp(112px, 11vw, 140px);
+  border: 2px solid rgba(248, 213, 104, 0.78);
   cursor: pointer;
-  transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+  transition: box-shadow 0.16s ease, opacity 0.16s ease, border-color 0.16s ease, filter 0.16s ease;
 }
 
 .super-sub-search-card:hover,
 .super-sub-search-card:focus-visible {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 0 28px rgba(253, 224, 71, 0.94);
+  transform: none;
+  border-color: #fef3c7;
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 0 3px rgba(250, 204, 21, 0.34),
+    0 0 28px rgba(253, 224, 71, 0.9);
 }
 
 .super-sub-search-card.unavailable {
@@ -1312,8 +1363,15 @@ button:disabled {
   box-shadow: 0 0 40px rgba(250, 204, 21, 0.5);
 }
 
+.super-sub-preview-card-host {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
 .super-sub-preview-card {
-  width: clamp(150px, 30vw, 210px);
+  width: clamp(168px, 22vw, 218px);
+  transform: none;
 }
 
 @media (max-width: 640px) {
@@ -1339,23 +1397,32 @@ button:disabled {
 
   .super-sub-player-card,
   .super-sub-empty-card {
-    width: min(33vw, 128px);
+    width: min(34vw, 136px);
     border-radius: 13px;
     padding: 8px 5px;
   }
 
   .super-sub-search-card {
-    width: min(28vw, 108px);
+    width: min(30vw, 118px);
     padding: 7px 4px;
     border-radius: 12px;
   }
 
   .super-sub-player-name {
-    font-size: clamp(0.64rem, 2.9vw, 0.82rem);
+    min-height: 2em;
+    font-size: clamp(0.64rem, 2.7vw, 0.8rem);
   }
 
   .super-sub-footer {
-    font-size: clamp(0.5rem, 2.2vw, 0.64rem);
+    font-size: clamp(0.5rem, 1.95vw, 0.62rem);
+  }
+
+  .super-sub-empty-card {
+    font-size: clamp(0.92rem, 4.4vw, 1.22rem);
+  }
+
+  .super-sub-preview-card {
+    width: min(56vw, 212px);
   }
 
   .super-sub-arrow {
@@ -2029,6 +2096,119 @@ button:disabled {
   line-height: 1.45;
   font-size: 16px;
   font-weight: 850;
+}
+
+.notice-body.notice-body-html {
+  overflow-y: visible;
+}
+
+.notice-modal .opponent-target-content.super-sub-success-notice {
+  width: min(560px, 100%);
+  border: 3px solid rgba(250, 204, 21, 0.92);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(253, 224, 71, 0.24), transparent 34%),
+    linear-gradient(135deg, rgba(31, 10, 57, 0.98), rgba(17, 7, 38, 0.98));
+  box-shadow:
+    0 0 34px rgba(250, 204, 21, 0.68),
+    0 24px 70px rgba(0, 0, 0, 0.62),
+    inset 0 0 20px rgba(255, 255, 255, 0.12);
+}
+
+.opponent-target-title.notice-title-super-sub-success {
+  color: #fde68a;
+  letter-spacing: 0;
+  text-shadow:
+    -2px -2px 0 rgba(0,0,0,0.92),
+    2px -2px 0 rgba(0,0,0,0.92),
+    -2px 2px 0 rgba(0,0,0,0.92),
+    2px 2px 0 rgba(0,0,0,0.92),
+    0 0 12px rgba(255, 255, 255, 0.78),
+    0 0 26px rgba(250, 204, 21, 0.95),
+    0 0 44px rgba(245, 158, 11, 0.58);
+}
+
+.super-sub-success-board {
+  width: min(430px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 3px solid rgba(15, 23, 42, 0.95);
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 4px),
+    linear-gradient(135deg, #09090f, #111827 52%, #030712);
+  box-shadow:
+    0 0 0 2px rgba(250, 204, 21, 0.64),
+    0 0 28px rgba(250, 204, 21, 0.44),
+    inset 0 0 18px rgba(255, 255, 255, 0.08);
+}
+
+.super-sub-success-row {
+  display: grid;
+  grid-template-columns: minmax(62px, 0.34fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.super-sub-success-label,
+.super-sub-success-name {
+  font-weight: 1000;
+  line-height: 1.06;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 2px currentColor,
+    0 0 10px currentColor,
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+
+.super-sub-success-label {
+  text-align: left;
+  font-size: clamp(1.05rem, 3vw, 1.45rem);
+  letter-spacing: 0;
+}
+
+.super-sub-success-name {
+  text-align: right;
+  font-size: clamp(1rem, 2.8vw, 1.35rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.super-sub-success-row.out {
+  box-shadow: inset 4px 0 0 #ef4444;
+}
+
+.super-sub-success-row.in {
+  box-shadow: inset 4px 0 0 #22c55e;
+}
+
+.super-sub-success-row.out .super-sub-success-label,
+.super-sub-success-row.out .super-sub-success-name {
+  color: #ff3434;
+}
+
+.super-sub-success-row.in .super-sub-success-label,
+.super-sub-success-row.in .super-sub-success-name {
+  color: #39ff88;
+}
+
+.super-sub-success-caption {
+  margin-top: 10px;
+  color: #fff7d6;
+  font-weight: 900;
+  font-size: 0.92rem;
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.62);
 }
 
 .notice-modal .opponent-target-content {
@@ -5146,7 +5326,7 @@ html.capacitor-android .veto-curse-description {
 
   <div class="super-sub-preview-modal" id="superSubPreviewModal" aria-hidden="true">
     <div class="super-sub-preview-shell">
-      <div class="super-sub-preview-card" id="superSubPreviewCard"></div>
+      <div class="super-sub-preview-card-host" id="superSubPreviewCard"></div>
       <div class="super-sub-actions">
         <button class="super-sub-choose" type="button" onclick="chooseSuperSubPreviewPlayer()">Choose Player</button>
         <button class="super-sub-preview-back" type="button" onclick="closeSuperSubPreview()">Back</button>
@@ -5241,7 +5421,7 @@ html.capacitor-android .veto-curse-description {
   <div class="opponent-target-modal notice-modal" id="siteNoticeModal" aria-hidden="true">
     <div class="opponent-target-content" role="dialog" aria-modal="true" aria-labelledby="siteNoticeTitle">
       <h3 class="opponent-target-title" id="siteNoticeTitle">Notice</h3>
-      <p class="notice-body" id="siteNoticeBody"></p>
+      <div class="notice-body" id="siteNoticeBody"></div>
       <button class="opponent-target-cancel" type="button" id="siteNoticeClose">Close</button>
     </div>
   </div>
@@ -5438,6 +5618,7 @@ function showSiteNotice(message, title = 'Notice', tone = '') {
   const titleEl = document.getElementById('siteNoticeTitle');
   const bodyEl = document.getElementById('siteNoticeBody');
   const closeButton = document.getElementById('siteNoticeClose');
+  const contentEl = modal?.querySelector('.opponent-target-content');
 
   if (!modal || !titleEl || !bodyEl || !closeButton) {
     return;
@@ -5445,12 +5626,15 @@ function showSiteNotice(message, title = 'Notice', tone = '') {
 
   titleEl.textContent = title;
   setNoticeTitleTone(titleEl, title, tone);
-  bodyEl.textContent = String(message || '');
+  setNoticeBodyContent(bodyEl, message);
+  setNoticePanelTone(contentEl, tone);
 
   function close() {
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
     resetNoticeTitleTone(titleEl);
+    resetNoticePanelTone(contentEl);
+    resetNoticeBodyContent(bodyEl);
     document.body.classList.remove('card-preview-open');
     closeButton.removeEventListener('click', close);
     modal.removeEventListener('click', modalClick);
@@ -5482,6 +5666,7 @@ function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', co
   const titleEl = document.getElementById('siteNoticeTitle');
   const bodyEl = document.getElementById('siteNoticeBody');
   const closeButton = document.getElementById('siteNoticeClose');
+  const contentEl = modal?.querySelector('.opponent-target-content');
 
   if (!modal || !titleEl || !bodyEl || !closeButton) {
     return Promise.resolve(false);
@@ -5499,12 +5684,16 @@ function showSiteConfirm(message, title = 'Confirm', confirmText = 'Confirm', co
     closeButton.before(confirmButton);
     titleEl.textContent = title;
     setNoticeTitleTone(titleEl, title);
+    resetNoticePanelTone(contentEl);
     bodyEl.textContent = String(message || '');
+    bodyEl.classList.remove('notice-body-html');
 
     function finish(value) {
       modal.classList.remove('show');
       modal.setAttribute('aria-hidden', 'true');
       resetNoticeTitleTone(titleEl);
+      resetNoticePanelTone(contentEl);
+      resetNoticeBodyContent(bodyEl);
       document.body.classList.remove('card-preview-open');
       closeButton.textContent = 'Close';
       if (cancelTone) {
@@ -5577,12 +5766,17 @@ function resetNoticeTitleTone(titleEl) {
     'notice-title-curse',
     'notice-title-super',
     'notice-title-game',
-    'notice-title-warning'
+    'notice-title-warning',
+    'notice-title-super-sub-success'
   );
 }
 
 function setNoticeTitleTone(titleEl, title, tone = '') {
   resetNoticeTitleTone(titleEl);
+  if (tone === 'super-sub-success') {
+    titleEl.classList.add('notice-title-super', 'notice-title-super-sub-success');
+    return;
+  }
   if (tone === 'warning') {
     titleEl.classList.add('notice-title-warning');
     return;
@@ -5591,6 +5785,34 @@ function setNoticeTitleTone(titleEl, title, tone = '') {
     const cardType = getCardType(title);
     titleEl.classList.add(`notice-title-${cardType}`);
   }
+}
+
+function setNoticeBodyContent(bodyEl, message) {
+  if (!bodyEl) return;
+  if (message && typeof message === 'object' && typeof message.html === 'string') {
+    bodyEl.classList.add('notice-body-html');
+    bodyEl.innerHTML = message.html;
+    return;
+  }
+  bodyEl.classList.remove('notice-body-html');
+  bodyEl.textContent = String(message || '');
+}
+
+function resetNoticeBodyContent(bodyEl) {
+  if (!bodyEl) return;
+  bodyEl.classList.remove('notice-body-html');
+  bodyEl.textContent = '';
+}
+
+function setNoticePanelTone(contentEl, tone = '') {
+  resetNoticePanelTone(contentEl);
+  if (tone === 'super-sub-success') {
+    contentEl?.classList.add('super-sub-success-notice');
+  }
+}
+
+function resetNoticePanelTone(contentEl) {
+  contentEl?.classList.remove('super-sub-success-notice');
 }
 
 async function showPlayedCardNotice(cardName, activation = null) {
@@ -6981,7 +7203,7 @@ function renderSuperSubFlow() {
   currentCard.innerHTML = superSubPlayerCardMarkup(superSubUiState.currentPlayer);
   newCard.innerHTML = superSubUiState.selectedPlayer
     ? superSubPlayerCardMarkup(superSubUiState.selectedPlayer)
-    : '<div class="super-sub-empty-card">Choose<br>A Player</div>';
+    : '<div class="super-sub-empty-card"><span>Choose A Player</span></div>';
   confirmButton.disabled = !superSubUiState.selectedPlayer;
   input.value = superSubUiState.query || '';
 
@@ -7114,7 +7336,7 @@ async function confirmSuperSubSelection() {
     closeSuperSubReveal();
     await syncHandFromDatabase({ force: true });
     render();
-    showSiteNotice(`OUT: ${result?.oldPlayerName || 'N/A'}\nIN: ${result?.newPlayerName || 'N/A'}`, 'Super Sub Successful', 'success');
+    showSuperSubSuccessNotice(result?.oldPlayerName || 'N/A', result?.newPlayerName || 'N/A');
   } catch (error) {
     showSiteNotice(error.message || 'Could not complete Super Sub.', 'Super Sub', 'warning');
   } finally {
@@ -7123,6 +7345,28 @@ async function confirmSuperSubSelection() {
       confirmButton.disabled = !superSubUiState.selectedPlayer;
     }
   }
+}
+
+function showSuperSubSuccessNotice(outName, inName) {
+  showSiteNotice(
+    {
+      html: `
+        <div class="super-sub-success-board" role="presentation">
+          <div class="super-sub-success-row out">
+            <span class="super-sub-success-label">OUT</span>
+            <span class="super-sub-success-name">${escapeHtml(outName || 'N/A')}</span>
+          </div>
+          <div class="super-sub-success-row in">
+            <span class="super-sub-success-label">IN</span>
+            <span class="super-sub-success-name">${escapeHtml(inName || 'N/A')}</span>
+          </div>
+        </div>
+        <div class="super-sub-success-caption">Your Star Man has been swapped.</div>
+      `,
+    },
+    'Super Sub Successful',
+    'super-sub-success'
+  );
 }
 
 document.addEventListener('input', (event) => {
