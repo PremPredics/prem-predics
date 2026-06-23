@@ -1118,10 +1118,11 @@ button:disabled {
     0 9px 20px rgba(0, 0, 0, 0.28),
     inset 0 0 16px rgba(255, 255, 255, 0.18);
   text-shadow:
-    -2px -2px 0 #000,
-    2px -2px 0 #000,
-    -2px 2px 0 #000,
-    2px 2px 0 #000;
+    -1.2px -1.2px 0 #000,
+    1.2px -1.2px 0 #000,
+    -1.2px 1.2px 0 #000,
+    1.2px 1.2px 0 #000,
+    0 0 7px rgba(0, 0, 0, 0.72);
   overflow: hidden;
   transform: none;
   transform-style: flat;
@@ -1177,6 +1178,9 @@ button:disabled {
   line-height: 0.98;
   font-weight: 1000;
   max-width: calc(100% - 14px);
+  padding: 2px 5px;
+  border-radius: 999px;
+  background: rgba(38, 20, 4, 0.5);
   text-align: center;
   overflow: hidden;
   overflow-wrap: normal;
@@ -1398,16 +1402,17 @@ button:disabled {
 }
 
 .super-sub-preview-card .super-sub-player-name {
-  top: 12px;
+  top: 14px;
   left: 10px;
   right: 10px;
-  height: 42px;
+  height: 34px;
   max-width: calc(100% - 20px);
-  font-size: clamp(0.82rem, 1.7vw, 1.08rem);
+  font-size: clamp(0.76rem, 1.45vw, 0.98rem);
+  line-height: 0.96;
 }
 
 .super-sub-preview-card .super-sub-flag {
-  top: 60px;
+  top: 56px;
   bottom: 42px;
   left: 14px;
   right: 14px;
@@ -1423,6 +1428,17 @@ button:disabled {
 @media (max-width: 640px) {
   .super-sub-reveal {
     padding: 10px;
+  }
+
+  .super-sub-reveal .super-draw-title {
+    font-size: clamp(2.25rem, 12vw, 3.2rem);
+    line-height: 0.9;
+  }
+
+  .super-sub-reveal .super-draw-subtitle {
+    max-width: 92%;
+    font-size: clamp(0.82rem, 4vw, 1rem);
+    line-height: 1.12;
   }
 
   .super-sub-stage {
@@ -1466,9 +1482,9 @@ button:disabled {
     top: 7px;
     left: 6px;
     right: 6px;
-    height: 30px;
+    height: 27px;
     max-width: calc(100% - 12px);
-    font-size: clamp(0.64rem, 2.7vw, 0.8rem);
+    font-size: clamp(0.58rem, 2.45vw, 0.74rem);
   }
 
   .super-sub-flag {
@@ -1491,7 +1507,23 @@ button:disabled {
   }
 
   .super-sub-preview-card {
-    width: min(56vw, 212px);
+    width: min(50vw, 194px);
+  }
+
+  .super-sub-preview-card .super-sub-player-name {
+    top: 12px;
+    height: 30px;
+    font-size: clamp(0.68rem, 3vw, 0.84rem);
+  }
+
+  .super-sub-preview-card .super-sub-flag {
+    top: 50px;
+    bottom: 38px;
+  }
+
+  .super-sub-preview-card .super-sub-footer {
+    bottom: 10px;
+    font-size: clamp(0.52rem, 2.15vw, 0.66rem);
   }
 
   .super-sub-arrow {
@@ -5688,6 +5720,9 @@ function showSiteNotice(message, title = 'Notice', tone = '') {
   const bodyEl = document.getElementById('siteNoticeBody');
   const closeButton = document.getElementById('siteNoticeClose');
   const contentEl = modal?.querySelector('.opponent-target-content');
+  const onClose = message && typeof message === 'object' && typeof message.onClose === 'function'
+    ? message.onClose
+    : null;
 
   if (!modal || !titleEl || !bodyEl || !closeButton) {
     return;
@@ -5698,7 +5733,10 @@ function showSiteNotice(message, title = 'Notice', tone = '') {
   setNoticeBodyContent(bodyEl, message);
   setNoticePanelTone(contentEl, tone);
 
+  let closed = false;
   function close() {
+    if (closed) return;
+    closed = true;
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
     resetNoticeTitleTone(titleEl);
@@ -5708,6 +5746,13 @@ function showSiteNotice(message, title = 'Notice', tone = '') {
     closeButton.removeEventListener('click', close);
     modal.removeEventListener('click', modalClick);
     document.removeEventListener('keydown', keydown);
+    if (onClose) {
+      try {
+        onClose();
+      } catch (error) {
+        console.warn('Notice close callback failed', error);
+      }
+    }
   }
 
   function modalClick(event) {
@@ -7460,15 +7505,16 @@ async function confirmSuperSubSelection() {
     completed = true;
     closeSuperSubPreview();
     closeSuperSubReveal();
-    showSuperSubSuccessNotice(oldPlayerName, newPlayerName);
-    syncHandFromDatabase({ force: true })
-      .then(() => {
-        save();
-        render();
-      })
-      .catch((syncError) => {
-        console.warn('Super Sub hand refresh failed after save', syncError);
-      });
+    showSuperSubSuccessNotice(oldPlayerName, newPlayerName, () => {
+      syncHandFromDatabase({ force: true })
+        .then(() => {
+          save();
+          render();
+        })
+        .catch((syncError) => {
+          console.warn('Super Sub hand refresh failed after save', syncError);
+        });
+    });
   } catch (error) {
     showSiteNotice(error.message || 'Could not complete Super Sub.', 'Super Sub', 'warning');
   } finally {
@@ -7482,7 +7528,7 @@ async function confirmSuperSubSelection() {
   }
 }
 
-function showSuperSubSuccessNotice(outName, inName) {
+function showSuperSubSuccessNotice(outName, inName, onClose = null) {
   showSiteNotice(
     {
       html: `
@@ -7498,6 +7544,7 @@ function showSuperSubSuccessNotice(outName, inName) {
         </div>
         <div class="super-sub-success-caption">Your Star Man has been swapped.</div>
       `,
+      onClose,
     },
     'Super Sub Successful',
     'super-sub-success'
