@@ -33,7 +33,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('curse_even_number', 'Curse of the Even Number', 'curse', 'regular', 'curse_even_number', 'Valid for 1 Gameweek. Opponent can only predict even team goal totals. Must be played at least 24 hours before the gameweek''s first KO time. Cannot be picked whilst Curse of The Random is active.'),
     ('curse_odd_number', 'Curse of the Odd Number', 'curse', 'regular', 'curse_odd_number', 'Valid for 1 Gameweek. Opponent can only predict odd team goal totals. Must be played at least 24 hours before the gameweek''s first KO time. Cannot be picked whilst Curse of The Random is active.'),
 
-    ('super_star_man', 'Super Star Man', 'super', 'premium', 'super_star_man', 'Star Man points are tripled; yellow and red cards are 0 points.'),
+    ('super_star_man', 'Super Star Man', 'super', 'premium', 'super_star_man', 'Can only be played after you have saved a Star Man for this Gameweek. Star Man points are tripled; yellow and red cards are 0 points.'),
     ('super_golden_gameweek', 'Super Golden Gameweek', 'super', 'premium', 'super_golden_gameweek', 'Prediction League points for all games are doubled.'),
     ('super_sub', 'Super Sub', 'super', 'premium', 'super_sub', 'Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don''t earn negative points. Curse Cards don''t apply on the Super Sub, Power Cards Apply.'),
     ('super_score', 'Super Score', 'super', 'premium', 'super_score', 'Choose one exact scoreline; each matching real fixture earns +3 UC points.'),

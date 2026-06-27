@@ -908,10 +908,77 @@ input:disabled {
     0 0 14px rgba(250, 204, 21, 0.62);
 }
 
+.selected-player-heading.super-star-heading {
+  color: #67e8f9;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.96),
+    1px -1px 0 rgba(0,0,0,0.96),
+    -1px 1px 0 rgba(0,0,0,0.96),
+    1px 1px 0 rgba(0,0,0,0.96),
+    0 0 14px rgba(103, 232, 249, 0.92),
+    0 0 24px rgba(250, 204, 21, 0.88);
+}
+
 .selected-player-card-wrap {
   position: relative;
   display: inline-grid;
   justify-items: center;
+}
+
+.selected-player-card-wrap.super-star-man-wrap {
+  padding-top: 30px;
+}
+
+.selected-player-card-wrap.super-star-man-wrap::before {
+  content: "SUPER STAR MAN";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(270px, 78vw);
+  padding: 5px 13px 6px;
+  border-radius: 999px;
+  border: 2px solid rgba(103, 232, 249, 0.96);
+  color: #67e8f9;
+  font-size: clamp(0.7rem, 2.6vw, 0.92rem);
+  font-weight: 1000;
+  line-height: 1;
+  background:
+    radial-gradient(circle at 35% 24%, rgba(255,255,255,0.34), transparent 30%),
+    linear-gradient(135deg, rgba(15,23,42,0.98), rgba(8,47,73,0.94));
+  box-shadow:
+    0 0 18px rgba(103, 232, 249, 0.78),
+    0 0 30px rgba(250, 204, 21, 0.68);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.96),
+    1px -1px 0 rgba(0,0,0,0.96),
+    -1px 1px 0 rgba(0,0,0,0.96),
+    1px 1px 0 rgba(0,0,0,0.96);
+}
+
+.selected-player-card-wrap.super-star-man-wrap::after {
+  content: "★";
+  position: absolute;
+  top: 18px;
+  right: -24px;
+  z-index: 5;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.92);
+  color: #fff8c5;
+  font-size: 30px;
+  line-height: 1;
+  background: radial-gradient(circle at 38% 28%, #fffbe6, #facc15 44%, #b45309 100%);
+  box-shadow:
+    0 0 22px rgba(250, 204, 21, 0.96),
+    0 0 34px rgba(103, 232, 249, 0.62);
+  text-shadow: 0 0 8px rgba(0,0,0,0.82);
+  animation: superStarBadgePulse 2.4s ease-in-out infinite;
 }
 
 .selected-player-card {
@@ -938,6 +1005,55 @@ input:disabled {
     0 0 24px rgba(248, 213, 104, 0.58),
     0 18px 42px rgba(0,0,0,0.54),
     inset 0 0 22px rgba(255,255,255,0.24);
+}
+
+.selected-player-card.super-star-man-card {
+  border-color: #67e8f9;
+  box-shadow:
+    0 0 34px rgba(103, 232, 249, 0.86),
+    0 0 48px rgba(250, 204, 21, 0.82),
+    0 18px 42px rgba(0,0,0,0.54),
+    inset 0 0 26px rgba(255,255,255,0.3);
+  animation: superStarCardPulse 3.2s ease-in-out infinite;
+}
+
+@keyframes superStarCardPulse {
+  0%, 100% {
+    transform: translateY(0);
+    filter: saturate(1);
+  }
+  50% {
+    transform: translateY(-3px);
+    filter: saturate(1.16);
+  }
+}
+
+@keyframes superStarBadgePulse {
+  0%, 100% {
+    transform: scale(1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(7deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .selected-player-card-wrap.super-star-man-wrap {
+    padding-top: 28px;
+  }
+
+  .selected-player-card-wrap.super-star-man-wrap::before {
+    max-width: min(230px, 76vw);
+    font-size: 0.7rem;
+  }
+
+  .selected-player-card-wrap.super-star-man-wrap::after {
+    top: 20px;
+    right: -10px;
+    width: 38px;
+    height: 38px;
+    font-size: 25px;
+  }
 }
 
 .star-power-badge {

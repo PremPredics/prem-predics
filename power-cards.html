@@ -998,6 +998,361 @@ button:disabled {
   }
 }
 
+/* ===== SUPER STAR MAN REVEAL ===== */
+.super-star-reveal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3130;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(14px, 4vw, 42px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.86), transparent 13%),
+    radial-gradient(circle at 18% 20%, rgba(254, 240, 138, 0.88), transparent 31%),
+    radial-gradient(circle at 82% 78%, rgba(245, 158, 11, 0.82), transparent 35%),
+    linear-gradient(135deg, #5f3905 0%, #b7790e 18%, #facc15 45%, #fff7ad 62%, #d97706 100%);
+}
+
+.super-star-reveal.show {
+  display: flex;
+}
+
+.super-star-stage {
+  position: relative;
+  width: min(980px, 100%);
+  min-height: min(720px, calc(100vh - 32px));
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(14px, 2.8vw, 26px);
+  padding: clamp(22px, 4vw, 40px);
+  border-radius: 28px;
+  border: 4px solid rgba(255, 255, 255, 0.76);
+  background:
+    radial-gradient(circle at 52% 10%, rgba(255, 255, 255, 0.24), transparent 32%),
+    linear-gradient(135deg, rgba(69, 35, 3, 0.76), rgba(146, 64, 14, 0.62), rgba(59, 7, 100, 0.76));
+  box-shadow:
+    0 0 62px rgba(253, 224, 71, 0.96),
+    0 28px 88px rgba(0, 0, 0, 0.5),
+    inset 0 0 34px rgba(255, 255, 255, 0.22);
+  text-align: center;
+  animation: superDrawStageIn 0.22s ease-out both;
+}
+
+.super-star-player-title,
+.super-star-message {
+  margin: 0;
+  color: #67e8f9;
+  font-weight: 1000;
+  letter-spacing: 0;
+  text-shadow:
+    -2px -2px 0 rgba(0, 0, 0, 0.96),
+    2px -2px 0 rgba(0, 0, 0, 0.96),
+    -2px 2px 0 rgba(0, 0, 0, 0.96),
+    2px 2px 0 rgba(0, 0, 0, 0.96),
+    0 0 18px rgba(103, 232, 249, 0.9),
+    0 0 34px rgba(250, 204, 21, 0.82);
+}
+
+.super-star-player-title {
+  max-width: min(760px, 88vw);
+  font-size: clamp(2rem, 5.3vw, 4.8rem);
+  line-height: 0.96;
+}
+
+.super-star-message {
+  max-width: min(820px, 92vw);
+  font-size: clamp(1.25rem, 3.5vw, 2.9rem);
+  line-height: 1.05;
+}
+
+.super-star-showcase {
+  position: relative;
+  width: min(720px, 100%);
+  min-height: clamp(280px, 42vh, 390px);
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.super-star-card-host {
+  position: relative;
+  z-index: 2;
+  animation: superStarCardRise 0.58s cubic-bezier(0.18, 1.16, 0.32, 1) both;
+}
+
+.super-star-card-host .super-sub-player-card {
+  width: clamp(176px, 22vw, 252px);
+  filter: drop-shadow(0 0 26px rgba(253, 224, 71, 0.88));
+}
+
+@keyframes superStarCardRise {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.super-star-footballer {
+  position: absolute;
+  left: calc(50% - 10px);
+  top: 52%;
+  z-index: 1;
+  width: 78px;
+  height: 158px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.72));
+  animation: superStarWalkCelebrate 7.2s ease-in-out 0.72s both;
+}
+
+.super-star-footballer span {
+  position: absolute;
+  display: block;
+}
+
+.super-star-head {
+  left: 50%;
+  top: 0;
+  width: 52px;
+  height: 52px;
+  transform: translateX(-50%);
+  display: grid !important;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  color: #fff8c5;
+  font-size: 34px;
+  line-height: 1;
+  background: radial-gradient(circle at 38% 26%, #fffbe6, #facc15 42%, #b45309 100%);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.78);
+  box-shadow: 0 0 22px rgba(250, 204, 21, 0.9);
+  animation: superStarHeadBob 0.62s ease-in-out infinite alternate;
+}
+
+.super-star-body {
+  left: 50%;
+  top: 50px;
+  width: 34px;
+  height: 58px;
+  transform: translateX(-50%);
+  border-radius: 12px 12px 18px 18px;
+  border: 3px solid rgba(255, 255, 255, 0.88);
+  background: linear-gradient(135deg, #0891b2, #22d3ee 46%, #0f172a 48%, #111827 56%, #22d3ee 58%, #0e7490);
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.22);
+}
+
+.super-star-arm,
+.super-star-leg {
+  width: 12px;
+  border-radius: 999px;
+  background: #f8fafc;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.82);
+  transform-origin: top center;
+}
+
+.super-star-arm {
+  top: 56px;
+  height: 44px;
+  animation: superStarArmDance 0.62s ease-in-out infinite alternate;
+}
+
+.super-star-arm.left {
+  left: 15px;
+  transform: rotate(44deg);
+}
+
+.super-star-arm.right {
+  right: 15px;
+  transform: rotate(-44deg);
+  animation-delay: -0.31s;
+}
+
+.super-star-leg {
+  top: 104px;
+  height: 54px;
+  animation: superStarLegDance 0.5s ease-in-out infinite alternate;
+}
+
+.super-star-leg.left {
+  left: 26px;
+  transform: rotate(16deg);
+}
+
+.super-star-leg.right {
+  right: 26px;
+  transform: rotate(-16deg);
+  animation-delay: -0.25s;
+}
+
+.super-star-ball {
+  right: -22px;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid #111827;
+  background:
+    radial-gradient(circle at 50% 50%, #111827 0 16%, transparent 17%),
+    radial-gradient(circle at 28% 26%, #111827 0 10%, transparent 11%),
+    #f8fafc;
+  animation: superStarBallBounce 0.72s ease-in-out infinite alternate;
+}
+
+@keyframes superStarWalkCelebrate {
+  0% {
+    opacity: 0;
+    transform: translate(-90px, -48%) scale(0.76);
+  }
+  16% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 1;
+    transform: translate(118px, -48%) scale(1);
+  }
+  58% {
+    transform: translate(142px, -60%) scale(1.05) rotate(-3deg);
+  }
+  74% {
+    transform: translate(142px, -44%) scale(1.03) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(142px, -50%) scale(1.04) rotate(0deg);
+  }
+}
+
+@keyframes superStarHeadBob {
+  from { transform: translateX(-50%) translateY(0) rotate(-8deg); }
+  to { transform: translateX(-50%) translateY(-8px) rotate(8deg); }
+}
+
+@keyframes superStarArmDance {
+  from { transform: rotate(54deg); }
+  to { transform: rotate(-42deg); }
+}
+
+@keyframes superStarLegDance {
+  from { transform: rotate(22deg); }
+  to { transform: rotate(-18deg); }
+}
+
+@keyframes superStarBallBounce {
+  from { transform: translateY(0) rotate(0deg); }
+  to { transform: translateY(-18px) rotate(42deg); }
+}
+
+@media (max-width: 640px) {
+  .super-star-reveal {
+    padding: 12px;
+  }
+
+  .super-star-stage {
+    min-height: min(710px, calc(100vh - 24px));
+    gap: 14px;
+    padding: 72px 10px 20px;
+    border-radius: 22px;
+  }
+
+  .super-star-player-title {
+    font-size: clamp(2rem, 12vw, 3.35rem);
+  }
+
+  .super-star-showcase {
+    min-height: 292px;
+  }
+
+  .super-star-card-host .super-sub-player-card {
+    width: min(42vw, 178px);
+  }
+
+  .super-star-footballer {
+    width: 62px;
+    height: 128px;
+    top: 58%;
+    animation-name: superStarWalkCelebrateMobile;
+  }
+
+  .super-star-head {
+    width: 42px;
+    height: 42px;
+    font-size: 28px;
+  }
+
+  .super-star-body {
+    top: 42px;
+    width: 28px;
+    height: 48px;
+  }
+
+  .super-star-arm {
+    top: 48px;
+    height: 34px;
+  }
+
+  .super-star-arm.left {
+    left: 9px;
+  }
+
+  .super-star-arm.right {
+    right: 9px;
+  }
+
+  .super-star-leg {
+    top: 86px;
+    height: 42px;
+  }
+
+  .super-star-leg.left {
+    left: 18px;
+  }
+
+  .super-star-leg.right {
+    right: 18px;
+  }
+
+  .super-star-ball {
+    right: -16px;
+    width: 19px;
+    height: 19px;
+  }
+
+  .super-star-message {
+    font-size: clamp(1.18rem, 6.4vw, 2rem);
+  }
+}
+
+@keyframes superStarWalkCelebrateMobile {
+  0% {
+    opacity: 0;
+    transform: translate(-52px, -48%) scale(0.72);
+  }
+  18% {
+    opacity: 1;
+  }
+  44% {
+    opacity: 1;
+    transform: translate(88px, -48%) scale(0.92);
+  }
+  62% {
+    transform: translate(98px, -62%) scale(0.96) rotate(-4deg);
+  }
+  80% {
+    transform: translate(98px, -42%) scale(0.94) rotate(4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(98px, -50%) scale(0.96) rotate(0deg);
+  }
+}
+
 /* ===== SUPER SUB REVEAL ===== */
 .super-sub-reveal {
   display: none;
@@ -5397,6 +5752,30 @@ html.capacitor-android .veto-curse-description {
     </div>
   </div>
 
+  <!-- Super Star Man Reveal -->
+  <div class="super-star-reveal" id="superStarReveal" aria-hidden="true">
+    <div class="super-star-stage">
+      <div class="super-draw-countdown super-star-countdown" aria-live="polite">
+        <span class="super-draw-countdown-label">Returns in</span>
+        <span class="super-draw-countdown-clock" id="superStarCountdown">9</span>
+      </div>
+      <h2 class="super-star-player-title" id="superStarPlayerTitle">Super Star Man</h2>
+      <div class="super-star-showcase">
+        <div class="super-star-card-host" id="superStarCardHost"></div>
+        <div class="super-star-footballer" aria-hidden="true">
+          <span class="super-star-head">★</span>
+          <span class="super-star-body"></span>
+          <span class="super-star-arm left"></span>
+          <span class="super-star-arm right"></span>
+          <span class="super-star-leg left"></span>
+          <span class="super-star-leg right"></span>
+          <span class="super-star-ball"></span>
+        </div>
+      </div>
+      <p class="super-star-message">IS NOW A SUPER STAR MAN</p>
+    </div>
+  </div>
+
   <!-- Super Sub Reveal -->
   <div class="super-sub-reveal" id="superSubReveal" aria-hidden="true">
     <div class="super-sub-stage">
@@ -5988,7 +6367,7 @@ const cardDescriptions = {
   "Curse of the Even Number": "Curse of the Even Number\n\nValid for 1 Gameweek. Opponent can only Predict an Even number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time. Cannot be picked whilst Curse of The Random is active.",
   "Curse of the Odd Number": "Curse of the Odd Number\n\nValid for 1 Gameweek. Opponent can only Predict an Odd number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time. Cannot be picked whilst Curse of The Random is active.",
 
-  "Super Star Man": "Super Star Man\n\nStar Man points are TRIPLED. Yellow and Red cards are 0pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Star Man": "Super Star Man\n\nCan only be played after you have saved a Star Man for this Gameweek. Star Man points are TRIPLED. Yellow and Red cards are 0pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
   "Super Golden Gameweek": "Super Golden Gameweek\n\nPrediction League points for all games are DOUBLED. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
   "Super Sub": "Super Sub\n\nStar Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don't earn negative points. Curse Cards don't apply on the Super Sub, Power Cards Apply.",
   "Super Score": "Super Score\n\nChoose one scoreline, for example 0-0, 1-0, or 1-2. Each time that exact scoreline happens, earn +3 UC pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
@@ -7183,7 +7562,7 @@ function closeSuperDrawRevealShell() {
   if (countdown) {
     countdown.textContent = '0';
   }
-  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-sub-reveal.show, .super-sub-preview-modal.show')) {
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-sub-reveal.show, .super-star-reveal.show, .super-sub-preview-modal.show')) {
     document.body.classList.remove('card-preview-open');
   }
 }
@@ -7241,6 +7620,82 @@ async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
     countdownTimer = null;
   }
   closeSuperDrawRevealShell();
+}
+
+function closeSuperStarReveal() {
+  const reveal = document.getElementById('superStarReveal');
+  const cardHost = document.getElementById('superStarCardHost');
+  const countdown = document.getElementById('superStarCountdown');
+  const title = document.getElementById('superStarPlayerTitle');
+  reveal?.classList.remove('show');
+  reveal?.setAttribute('aria-hidden', 'true');
+  if (cardHost) {
+    cardHost.innerHTML = '';
+  }
+  if (countdown) {
+    countdown.textContent = '0';
+  }
+  if (title) {
+    title.textContent = 'Super Star Man';
+  }
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-draw-reveal.show, .super-sub-reveal.show, .super-sub-preview-modal.show')) {
+    document.body.classList.remove('card-preview-open');
+  }
+}
+
+async function loadCurrentStarManForSuperStar() {
+  if (!cardRuntime?.loadCurrentStarManForSuperStar) {
+    return null;
+  }
+
+  const result = await cardRuntime.loadCurrentStarManForSuperStar();
+  if (result?.teamNames) {
+    superSubUiState.teamNames = {
+      ...(superSubUiState.teamNames || {}),
+      ...result.teamNames,
+    };
+  }
+  return result?.player || null;
+}
+
+async function showSuperStarManReveal(player) {
+  const reveal = document.getElementById('superStarReveal');
+  const title = document.getElementById('superStarPlayerTitle');
+  const cardHost = document.getElementById('superStarCardHost');
+  const countdown = document.getElementById('superStarCountdown');
+  if (!reveal || !title || !cardHost) {
+    return;
+  }
+
+  const totalDuration = 9300;
+  const revealStartedAt = Date.now();
+  let countdownTimer = null;
+
+  const updateCountdown = () => {
+    if (!countdown) return;
+    const remainingMs = Math.max(0, totalDuration - (Date.now() - revealStartedAt));
+    countdown.textContent = String(Math.ceil(remainingMs / 1000));
+  };
+
+  title.textContent = player?.display_name || 'Super Star Man';
+  cardHost.innerHTML = superSubPlayerCardMarkup(player, {
+    className: 'super-sub-player-card super-star-player-card',
+  });
+  cardHost.querySelectorAll('.super-sub-player-name, .super-sub-footer').forEach((element) => {
+    requestAnimationFrame(() => fitTextWithin(element, window.matchMedia('(max-width: 640px)').matches ? 8 : 7));
+  });
+  updateCountdown();
+  document.body.classList.add('card-preview-open');
+  reveal.classList.add('show');
+  reveal.setAttribute('aria-hidden', 'false');
+  countdownTimer = window.setInterval(updateCountdown, 250);
+
+  await wait(totalDuration);
+  if (countdownTimer) {
+    window.clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+  closeSuperStarReveal();
 }
 
 const superSubFlagCodes = {
@@ -7433,7 +7888,7 @@ function closeSuperSubReveal() {
   const reveal = document.getElementById('superSubReveal');
   reveal?.classList.remove('show');
   reveal?.setAttribute('aria-hidden', 'true');
-  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-sub-preview-modal.show')) {
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-star-reveal.show, .super-sub-preview-modal.show')) {
     document.body.classList.remove('card-preview-open');
   }
 }
@@ -7565,6 +8020,8 @@ async function confirmCardPlay() {
   const isSwapCard = card === "Power of the Swap";
   const isThiefCard = card === "Curse of the Thief";
   const isSuperSubCard = card === "Super Sub";
+  const isSuperStarManCard = card === "Super Star Man";
+  let superStarManPlayer = null;
 
   closeCardPreview();
 
@@ -7606,6 +8063,24 @@ async function confirmCardPlay() {
       await cardRuntime.assertCardInOwnHand(selectedCardInstanceId, card);
     } catch (error) {
       showSiteNotice(error.message || `${card} is no longer available. Your cards have been refreshed.`, card || 'Card unavailable', 'warning');
+      return;
+    }
+  }
+
+  if (isSuperStarManCard) {
+    try {
+      superStarManPlayer = await loadCurrentStarManForSuperStar();
+    } catch (error) {
+      showSiteNotice(error.message || 'Could not check your saved Star Man.', 'Super Star Man', 'warning');
+      return;
+    }
+
+    if (!superStarManPlayer) {
+      showSiteNotice(
+        'Super Star Man can only be played once you have saved a Star Man for this Gameweek.',
+        'Super Star Man',
+        'warning'
+      );
       return;
     }
   }
@@ -7706,6 +8181,16 @@ async function confirmCardPlay() {
       cardInstanceId: activation?.card_instance_id || selectedCardInstanceId,
       playedIndex: index,
     });
+  }
+  else if (isSuperStarManCard) {
+    activation = activation || {};
+    activation.__skipFinalNotice = true;
+    await showSuperStarManReveal(superStarManPlayer);
+    try {
+      await syncHandFromDatabase({ force: true });
+    } catch (error) {
+      console.warn('Could not refresh hand after Super Star Man reveal', error);
+    }
   }
   else if (isThiefCard) startStealMode(player, activation);
 
@@ -8132,6 +8617,7 @@ const starManPickRequiredPowerKeys = new Set([
   'power_assist_king',
   'power_lanky_crouch',
   'power_small_and_mighty',
+  'super_star_man',
 ]);
 
 const heightPowerOpposites = {
@@ -10402,6 +10888,16 @@ async function initializeCardPage() {
       };
     }
 
+    async function loadCurrentStarManForSuperStarRuntime() {
+      const contextData = await loadSuperSubContext();
+      const currentPlayer = contextData.players.find((player) => String(player.id) === String(contextData.currentPick?.player_id)) || null;
+      return {
+        activeGameweek: contextData.activeGameweek,
+        player: currentPlayer,
+        teamNames: contextData.teamNames,
+      };
+    }
+
     async function confirmSuperSubSelectionRuntime(pending, replacementPlayerId) {
       if (!pending?.cardInstanceId) {
         throw new Error('Super Sub is no longer available. Your cards have been refreshed.');
@@ -10476,6 +10972,7 @@ async function initializeCardPage() {
       refreshHands,
       resumePendingRandomCurse,
       prepareSuperSubFlow,
+      loadCurrentStarManForSuperStar: loadCurrentStarManForSuperStarRuntime,
       confirmSuperSubSelection: confirmSuperSubSelectionRuntime,
       async assertCardInOwnHand(cardInstanceId, cardName) {
         if (!cardInstanceId) {

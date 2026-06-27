@@ -1153,15 +1153,18 @@ function renderSelectedPlayer(slot, player, options = {}) {
   }
 
   const isSaved = options.saved === true;
-  const heading = isSaved
-    ? (slot === 'super_duo' ? 'Submitted Super Duo' : 'Submitted Star Man')
-    : (slot === 'super_duo' ? 'Selected Super Duo' : 'Selected Star Man');
+  const isSuperStar = slot === 'primary' && Boolean(ownEffect('super_star_man'));
+  const heading = isSuperStar
+    ? (isSaved ? 'Submitted Super Star Man' : 'Selected Super Star Man')
+    : (isSaved
+      ? (slot === 'super_duo' ? 'Submitted Super Duo' : 'Submitted Star Man')
+      : (slot === 'super_duo' ? 'Selected Super Duo' : 'Selected Star Man'));
 
   selected.classList.add('has-card');
   selected.innerHTML = `
-    <span class="selected-player-heading">${escapeHtml(heading)}</span>
-    <span class="selected-player-card-wrap">
-      <span class="selected-player-card${isSaved ? ' saved' : ''}" aria-label="${escapeHtml(playerLabel(player))}">
+    <span class="selected-player-heading${isSuperStar ? ' super-star-heading' : ''}">${escapeHtml(heading)}</span>
+    <span class="selected-player-card-wrap${isSuperStar ? ' super-star-man-wrap' : ''}">
+      <span class="selected-player-card${isSaved ? ' saved' : ''}${isSuperStar ? ' super-star-man-card' : ''}" aria-label="${escapeHtml(playerLabel(player))}">
         ${playerCardMarkup(player, { mode: 'selected' })}
       </span>
     </span>
@@ -1367,9 +1370,12 @@ function renderSearch(slot) {
   }
 
   if (query.length < 2) {
-    setResultsMessage(results, state.existingPicks.get(slot) && query === ''
-      ? 'Save blank to remove this Star Man.'
-      : 'Type at least 2 letters.');
+    const blankExistingMessage = state.existingPicks.get(slot) && query === ''
+      ? (slot === 'primary' && ownEffect('super_star_man')
+        ? 'Super Star Man is active: choose a replacement instead of clearing.'
+        : 'Save blank to remove this Star Man.')
+      : 'Type at least 2 letters.';
+    setResultsMessage(results, blankExistingMessage);
     return;
   }
 
@@ -1460,6 +1466,11 @@ async function savePick(slot) {
   if (!player) {
     const { input } = slotElements(slot);
     if (state.existingPicks.get(slot) && (input?.value.trim() || '') === '') {
+      if (slot === 'primary' && ownEffect('super_star_man')) {
+        setMessage(slot, 'Super Star Man is active, so your Star Man can be changed but not cleared.', 'error');
+        renderSearch(slot);
+        return;
+      }
       await clearPick(slot);
       return;
     }
@@ -1522,6 +1533,12 @@ async function savePick(slot) {
 }
 
 async function clearPick(slot) {
+  if (slot === 'primary' && ownEffect('super_star_man')) {
+    setMessage(slot, 'Super Star Man is active, so your Star Man can be changed but not cleared.', 'error');
+    renderSearch(slot);
+    return;
+  }
+
   setMessage(slot, slot === 'super_duo' ? 'Clearing Super Duo...' : 'Clearing Star Man...', 'info');
 
   const { error } = await supabase
