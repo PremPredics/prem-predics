@@ -943,11 +943,12 @@ function renderSuperScorePanel() {
     return '';
   }
 
-  const locked = isPast(state.activeGameweek.star_man_locks_at);
+  const deadline = superScoreDeadlineAt();
+  const locked = isPast(deadline);
   return `
     <section class="hedge-panel super-score-panel" data-super-score-panel>
       <h3>Super Score</h3>
-      <p class="state-text">Choose one scoreline. Every fixture that finishes with that exact home-away scoreline earns +3 UC pts.</p>
+      <p class="state-text">Every game with this scoreline (Home vs Away) will earn +3 UC pts.</p>
       <div class="hedge-controls scoreline-controls">
         <span class="scoreline-label">Scoreline</span>
         <input class="score-input" data-super-score-home type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score home goals">
@@ -955,9 +956,17 @@ function renderSuperScorePanel() {
         <input class="score-input" data-super-score-away type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score away goals">
         <button type="button" data-save-super-score ${locked ? 'disabled' : ''}>Save</button>
       </div>
-      <p class="state-text">${locked ? 'Super Score is locked for this gameweek.' : `Deadline: ${countdownText(state.activeGameweek.star_man_locks_at)}`}</p>
+      <p class="state-text">${locked ? 'Super Score is locked for this gameweek.' : `Deadline: ${countdownText(deadline)}`}</p>
     </section>
   `;
+}
+
+function superScoreDeadlineAt() {
+  const fixtureKickoffs = state.fixtures
+    .map((fixture) => fixture.kickoff_at)
+    .filter(Boolean)
+    .sort((left, right) => new Date(left).getTime() - new Date(right).getTime());
+  return state.activeGameweek?.first_fixture_kickoff_at || fixtureKickoffs[0] || state.activeGameweek?.star_man_locks_at || null;
 }
 
 function wireSpecialPanels() {
@@ -1429,7 +1438,7 @@ async function saveSuperScorePick() {
     return;
   }
 
-  if (isPast(state.activeGameweek.star_man_locks_at)) {
+  if (isPast(superScoreDeadlineAt())) {
     setMessage('Super Score is locked for this gameweek.', 'error');
     return;
   }

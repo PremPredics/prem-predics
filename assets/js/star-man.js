@@ -242,15 +242,10 @@ function canSearchSlot(slot) {
   }
 
   if (slot === 'super_duo') {
-    return false;
+    return Boolean(ownEffect('super_duo'));
   }
 
-  const hasExistingPick = Boolean(state.existingPicks.get(slot));
-  if (hasExistingPick) {
-    return Boolean(ownEffect('power_late_scout'));
-  }
-
-  return Boolean(ownEffect('power_late_scout'));
+  return Boolean(ownEffect('power_late_scout') || ownEffect('super_sub'));
 }
 
 function applySlotSearchState(slot) {
@@ -686,8 +681,8 @@ function deadlineCheck(player, slot) {
       return { allowed: false, reason: 'Super Duo is not active.', sourceCardEffectId: null };
     }
 
-    if (globalLocked) {
-      return { allowed: false, reason: 'Super Duo must be picked before the gameweek lock.', sourceCardEffectId: superDuo.id };
+    if (isPast(fixture.kickoff_at)) {
+      return { allowed: false, reason: "this player's team has already kicked off", sourceCardEffectId: superDuo.id };
     }
 
     return { allowed: true, reason: '', sourceCardEffectId: superDuo.id };
@@ -1372,7 +1367,7 @@ function renderSearch(slot) {
   if (query.length < 2) {
     const blankExistingMessage = state.existingPicks.get(slot) && query === ''
       ? (slot === 'primary' && ownEffect('super_star_man')
-        ? 'Super Star Man is active: choose a replacement instead of clearing.'
+        ? 'Type at least 2 letters.'
         : 'Save blank to remove this Star Man.')
       : 'Type at least 2 letters.';
     setResultsMessage(results, blankExistingMessage);
@@ -1467,7 +1462,6 @@ async function savePick(slot) {
     const { input } = slotElements(slot);
     if (state.existingPicks.get(slot) && (input?.value.trim() || '') === '') {
       if (slot === 'primary' && ownEffect('super_star_man')) {
-        setMessage(slot, 'Super Star Man is active, so your Star Man can be changed but not cleared.', 'error');
         renderSearch(slot);
         return;
       }
@@ -1534,7 +1528,6 @@ async function savePick(slot) {
 
 async function clearPick(slot) {
   if (slot === 'primary' && ownEffect('super_star_man')) {
-    setMessage(slot, 'Super Star Man is active, so your Star Man can be changed but not cleared.', 'error');
     renderSearch(slot);
     return;
   }

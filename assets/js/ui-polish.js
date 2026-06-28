@@ -692,7 +692,8 @@ function refreshStarClearButtons() {
       });
     }
 
-    const showClear = Boolean(input.value.trim());
+    const superStarActive = slot === 'primary' && Boolean(document.querySelector('.selected-player-heading.super-star-heading'));
+    const showClear = Boolean(input.value.trim()) && !superStarActive;
     button.hidden = !showClear;
     wrapper.classList.toggle('star-clear-visible', showClear);
   });

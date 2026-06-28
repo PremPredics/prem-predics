@@ -1568,11 +1568,24 @@ as $$
           )
           or (
             target_pick_slot = 'super_duo'
-            and now() < public.star_man_lock_at_for_gameweek(target_season_id, target_gameweek_id)
+            and not exists (
+              select 1
+              from public.star_man_picks smp
+              where smp.competition_id = target_competition_id
+                and smp.gameweek_id = target_gameweek_id
+                and smp.user_id = target_user_id
+                and smp.pick_slot = 'primary'
+                and smp.player_id = target_player_id
+            )
             and exists (
               select 1
               from public.active_card_effects ace
               join public.card_definitions cd on cd.id = ace.card_id
+              join public.players p on p.id = target_player_id
+              join public.fixtures f
+                on f.season_id = target_season_id
+                and f.gameweek_id = target_gameweek_id
+                and f.status <> 'postponed'
               where ace.id = target_source_card_effect_id
                 and ace.competition_id = target_competition_id
                 and ace.played_by_user_id = target_user_id
@@ -1580,6 +1593,38 @@ as $$
                 and cd.effect_key = 'super_duo'
                 and (ace.start_gameweek_id is null or ace.start_gameweek_id <= target_gameweek_id)
                 and (ace.end_gameweek_id is null or ace.end_gameweek_id >= target_gameweek_id)
+                and (
+                  p.team_id in (f.home_team_id, f.away_team_id)
+                  or exists (
+                    select 1
+                    from public.player_team_assignments pta
+                    where pta.player_id = target_player_id
+                      and pta.season_id = target_season_id
+                      and pta.team_id in (f.home_team_id, f.away_team_id)
+                      and pta.starts_gameweek_id <= target_gameweek_id
+                      and (pta.ends_gameweek_id is null or pta.ends_gameweek_id >= target_gameweek_id)
+                  )
+                )
+                and f.kickoff_at = (
+                  select min(f2.kickoff_at)
+                  from public.fixtures f2
+                  where f2.season_id = target_season_id
+                    and f2.gameweek_id = target_gameweek_id
+                    and f2.status <> 'postponed'
+                    and (
+                      p.team_id in (f2.home_team_id, f2.away_team_id)
+                      or exists (
+                        select 1
+                        from public.player_team_assignments pta2
+                        where pta2.player_id = target_player_id
+                          and pta2.season_id = target_season_id
+                          and pta2.team_id in (f2.home_team_id, f2.away_team_id)
+                          and pta2.starts_gameweek_id <= target_gameweek_id
+                          and (pta2.ends_gameweek_id is null or pta2.ends_gameweek_id >= target_gameweek_id)
+                      )
+                    )
+                )
+                and now() < f.kickoff_at
             )
           )
         )

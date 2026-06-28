@@ -524,6 +524,33 @@ as $$
   );
 $$;
 
+create or replace function public.first_fixture_kickoff_at_for_gameweek(
+  target_season_id uuid,
+  target_gameweek_id bigint
+)
+returns timestamptz
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (
+      select min(f.kickoff_at)
+      from public.fixtures f
+      where f.season_id = target_season_id
+        and f.gameweek_id = target_gameweek_id
+        and f.status <> 'postponed'
+    ),
+    (
+      select gw.star_man_locks_at + interval '90 minutes'
+      from public.gameweeks gw
+      where gw.season_id = target_season_id
+        and gw.id = target_gameweek_id
+    )
+  );
+$$;
+
 create table public.players (
   id uuid primary key default gen_random_uuid(),
   display_name text not null,
@@ -2831,11 +2858,24 @@ as $$
           )
           or (
             target_pick_slot = 'super_duo'
-            and now() < public.star_man_lock_at_for_gameweek(target_season_id, target_gameweek_id)
+            and not exists (
+              select 1
+              from public.star_man_picks smp
+              where smp.competition_id = target_competition_id
+                and smp.gameweek_id = target_gameweek_id
+                and smp.user_id = target_user_id
+                and smp.pick_slot = 'primary'
+                and smp.player_id = target_player_id
+            )
             and exists (
               select 1
               from public.active_card_effects ace
               join public.card_definitions cd on cd.id = ace.card_id
+              join public.players p on p.id = target_player_id
+              join public.fixtures f
+                on f.season_id = target_season_id
+                and f.gameweek_id = target_gameweek_id
+                and f.status <> 'postponed'
               where ace.id = target_source_card_effect_id
                 and ace.competition_id = target_competition_id
                 and ace.played_by_user_id = target_user_id
@@ -2843,6 +2883,38 @@ as $$
                 and cd.effect_key = 'super_duo'
                 and (ace.start_gameweek_id is null or ace.start_gameweek_id <= target_gameweek_id)
                 and (ace.end_gameweek_id is null or ace.end_gameweek_id >= target_gameweek_id)
+                and (
+                  p.team_id in (f.home_team_id, f.away_team_id)
+                  or exists (
+                    select 1
+                    from public.player_team_assignments pta
+                    where pta.player_id = target_player_id
+                      and pta.season_id = target_season_id
+                      and pta.team_id in (f.home_team_id, f.away_team_id)
+                      and pta.starts_gameweek_id <= target_gameweek_id
+                      and (pta.ends_gameweek_id is null or pta.ends_gameweek_id >= target_gameweek_id)
+                  )
+                )
+                and f.kickoff_at = (
+                  select min(f2.kickoff_at)
+                  from public.fixtures f2
+                  where f2.season_id = target_season_id
+                    and f2.gameweek_id = target_gameweek_id
+                    and f2.status <> 'postponed'
+                    and (
+                      p.team_id in (f2.home_team_id, f2.away_team_id)
+                      or exists (
+                        select 1
+                        from public.player_team_assignments pta2
+                        where pta2.player_id = target_player_id
+                          and pta2.season_id = target_season_id
+                          and pta2.team_id in (f2.home_team_id, f2.away_team_id)
+                          and pta2.starts_gameweek_id <= target_gameweek_id
+                          and (pta2.ends_gameweek_id is null or pta2.ends_gameweek_id >= target_gameweek_id)
+                      )
+                    )
+                )
+                and now() < f.kickoff_at
             )
           )
         )
@@ -3516,7 +3588,7 @@ with check (
   )
 );
 
-create policy "super score picks visible to owner admin or after gameweek lock"
+create policy "super score picks visible to owner admin or after first kickoff"
 on public.super_score_picks for select
 to authenticated
 using (
@@ -3528,12 +3600,13 @@ using (
       select 1
       from public.gameweeks gw
       where gw.id = super_score_picks.gameweek_id
-        and now() >= public.star_man_lock_at_for_gameweek(super_score_picks.season_id, super_score_picks.gameweek_id)
+        and gw.season_id = super_score_picks.season_id
+        and now() >= public.first_fixture_kickoff_at_for_gameweek(super_score_picks.season_id, super_score_picks.gameweek_id)
     )
   )
 );
 
-create policy "users insert own super score pick before gameweek lock"
+create policy "users insert own super score pick before first kickoff"
 on public.super_score_picks for insert
 to authenticated
 with check (
@@ -3544,7 +3617,7 @@ with check (
     from public.gameweeks gw
     where gw.id = super_score_picks.gameweek_id
       and gw.season_id = super_score_picks.season_id
-      and now() < public.star_man_lock_at_for_gameweek(super_score_picks.season_id, super_score_picks.gameweek_id)
+      and now() < public.first_fixture_kickoff_at_for_gameweek(super_score_picks.season_id, super_score_picks.gameweek_id)
   )
   and exists (
     select 1
@@ -3557,7 +3630,7 @@ with check (
   )
 );
 
-create policy "users update own super score pick before gameweek lock"
+create policy "users update own super score pick before first kickoff"
 on public.super_score_picks for update
 to authenticated
 using (
@@ -3566,7 +3639,8 @@ using (
     select 1
     from public.gameweeks gw
     where gw.id = super_score_picks.gameweek_id
-      and now() < public.star_man_lock_at_for_gameweek(super_score_picks.season_id, super_score_picks.gameweek_id)
+      and gw.season_id = super_score_picks.season_id
+      and now() < public.first_fixture_kickoff_at_for_gameweek(super_score_picks.season_id, super_score_picks.gameweek_id)
   )
 )
 with check (
@@ -3577,7 +3651,7 @@ with check (
     from public.gameweeks gw
     where gw.id = super_score_picks.gameweek_id
       and gw.season_id = super_score_picks.season_id
-      and now() < public.star_man_lock_at_for_gameweek(super_score_picks.season_id, super_score_picks.gameweek_id)
+      and now() < public.first_fixture_kickoff_at_for_gameweek(super_score_picks.season_id, super_score_picks.gameweek_id)
   )
   and exists (
     select 1
@@ -3949,6 +4023,7 @@ grant execute on function public.finalize_competition_start(uuid) to authenticat
 grant execute on function public.sync_competition_member_lock(uuid) to authenticated;
 grant execute on function public.update_my_profile(text, text, text, text, uuid, text, text) to authenticated;
 grant execute on function public.star_man_lock_at_for_gameweek(uuid, bigint) to authenticated;
+grant execute on function public.first_fixture_kickoff_at_for_gameweek(uuid, bigint) to authenticated;
 grant execute on function public.scrabble_score(text) to authenticated;
 grant execute on function public.veto_my_active_curse(uuid, uuid) to authenticated;
 

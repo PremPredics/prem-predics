@@ -1673,6 +1673,62 @@ button:disabled {
   text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
 }
 
+.super-score-stage {
+  min-height: min(620px, calc(100vh - 28px));
+  align-content: center;
+  gap: clamp(18px, 3vw, 32px);
+}
+
+.super-scoreline-pickers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 3vw, 26px);
+  width: min(560px, 100%);
+}
+
+.super-scoreline-input {
+  width: clamp(76px, 11vw, 116px);
+  height: clamp(62px, 8vw, 88px);
+  border-radius: 18px;
+  border: 4px solid rgba(255, 255, 255, 0.82);
+  background: rgba(24, 7, 38, 0.88);
+  color: #fff;
+  text-align: center;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-weight: 1000;
+  outline: none;
+  box-shadow:
+    0 0 26px rgba(250, 204, 21, 0.52),
+    inset 0 0 16px rgba(0, 0, 0, 0.45);
+  text-shadow: -2px -2px 0 #000, 2px 2px 0 #000;
+}
+
+.super-scoreline-input:focus {
+  border-color: #67e8f9;
+  box-shadow:
+    0 0 30px rgba(103, 232, 249, 0.72),
+    inset 0 0 16px rgba(0, 0, 0, 0.45);
+}
+
+.super-scoreline-dash {
+  color: #fff;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  font-weight: 1000;
+  line-height: 1;
+  text-shadow: -2px -2px 0 #000, 2px 2px 0 #000, 0 0 18px rgba(255, 255, 255, 0.78);
+}
+
+.super-score-later-note {
+  max-width: min(760px, 94%);
+  margin: 0;
+  color: #fff7d6;
+  font-size: clamp(0.8rem, 1.7vw, 1rem);
+  font-weight: 900;
+  line-height: 1.2;
+  text-shadow: -1px -1px 0 #000, 1px 1px 0 #000;
+}
+
 .super-sub-actions {
   display: flex;
   gap: 12px;
@@ -1891,6 +1947,21 @@ button:disabled {
 
   .super-sub-actions {
     width: 100%;
+  }
+
+  .super-score-stage {
+    min-height: calc(100vh - 20px);
+  }
+
+  .super-scoreline-pickers {
+    gap: 10px;
+  }
+
+  .super-scoreline-input {
+    width: min(22vw, 86px);
+    height: min(17vw, 68px);
+    border-radius: 14px;
+    font-size: clamp(1.55rem, 8vw, 2.35rem);
   }
 
   .super-sub-confirm,
@@ -5814,6 +5885,24 @@ html.capacitor-android .veto-curse-description {
     </div>
   </div>
 
+  <!-- Super Score Reveal -->
+  <div class="super-sub-reveal super-score-reveal" id="superScoreReveal" aria-hidden="true">
+    <div class="super-sub-stage super-score-stage">
+      <h2 class="super-draw-title">Choose One Scoreline</h2>
+      <div class="super-scoreline-pickers" aria-label="Choose Super Score scoreline">
+        <input class="super-scoreline-input" id="superScoreRevealHome" type="text" inputmode="numeric" maxlength="2" aria-label="Super Score home goals">
+        <span class="super-scoreline-dash">-</span>
+        <input class="super-scoreline-input" id="superScoreRevealAway" type="text" inputmode="numeric" maxlength="2" aria-label="Super Score away goals">
+      </div>
+      <p class="super-draw-subtitle">Every game with this scoreline (Home vs Away) will earn +3 UC pts</p>
+      <div class="super-sub-actions">
+        <button class="super-sub-confirm" id="superScoreRevealConfirm" type="button" onclick="confirmSuperScoreRevealSelection()">Confirm Scoreline</button>
+        <button class="super-sub-back" type="button" onclick="closeSuperScoreReveal()">Choose Later</button>
+      </div>
+      <p class="super-score-later-note">If you exit this screen, you can choose your Super Score in the 'Make Predictions' page.</p>
+    </div>
+  </div>
+
   <!-- Deck Choice Modal -->
   <div class="deck-choice-modal" id="deckChoiceModal">
     <div class="deck-choice-wrapper">
@@ -6370,9 +6459,9 @@ const cardDescriptions = {
   "Super Star Man": "Super Star Man\n\nCan only be played after you have saved a Star Man for this Gameweek. Star Man points are TRIPLED. Yellow and Red cards are 0pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
   "Super Golden Gameweek": "Super Golden Gameweek\n\nPrediction League points for all games are DOUBLED. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
   "Super Sub": "Super Sub\n\nStar Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don't earn negative points. Curse Cards don't apply on the Super Sub, Power Cards Apply.",
-  "Super Score": "Super Score\n\nChoose one scoreline, for example 0-0, 1-0, or 1-2. Each time that exact scoreline happens, earn +3 UC pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
-  "Super Draw": "Super Draw\n\nDraw Regular Deck cards. Draw count: 3 cards in 2-3 player leagues, 4 cards in 4-6 player leagues, and 5 cards in 7-10 player leagues.",
-  "Super Duo": "Super Duo\n\nTwo Star Men can be chosen during the active range. Must choose both players before the relevant Gameweek starts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Score": "Super Score\n\nChoose one scoreline before the Gameweek's first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.",
+  "Super Draw": "Super Draw\n\nDraw 5 Regular Deck cards.",
+  "Super Duo": "Super Duo\n\nChoose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player's team's first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.",
   "Super Pen": "Super Pen\n\nDraw a card from the Regular Deck any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
 
   "Game of Goals": "Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
@@ -6464,6 +6553,7 @@ let gameState = {
   pendingSwap: null,
   pendingRandomCurse: null,
   pendingSuperSub: null,
+  pendingSuperDuo: null,
   stealMode: null,
   selectedSteal: null,
   activeGameCard: null,
@@ -6568,10 +6658,7 @@ function deckVariantForMemberCount(memberCount) {
 }
 
 function superDrawCountForDeckVariant(deckVariantId) {
-  const playerCount = playerCountFromDeckVariant(deckVariantId);
-  if (playerCount >= 7) return 5;
-  if (playerCount >= 4) return 4;
-  return 3;
+  return 5;
 }
 
 function superDurationForDeckVariant(deckVariantId) {
@@ -7097,7 +7184,7 @@ function setActiveGameCardPanel(cardName, rangeText, description) {
 
 function syncHandFromDatabase(options = {}) {
   const force = Boolean(options.force);
-  if (!force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.stealMode)) {
+  if (!force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.pendingSuperDuo || gameState.stealMode)) {
     return Promise.resolve();
   }
 
@@ -7203,6 +7290,10 @@ function openDeckChoice() {
   }
   if (gameState.pendingSuperSub) {
     openSuperSubFlow();
+    return;
+  }
+  if (gameState.pendingSuperDuo) {
+    openSuperSubFlow('super_duo');
     return;
   }
   if (gameState.stealMode) {
@@ -7562,7 +7653,7 @@ function closeSuperDrawRevealShell() {
   if (countdown) {
     countdown.textContent = '0';
   }
-  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-sub-reveal.show, .super-star-reveal.show, .super-sub-preview-modal.show')) {
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-sub-reveal.show, .super-star-reveal.show, .super-score-reveal.show, .super-sub-preview-modal.show')) {
     document.body.classList.remove('card-preview-open');
   }
 }
@@ -7638,7 +7729,7 @@ function closeSuperStarReveal() {
   if (title) {
     title.textContent = 'Super Star Man';
   }
-  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-draw-reveal.show, .super-sub-reveal.show, .super-sub-preview-modal.show')) {
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-draw-reveal.show, .super-sub-reveal.show, .super-score-reveal.show, .super-sub-preview-modal.show')) {
     document.body.classList.remove('card-preview-open');
   }
 }
@@ -7698,9 +7789,88 @@ async function showSuperStarManReveal(player) {
   closeSuperStarReveal();
 }
 
+function closeSuperScoreReveal() {
+  const reveal = document.getElementById('superScoreReveal');
+  const homeInput = document.getElementById('superScoreRevealHome');
+  const awayInput = document.getElementById('superScoreRevealAway');
+  reveal?.classList.remove('show');
+  reveal?.setAttribute('aria-hidden', 'true');
+  if (homeInput) homeInput.value = '';
+  if (awayInput) awayInput.value = '';
+  gameState.pendingSuperScore = null;
+  save();
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-draw-reveal.show, .super-star-reveal.show, .super-sub-reveal.show, .super-sub-preview-modal.show')) {
+    document.body.classList.remove('card-preview-open');
+  }
+}
+
+function openSuperScoreReveal(activation = null) {
+  const reveal = document.getElementById('superScoreReveal');
+  const homeInput = document.getElementById('superScoreRevealHome');
+  const awayInput = document.getElementById('superScoreRevealAway');
+  if (!reveal) return;
+
+  gameState.pendingSuperScore = {
+    effectId: activation?.id || null,
+    gameweekId: activation?.gameweek_id || null,
+    gameweekNumber: activation?.gameweek_number || null,
+  };
+  save();
+  if (homeInput) homeInput.value = '';
+  if (awayInput) awayInput.value = '';
+  document.body.classList.add('card-preview-open');
+  reveal.classList.add('show');
+  reveal.setAttribute('aria-hidden', 'false');
+  window.setTimeout(() => homeInput?.focus(), 160);
+}
+
+function superScoreRevealValue(input) {
+  const value = String(input?.value || '').trim();
+  if (!/^\d{1,2}$/.test(value)) return null;
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 0 && number <= 99 ? number : null;
+}
+
+async function confirmSuperScoreRevealSelection() {
+  const homeInput = document.getElementById('superScoreRevealHome');
+  const awayInput = document.getElementById('superScoreRevealAway');
+  const confirmButton = document.getElementById('superScoreRevealConfirm');
+  const homeGoals = superScoreRevealValue(homeInput);
+  const awayGoals = superScoreRevealValue(awayInput);
+  if (homeGoals === null || awayGoals === null) {
+    showSiteNotice('Enter a whole-number scoreline from 0 to 99.', 'Super Score', 'warning');
+    return;
+  }
+  if (!gameState.pendingSuperScore?.effectId || !cardRuntime?.saveSuperScorePick) {
+    closeSuperScoreReveal();
+    showSiteNotice('Super Score is active. Choose the scoreline from Make Predictions.', 'Super Score', 'warning');
+    return;
+  }
+
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Saving...';
+  }
+
+  try {
+    await cardRuntime.saveSuperScorePick(gameState.pendingSuperScore, homeGoals, awayGoals);
+    closeSuperScoreReveal();
+    showSiteNotice(`${homeGoals}-${awayGoals} is your Super Score for this Gameweek.`, 'Super Score Saved', 'super-sub-success');
+    await syncHandFromDatabase({ force: true });
+    render();
+  } catch (error) {
+    showSiteNotice(error.message || 'Could not save Super Score.', 'Super Score', 'warning');
+  } finally {
+    if (confirmButton) {
+      confirmButton.textContent = 'Confirm Scoreline';
+      confirmButton.disabled = false;
+    }
+  }
+}
+
 const superSubFlagCodes = {
   albania: 'AL', algeria: 'DZ', argentina: 'AR', austria: 'AT', belgium: 'BE', brazil: 'BR',
-  bulgaria: 'BG', cameroon: 'CM', colombia: 'CO', croatia: 'HR', 'czech republic': 'CZ',
+  bulgaria: 'BG', 'burkina faso': 'BF', cameroon: 'CM', colombia: 'CO', croatia: 'HR', 'czech republic': 'CZ',
   denmark: 'DK', 'dr congo': 'CD', ecuador: 'EC', egypt: 'EG', england: 'GB-ENG',
   france: 'FR', gambia: 'GM', georgia: 'GE', germany: 'DE', ghana: 'GH', greece: 'GR',
   hungary: 'HU', iceland: 'IS', ireland: 'IE', italy: 'IT', 'ivory coast': 'CI',
@@ -7715,6 +7885,7 @@ const superSubFlagCodes = {
 };
 
 let superSubUiState = {
+  mode: 'super_sub',
   currentPlayer: null,
   selectedPlayer: null,
   previewPlayer: null,
@@ -7788,6 +7959,28 @@ function playerMatchesSuperSubQuery(player, query) {
   return terms.every((term) => haystack.includes(term));
 }
 
+function configureSuperSubReveal(mode = 'super_sub') {
+  const isDuo = mode === 'super_duo';
+  const title = document.querySelector('#superSubReveal .super-draw-title');
+  const subtitle = document.querySelector('#superSubReveal .super-draw-subtitle');
+  const labels = document.querySelectorAll('#superSubReveal .super-sub-label');
+  const searchLabel = document.querySelector('#superSubReveal .super-sub-search-panel label');
+  const backButton = document.querySelector('#superSubReveal .super-sub-back');
+  const confirmButton = document.getElementById('superSubConfirmBtn');
+
+  if (title) title.textContent = isDuo ? 'Super Duo' : 'Super Sub';
+  if (subtitle) {
+    subtitle.textContent = isDuo
+      ? "Choose your 2nd Star Man before that player's first Gameweek kick-off."
+      : "Swap your Star Man before the replacement player's first Gameweek kick-off.";
+  }
+  if (labels[0]) labels[0].textContent = 'Current Star Man';
+  if (labels[1]) labels[1].textContent = isDuo ? 'Super Duo' : 'Super Sub';
+  if (searchLabel) searchLabel.textContent = isDuo ? 'Choose your Super Duo' : 'Choose your Super Sub';
+  if (backButton) backButton.textContent = isDuo ? 'Choose Later' : 'Back';
+  if (confirmButton) confirmButton.textContent = 'Confirm';
+}
+
 function renderSuperSubFlow() {
   const currentCard = document.getElementById('superSubCurrentCard');
   const newCard = document.getElementById('superSubNewCard');
@@ -7835,13 +8028,17 @@ async function startSuperSubFlow(player, card, index, cardInstanceId) {
     startedAt: new Date().toISOString(),
   };
   save();
-  await openSuperSubFlow();
+  await openSuperSubFlow('super_sub');
 }
 
-async function openSuperSubFlow() {
-  if (!gameState.pendingSuperSub) return;
-  if (!cardRuntime?.prepareSuperSubFlow) {
-    showSiteNotice('Super Sub is still loading. Try again in a moment.', 'Super Sub', 'warning');
+async function openSuperSubFlow(mode = null) {
+  const flowMode = mode || (gameState.pendingSuperDuo ? 'super_duo' : 'super_sub');
+  const isDuo = flowMode === 'super_duo';
+  const pending = isDuo ? gameState.pendingSuperDuo : gameState.pendingSuperSub;
+  if (!pending) return;
+  const prepareFn = isDuo ? cardRuntime?.prepareSuperDuoFlow : cardRuntime?.prepareSuperSubFlow;
+  if (!prepareFn) {
+    showSiteNotice(`${isDuo ? 'Super Duo' : 'Super Sub'} is still loading. Try again in a moment.`, isDuo ? 'Super Duo' : 'Super Sub', 'warning');
     return;
   }
 
@@ -7861,17 +8058,16 @@ async function openSuperSubFlow() {
   if (results) {
     results.innerHTML = '<div class="super-sub-message">Loading available players...</div>';
   }
-  if (confirmButton) {
-    confirmButton.disabled = true;
-    confirmButton.textContent = 'Confirm';
-  }
+  configureSuperSubReveal(flowMode);
+  if (confirmButton) confirmButton.disabled = true;
   reveal?.classList.add('show');
   reveal?.setAttribute('aria-hidden', 'false');
   document.body.classList.add('card-preview-open');
 
   try {
     superSubUiState = {
-      ...(await cardRuntime.prepareSuperSubFlow(gameState.pendingSuperSub)),
+      ...(await prepareFn(pending)),
+      mode: flowMode,
       selectedPlayer: superSubUiState.selectedPlayer || null,
       previewPlayer: null,
       query: superSubUiState.query || '',
@@ -7880,7 +8076,7 @@ async function openSuperSubFlow() {
     window.setTimeout(() => input?.focus(), 220);
   } catch (error) {
     closeSuperSubReveal();
-    showSiteNotice(error.message || 'Could not open Super Sub.', 'Super Sub', 'warning');
+    showSiteNotice(error.message || `Could not open ${isDuo ? 'Super Duo' : 'Super Sub'}.`, isDuo ? 'Super Duo' : 'Super Sub', 'warning');
   }
 }
 
@@ -7888,13 +8084,17 @@ function closeSuperSubReveal() {
   const reveal = document.getElementById('superSubReveal');
   reveal?.classList.remove('show');
   reveal?.setAttribute('aria-hidden', 'true');
-  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-star-reveal.show, .super-sub-preview-modal.show')) {
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-draw-reveal.show, .super-star-reveal.show, .super-score-reveal.show, .super-sub-preview-modal.show')) {
     document.body.classList.remove('card-preview-open');
   }
 }
 
 function cancelSuperSubFlow() {
-  gameState.pendingSuperSub = null;
+  if (superSubUiState.mode === 'super_duo') {
+    gameState.pendingSuperDuo = null;
+  } else {
+    gameState.pendingSuperSub = null;
+  }
   save();
   closeSuperSubPreview();
   closeSuperSubReveal();
@@ -7929,12 +8129,21 @@ function closeSuperSubPreview() {
 function chooseSuperSubPreviewPlayer() {
   if (!superSubUiState.previewPlayer) return;
   superSubUiState.selectedPlayer = superSubUiState.previewPlayer;
+  superSubUiState.query = '';
+  const input = document.getElementById('superSubSearchInput');
+  if (input) {
+    input.value = '';
+    input.blur();
+  }
   closeSuperSubPreview();
   renderSuperSubFlow();
 }
 
 async function confirmSuperSubSelection() {
-  if (!superSubUiState.selectedPlayer || !gameState.pendingSuperSub || !cardRuntime?.confirmSuperSubSelection) {
+  const isDuo = superSubUiState.mode === 'super_duo';
+  const pending = isDuo ? gameState.pendingSuperDuo : gameState.pendingSuperSub;
+  const confirmFn = isDuo ? cardRuntime?.confirmSuperDuoSelection : cardRuntime?.confirmSuperSubSelection;
+  if (!superSubUiState.selectedPlayer || !pending || !confirmFn) {
     return;
   }
 
@@ -7950,16 +8159,27 @@ async function confirmSuperSubSelection() {
 
   let completed = false;
   try {
-    const result = await cardRuntime.confirmSuperSubSelection(gameState.pendingSuperSub, superSubUiState.selectedPlayer.id);
+    const result = await confirmFn(pending, superSubUiState.selectedPlayer.id);
     const oldPlayerName = result?.oldPlayerName || 'N/A';
     const newPlayerName = result?.newPlayerName || 'N/A';
-    gameState.pendingSuperSub = null;
+    if (isDuo) {
+      gameState.pendingSuperDuo = null;
+    } else {
+      gameState.pendingSuperSub = null;
+    }
     superSubUiState.selectedPlayer = null;
     superSubUiState.previewPlayer = null;
+    superSubUiState.query = '';
     save();
     completed = true;
     closeSuperSubPreview();
     closeSuperSubReveal();
+    if (isDuo) {
+      showSiteNotice(`${newPlayerName} is now your Super Duo.`, 'Super Duo Saved', 'super-sub-success');
+      await syncHandFromDatabase({ force: true });
+      render();
+      return;
+    }
     showSuperSubSuccessNotice(oldPlayerName, newPlayerName, () => {
       syncHandFromDatabase({ force: true })
         .then(() => {
@@ -8021,6 +8241,8 @@ async function confirmCardPlay() {
   const isThiefCard = card === "Curse of the Thief";
   const isSuperSubCard = card === "Super Sub";
   const isSuperStarManCard = card === "Super Star Man";
+  const isSuperScoreCard = card === "Super Score";
+  const isSuperDuoCard = card === "Super Duo";
   let superStarManPlayer = null;
 
   closeCardPreview();
@@ -8186,11 +8408,39 @@ async function confirmCardPlay() {
     activation = activation || {};
     activation.__skipFinalNotice = true;
     await showSuperStarManReveal(superStarManPlayer);
+    await discardPlayedCardPromise;
     try {
       await syncHandFromDatabase({ force: true });
     } catch (error) {
       console.warn('Could not refresh hand after Super Star Man reveal', error);
     }
+  }
+  else if (isSuperScoreCard) {
+    activation = activation || {};
+    activation.__skipFinalNotice = true;
+    await discardPlayedCardPromise;
+    save();
+    render();
+    openSuperScoreReveal(activation);
+    return;
+  }
+  else if (isSuperDuoCard) {
+    activation = activation || {};
+    activation.__skipFinalNotice = true;
+    gameState.pendingSuperDuo = {
+      player,
+      card,
+      cardInstanceId: selectedCardInstanceId,
+      effectId: activation?.id || null,
+      gameweekId: activation?.gameweek_id || null,
+      gameweekNumber: activation?.gameweek_number || null,
+      startedAt: new Date().toISOString(),
+    };
+    await discardPlayedCardPromise;
+    save();
+    render();
+    await openSuperSubFlow('super_duo');
+    return;
   }
   else if (isThiefCard) startStealMode(player, activation);
 
@@ -8898,6 +9148,10 @@ async function assertHeightPowerCanBePlayed(rule, activeGameweek, runtimeContext
 }
 
 function shouldKeepPlayedCardInHand(activation) {
+  const oneShotSuperCards = new Set(['super_draw', 'super_sub', 'super_star_man', 'super_score', 'super_duo']);
+  if (oneShotSuperCards.has(String(activation?.card_id || '').toLowerCase())) {
+    return false;
+  }
   return Boolean(activation?.card_instance_id)
     && !gameweekHasStartedFromTime(activation.first_fixture_kickoff_at);
 }
@@ -9056,12 +9310,12 @@ function render() {
           return;
         }
 
-        if (gameState.pendingSuperSub) {
-          openSuperSubFlow();
+        if (gameState.pendingSuperSub || gameState.pendingSuperDuo) {
+          openSuperSubFlow(gameState.pendingSuperDuo ? 'super_duo' : 'super_sub');
           return;
         }
 
-        if (!gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.stealMode) {
+        if (!gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.pendingSuperDuo && !gameState.stealMode) {
           showCardPreview(c, p, i);
         }
       };
@@ -9101,7 +9355,7 @@ function render() {
 
   const swapDiv = document.getElementById("pendingSwap");
   const swapSection = document.getElementById("swapSection");
-  swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.stealMode));
+  swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.pendingSuperDuo || gameState.stealMode));
   if (gameState.pendingSwap) {
     let html = `<strong>Power of the Swap Active!</strong>`;
     if (gameState.pendingSwap.drawn.length === 0) {
@@ -9142,6 +9396,18 @@ function render() {
       <p>Choose and confirm your replacement Star Man before playing anything else.</p>
       <div class="random-curse-actions">
         <button class="random-curse-resume" type="button" onclick="openSuperSubFlow()">Complete Super Sub</button>
+      </div>
+    `;
+    document.getElementById("confirmSwapBtn").style.display = "none";
+    document.getElementById("confirmPickBtn").style.display = "none";
+    document.getElementById("confirmStealBtn").style.display = "none";
+  } else if (gameState.pendingSuperDuo) {
+    swapDiv.style.display = "block";
+    swapDiv.innerHTML = `
+      <strong>Super Duo Active!</strong>
+      <p>Choose and confirm your 2nd Star Man, or choose later from Pick Star Man.</p>
+      <div class="random-curse-actions">
+        <button class="random-curse-resume" type="button" onclick="openSuperSubFlow('super_duo')">Complete Super Duo</button>
       </div>
     `;
     document.getElementById("confirmSwapBtn").style.display = "none";
@@ -9287,7 +9553,7 @@ async function initializeCardPage() {
     }
 
     async function performRefreshHands(options = {}) {
-      if (!options.force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.stealMode)) {
+      if (!options.force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.pendingSuperDuo || gameState.stealMode)) {
         return;
       }
 
@@ -9455,7 +9721,7 @@ async function initializeCardPage() {
           const keepUsedCardInHandBeforeKickoff = usedMeta
             && !usedMeta.hasGameweekStarted
             && !usedIsVetoed
-            && !['power_swap', 'super_sub', 'super_draw'].includes(usedMeta.effectKey);
+            && !['power_swap', 'super_sub', 'super_draw', 'super_star_man', 'super_score', 'super_duo'].includes(usedMeta.effectKey);
           if (keepUsedCardInHandBeforeKickoff) {
             const playerKey = userIdToPlayerKey.get(row.owner_user_id);
             if (playerKey && gameState.players[playerKey]) {
@@ -9478,7 +9744,7 @@ async function initializeCardPage() {
           && definition?.effect_key === 'power_swap';
       });
 
-      if (ownPlayerKey && pendingSwapEffect && !gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.pendingSuperSub && !gameState.stealMode) {
+      if (ownPlayerKey && pendingSwapEffect && !gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.pendingSuperSub && !gameState.pendingSuperDuo && !gameState.stealMode) {
         const { data: drawEvents, error: drawEventsError } = await supabase
           .from('card_draw_events')
           .select('card_instance_id')
@@ -9629,9 +9895,9 @@ async function initializeCardPage() {
       'Super Star Man': { cardId: 'super_star_man', effectKey: 'super_star_man', duration: 1, target: 'self' },
       'Super Golden Gameweek': { cardId: 'super_golden_gameweek', effectKey: 'super_golden_gameweek', duration: 1, target: 'self' },
       'Super Sub': { cardId: 'super_sub', effectKey: 'super_sub', duration: 1, target: 'self', deadlineExempt: true },
-      'Super Score': { cardId: 'super_score', effectKey: 'super_score', duration: 1, target: 'self' },
+      'Super Score': { cardId: 'super_score', effectKey: 'super_score', duration: 1, target: 'self', deadlineExempt: true },
       'Super Draw': { cardId: 'super_draw', effectKey: 'super_draw', duration: 1, target: 'self' },
-      'Super Duo': { cardId: 'super_duo', effectKey: 'super_duo', duration: 1, target: 'self' },
+      'Super Duo': { cardId: 'super_duo', effectKey: 'super_duo', duration: 1, target: 'self', deadlineExempt: true },
       'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 3, target: 'self' },
     };
     cardEffectRules['Curse of the Gambler'] = cardEffectRules['Curse of the Random'];
@@ -10684,7 +10950,8 @@ async function initializeCardPage() {
     }
 
     function effectiveCardDuration(rule) {
-      if (rule.cardId?.startsWith('super_') && rule.cardId !== 'super_draw') {
+      const fixedOneGameweekSupers = new Set(['super_draw', 'super_sub', 'super_score', 'super_duo']);
+      if (rule.cardId?.startsWith('super_') && !fixedOneGameweekSupers.has(rule.cardId)) {
         return superDurationForLeague();
       }
 
@@ -10898,6 +11165,30 @@ async function initializeCardPage() {
       };
     }
 
+    async function prepareSuperDuoFlow(pending) {
+      if (!pending?.effectId) {
+        throw new Error('Super Duo is active. Choose your 2nd Star Man from Pick Star Man.');
+      }
+
+      const contextData = await loadSuperSubContext();
+      const currentPlayer = contextData.players.find((player) => String(player.id) === String(contextData.currentPick?.player_id)) || null;
+      const candidates = contextData.players
+        .filter((player) => player.team_id)
+        .map((player) => {
+          const status = superSubPlayerStatus(player, contextData);
+          if (currentPlayer && String(player.id) === String(currentPlayer.id)) {
+            return { player, allowed: false, reason: 'Already selected as Star Man' };
+          }
+          return { player, ...status };
+        });
+
+      return {
+        currentPlayer,
+        candidates,
+        teamNames: contextData.teamNames,
+      };
+    }
+
     async function confirmSuperSubSelectionRuntime(pending, replacementPlayerId) {
       if (!pending?.cardInstanceId) {
         throw new Error('Super Sub is no longer available. Your cards have been refreshed.');
@@ -10964,6 +11255,81 @@ async function initializeCardPage() {
       };
     }
 
+    async function confirmSuperDuoSelectionRuntime(pending, replacementPlayerId) {
+      if (!pending?.effectId) {
+        throw new Error('Super Duo is active. Choose your 2nd Star Man from Pick Star Man.');
+      }
+
+      const contextData = await loadSuperSubContext();
+      const currentPlayer = contextData.players.find((player) => String(player.id) === String(contextData.currentPick?.player_id)) || null;
+      const replacement = contextData.players.find((player) => String(player.id) === String(replacementPlayerId));
+      if (!replacement) {
+        throw new Error('Choose a Super Duo player.');
+      }
+      if (currentPlayer && String(replacement.id) === String(currentPlayer.id)) {
+        throw new Error('Super Duo cannot be the same player as your Star Man.');
+      }
+
+      const replacementStatus = superSubPlayerStatus(replacement, contextData);
+      if (!replacementStatus.allowed) {
+        throw new Error(replacementStatus.reason || 'That player cannot be chosen.');
+      }
+
+      const { error: pickSaveError } = await supabase.from('star_man_picks').upsert({
+        competition_id: context.league.id,
+        season_id: context.league.season_id,
+        gameweek_id: contextData.activeGameweek.gameweek_id,
+        user_id: context.user.id,
+        player_id: replacement.id,
+        pick_slot: 'super_duo',
+        source_card_effect_id: pending.effectId,
+      }, {
+        onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
+      });
+
+      if (pickSaveError) throw pickSaveError;
+
+      return {
+        effect: { id: pending.effectId },
+        oldPlayerName: currentPlayer?.display_name || 'N/A',
+        newPlayerName: replacement.display_name || 'N/A',
+      };
+    }
+
+    async function saveSuperScorePickRuntime(pending, homeGoals, awayGoals) {
+      if (!pending?.effectId) {
+        throw new Error('Super Score is active. Choose the scoreline from Make Predictions.');
+      }
+
+      const { activeGameweek } = await gameweekModule.loadActiveGameweek(context.league);
+      if (!activeGameweek) {
+        throw new Error('No active gameweek found.');
+      }
+      const fixtures = await currentGameweekFixtures(activeGameweek);
+      const firstKickoffAt = activeGameweek.first_fixture_kickoff_at || fixtures.find((fixture) => fixture.kickoff_at)?.kickoff_at || null;
+      if (firstKickoffAt && new Date(firstKickoffAt).getTime() <= Date.now()) {
+        throw new Error('Super Score is locked for this gameweek.');
+      }
+
+      const row = {
+        competition_id: context.league.id,
+        season_id: context.league.season_id,
+        gameweek_id: activeGameweek.gameweek_id,
+        user_id: context.user.id,
+        card_effect_id: pending.effectId,
+        home_goals: Number(homeGoals),
+        away_goals: Number(awayGoals),
+        submitted_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase.from('super_score_picks').upsert(row, {
+        onConflict: 'card_effect_id',
+      });
+
+      if (error) throw error;
+      return row;
+    }
+
     function rollDie() {
       return Math.floor(Math.random() * 6);
     }
@@ -10972,8 +11338,11 @@ async function initializeCardPage() {
       refreshHands,
       resumePendingRandomCurse,
       prepareSuperSubFlow,
+      prepareSuperDuoFlow,
       loadCurrentStarManForSuperStar: loadCurrentStarManForSuperStarRuntime,
       confirmSuperSubSelection: confirmSuperSubSelectionRuntime,
+      confirmSuperDuoSelection: confirmSuperDuoSelectionRuntime,
+      saveSuperScorePick: saveSuperScorePickRuntime,
       async assertCardInOwnHand(cardInstanceId, cardName) {
         if (!cardInstanceId) {
           await syncHandFromDatabase({ force: true });
@@ -11111,8 +11480,11 @@ async function initializeCardPage() {
         }
         await assertFirstLeagueGameweekCompleted(context, supabase);
         const fixtures = await currentGameweekFixtures(activeGameweek);
+        const firstKickoffAt = activeGameweek.first_fixture_kickoff_at || fixtures.find((fixture) => fixture.kickoff_at)?.kickoff_at || null;
         if (rule.effectKey === 'power_late_scout') {
           await assertLateScoutCanBePlayed(activeGameweek, fixtures, context, supabase);
+        } else if (rule.effectKey === 'super_score' && firstKickoffAt && new Date(firstKickoffAt).getTime() <= Date.now()) {
+          throw new Error('Super Score must be played before the Gameweek starts.');
         } else if (!rule.deadlineExempt) {
           assertCardPlayDeadline(rule, activeGameweek);
         }
@@ -11251,8 +11623,8 @@ async function initializeCardPage() {
       loadActiveGameCard(),
     ]);
     await resumePendingRandomCurse();
-    if (gameState.pendingSuperSub) {
-      await openSuperSubFlow();
+    if (gameState.pendingSuperSub || gameState.pendingSuperDuo) {
+      await openSuperSubFlow(gameState.pendingSuperDuo ? 'super_duo' : 'super_sub');
     }
     if (!handRefreshTimer) {
       handRefreshTimer = window.setInterval(() => {

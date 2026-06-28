@@ -186,7 +186,13 @@ all_quantities as (
   select deck_variant_id, card_id, quantity
   from regular_final
   union all
-  select mc.deck_variant_id, fc.card_id, fc.quantity
+  select
+    mc.deck_variant_id,
+    fc.card_id,
+    case
+      when fc.card_id in ('super_score', 'super_duo') and mc.member_count >= 6 then 2
+      else fc.quantity
+    end as quantity
   from member_counts mc
   cross join fixed_cards fc
 )
@@ -197,7 +203,7 @@ on conflict (deck_variant_id, card_id) do update
 set quantity = excluded.quantity;
 
 update public.card_definitions
-set description = 'Draw 3, 4, or 5 Regular Deck cards depending on final league size.'
+set description = 'Draw 5 Regular Deck cards.'
 where id = 'super_draw';
 
 create or replace function public.ensure_league_card_decks(target_competition_id uuid)
