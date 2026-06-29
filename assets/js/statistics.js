@@ -108,6 +108,13 @@ function render(rows, profilesById, medalsByUser, spentByUser, gameCardsWonByUse
   }).join('');
 }
 
+function isMissingRpcFunction(error) {
+  const message = String(error?.message || '').toLowerCase();
+  return error?.code === 'PGRST202'
+    || message.includes('could not find the function')
+    || (message.includes('function') && message.includes('does not exist'));
+}
+
 async function loadStatistics() {
   const context = await loadLeagueContext();
   if (context.error) {
@@ -120,6 +127,15 @@ async function loadStatistics() {
   await supabase.rpc('sync_my_card_draw_tokens', {
     target_competition_id: context.league.id,
   });
+
+  const { error: superPenSyncError } = await supabase.rpc('sync_super_pen_card_draw_tokens', {
+    target_competition_id: context.league.id,
+  });
+
+  if (superPenSyncError && !isMissingRpcFunction(superPenSyncError)) {
+    grid.innerHTML = `<p class="empty">${escapeHtml(superPenSyncError.message)}</p>`;
+    return;
+  }
 
   const [{ data: rows, error }, { data: tokens }, { data: gameCardWins }] = await Promise.all([
     supabase

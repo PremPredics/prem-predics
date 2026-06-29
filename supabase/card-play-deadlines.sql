@@ -43,7 +43,7 @@ with canonical_card_descriptions (id, description) as (
     ('super_score', 'Choose one scoreline before the Gameweek''s first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'),
     ('super_draw', 'Draw 5 Regular Deck cards.'),
     ('super_duo', 'Choose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player''s team''s first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'),
-    ('super_pen', 'Draw a card from the Regular Deck any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),
+    ('super_pen', 'Gain 1 Medal any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),
     ('game_goals', 'Best of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.'),
     ('game_corners', 'Best of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.'),
     ('game_underdog', 'Best of 5 Gameweeks, closest answer wins, predict how many teams will beat a team above them in the league in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.'),

@@ -171,6 +171,58 @@ main {
   text-align: center;
 }
 
+.super-pen-medals {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255,255,255,0.28), transparent 22%),
+    linear-gradient(135deg, rgba(96, 40, 136, 0.82), rgba(182, 126, 20, 0.78), rgba(46, 16, 102, 0.86));
+  border-color: rgba(255, 240, 163, 0.58);
+  box-shadow: 0 0 24px rgba(250, 204, 21, 0.28), 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.super-pen-medals-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.super-pen-medals-copy strong {
+  color: #fde68a;
+  font-size: 1.15rem;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.86),
+    1px -1px 0 rgba(0,0,0,0.86),
+    -1px 1px 0 rgba(0,0,0,0.86),
+    1px 1px 0 rgba(0,0,0,0.86);
+}
+
+.super-pen-medals-copy span {
+  color: #fff7ed;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.super-pen-medals-count {
+  min-width: 74px;
+  min-height: 74px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255,255,255,0.72), transparent 20%),
+    linear-gradient(135deg, #facc15, #f59e0b);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  color: #111827;
+  font-size: 2rem;
+  font-weight: 950;
+  box-shadow: 0 0 24px rgba(250, 204, 21, 0.48), inset 0 -10px 18px rgba(146, 64, 14, 0.25);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.42);
+}
+
 footer {
   text-align: center;
   padding: 20px;
@@ -187,6 +239,14 @@ footer {
   }
   .medal-board { grid-template-columns: 1fr; }
   .toolbar a { flex: 1; text-align: center; }
+  .super-pen-medals {
+    align-items: stretch;
+    flex-direction: column;
+    text-align: center;
+  }
+  .super-pen-medals-count {
+    align-self: center;
+  }
 }
 @media (max-width: 650px) {
   header h1,
@@ -251,6 +311,14 @@ footer {
       <p class="message">Loading medals...</p>
     </div>
   </section>
+
+  <section class="panel super-pen-medals" data-super-pen-panel>
+    <div class="super-pen-medals-copy">
+      <strong>Super Pen Medals</strong>
+      <span>Regular medals earned from penalties while Super Pen is active.</span>
+    </div>
+    <div class="super-pen-medals-count" data-super-pen-count>0</div>
+  </section>
 </main>
 
 <footer>2026 Prem Predics | Medals</footer>
@@ -262,5 +330,3 @@ footer {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-
-

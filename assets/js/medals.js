@@ -8,6 +8,7 @@ import {
 const earnedCount = document.querySelector('[data-earned-count]');
 const medalList = document.querySelector('[data-medal-list]');
 const leagueLink = document.querySelector('[data-league-link]');
+const superPenCount = document.querySelector('[data-super-pen-count]');
 
 const possibleMedals = [
   ...[20, 40, 60, 80, 100, 125, 150, 175, 200, 225, 250, 275, 300].map((value) => ({
@@ -53,6 +54,13 @@ function renderTokens(tokens, wonGameCardNames = new Set()) {
   }).join('');
 }
 
+function isMissingRpcFunction(error) {
+  const message = String(error?.message || '').toLowerCase();
+  return error?.code === 'PGRST202'
+    || message.includes('could not find the function')
+    || (message.includes('function') && message.includes('does not exist'));
+}
+
 async function loadMedals() {
   const context = await loadLeagueContext();
   if (context.error) {
@@ -71,6 +79,15 @@ async function loadMedals() {
     return;
   }
 
+  const { error: superPenSyncError } = await supabase.rpc('sync_super_pen_card_draw_tokens', {
+    target_competition_id: context.league.id,
+  });
+
+  if (superPenSyncError && !isMissingRpcFunction(superPenSyncError)) {
+    medalList.innerHTML = `<p class="empty">${escapeHtml(superPenSyncError.message)}</p>`;
+    return;
+  }
+
   const { data: tokens, error: tokenError } = await supabase
     .from('card_draw_tokens')
     .select('id, token_type, source_type, source_key, source_game_card_round_id, status, created_at, redeemed_at')
@@ -85,6 +102,12 @@ async function loadMedals() {
 
   const earnedTokens = (tokens || []).filter((token) => token.status !== 'void');
   earnedCount.textContent = earnedTokens.length;
+  if (superPenCount) {
+    superPenCount.textContent = earnedTokens
+      .filter((token) => token.source_type === 'card_effect'
+        && String(token.source_key || '').startsWith('super_pen_'))
+      .length;
+  }
 
   const gameCardRoundIds = earnedTokens
     .filter((token) => token.source_game_card_round_id)

@@ -39,7 +39,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('super_score', 'Super Score', 'super', 'premium', 'super_score', 'Choose one scoreline before the Gameweek''s first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'),
     ('super_draw', 'Super Draw', 'super', 'premium', 'super_draw', 'Draw 5 Regular Deck cards.'),
     ('super_duo', 'Super Duo', 'super', 'premium', 'super_duo', 'Choose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player''s team''s first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'),
-    ('super_pen', 'Super Pen', 'super', 'premium', 'super_pen', 'Draw a Regular Deck card whenever a penalty is scored during the active gameweek range.'),
+    ('super_pen', 'Super Pen', 'super', 'premium', 'super_pen', 'Gain 1 Medal any time a penalty is scored in the active range.'),
 
     ('game_goals', 'Game of Goals', 'game', 'game', 'game_goals', 'Best-of-5 minigame: predict total goals each gameweek. Winner earns +1 UC point and 1 Super Medal.'),
     ('game_corners', 'Game of Corners', 'game', 'game', 'game_corners', 'Best-of-5 minigame: predict total corners each gameweek. Winner earns +1 UC point and 1 Super Medal.'),

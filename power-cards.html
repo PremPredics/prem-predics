@@ -944,6 +944,122 @@ button:disabled {
   transform: none;
 }
 
+.super-timed-reveal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3120;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 42px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.9), transparent 12%),
+    radial-gradient(circle at 18% 14%, rgba(254, 240, 138, 0.92), transparent 30%),
+    radial-gradient(circle at 86% 76%, rgba(245, 158, 11, 0.82), transparent 34%),
+    linear-gradient(135deg, #704407 0%, #ca8a04 24%, #facc15 48%, #fff3a6 64%, #d97706 100%);
+}
+
+.super-timed-reveal.show {
+  display: flex;
+}
+
+.super-timed-stage {
+  position: relative;
+  z-index: 2;
+  width: min(900px, 100%);
+  min-height: min(580px, calc(100vh - 34px));
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(16px, 3vw, 26px);
+  padding: clamp(26px, 5vw, 46px);
+  border-radius: 28px;
+  border: 4px solid rgba(255, 255, 255, 0.78);
+  background:
+    radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.24), transparent 30%),
+    linear-gradient(135deg, rgba(69, 35, 3, 0.72), rgba(146, 64, 14, 0.56), rgba(59, 7, 100, 0.72));
+  box-shadow:
+    0 0 62px rgba(253, 224, 71, 0.95),
+    0 26px 80px rgba(0, 0, 0, 0.48),
+    inset 0 0 34px rgba(255, 255, 255, 0.2);
+  text-align: center;
+  animation: superDrawStageIn 0.22s ease-out both;
+}
+
+.super-timed-title {
+  margin: 0;
+  color: #fff7ad;
+  font-size: clamp(2.25rem, 6vw, 5rem);
+  line-height: 0.96;
+  font-weight: 1000;
+  text-shadow:
+    -2px -2px 0 rgba(0, 0, 0, 0.94),
+    2px -2px 0 rgba(0, 0, 0, 0.94),
+    -2px 2px 0 rgba(0, 0, 0, 0.94),
+    2px 2px 0 rgba(0, 0, 0, 0.94),
+    0 0 24px rgba(255, 255, 255, 0.9),
+    0 0 44px rgba(253, 224, 71, 0.92);
+}
+
+.super-timed-message {
+  width: min(760px, 100%);
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.15rem, 3vw, 1.8rem);
+  font-weight: 950;
+  line-height: 1.25;
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.92),
+    1px -1px 0 rgba(0, 0, 0, 0.92),
+    -1px 1px 0 rgba(0, 0, 0, 0.92),
+    1px 1px 0 rgba(0, 0, 0, 0.92),
+    0 0 16px rgba(255, 255, 255, 0.5);
+}
+
+.super-timed-coins {
+  position: absolute;
+  inset: -12vh 0 -20vh;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.super-timed-coin {
+  position: absolute;
+  top: -80px;
+  left: var(--coin-left);
+  width: var(--coin-size);
+  height: var(--coin-size);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.84);
+  color: #67e8f9;
+  font-size: calc(var(--coin-size) * 0.33);
+  font-weight: 1000;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.9), transparent 22%),
+    radial-gradient(circle at 50% 50%, #fff4a8, #facc15 46%, #d97706 78%);
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.78), inset 0 0 10px rgba(255, 255, 255, 0.5);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.86),
+    1px -1px 0 rgba(0,0,0,0.86),
+    -1px 1px 0 rgba(0,0,0,0.86),
+    1px 1px 0 rgba(0,0,0,0.86);
+  opacity: 0.94;
+  animation: superCoinRain var(--coin-duration) linear var(--coin-delay) infinite;
+}
+
+@keyframes superCoinRain {
+  from {
+    transform: translate3d(0, -18vh, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--coin-drift), 132vh, 0) rotate(420deg);
+  }
+}
+
 @keyframes superDrawCardIn {
   from {
     opacity: 0;
@@ -995,6 +1111,24 @@ button:disabled {
     height: min(41.8vw, 160px);
     border-radius: 14px;
     font-size: clamp(0.7rem, 3.35vw, 0.92rem);
+  }
+
+  .super-timed-reveal {
+    padding: 14px;
+  }
+
+  .super-timed-stage {
+    min-height: min(590px, calc(100vh - 28px));
+    border-radius: 22px;
+    padding: 72px 18px 28px;
+  }
+
+  .super-timed-title {
+    font-size: clamp(2.15rem, 11vw, 3.6rem);
+  }
+
+  .super-timed-message {
+    font-size: clamp(1rem, 5vw, 1.35rem);
   }
 }
 
@@ -1566,7 +1700,9 @@ button:disabled {
 .super-sub-flag img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 2px;
 }
 
 .super-sub-flag-fallback {
@@ -6462,7 +6598,7 @@ const cardDescriptions = {
   "Super Score": "Super Score\n\nChoose one scoreline before the Gameweek's first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.",
   "Super Draw": "Super Draw\n\nDraw 5 Regular Deck cards.",
   "Super Duo": "Super Duo\n\nChoose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player's team's first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.",
-  "Super Pen": "Super Pen\n\nDraw a card from the Regular Deck any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Pen": "Super Pen\n\nGain 1 Medal any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
 
   "Game of Goals": "Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
   "Game of Corners": "Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
@@ -7713,6 +7849,68 @@ async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
   closeSuperDrawRevealShell();
 }
 
+async function showSuperTimedGoldReveal({
+  title,
+  message,
+  durationMs = 10000,
+  coinRain = false,
+} = {}) {
+  const reveal = document.createElement('div');
+  reveal.className = `super-timed-reveal show${coinRain ? ' coin-rain' : ''}`;
+  const countdownId = `superTimedCountdown-${Date.now()}`;
+  const coinMarkup = coinRain
+    ? `<div class="super-timed-coins" aria-hidden="true">${Array.from({ length: 38 }, (_, index) => {
+        const size = 32 + ((index * 7) % 28);
+        const left = (index * 17) % 100;
+        const drift = ((index % 7) - 3) * 18;
+        const duration = 5.6 + ((index * 3) % 9) * 0.22;
+        const delay = -((index * 5) % 12) * 0.24;
+        return `<span class="super-timed-coin" style="--coin-left:${left}%;--coin-size:${size}px;--coin-drift:${drift}px;--coin-duration:${duration}s;--coin-delay:${delay}s;">x2</span>`;
+      }).join('')}</div>`
+    : '';
+
+  reveal.innerHTML = `
+    ${coinMarkup}
+    <section class="super-timed-stage" role="dialog" aria-modal="true" aria-label="${escapeHtml(title || 'Super Card')}">
+      <div class="super-draw-countdown">
+        <span class="super-draw-countdown-label">Returns in</span>
+        <strong id="${countdownId}">10</strong>
+      </div>
+      <h2 class="super-timed-title">${escapeHtml(title || 'Super Card')}</h2>
+      <p class="super-timed-message">${escapeHtml(message || 'The card is now active.')}</p>
+    </section>
+  `;
+
+  const countdown = reveal.querySelector(`#${countdownId}`);
+  const revealStartedAt = Date.now();
+  let countdownTimer = null;
+  const updateCountdown = () => {
+    if (!countdown) return;
+    const remainingMs = Math.max(0, durationMs - (Date.now() - revealStartedAt));
+    countdown.textContent = String(Math.ceil(remainingMs / 1000));
+  };
+
+  updateCountdown();
+  document.body.classList.add('card-preview-open');
+  document.body.appendChild(reveal);
+  countdownTimer = window.setInterval(updateCountdown, 250);
+  await wait(durationMs);
+  if (countdownTimer) {
+    window.clearInterval(countdownTimer);
+  }
+  reveal.remove();
+  if (!document.querySelector('.card-preview-modal.show, .deck-choice-modal.show, .opponent-target-modal.show, .super-draw-reveal.show, .super-sub-reveal.show, .super-star-reveal.show, .super-score-reveal.show, .super-sub-preview-modal.show, .super-timed-reveal.show')) {
+    document.body.classList.remove('card-preview-open');
+  }
+}
+
+function isMissingRpcFunction(error) {
+  const message = String(error?.message || '').toLowerCase();
+  return error?.code === 'PGRST202'
+    || message.includes('could not find the function')
+    || message.includes('function') && message.includes('does not exist');
+}
+
 function closeSuperStarReveal() {
   const reveal = document.getElementById('superStarReveal');
   const cardHost = document.getElementById('superStarCardHost');
@@ -8243,6 +8441,8 @@ async function confirmCardPlay() {
   const isSuperStarManCard = card === "Super Star Man";
   const isSuperScoreCard = card === "Super Score";
   const isSuperDuoCard = card === "Super Duo";
+  const isSuperGoldenGameweekCard = card === "Super Golden Gameweek";
+  const isSuperPenCard = card === "Super Pen";
   let superStarManPlayer = null;
 
   closeCardPreview();
@@ -8440,6 +8640,51 @@ async function confirmCardPlay() {
     save();
     render();
     await openSuperSubFlow('super_duo');
+    return;
+  }
+  else if (isSuperGoldenGameweekCard) {
+    activation = activation || {};
+    activation.__skipFinalNotice = true;
+    const duration = superDurationForLeague();
+    await discardPlayedCardPromise;
+    save();
+    render();
+    await showSuperTimedGoldReveal({
+      title: 'Super Golden Gameweek',
+      message: `Prediction League points for all games are DOUBLED for ${duration} ${duration === 1 ? 'Gameweek' : 'Gameweeks'}.`,
+      durationMs: 10000,
+      coinRain: true,
+    });
+    try {
+      await syncHandFromDatabase({ force: true });
+    } catch (error) {
+      console.warn('Could not refresh hand after Super Golden Gameweek reveal', error);
+    }
+    save();
+    render();
+    return;
+  }
+  else if (isSuperPenCard) {
+    activation = activation || {};
+    activation.__skipFinalNotice = true;
+    const duration = superDurationForLeague();
+    await discardPlayedCardPromise;
+    save();
+    render();
+    await showSuperTimedGoldReveal({
+      title: 'Super Pen',
+      message: `Gain 1 Medal any time a penalty is scored in the active range. Duration: ${duration} ${duration === 1 ? 'Gameweek' : 'Gameweeks'}.`,
+      durationMs: 10000,
+      coinRain: false,
+    });
+    try {
+      await syncMedals();
+      await syncHandFromDatabase({ force: true });
+    } catch (error) {
+      console.warn('Could not refresh after Super Pen reveal', error);
+    }
+    save();
+    render();
     return;
   }
   else if (isThiefCard) startStealMode(player, activation);
@@ -9148,7 +9393,15 @@ async function assertHeightPowerCanBePlayed(rule, activeGameweek, runtimeContext
 }
 
 function shouldKeepPlayedCardInHand(activation) {
-  const oneShotSuperCards = new Set(['super_draw', 'super_sub', 'super_star_man', 'super_score', 'super_duo']);
+  const oneShotSuperCards = new Set([
+    'super_draw',
+    'super_sub',
+    'super_star_man',
+    'super_score',
+    'super_duo',
+    'super_golden_gameweek',
+    'super_pen',
+  ]);
   if (oneShotSuperCards.has(String(activation?.card_id || '').toLowerCase())) {
     return false;
   }
@@ -9511,8 +9764,8 @@ async function initializeCardPage() {
     currentDeckVariantId = context.league.locked_deck_variant_id || (context.league.locked_member_count ? context.league.deck_variant_id : 'players_2') || 'players_2';
     load();
 
-    async function syncMedals() {
-      const { data, error } = await supabase.rpc('sync_my_card_draw_tokens', {
+async function syncMedals() {
+      const { error } = await supabase.rpc('sync_my_card_draw_tokens', {
         target_competition_id: context.league.id,
       });
 
@@ -9520,10 +9773,28 @@ async function initializeCardPage() {
         throw error;
       }
 
-      const row = Array.isArray(data) ? data[0] : data;
+      const { error: superPenSyncError } = await supabase.rpc('sync_super_pen_card_draw_tokens', {
+        target_competition_id: context.league.id,
+      });
+
+      if (superPenSyncError && !isMissingRpcFunction(superPenSyncError)) {
+        throw superPenSyncError;
+      }
+
+      const { data: tokenRows, error: tokenCountError } = await supabase
+        .from('card_draw_tokens')
+        .select('token_type, status')
+        .eq('competition_id', context.league.id)
+        .eq('user_id', context.user.id)
+        .eq('status', 'available');
+
+      if (tokenCountError) {
+        throw tokenCountError;
+      }
+
       medalBalances = {
-        regular: Number(row?.regular_medals || 0),
-        super: Number(row?.super_medals || 0),
+        regular: (tokenRows || []).filter((token) => token.token_type === 'regular_medal').length,
+        super: (tokenRows || []).filter((token) => token.token_type === 'super_medal').length,
       };
       updateMedalDisplays();
     }
@@ -11275,16 +11546,11 @@ async function initializeCardPage() {
         throw new Error(replacementStatus.reason || 'That player cannot be chosen.');
       }
 
-      const { error: pickSaveError } = await supabase.from('star_man_picks').upsert({
-        competition_id: context.league.id,
-        season_id: context.league.season_id,
-        gameweek_id: contextData.activeGameweek.gameweek_id,
-        user_id: context.user.id,
-        player_id: replacement.id,
-        pick_slot: 'super_duo',
-        source_card_effect_id: pending.effectId,
-      }, {
-        onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
+      const { error: pickSaveError } = await supabase.rpc('save_super_duo_pick', {
+        target_competition_id: context.league.id,
+        target_gameweek_id: contextData.activeGameweek.gameweek_id,
+        target_player_id: replacement.id,
+        target_source_card_effect_id: pending.effectId,
       });
 
       if (pickSaveError) throw pickSaveError;

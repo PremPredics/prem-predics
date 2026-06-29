@@ -947,16 +947,19 @@ function renderSuperScorePanel() {
   const locked = isPast(deadline);
   return `
     <section class="hedge-panel super-score-panel" data-super-score-panel>
+      <span class="super-score-shine" aria-hidden="true"></span>
       <h3>Super Score</h3>
-      <p class="state-text">Every game with this scoreline (Home vs Away) will earn +3 UC pts.</p>
-      <div class="hedge-controls scoreline-controls">
+      <p class="super-score-copy">Every game with this scoreline (Home vs Away) will earn +3 UC pts.</p>
+      <div class="super-score-entry">
         <span class="scoreline-label">Scoreline</span>
-        <input class="score-input" data-super-score-home type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score home goals">
-        <span class="score-separator">-</span>
-        <input class="score-input" data-super-score-away type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score away goals">
-        <button type="button" data-save-super-score ${locked ? 'disabled' : ''}>Save</button>
+        <div class="super-score-input-row">
+          <input class="score-input" data-super-score-home type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score home goals">
+          <span class="score-separator">-</span>
+          <input class="score-input" data-super-score-away type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score away goals">
+        </div>
+        <button class="super-score-save" type="button" data-save-super-score ${locked ? 'disabled' : ''}>Save</button>
       </div>
-      <p class="state-text">${locked ? 'Super Score is locked for this gameweek.' : `Deadline: ${countdownText(deadline)}`}</p>
+      <p class="super-score-deadline">${locked ? 'Super Score is locked for this gameweek.' : `Deadline: ${countdownText(deadline)}`}</p>
     </section>
   `;
 }

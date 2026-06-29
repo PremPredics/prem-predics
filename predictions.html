@@ -177,8 +177,132 @@ main {
 }
 
 .super-score-panel {
-  background: rgba(14, 165, 233, 0.18);
-  border-color: rgba(125, 211, 252, 0.4);
+  position: relative;
+  overflow: hidden;
+  gap: 12px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at 20% 12%, rgba(255,255,255,0.48), transparent 16%),
+    radial-gradient(circle at 84% 22%, rgba(255, 243, 138, 0.42), transparent 22%),
+    linear-gradient(135deg, rgba(120, 70, 12, 0.88), rgba(236, 173, 31, 0.82) 46%, rgba(77, 24, 119, 0.86));
+  border: 2px solid rgba(255, 249, 196, 0.68);
+  box-shadow:
+    0 0 28px rgba(250, 204, 21, 0.34),
+    inset 0 0 24px rgba(255,255,255,0.12);
+}
+
+.super-score-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.super-score-shine {
+  position: absolute;
+  inset: -30% auto auto -25%;
+  width: 70%;
+  height: 160%;
+  transform: rotate(18deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+  pointer-events: none;
+}
+
+.super-score-panel h3 {
+  margin: 0;
+  color: #fff3a6;
+  font-size: clamp(1.55rem, 4.7vw, 2.3rem);
+  line-height: 1;
+  text-shadow:
+    -1px -1px 0 #120414,
+    1px -1px 0 #120414,
+    -1px 1px 0 #120414,
+    1px 1px 0 #120414,
+    0 0 16px rgba(255, 232, 105, 0.76);
+}
+
+.super-score-copy,
+.super-score-deadline {
+  margin: 0;
+  color: #fff8d1;
+  font-weight: 800;
+  line-height: 1.34;
+  text-shadow: 0 2px 7px rgba(0,0,0,0.42);
+}
+
+.super-score-copy {
+  font-size: clamp(1rem, 3.4vw, 1.28rem);
+}
+
+.super-score-deadline {
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.super-score-entry {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.super-score-entry .scoreline-label {
+  color: #ffffff;
+  font-size: 1.22rem;
+  font-weight: 950;
+  text-shadow:
+    -1px -1px 0 #120414,
+    1px -1px 0 #120414,
+    -1px 1px 0 #120414,
+    1px 1px 0 #120414;
+}
+
+.super-score-input-row {
+  display: grid;
+  grid-template-columns: 64px 28px 64px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.super-score-input-row .score-input {
+  width: 64px;
+  height: 54px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.58);
+  background: rgba(17, 7, 38, 0.9);
+  color: #fff;
+  font-size: 1.45rem;
+  font-weight: 950;
+  text-align: center;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.38), 0 8px 18px rgba(0,0,0,0.24);
+}
+
+.super-score-input-row .score-separator {
+  color: #ffffff;
+  font-size: 1.45rem;
+  font-weight: 950;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.super-score-save {
+  width: min(100%, 440px);
+  min-height: 48px;
+  border: 2px solid rgba(255, 255, 255, 0.48);
+  border-radius: 13px;
+  background: linear-gradient(135deg, #7c3aed, #c4b5fd);
+  color: #fff;
+  font-size: 1.08rem;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(69, 10, 10, 0.26);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.82),
+    1px -1px 0 rgba(0,0,0,0.82),
+    -1px 1px 0 rgba(0,0,0,0.82),
+    1px 1px 0 rgba(0,0,0,0.82);
+}
+
+.super-score-save:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
 }
 
 .restriction-panel {

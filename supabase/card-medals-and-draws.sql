@@ -1844,7 +1844,7 @@ begin
     raise exception 'Card effect not found.';
   end if;
 
-  if effect_row.effect_key not in ('super_draw', 'power_swap', 'super_pen') then
+  if effect_row.effect_key not in ('super_draw', 'power_swap') then
     raise exception 'This card effect cannot draw regular cards.';
   end if;
 

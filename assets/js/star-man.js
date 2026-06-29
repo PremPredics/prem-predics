@@ -1481,17 +1481,24 @@ async function savePick(slot) {
 
   setMessage(slot, 'Saving pick...', 'info');
 
-  const { error } = await supabase.from('star_man_picks').upsert({
-    competition_id: state.league.id,
-    season_id: state.league.season_id,
-    gameweek_id: state.activeGameweek.gameweek_id,
-    user_id: state.user.id,
-    player_id: player.id,
-    pick_slot: slot,
-    source_card_effect_id: check.sourceCardEffectId,
-  }, {
-    onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
-  });
+  const { error } = slot === 'super_duo'
+    ? await supabase.rpc('save_super_duo_pick', {
+      target_competition_id: state.league.id,
+      target_gameweek_id: state.activeGameweek.gameweek_id,
+      target_player_id: player.id,
+      target_source_card_effect_id: check.sourceCardEffectId,
+    })
+    : await supabase.from('star_man_picks').upsert({
+      competition_id: state.league.id,
+      season_id: state.league.season_id,
+      gameweek_id: state.activeGameweek.gameweek_id,
+      user_id: state.user.id,
+      player_id: player.id,
+      pick_slot: slot,
+      source_card_effect_id: check.sourceCardEffectId,
+    }, {
+      onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
+    });
 
   if (error) {
     if (error.code === '23505' || error.message.includes('star_man_picks_unique_player')) {
