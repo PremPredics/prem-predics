@@ -6959,6 +6959,7 @@ function syncMobileFixedActions() {
   const mainGameLayout = document.getElementById('mainGameLayout');
   const fixedFooter = document.getElementById('fixedFooter');
   if (!actions || !leftPanel || !swapSection || !pendingSwap || !activeGamePanel || !mainGameLayout || !fixedFooter) return;
+  const swapHeading = swapSection.querySelector('h2');
 
   const shouldMoveIntoSwap = Boolean(gameState.seasonStarted && document.body.classList.contains('controls-ready') && shouldUseMobileFixedActions());
   document.body.classList.toggle('mobile-controls-fixed', shouldMoveIntoSwap);
@@ -6972,7 +6973,9 @@ function syncMobileFixedActions() {
     }
     if (actions.parentElement !== swapSection) {
       actions.parentElement.insertBefore(placeholder, actions);
-      swapSection.insertBefore(actions, pendingSwap);
+      swapSection.insertBefore(actions, swapHeading || swapSection.firstChild);
+    } else if (swapHeading && actions.nextElementSibling !== swapHeading) {
+      swapSection.insertBefore(actions, swapHeading);
     }
     actions.classList.add('mobile-in-swap-actions');
     actions.removeAttribute('style');
