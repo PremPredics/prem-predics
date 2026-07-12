@@ -6201,11 +6201,6 @@ html.capacitor-android .veto-curse-description {
   <div class="main-game-layout show" id="mainGameLayout">
     <!-- LEFT PANEL - CONTROLS / PENDING / DISCARD -->
     <div class="left-panel">
-      <div class="side-actions" id="primarySideActions">
-        <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">View All Decks</span></button>
-        <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Cards</span></button>
-      </div>
-
       <div class="medal-balance-panel" aria-label="Card medal balances">
         <div class="medal-balance-row">
           <span>Regular medals</span>
@@ -6219,6 +6214,10 @@ html.capacitor-android .veto-curse-description {
 
       <!-- Pending Swap / Steal -->
       <div class="card-section show" id="swapSection">
+        <div class="side-actions" id="primarySideActions">
+          <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">View All Decks</span></button>
+          <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Cards</span></button>
+        </div>
         <h2>Pending Swap/Steal</h2>
         <div id="pendingSwap" class="pending-swap"></div>
         <div class="action-buttons">
@@ -6996,10 +6995,12 @@ function syncMobileFixedActions() {
     actions.classList.remove('mobile-in-swap-actions');
     actions.removeAttribute('style');
     if (placeholder && placeholder.parentElement) {
-      placeholder.parentElement.insertBefore(actions, placeholder);
       placeholder.remove();
-    } else if (actions.parentElement !== leftPanel) {
-      leftPanel.insertBefore(actions, leftPanel.firstElementChild);
+    }
+    if (swapHeading && actions.parentElement !== swapSection) {
+      swapSection.insertBefore(actions, swapHeading);
+    } else if (swapHeading && actions.nextElementSibling !== swapHeading) {
+      swapSection.insertBefore(actions, swapHeading);
     }
 
     const activePlaceholder = document.getElementById('activeGameMobilePlaceholder');
@@ -10170,7 +10171,7 @@ async function syncMedals() {
       'Super Golden Gameweek': { cardId: 'super_golden_gameweek', effectKey: 'super_golden_gameweek', duration: 1, target: 'self' },
       'Super Sub': { cardId: 'super_sub', effectKey: 'super_sub', duration: 1, target: 'self', deadlineExempt: true },
       'Super Score': { cardId: 'super_score', effectKey: 'super_score', duration: 1, target: 'self', deadlineExempt: true },
-      'Super Draw': { cardId: 'super_draw', effectKey: 'super_draw', duration: 1, target: 'self' },
+      'Super Draw': { cardId: 'super_draw', effectKey: 'super_draw', duration: 1, target: 'self', deadlineExempt: true },
       'Super Duo': { cardId: 'super_duo', effectKey: 'super_duo', duration: 1, target: 'self', deadlineExempt: true },
       'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 3, target: 'self' },
     };

@@ -54,7 +54,7 @@ begin
     return new;
   end if;
 
-  if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god', 'power_late_scout') then
+  if card_row.effect_key in ('power_swap', 'power_veto', 'power_of_god', 'power_late_scout', 'super_draw') then
     return new;
   end if;
 
