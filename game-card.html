@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -169,6 +169,19 @@ main {
   background: rgba(17, 7, 38, 0.28);
   border: 1px solid rgba(216, 180, 254, 0.28);
 }
+.history-detail-title {
+  margin: 0 0 3px;
+  color: #fde68a;
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+  font-weight: 1000;
+  text-align: center;
+  text-shadow:
+    -1.5px -1.5px 0 #05010c,
+    1.5px -1.5px 0 #05010c,
+    -1.5px 1.5px 0 #05010c,
+    1.5px 1.5px 0 #05010c,
+    0 0 16px rgba(250, 204, 21, 0.7);
+}
 
 .history-result-row {
   display: grid;
@@ -186,6 +199,22 @@ main {
   font-size: 12px;
   font-weight: 950;
   text-align: center;
+}
+.history-actual-row {
+  background: rgba(120, 53, 15, 0.36);
+  border: 1px solid rgba(250, 204, 21, 0.24);
+}
+
+.history-actual-label strong {
+  color: #fde68a;
+}
+
+.history-week-rank.history-week-value {
+  color: #e0f2fe;
+}
+
+.history-week-rank.missing {
+  color: #f87171;
 }
 
 .history-player-cell {

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -113,6 +113,20 @@ th {
   place-items: center;
   gap: 3px;
   line-height: 1;
+}
+.leaderboard-header-link {
+  all: unset;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.leaderboard-header-link:hover .stat-head,
+.leaderboard-header-link:focus-visible .stat-head {
+  filter: brightness(1.18);
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.72);
 }
 
 .uc-head {
@@ -542,10 +556,10 @@ footer {
             <th>Pos</th>
             <th>Player</th>
             <th class="uc-head">UC PTS</th>
-            <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-white">&#10003;</span></span><span>PP</span></span></th>
-            <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span></span><span>SMP</span></span></th>
-            <th><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span></th>
+            <th><button class="leaderboard-header-link" type="button" data-leaderboard-nav="correct-scores" aria-label="Open Correct Scores page"><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span></button></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-amber">&#10003;</span></span><span>CR</span></span></th>
+            <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-white">&#10003;</span></span><span>PP</span></span></th>
+            <th><button class="leaderboard-header-link" type="button" data-leaderboard-nav="star-men" aria-label="Open View All Player Star Men page"><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span></span><span>SMP</span></span></button></th>
             <th><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol ball">&#9917;</span></span><span>SMG</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol target">&#10166;</span></span><span>SMA</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol card yellow"></span></span><span>SMY</span></span></th>

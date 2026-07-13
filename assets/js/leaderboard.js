@@ -18,6 +18,8 @@ const closeProfileButton = document.querySelector('[data-close-profile]');
 
 let currentProfilesById = new Map();
 let leaderboardLoadPromise = null;
+let currentLeagueId = null;
+let leaderboardHeaderLinksBound = false;
 
 function numberValue(value) {
   return Number(value || 0);
@@ -33,6 +35,25 @@ function avatarMarkup(profile, displayName) {
   return `<span class="avatar">${escapeHtml(initial)}</span>`;
 }
 
+function bindLeaderboardHeaderLinks() {
+  if (leaderboardHeaderLinksBound) {
+    return;
+  }
+
+  leaderboardHeaderLinksBound = true;
+  document.querySelectorAll('[data-leaderboard-nav]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!currentLeagueId) {
+        return;
+      }
+
+      const page = button.dataset.leaderboardNav === 'correct-scores'
+        ? 'correct-scores.html'
+        : 'all-star-men.html';
+      window.location.href = leagueUrl(page, currentLeagueId);
+    });
+  });
+}
 function sortRows(rows) {
   return rows.sort((a, b) => (
     numberValue(b.ultimate_champion_points) - numberValue(a.ultimate_champion_points)
@@ -72,10 +93,10 @@ function render(rows, profilesById) {
           </div>
         </td>
         <td class="uc-cell">${numberValue(row.ultimate_champion_points)}</td>
-        <td class="prediction-points-cell">${numberValue(row.prediction_points)}</td>
-        <td>${numberValue(row.star_man_points)}</td>
         <td class="green-stat-cell">${numberValue(row.correct_scores)}</td>
         <td>${numberValue(row.correct_results)}</td>
+        <td class="prediction-points-cell">${numberValue(row.prediction_points)}</td>
+        <td>${numberValue(row.star_man_points)}</td>
         <td class="green-stat-cell">${numberValue(row.star_man_goals)}</td>
         <td>${numberValue(row.star_man_assists)}</td>
         <td>${numberValue(row.star_man_yellows)}</td>
@@ -92,7 +113,9 @@ async function loadLeaderboard() {
     return;
   }
 
-  leagueLink.href = leagueUrl('league.html', context.league.id);
+  currentLeagueId = context.league.id;
+  leagueLink.href = leagueUrl('league.html', currentLeagueId);
+  bindLeaderboardHeaderLinks();
 
   const { data: rows, error } = await supabase
     .from('leaderboard')

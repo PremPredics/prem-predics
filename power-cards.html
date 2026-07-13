@@ -2809,7 +2809,7 @@ button:disabled {
 
 .super-sub-success-row {
   display: grid;
-  grid-template-columns: minmax(62px, 0.34fr) minmax(0, 1fr);
+  grid-template-columns: minmax(62px, max-content) minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   min-height: 54px;
@@ -2842,10 +2842,12 @@ button:disabled {
 
 .super-sub-success-name {
   text-align: right;
-  font-size: clamp(1rem, 2.8vw, 1.35rem);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: clamp(0.86rem, 2.45vw, 1.24rem);
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .super-sub-success-row.out {
@@ -4198,6 +4200,46 @@ button:disabled {
     inset 0 0 16px rgba(251, 146, 60, 0.22);
 }
 
+.card-tile.steal-selected {
+  border: 4px solid #ff1f2d;
+  outline: 3px solid rgba(255, 204, 204, 0.98);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 34px rgba(255, 31, 45, 0.98),
+    0 0 18px rgba(255, 235, 235, 0.9),
+    inset 0 0 18px rgba(255, 31, 45, 0.28);
+}
+
+.steal-callout {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  color: #ff1f2d;
+  font-size: clamp(3.3rem, 13vw, 9rem);
+  font-weight: 1000;
+  text-align: center;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 4px #000,
+    0 0 18px rgba(255, 31, 45, 0.9),
+    -3px -3px 0 #000,
+    3px -3px 0 #000,
+    -3px 3px 0 #000,
+    3px 3px 0 #000;
+  animation: stealCalloutFade 2s ease-in-out forwards;
+}
+
+@keyframes stealCalloutFade {
+  0% { opacity: 0; transform: scale(0.82); }
+  14% { opacity: 1; transform: scale(1.05); }
+  72% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.96); }
+}
+
 .card-tile.used-card {
   position: relative;
   filter: grayscale(0.95);
@@ -4368,6 +4410,38 @@ html.capacitor-android .card-tile.used-card::after {
 .card-section.pending-active {
   border-color: rgba(216, 180, 254, 0.95);
   animation: pendingBorderPulse 1.9s ease-in-out infinite;
+}
+
+.card-section.steal-active {
+  border-color: rgba(255, 31, 45, 0.98);
+  box-shadow:
+    0 0 0 3px rgba(255, 31, 45, 0.44),
+    0 0 26px rgba(255, 31, 45, 0.82),
+    0 0 48px rgba(255, 31, 45, 0.38),
+    inset 0 0 26px rgba(255, 31, 45, 0.16);
+  animation: stealSectionPulse 1.55s ease-in-out infinite;
+}
+
+.card-section.steal-active .pending-swap {
+  border-color: rgba(255, 31, 45, 0.78);
+  box-shadow: inset 0 0 18px rgba(255, 31, 45, 0.22);
+}
+
+@keyframes stealSectionPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(255, 31, 45, 0.36),
+      0 0 22px rgba(255, 31, 45, 0.72),
+      0 0 42px rgba(255, 31, 45, 0.3),
+      inset 0 0 22px rgba(255, 31, 45, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(255, 153, 153, 0.72),
+      0 0 34px rgba(255, 31, 45, 0.98),
+      0 0 58px rgba(255, 31, 45, 0.48),
+      inset 0 0 30px rgba(255, 31, 45, 0.2);
+  }
 }
 
 @keyframes pendingBorderPulse {
@@ -8695,7 +8769,23 @@ async function confirmCardPlay() {
 
   save();
   render();
+  if (isThiefCard) {
+    showStealCallout();
+    return;
+  }
   await showPlayedCardNotice(card, activation);
+}
+
+function showStealCallout() {
+  const existing = document.querySelector('.steal-callout');
+  if (existing) {
+    existing.remove();
+  }
+  const callout = document.createElement('div');
+  callout.className = 'steal-callout';
+  callout.textContent = 'STEAL A CARD';
+  document.body.appendChild(callout);
+  setTimeout(() => callout.remove(), 2100);
 }
 
 function cardNameFromDrawn(card) {
@@ -9596,7 +9686,7 @@ function render() {
         }
       } else if (gameState.stealMode && gameState.stealMode !== p) {
         if (gameState.selectedSteal && gameState.selectedSteal.opponent === p && gameState.selectedSteal.index === i)
-          div.classList.add('selected');
+          div.classList.add('steal-selected');
       }
 
       container.appendChild(div);
@@ -9613,6 +9703,7 @@ function render() {
   const swapDiv = document.getElementById("pendingSwap");
   const swapSection = document.getElementById("swapSection");
   swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.pendingSuperDuo || gameState.stealMode));
+  swapSection.classList.toggle("steal-active", Boolean(gameState.stealMode));
   if (gameState.pendingSwap) {
     let html = `<strong>Power of the Swap Active!</strong>`;
     if (gameState.pendingSwap.drawn.length === 0) {
@@ -9672,12 +9763,8 @@ function render() {
     document.getElementById("confirmStealBtn").style.display = "none";
   } else if (gameState.stealMode) {
     const player = getPlayerName(gameState.stealMode);
-    const opponentNames = (gameState.playerOrder || [])
-      .filter((playerKey) => playerKey !== gameState.stealMode)
-      .map(getPlayerName)
-      .filter(Boolean);
     swapDiv.style.display = "block";
-    swapDiv.innerHTML = `<strong>Steal active for ${player}</strong><p>Select a card from ${formatChoiceList(opponentNames) || 'an opponent'}'s hand below and press Confirm Steal</p>`;
+    swapDiv.innerHTML = `<strong>Steal active for ${escapeHtml(player)}</strong><p>Select a card from an opponents hand below and press Confirm Steal</p>`;
     document.getElementById("confirmStealBtn").style.display = "block";
   } else {
     swapDiv.style.display = "block";
@@ -9944,10 +10031,12 @@ async function syncMedals() {
 
       const { data: cardRows, error: cardError } = await supabase
         .from('league_cards')
-        .select('id, owner_user_id, zone, updated_at, card_definitions(name, category, deck_type)')
+        .select('id, card_id, owner_user_id, zone, sort_order, created_at, updated_at, card_definitions(name, category, deck_type)')
         .eq('competition_id', context.league.id)
         .in('zone', ['regular_deck', 'premium_deck', 'game_deck', 'hand', 'active', 'discard'])
-        .order('updated_at', { ascending: true });
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true })
+        .order('id', { ascending: true });
 
       if (cardError) {
         throw cardError;
@@ -9996,7 +10085,7 @@ async function syncMedals() {
           const keepUsedCardInHandBeforeKickoff = usedMeta
             && !usedMeta.hasGameweekStarted
             && !usedIsVetoed
-            && !['power_swap', 'super_sub', 'super_draw', 'super_star_man', 'super_score', 'super_duo'].includes(usedMeta.effectKey);
+            && !['power_swap', 'super_sub', 'super_draw', 'super_star_man', 'super_score', 'super_duo', 'super_golden_gameweek', 'super_pen'].includes(usedMeta.effectKey);
           if (keepUsedCardInHandBeforeKickoff) {
             const playerKey = userIdToPlayerKey.get(row.owner_user_id);
             if (playerKey && gameState.players[playerKey]) {
@@ -10168,12 +10257,12 @@ async function syncMedals() {
       'Curse of the Even Number': { cardId: 'curse_even_number', effectKey: 'curse_even_number', duration: 1, target: 'opponent' },
       'Curse of the Odd Number': { cardId: 'curse_odd_number', effectKey: 'curse_odd_number', duration: 1, target: 'opponent' },
       'Super Star Man': { cardId: 'super_star_man', effectKey: 'super_star_man', duration: 1, target: 'self' },
-      'Super Golden Gameweek': { cardId: 'super_golden_gameweek', effectKey: 'super_golden_gameweek', duration: 1, target: 'self' },
+      'Super Golden Gameweek': { cardId: 'super_golden_gameweek', effectKey: 'super_golden_gameweek', duration: 1, target: 'self', deadlineExempt: true },
       'Super Sub': { cardId: 'super_sub', effectKey: 'super_sub', duration: 1, target: 'self', deadlineExempt: true },
       'Super Score': { cardId: 'super_score', effectKey: 'super_score', duration: 1, target: 'self', deadlineExempt: true },
       'Super Draw': { cardId: 'super_draw', effectKey: 'super_draw', duration: 1, target: 'self', deadlineExempt: true },
       'Super Duo': { cardId: 'super_duo', effectKey: 'super_duo', duration: 1, target: 'self', deadlineExempt: true },
-      'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 3, target: 'self' },
+      'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 3, target: 'self', deadlineExempt: true },
     };
     cardEffectRules['Curse of the Gambler'] = cardEffectRules['Curse of the Random'];
     cardEffectRules['Curse of the Random Roulette'] = cardEffectRules['Curse Of The Microstate'];

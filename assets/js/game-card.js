@@ -170,7 +170,7 @@ function visibleRoundsForPage() {
       const statusB = roundStatus(b) === 'active' ? 0 : 1;
       const numberA = roundNumbers(a).startNumber;
       const numberB = roundNumbers(b).startNumber;
-      return statusA - statusB || numberB - numberA;
+      return statusA - statusB || numberA - numberB;
     });
 }
 
@@ -540,6 +540,24 @@ function weeklyRankLookup(round) {
   return ranks;
 }
 
+function scoreLookupForRound(round) {
+  const scores = state.weekScores.get(String(round.id)) || [];
+  return new Map(scores.map((score) => [`${score.gameweek_id}:${score.user_id}`, score]));
+}
+
+function actualValueForGameweek(round, gameweek) {
+  const result = state.results.get(resultKey(round.card_id, gameweek.gameweek_id));
+  if (result && result.actual_value !== null && result.actual_value !== undefined && result.actual_value !== '') {
+    return result.actual_value;
+  }
+
+  const scores = state.weekScores.get(String(round.id)) || [];
+  const score = scores.find((item) => String(item.gameweek_id) === String(gameweek.gameweek_id)
+    && item.actual_value !== null
+    && item.actual_value !== undefined
+    && item.actual_value !== '');
+  return score?.actual_value ?? null;
+}
 function renderHistoryRoundCards(rounds) {
   return `
     <div class="game-history-card-grid">
@@ -564,14 +582,17 @@ function renderHistoryDetail(round) {
     return '';
   }
 
+  const definition = normaliseNested(round.card_definitions);
+  const cardName = definition?.name || 'Game Card';
   const standings = [...(state.roundStandings.get(String(round.id)) || [])]
     .sort((a, b) => Number(a.round_rank || 999) - Number(b.round_rank || 999));
   const gameweeks = roundGameweeks(round);
-  const weeklyRanks = weeklyRankLookup(round);
+  const scoreLookup = scoreLookupForRound(round);
 
   if (!standings.length) {
     return `
       <div class="game-history-detail">
+        <h3 class="history-detail-title">${escapeHtml(cardName)}</h3>
         <p class="state-text">Results are not available for this Game Card yet.</p>
       </div>
     `;
@@ -579,10 +600,20 @@ function renderHistoryDetail(round) {
 
   return `
     <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
+      <h3 class="history-detail-title">${escapeHtml(cardName)}</h3>
       <div class="history-result-row history-result-head">
         <span>Player</span>
         <span>Final</span>
         ${gameweeks.map((gameweek) => `<span class="gameweek-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>`).join('')}
+      </div>
+      <div class="history-result-row history-actual-row">
+        <span class="history-player-cell history-actual-label"><strong>Actual</strong></span>
+        <span class="history-final-rank">-</span>
+        ${gameweeks.map((gameweek) => {
+          const actual = actualValueForGameweek(round, gameweek);
+          const display = actual === null || actual === undefined || actual === '' ? '-' : formatActualValue(actual);
+          return `<span class="history-week-rank history-week-value">${escapeHtml(display)}</span>`;
+        }).join('')}
       </div>
       ${standings.map((row) => {
         const profile = profileForUser(row.user_id);
@@ -595,8 +626,10 @@ function renderHistoryDetail(round) {
             </span>
             <span class="history-final-rank ${rank === 1 ? 'winner' : ''}">${escapeHtml(ordinalRank(rank))}</span>
             ${gameweeks.map((gameweek) => {
-              const weeklyRank = weeklyRanks.get(`${gameweek.gameweek_id}:${row.user_id}`);
-              return `<span class="history-week-rank">${weeklyRank ? `#${escapeHtml(weeklyRank)}` : '-'}</span>`;
+              const score = scoreLookup.get(`${gameweek.gameweek_id}:${row.user_id}`);
+              const value = score?.predicted_value;
+              const missing = value === null || value === undefined || value === '';
+              return `<span class="history-week-rank ${missing ? 'missing' : 'history-week-value'}">${missing ? 'X' : escapeHtml(formatActualValue(value))}</span>`;
             }).join('')}
           </div>
         `;
@@ -604,7 +637,6 @@ function renderHistoryDetail(round) {
     </div>
   `;
 }
-
 function renderHistoryPanel(rounds) {
   if (!state.historyOpen) {
     return `
