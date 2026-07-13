@@ -70,6 +70,20 @@ function cardInstruction(cardName) {
   return instructions[cardName] || 'Submit the numeric prediction for this Game Card.';
 }
 
+function historyCardInstruction(cardName) {
+  const instructions = {
+    'Game of Goals': 'Predict the Total Goals in each Gameweek',
+    'Game of Corners': 'Predict the Total Corners in each Gameweek',
+    'Game of The Underdog': 'Predict higher-placed teams beaten each Gameweek',
+    'Game of The Goalhanger': 'Predict players scoring 2+ Goals each Gameweek',
+    'Game of War': 'Predict the Total Yellow Cards in each Gameweek',
+    'Game of The Early Worm': 'Predict the earliest Goal minute each Gameweek',
+    'Game of Time': "Predict the Total 90+ minute Goals each Gameweek",
+  };
+
+  return instructions[cardName] || 'Predict the result for each Gameweek';
+}
+
 const GAME_CARD_LIMITS = {
   'Game of Goals': { min: 0, max: 150 },
   'Game of Corners': { min: 0, max: 300 },
@@ -593,6 +607,7 @@ function renderHistoryDetail(round) {
     return `
       <div class="game-history-detail">
         <h3 class="history-detail-title">${escapeHtml(cardName)}</h3>
+        <p class="history-detail-description">${escapeHtml(historyCardInstruction(cardName))}</p>
         <p class="state-text">Results are not available for this Game Card yet.</p>
       </div>
     `;
@@ -601,14 +616,18 @@ function renderHistoryDetail(round) {
   return `
     <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
       <h3 class="history-detail-title">${escapeHtml(cardName)}</h3>
+      <p class="history-detail-description">${escapeHtml(historyCardInstruction(cardName))}</p>
       <div class="history-result-row history-result-head">
         <span>Player</span>
         <span>Final</span>
-        ${gameweeks.map((gameweek) => `<span class="gameweek-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>`).join('')}
+        ${gameweeks.map((gameweek) => `<span class="gameweek-badge history-week-heading">GW${escapeHtml(gameweek.gameweek_number)}</span>`).join('')}
       </div>
       <div class="history-result-row history-actual-row">
-        <span class="history-player-cell history-actual-label"><strong>Actual</strong></span>
-        <span class="history-final-rank">-</span>
+        <span class="history-player-cell history-actual-label">
+          <span class="history-avatar history-actual-spacer" aria-hidden="true"></span>
+          <strong>Actual</strong>
+        </span>
+        <span class="history-final-rank history-actual-final" aria-hidden="true"></span>
         ${gameweeks.map((gameweek) => {
           const actual = actualValueForGameweek(round, gameweek);
           const display = actual === null || actual === undefined || actual === '' ? '-' : formatActualValue(actual);

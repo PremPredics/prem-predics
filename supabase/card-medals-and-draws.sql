@@ -2047,6 +2047,14 @@ begin
       resolved_at = now()
   where id = target_source_card_effect_id;
 
+  update public.league_cards
+  set zone = 'discard',
+      updated_at = now()
+  where id = effect_row.card_instance_id
+    and competition_id = target_competition_id
+    and owner_user_id = target_user
+    and zone in ('hand', 'active');
+
   card_instance_id := stolen_row.id;
   card_id := stolen_row.card_id;
   card_name := stolen_row.name;

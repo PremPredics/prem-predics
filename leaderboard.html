@@ -79,6 +79,16 @@ main {
   text-shadow: 0 0 10px rgba(216, 180, 254, 0.48);
 }
 
+.leaderboard-hints {
+  display: grid;
+  gap: 2px;
+  margin: 8px auto 2px;
+}
+
+.leaderboard-hints .swipe-more-hint {
+  margin: 0;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -127,6 +137,18 @@ th {
 .leaderboard-header-link:focus-visible .stat-head {
   filter: brightness(1.18);
   text-shadow: 0 0 12px rgba(255, 255, 255, 0.72);
+}
+
+.leaderboard-header-link.stat-glow .stat-head {
+  text-shadow:
+    0 0 7px rgba(255, 255, 255, 0.38),
+    0 0 12px rgba(74, 222, 128, 0.22);
+}
+
+.leaderboard-header-link.stat-glow[data-leaderboard-nav="star-men"] .stat-head {
+  text-shadow:
+    0 0 7px rgba(255, 255, 255, 0.38),
+    0 0 12px rgba(250, 204, 21, 0.24);
 }
 
 .uc-head {
@@ -556,10 +578,10 @@ footer {
             <th>Pos</th>
             <th>Player</th>
             <th class="uc-head">UC PTS</th>
-            <th><button class="leaderboard-header-link" type="button" data-leaderboard-nav="correct-scores" aria-label="Open Correct Scores page"><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span></button></th>
+            <th><button class="leaderboard-header-link stat-glow" type="button" data-leaderboard-nav="correct-scores" aria-label="Open Correct Scores page"><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span></button></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-amber">&#10003;</span></span><span>CR</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-white">&#10003;</span></span><span>PP</span></span></th>
-            <th><button class="leaderboard-header-link" type="button" data-leaderboard-nav="star-men" aria-label="Open View All Player Star Men page"><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span></span><span>SMP</span></span></button></th>
+            <th><button class="leaderboard-header-link stat-glow" type="button" data-leaderboard-nav="star-men" aria-label="Open View All Player Star Men page"><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span></span><span>SMP</span></span></button></th>
             <th><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol ball">&#9917;</span></span><span>SMG</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol target">&#10166;</span></span><span>SMA</span></span></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol star">&#9733;</span><span class="symbol card yellow"></span></span><span>SMY</span></span></th>
@@ -573,7 +595,11 @@ footer {
     </div>
   </section>
 
-  <p class="swipe-more-hint">Swipe to see more stats</p>
+  <div class="leaderboard-hints" aria-label="Leaderboard navigation tips">
+    <p class="swipe-more-hint">Swipe to see more stats</p>
+    <p class="swipe-more-hint">Click 'CS' to view Correct Scores</p>
+    <p class="swipe-more-hint">Click 'SMP' to view Star Man History</p>
+  </div>
 
   <div class="legend-action-row">
     <button class="legend-btn" type="button" data-open-legend>Key</button>
@@ -615,4 +641,3 @@ footer {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-

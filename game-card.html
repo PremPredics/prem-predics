@@ -183,6 +183,17 @@ main {
     0 0 16px rgba(250, 204, 21, 0.7);
 }
 
+.history-detail-description {
+  margin: -1px 0 4px;
+  color: #f5f3ff;
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .history-result-row {
   display: grid;
   grid-template-columns: minmax(170px, 1fr) 64px repeat(var(--history-week-count), minmax(42px, 54px));
@@ -200,6 +211,14 @@ main {
   font-weight: 950;
   text-align: center;
 }
+
+.history-week-heading {
+  min-width: 0;
+  width: 100%;
+  padding: 4px 2px;
+  line-height: 1;
+}
+
 .history-actual-row {
   background: rgba(120, 53, 15, 0.36);
   border: 1px solid rgba(250, 204, 21, 0.24);
@@ -207,6 +226,14 @@ main {
 
 .history-actual-label strong {
   color: #fde68a;
+}
+
+.history-actual-spacer {
+  visibility: hidden;
+}
+
+.history-actual-final {
+  min-height: 1px;
 }
 
 .history-week-rank.history-week-value {
@@ -658,13 +685,20 @@ footer {
     padding: 7px;
     overflow-x: hidden;
   }
+  .history-detail-description {
+    font-size: 0.62rem;
+  }
   .history-result-row {
-    grid-template-columns: minmax(86px, 1fr) 42px repeat(var(--history-week-count), minmax(24px, 32px));
+    grid-template-columns: minmax(82px, 1fr) minmax(34px, 0.45fr) repeat(var(--history-week-count), minmax(27px, 0.5fr));
     gap: 3px;
     padding: 6px 4px;
   }
   .history-result-head {
     font-size: 9px;
+  }
+  .history-week-heading {
+    padding: 4px 1px;
+    font-size: 8px;
   }
   .history-avatar {
     width: 26px;
@@ -755,4 +789,3 @@ footer {
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-

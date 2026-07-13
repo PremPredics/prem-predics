@@ -8512,6 +8512,7 @@ async function confirmCardPlay() {
   if (!gameState.cardToPlay) return;
 
   const { name: card, player, index } = gameState.cardToPlay;
+  const cardPlayViewport = { x: window.scrollX, y: window.scrollY };
   const selectedCardInstanceId = gameState.handCardInstancesByPlayer?.[player]?.[index]?.id || null;
   const isSwapCard = card === "Power of the Swap";
   const isThiefCard = card === "Curse of the Thief";
@@ -8767,25 +8768,75 @@ async function confirmCardPlay() {
   }
   else if (isThiefCard) startStealMode(player, activation);
 
-  save();
-  render();
   if (isThiefCard) {
-    showStealCallout();
+    const releasePage = freezePageForStealCallout(cardPlayViewport);
+    save();
+    render();
+    showStealCallout(releasePage);
     return;
   }
+  save();
+  render();
   await showPlayedCardNotice(card, activation);
 }
 
-function showStealCallout() {
+function freezePageForStealCallout(viewport) {
+  const body = document.body;
+  const html = document.documentElement;
+  const x = Number(viewport?.x || 0);
+  const y = Number(viewport?.y || 0);
+  const previousBodyStyles = {
+    position: body.style.position,
+    top: body.style.top,
+    left: body.style.left,
+    right: body.style.right,
+    width: body.style.width,
+    overflow: body.style.overflow,
+  };
+  const previousScrollBehavior = html.style.scrollBehavior;
+
+  Object.assign(body.style, {
+    position: 'fixed',
+    top: `-${y}px`,
+    left: `-${x}px`,
+    right: '0',
+    width: '100%',
+    overflow: 'hidden',
+  });
+
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    Object.assign(body.style, previousBodyStyles);
+    html.style.scrollBehavior = 'auto';
+    window.scrollTo(x, y);
+    requestAnimationFrame(() => {
+      html.style.scrollBehavior = previousScrollBehavior;
+    });
+  };
+}
+
+function showStealCallout(releasePage = () => {}) {
   const existing = document.querySelector('.steal-callout');
   if (existing) {
+    existing.releasePage?.();
     existing.remove();
   }
   const callout = document.createElement('div');
   callout.className = 'steal-callout';
   callout.textContent = 'STEAL A CARD';
+  callout.releasePage = releasePage;
   document.body.appendChild(callout);
-  setTimeout(() => callout.remove(), 2100);
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    callout.remove();
+    releasePage();
+  };
+  callout.addEventListener('animationend', finish, { once: true });
+  setTimeout(finish, 2200);
 }
 
 function cardNameFromDrawn(card) {
@@ -8972,7 +9023,6 @@ function startStealMode(player, activation = null) {
   gameState.stealMode = player;
   gameState.stealModeEffectId = activation?.id || null;
   gameState.selectedSteal = null;
-  render();
 }
 
 function selectSteal(opponent, index) {
@@ -8991,21 +9041,29 @@ async function confirmSteal() {
   const player = gameState.stealMode;
   const opponentUserId = gameState.playerUserIds?.[opponent] || null;
 
+  let stolenThroughDatabase = false;
   if (cardRuntime?.stealCard && gameState.stealModeEffectId && gameState.selectedSteal.cardInstanceId) {
     try {
       await cardRuntime.stealCard(gameState.stealModeEffectId, gameState.selectedSteal.cardInstanceId, opponentUserId);
+      stolenThroughDatabase = true;
     } catch (error) {
       showSiteNotice(error.message || 'Could not steal that card.', 'Curse of the Thief');
       return;
     }
   }
 
-  gameState.players[player].hand.push(gameState.players[opponent].hand.splice(index, 1)[0]);
+  if (!stolenThroughDatabase) {
+    gameState.players[player].hand.push(gameState.players[opponent].hand.splice(index, 1)[0]);
+  }
   gameState.stealMode = null;
   gameState.stealModeEffectId = null;
   gameState.selectedSteal = null;
   document.getElementById("confirmStealBtn").style.display = "none";
-  syncHandFromDatabase();
+  try {
+    await syncHandFromDatabase({ force: true });
+  } catch (error) {
+    console.warn('Could not refresh hands after Curse of the Thief completed', error);
+  }
   save();
   render();
   showSiteNotice('Curse of the Thief is now complete.', 'Curse of the Thief');

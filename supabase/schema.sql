@@ -1800,7 +1800,7 @@ begin
     raise exception 'You are not a member of this league.';
   end if;
 
-  select ace.id, ace.target_user_id, ace.status, cd.category
+  select ace.id, ace.target_user_id, ace.status, ace.card_instance_id, ace.played_by_user_id, cd.category
     into effect_row
   from public.active_card_effects ace
   join public.card_definitions cd on cd.id = ace.card_id
@@ -1820,6 +1820,14 @@ begin
       resolved_at = now()
   where id = target_card_effect_id
     and competition_id = target_competition_id;
+
+  update public.league_cards
+  set zone = 'discard',
+      updated_at = now()
+  where id = effect_row.card_instance_id
+    and competition_id = target_competition_id
+    and owner_user_id = effect_row.played_by_user_id
+    and zone in ('hand', 'active');
 end;
 $$;
 
