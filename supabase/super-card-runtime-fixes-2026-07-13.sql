@@ -14,6 +14,181 @@ update public.card_definitions
 set description = 'Draw 5 Regular Cards from the Regular Deck.'
 where effect_key = 'super_draw';
 
+-- Keep the current runtime patch self-contained. Super Duo used to live only in
+-- the June migration, which left newer installations without this RPC in the
+-- PostgREST schema cache.
+create or replace function public.save_super_duo_pick(
+  target_competition_id uuid,
+  target_gameweek_id bigint,
+  target_player_id uuid,
+  target_source_card_effect_id uuid default null
+)
+returns public.star_man_picks
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  target_user uuid := auth.uid();
+  competition_row record;
+  gameweek_row record;
+  player_row record;
+  effect_row record;
+  saved_pick public.star_man_picks;
+  target_first_kickoff_at timestamptz;
+begin
+  if target_user is null then
+    raise exception 'You must be signed in to choose a Super Duo.';
+  end if;
+
+  select c.id, c.season_id
+    into competition_row
+  from public.competitions c
+  where c.id = target_competition_id;
+
+  if competition_row.id is null then
+    raise exception 'Private league not found.';
+  end if;
+
+  if not exists (
+    select 1
+    from public.competition_members cm
+    where cm.competition_id = target_competition_id
+      and cm.user_id = target_user
+  ) then
+    raise exception 'You are not a member of this private league.';
+  end if;
+
+  select gw.id, gw.number
+    into gameweek_row
+  from public.gameweeks gw
+  where gw.id = target_gameweek_id
+    and gw.season_id = competition_row.season_id;
+
+  if gameweek_row.id is null then
+    raise exception 'Gameweek not found for this season.';
+  end if;
+
+  select p.id, p.team_id, p.display_name, p.is_active
+    into player_row
+  from public.players p
+  where p.id = target_player_id;
+
+  if player_row.id is null or coalesce(player_row.is_active, false) is false then
+    raise exception 'That player is not available for Super Duo.';
+  end if;
+
+  select ace.id, ace.card_id, ace.start_gameweek_id, ace.end_gameweek_id, ace.gameweek_id
+    into effect_row
+  from public.active_card_effects ace
+  join public.card_definitions cd on cd.id = ace.card_id
+  left join public.gameweeks start_gw
+    on start_gw.id = coalesce(ace.start_gameweek_id, ace.gameweek_id)
+    and start_gw.season_id = ace.season_id
+  left join public.gameweeks end_gw
+    on end_gw.id = coalesce(ace.end_gameweek_id, ace.start_gameweek_id, ace.gameweek_id)
+    and end_gw.season_id = ace.season_id
+  where ace.competition_id = target_competition_id
+    and ace.season_id = competition_row.season_id
+    and ace.played_by_user_id = target_user
+    and ace.status = 'active'
+    and cd.effect_key = 'super_duo'
+    and (target_source_card_effect_id is null or ace.id = target_source_card_effect_id)
+    and (
+      ace.gameweek_id = target_gameweek_id
+      or ace.start_gameweek_id = target_gameweek_id
+      or (
+        start_gw.number is not null
+        and end_gw.number is not null
+        and gameweek_row.number between start_gw.number and end_gw.number
+      )
+    )
+  order by ace.played_at desc
+  limit 1;
+
+  if effect_row.id is null then
+    raise exception 'Super Duo is not active for this gameweek.';
+  end if;
+
+  if exists (
+    select 1
+    from public.star_man_picks smp
+    where smp.competition_id = target_competition_id
+      and smp.season_id = competition_row.season_id
+      and smp.gameweek_id = target_gameweek_id
+      and smp.user_id = target_user
+      and smp.pick_slot = 'primary'
+      and smp.player_id = target_player_id
+  ) then
+    raise exception 'Super Duo cannot be the same player as your Star Man.';
+  end if;
+
+  select min(f.kickoff_at)
+    into target_first_kickoff_at
+  from public.players p
+  join public.fixtures f
+    on f.season_id = competition_row.season_id
+    and f.gameweek_id = target_gameweek_id
+    and f.status <> 'postponed'
+    and (
+      p.team_id in (f.home_team_id, f.away_team_id)
+      or exists (
+        select 1
+        from public.player_team_assignments pta
+        where pta.player_id = p.id
+          and pta.season_id = competition_row.season_id
+          and pta.team_id in (f.home_team_id, f.away_team_id)
+          and pta.starts_gameweek_id <= target_gameweek_id
+          and (pta.ends_gameweek_id is null or pta.ends_gameweek_id >= target_gameweek_id)
+      )
+    )
+  where p.id = target_player_id;
+
+  if target_first_kickoff_at is null then
+    raise exception 'That player has no fixture in this gameweek.';
+  end if;
+
+  if now() >= target_first_kickoff_at then
+    raise exception 'That player''s team has already kicked off in this gameweek.';
+  end if;
+
+  insert into public.star_man_picks (
+    competition_id,
+    season_id,
+    gameweek_id,
+    user_id,
+    player_id,
+    pick_slot,
+    source_card_effect_id,
+    picked_at,
+    updated_at
+  )
+  values (
+    target_competition_id,
+    competition_row.season_id,
+    target_gameweek_id,
+    target_user,
+    target_player_id,
+    'super_duo',
+    effect_row.id,
+    now(),
+    now()
+  )
+  on conflict (competition_id, gameweek_id, user_id, pick_slot)
+  do update set
+    player_id = excluded.player_id,
+    source_card_effect_id = excluded.source_card_effect_id,
+    picked_at = now(),
+    updated_at = now()
+  returning * into saved_pick;
+
+  return saved_pick;
+end;
+$$;
+
+revoke all on function public.save_super_duo_pick(uuid, bigint, uuid, uuid) from public;
+grant execute on function public.save_super_duo_pick(uuid, bigint, uuid, uuid) to authenticated;
+
 create or replace function public.enforce_card_play_deadline()
 returns trigger
 language plpgsql
@@ -473,5 +648,6 @@ $$;
 revoke all on function public.play_super_sub_and_save_pick(uuid, uuid, bigint, uuid) from public;
 grant execute on function public.play_super_sub_and_save_pick(uuid, uuid, bigint, uuid) to authenticated;
 
-commit;
+notify pgrst, 'reload schema';
 
+commit;

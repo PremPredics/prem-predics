@@ -684,9 +684,9 @@ function renderSummary() {
             ${predictionRowLeftMarkup(false)}
             <span class="prediction-score-axis prediction-score-axis--saved">
               <span class="prediction-team prediction-team--home">${escapeHtml(teamName(fixture.home_team_id))}</span>
-              <strong class="prediction-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? '-'}</strong>
+              <strong class="prediction-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.home_goals ?? ''}</strong>
               <span class="prediction-dash">-</span>
-              <strong class="prediction-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.away_goals ?? '-'}</strong>
+              <strong class="prediction-goal ${curseOverride ? 'curse-score' : ''}">${prediction?.away_goals ?? ''}</strong>
               <span class="prediction-team prediction-team--away">${escapeHtml(teamName(fixture.away_team_id))}</span>
             </span>
             ${predictionRowMetaMarkup({
@@ -850,9 +850,9 @@ function renderHedgeRow(effect, index, mode = 'edit') {
         ${predictionRowLeftMarkup(true)}
         <span class="prediction-score-axis prediction-score-axis--saved">
           <span class="prediction-team prediction-team--home">${escapeHtml(teamName(selectedFixture.home_team_id))}</span>
-          <strong class="prediction-goal">${prediction?.home_goals ?? '-'}</strong>
+          <strong class="prediction-goal">${prediction?.home_goals ?? ''}</strong>
           <span class="prediction-dash">-</span>
-          <strong class="prediction-goal">${prediction?.away_goals ?? '-'}</strong>
+          <strong class="prediction-goal">${prediction?.away_goals ?? ''}</strong>
           <span class="prediction-team prediction-team--away">${escapeHtml(teamName(selectedFixture.away_team_id))}</span>
         </span>
         ${predictionRowMetaMarkup({
