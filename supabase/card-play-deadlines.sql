@@ -41,7 +41,7 @@ with canonical_card_descriptions (id, description) as (
     ('super_golden_gameweek', 'Prediction League points for all games are DOUBLED. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),
     ('super_sub', 'Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don''t earn negative points. Curse Cards don''t apply on the Super Sub, Power Cards Apply.'),
     ('super_score', 'Choose one scoreline before the Gameweek''s first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'),
-    ('super_draw', 'Draw 5 Regular Deck cards.'),
+    ('super_draw', 'Draw 5 Regular Cards from the Regular Deck.'),
     ('super_duo', 'Choose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player''s team''s first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'),
     ('super_pen', 'Gain 1 Medal any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.'),
     ('game_goals', 'Best of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.'),

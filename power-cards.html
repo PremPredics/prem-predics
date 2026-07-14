@@ -257,7 +257,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 350px;
+  max-width: 390px;
   width: 100%;
   animation: cardZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   margin: auto;
@@ -291,9 +291,10 @@ button:disabled {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 330px;
-  height: 430px;
-  padding: 24px 20px;
+  max-width: 380px;
+  height: clamp(420px, 62dvh, 520px);
+  max-height: calc(100dvh - 158px);
+  padding: 18px;
   overflow: hidden;
   position: relative;
 }
@@ -306,21 +307,26 @@ button:disabled {
   margin: 0;
   text-align: center;
   line-height: 1.18;
-  flex: 0 0 20%;
+  flex: 0 0 auto;
   min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 0 2px 8px;
+  padding: 13px 12px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  background: rgba(16, 7, 38, 0.48);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .card-preview-description {
-  font-size: clamp(0.78rem, 1.45vw, 0.95rem);
+  font-size: clamp(0.84rem, 1.3vw, 1rem);
   line-height: 1.35;
   font-weight: 800;
   color: #e9d5ff;
-  flex: 1 1 80%;
+  flex: 1 1 auto;
   overflow: hidden;
   text-align: center;
   display: flex;
@@ -332,7 +338,11 @@ button:disabled {
   word-break: normal;
   hyphens: none;
   width: 100%;
-  padding: 0 2px;
+  padding: 16px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 12px;
+  background: rgba(16, 7, 38, 0.44);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .card-preview-description::-webkit-scrollbar {
@@ -358,7 +368,7 @@ button:disabled {
   justify-content: center;
   flex-shrink: 0;
   width: 100%;
-  max-width: 330px;
+  max-width: 380px;
 }
 
 .card-preview-btn {
@@ -2566,21 +2576,23 @@ button:disabled {
 }
 
 .veto-curse-list {
-  grid-template-columns: repeat(auto-fit, minmax(min(184px, 100%), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 220px));
   justify-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 10px;
 }
 
 .veto-curse-btn {
   min-height: 0;
-  width: min(214px, 100%);
-  aspect-ratio: auto;
-  min-height: 268px;
+  width: 100%;
+  aspect-ratio: 0.76;
   align-items: center;
   justify-items: center;
-  gap: 6px;
+  gap: 8px;
   text-align: center;
-  padding: 10px 8px;
-  border-width: 2px;
+  padding: 12px 10px;
+  border-width: 3px;
   overflow: hidden;
   background: linear-gradient(135deg, #4c0519 0%, #991b1b 24%, #ef4444 50%, #be123c 72%, #fecaca 100%);
   border-color: #fb7185;
@@ -2590,7 +2602,7 @@ button:disabled {
 .veto-curse-name {
   display: block;
   color: #fff;
-  font-size: clamp(0.78rem, 1.25vw, 1rem);
+  font-size: clamp(0.9rem, 1.25vw, 1.08rem);
   font-weight: 950;
   text-align: center;
   line-height: 1.08;
@@ -2600,10 +2612,25 @@ button:disabled {
 .veto-curse-description {
   display: block;
   color: #ddd6fe;
-  font-size: clamp(0.62rem, 0.9vw, 0.74rem);
-  line-height: 1.14;
+  font-size: clamp(0.7rem, 0.85vw, 0.82rem);
+  line-height: 1.2;
   text-align: center;
   overflow: hidden;
+}
+
+.veto-curse-description {
+  align-self: stretch;
+  padding: 9px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9px;
+  background: rgba(46, 5, 20, 0.48);
+}
+
+.veto-curse-btn.selected {
+  outline: 4px solid #facc15;
+  outline-offset: -5px;
+  border-color: #fde68a;
+  box-shadow: 0 0 28px rgba(250, 204, 21, 0.86), inset 0 0 0 2px rgba(255, 255, 255, 0.55);
 }
 
 .veto-played-by {
@@ -3280,17 +3307,19 @@ button:disabled {
   }
 
   .veto-curse-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 280px);
+    gap: 12px;
   }
 
   .veto-curse-btn {
     width: 100%;
-    min-height: 178px;
-    padding: 9px 7px;
+    aspect-ratio: 0.82;
+    min-height: 0;
+    padding: 12px 10px;
   }
 
   .veto-curse-description {
-    font-size: 0.6rem;
+    font-size: clamp(0.72rem, 2.65vw, 0.86rem);
   }
 
   .random-curse-content {
@@ -5953,25 +5982,26 @@ html.capacitor-android .veto-curse-btn {
 }
 
 html.capacitor-android .veto-curse-btn {
-  width: min(186px, 100%);
-  min-height: 210px;
-  padding: 8px 7px;
-  gap: 4px;
+  width: min(280px, 100%);
+  min-height: 0;
+  aspect-ratio: 0.82;
+  padding: 12px 10px;
+  gap: 8px;
   grid-template-rows: auto auto auto minmax(0, 1fr);
   overflow: hidden;
 }
 
 html.capacitor-android .veto-curse-name {
-  font-size: clamp(0.66rem, 2.4vw, 0.84rem);
-  line-height: 1.04;
+  font-size: clamp(0.92rem, 3.2vw, 1.08rem);
+  line-height: 1.08;
   max-width: 100%;
   overflow: hidden;
 }
 
 html.capacitor-android .veto-curse-description {
-  font-size: clamp(0.5rem, 1.76vw, 0.62rem);
-  line-height: 1.08;
-  max-height: 82px;
+  font-size: clamp(0.72rem, 2.55vw, 0.84rem);
+  line-height: 1.18;
+  max-height: none;
   overflow: hidden;
 }
 </style>
@@ -6669,7 +6699,7 @@ const cardDescriptions = {
   "Super Golden Gameweek": "Super Golden Gameweek\n\nPrediction League points for all games are DOUBLED. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
   "Super Sub": "Super Sub\n\nStar Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don't earn negative points. Curse Cards don't apply on the Super Sub, Power Cards Apply.",
   "Super Score": "Super Score\n\nChoose one scoreline before the Gameweek's first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.",
-  "Super Draw": "Super Draw\n\nDraw 5 Regular Deck cards.",
+  "Super Draw": "Super Draw\n\nDraw 5 Regular Cards from the Regular Deck.",
   "Super Duo": "Super Duo\n\nChoose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player's team's first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.",
   "Super Pen": "Super Pen\n\nGain 1 Medal any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
 
@@ -6881,6 +6911,10 @@ function superDrawCountForLeague() {
   return superDrawCountForDeckVariant(currentDeckVariantId);
 }
 
+function superDurationForLeague() {
+  return superDurationForDeckVariant(currentDeckVariantId);
+}
+
 function cardDescriptionFor(cardName, options = {}) {
   const normalizedCardName = normalizeCardName(cardName);
   const duration = superDurationForDeckVariant(currentDeckVariantId);
@@ -6888,7 +6922,7 @@ function cardDescriptionFor(cardName, options = {}) {
   const durationText = `${duration} ${duration === 1 ? 'Gameweek' : 'Gameweeks'}`;
 
   if (normalizedCardName === 'Super Draw' && options.context === 'hand-preview') {
-    return `Draw ${drawCount} Regular Deck ${drawCount === 1 ? 'card' : 'cards'} for this league.`;
+    return 'Draw 5 Regular Cards from the Regular Deck.';
   }
 
   return (cardDescriptions[normalizedCardName] || cardDescriptions[cardName] || 'No description available.')
@@ -9600,8 +9634,8 @@ function fitTextWithin(el, minPx = 7) {
 
 function fitPreviewText(nameEl, descEl) {
   requestAnimationFrame(() => {
-    fitTextWithin(nameEl, 8);
-    fitTextWithin(descEl, 4.8);
+    fitTextWithin(nameEl, 11);
+    fitTextWithin(descEl, 9);
   });
 }
 
@@ -11628,32 +11662,19 @@ async function syncMedals() {
         throw new Error(replacementStatus.reason || 'That player cannot be chosen.');
       }
 
-      const rule = cardEffectRules['Super Sub'];
-      await assertNonStackingCardCanBePlayed(rule, 'Super Sub', contextData.activeGameweek, context, supabase);
-      const effect = await insertCardEffect(rule, pending.player, contextData.activeGameweek, {
-        cardInstanceId: pending.cardInstanceId,
-      });
-
-      const { error: pickSaveError } = await supabase.from('star_man_picks').upsert({
-        competition_id: context.league.id,
-        season_id: context.league.season_id,
-        gameweek_id: contextData.activeGameweek.gameweek_id,
-        user_id: context.user.id,
-        player_id: replacement.id,
-        pick_slot: 'primary',
-        source_card_effect_id: effect.id,
-      }, {
-        onConflict: 'competition_id,gameweek_id,user_id,pick_slot',
-      });
-
-      if (pickSaveError) throw pickSaveError;
-
-      const { error: discardError } = await supabase.rpc('discard_my_league_card', {
+      const { data: saved, error: saveError } = await supabase.rpc('play_super_sub_and_save_pick', {
         target_competition_id: context.league.id,
         target_card_instance_id: pending.cardInstanceId,
+        target_gameweek_id: contextData.activeGameweek.gameweek_id,
+        target_player_id: replacement.id,
       });
 
-      if (discardError) throw discardError;
+      if (saveError) {
+        if (isMissingRpcFunction(saveError)) {
+          throw new Error('Super Sub needs the latest database update before it can be confirmed.');
+        }
+        throw saveError;
+      }
 
       const hand = gameState.players[pending.player]?.hand || [];
       const instances = gameState.handCardInstancesByPlayer?.[pending.player] || [];
@@ -11669,11 +11690,10 @@ async function syncMedals() {
         contextData.activeGameweek.gameweek_number
       ));
 
-      const oldPlayer = contextData.players.find((player) => String(player.id) === String(contextData.currentPick?.player_id)) || null;
       return {
-        effect,
-        oldPlayerName: oldPlayer?.display_name || 'N/A',
-        newPlayerName: replacement.display_name || 'N/A',
+        effect: { id: saved?.effect_id || null },
+        oldPlayerName: saved?.old_player_name || 'N/A',
+        newPlayerName: saved?.new_player_name || replacement.display_name || 'N/A',
       };
     }
 

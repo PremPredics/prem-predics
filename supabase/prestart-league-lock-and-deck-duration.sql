@@ -196,7 +196,7 @@ $$;
 grant execute on function public.sync_competition_member_lock(uuid) to authenticated;
 
 update public.card_definitions
-set description = 'Draw 5 Regular Deck cards.'
+set description = 'Draw 5 Regular Cards from the Regular Deck.'
 where id = 'super_draw';
 
 with base_quantities (card_id, quantity) as (

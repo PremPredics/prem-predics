@@ -203,7 +203,7 @@ on conflict (deck_variant_id, card_id) do update
 set quantity = excluded.quantity;
 
 update public.card_definitions
-set description = 'Draw 5 Regular Deck cards.'
+set description = 'Draw 5 Regular Cards from the Regular Deck.'
 where id = 'super_draw';
 
 create or replace function public.ensure_league_card_decks(target_competition_id uuid)

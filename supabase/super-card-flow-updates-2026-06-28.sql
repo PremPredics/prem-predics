@@ -12,7 +12,7 @@ update public.card_definitions
 set description = case id
   when 'super_sub' then 'Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don''t earn negative points. Curse Cards don''t apply on the Super Sub, Power Cards Apply.'
   when 'super_score' then 'Choose one scoreline before the Gameweek''s first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'
-  when 'super_draw' then 'Draw 5 Regular Deck cards.'
+  when 'super_draw' then 'Draw 5 Regular Cards from the Regular Deck.'
   when 'super_duo' then 'Choose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player''s team''s first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'
   else description
 end

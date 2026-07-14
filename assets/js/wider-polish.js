@@ -114,6 +114,59 @@
         hyphens: none !important;
       }
 
+      :where(
+        .curse-card-list:not(.audit-trail) .curse-detail-card,
+        .card-effect-panel,
+        .star-curse-panel
+      ) {
+        border-width: 3px !important;
+        border-radius: 14px !important;
+        box-shadow:
+          0 18px 44px rgba(10, 3, 28, 0.48),
+          inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+      }
+
+      :where(
+        .curse-card-list:not(.audit-trail) .curse-detail-card,
+        .card-effect-panel,
+        .star-curse-panel
+      ) :where(h2, h3, strong) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        margin: 0 0 10px !important;
+        padding: 9px 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 9px;
+        background: rgba(17, 7, 38, 0.42);
+        color: #fff !important;
+        font-size: clamp(0.92rem, 2vw, 1.15rem) !important;
+        line-height: 1.12 !important;
+        text-align: center;
+      }
+
+      :where(
+        .curse-card-list:not(.audit-trail) .curse-detail-card,
+        .card-effect-panel,
+        .star-curse-panel
+      ) p {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+        margin: 0 !important;
+        padding: 12px 11px !important;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 10px;
+        background: rgba(17, 7, 38, 0.38);
+        color: #fff !important;
+        font-size: clamp(0.72rem, 1.5vw, 0.9rem) !important;
+        line-height: 1.28 !important;
+        text-align: center;
+        overflow: hidden !important;
+      }
+
       p.empty,
       div.empty,
       p.state-text:only-child,
@@ -340,9 +393,19 @@
           min-height: clamp(252px, 74vw, 326px) !important;
         }
 
-        .curse-detail-card p {
+        .curse-card-list.audit-trail .curse-detail-card p {
           font-size: clamp(0.58rem, 2.1vw, 0.72rem) !important;
           line-height: 1.18 !important;
+        }
+
+        :where(.card-effect-panel, .star-curse-panel) {
+          width: min(92vw, 390px) !important;
+          max-height: calc(100dvh - 116px) !important;
+          padding: 15px !important;
+        }
+
+        :where(.card-effect-panel, .star-curse-panel) p {
+          font-size: clamp(0.76rem, 2.6vw, 0.9rem) !important;
         }
 
         p.empty,
