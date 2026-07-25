@@ -29,7 +29,7 @@ security definer
 set search_path = public
 as $$
 declare
-  target_user uuid := auth.uid();
+  actor_user_id uuid := auth.uid();
   competition_row record;
   gameweek_row record;
   player_row record;
@@ -37,7 +37,7 @@ declare
   saved_pick public.star_man_picks;
   target_first_kickoff_at timestamptz;
 begin
-  if target_user is null then
+  if actor_user_id is null then
     raise exception 'You must be signed in to choose a Super Duo.';
   end if;
 
@@ -54,7 +54,7 @@ begin
     select 1
     from public.competition_members cm
     where cm.competition_id = target_competition_id
-      and cm.user_id = target_user
+      and cm.user_id = actor_user_id
   ) then
     raise exception 'You are not a member of this private league.';
   end if;
@@ -90,7 +90,7 @@ begin
     and end_gw.season_id = ace.season_id
   where ace.competition_id = target_competition_id
     and ace.season_id = competition_row.season_id
-    and ace.played_by_user_id = target_user
+    and ace.played_by_user_id = actor_user_id
     and ace.status = 'active'
     and cd.effect_key = 'super_duo'
     and (target_source_card_effect_id is null or ace.id = target_source_card_effect_id)
@@ -116,7 +116,7 @@ begin
     where smp.competition_id = target_competition_id
       and smp.season_id = competition_row.season_id
       and smp.gameweek_id = target_gameweek_id
-      and smp.user_id = target_user
+      and smp.user_id = actor_user_id
       and smp.pick_slot = 'primary'
       and smp.player_id = target_player_id
   ) then
@@ -167,7 +167,7 @@ begin
     target_competition_id,
     competition_row.season_id,
     target_gameweek_id,
-    target_user,
+    actor_user_id,
     target_player_id,
     'super_duo',
     effect_row.id,
@@ -415,7 +415,7 @@ security definer
 set search_path = public
 as $$
 declare
-  target_user_id uuid := auth.uid();
+  actor_user_id uuid := auth.uid();
   target_season_id uuid;
   target_card record;
   target_effect_id uuid;
@@ -425,7 +425,7 @@ declare
   target_new_player_name text;
   target_discard_order integer;
 begin
-  if target_user_id is null then
+  if actor_user_id is null then
     raise exception 'You must be logged in.';
   end if;
 
@@ -469,7 +469,7 @@ begin
     raise exception 'Super Sub card not found.';
   end if;
 
-  if target_card.owner_user_id is distinct from target_user_id then
+  if target_card.owner_user_id is distinct from actor_user_id then
     raise exception 'You can only play a Super Sub from your own hand.';
   end if;
 
@@ -494,7 +494,7 @@ begin
   where smp.competition_id = target_competition_id
     and smp.season_id = target_season_id
     and smp.gameweek_id = target_gameweek_id
-    and smp.user_id = target_user_id
+    and smp.user_id = actor_user_id
     and smp.pick_slot = 'primary'
   limit 1;
 
@@ -507,7 +507,7 @@ begin
     from public.star_man_picks smp
     where smp.competition_id = target_competition_id
       and smp.season_id = target_season_id
-      and smp.user_id = target_user_id
+      and smp.user_id = actor_user_id
       and smp.player_id = target_player_id
       and smp.id is distinct from target_existing_pick_id
   ) then
@@ -521,7 +521,7 @@ begin
   where ace.competition_id = target_competition_id
     and ace.season_id = target_season_id
     and ace.card_instance_id = target_card_instance_id
-    and ace.played_by_user_id = target_user_id
+    and ace.played_by_user_id = actor_user_id
     and ace.status = 'active'
     and coalesce(ace.start_gameweek_id, ace.gameweek_id) = target_gameweek_id
     and cd.effect_key = 'super_sub'
@@ -554,8 +554,8 @@ begin
       target_gameweek_id,
       target_gameweek_id,
       target_gameweek_id,
-      target_user_id,
-      target_user_id,
+      actor_user_id,
+      actor_user_id,
       jsonb_build_object(
         'replacement_player_id', target_player_id,
         'replacement_player_name', target_new_player_name,
@@ -572,7 +572,7 @@ begin
     target_competition_id,
     target_season_id,
     target_gameweek_id,
-    target_user_id,
+    actor_user_id,
     target_player_id,
     'primary',
     target_effect_id
@@ -594,7 +594,7 @@ begin
     target_competition_id,
     target_season_id,
     target_gameweek_id,
-    target_user_id,
+    actor_user_id,
     target_player_id,
     'primary',
     target_effect_id,
@@ -608,8 +608,8 @@ begin
     picked_at = now(),
     updated_at = now();
 
-  update public.active_card_effects
-  set payload = coalesce(payload, '{}'::jsonb) || jsonb_build_object(
+  update public.active_card_effects ace
+  set payload = coalesce(ace.payload, '{}'::jsonb) || jsonb_build_object(
     'previous_player_id', target_old_player_id,
     'previous_player_name', coalesce(target_old_player_name, 'N/A'),
     'replacement_player_id', target_player_id,
@@ -617,7 +617,7 @@ begin
     'pending', false,
     'completed_at', now()
   )
-  where id = target_effect_id;
+  where ace.id = target_effect_id;
 
   select coalesce(max(lc.sort_order), 0) + 1
     into target_discard_order
@@ -625,13 +625,13 @@ begin
   where lc.competition_id = target_competition_id
     and lc.zone = 'discard';
 
-  update public.league_cards
+  update public.league_cards lc
   set zone = 'discard',
       sort_order = target_discard_order,
       updated_at = now()
-  where id = target_card_instance_id
-    and competition_id = target_competition_id
-    and owner_user_id = target_user_id;
+  where lc.id = target_card_instance_id
+    and lc.competition_id = target_competition_id
+    and lc.owner_user_id = actor_user_id;
 
   if not found then
     raise exception 'Super Sub could not be moved to the used/discard pile.';

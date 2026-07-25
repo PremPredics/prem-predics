@@ -60,6 +60,7 @@ const state = {
   hedgePredictions: [],
   godEffect: null,
   godPrediction: null,
+  superGoldenGameweekEffect: null,
   superScoreEffect: null,
   superScorePick: null,
   pessimistEffect: null,
@@ -331,7 +332,13 @@ function visiblePredictionPowersForFixture(fixture) {
 }
 
 function ownPredictionPanelPowers() {
-  return [state.pessimistEffect, ...sortedHedgeEffects(), state.godEffect, state.superScoreEffect]
+  return [
+    state.pessimistEffect,
+    ...sortedHedgeEffects(),
+    state.godEffect,
+    state.superGoldenGameweekEffect,
+    state.superScoreEffect,
+  ]
     .filter(Boolean);
 }
 
@@ -643,6 +650,10 @@ async function loadActivePredictionEffects() {
     effectKey(effect) === 'power_of_god'
   )) || null;
 
+  state.superGoldenGameweekEffect = ownEffects.find((effect) => (
+    effectKey(effect) === 'super_golden_gameweek'
+  )) || null;
+
   state.superScoreEffect = ownEffects.find((effect) => (
     effectKey(effect) === 'super_score'
   )) || null;
@@ -672,6 +683,7 @@ function renderSummary() {
   }
 
   fixturesContainer.innerHTML = `
+    ${renderSuperScorePanel()}
     ${renderTargetRestrictionPanel()}
     <div class="prediction-summary-list">
       ${state.fixtures.map((fixture) => {
@@ -700,11 +712,11 @@ function renderSummary() {
         `;
       }).join('')}
       ${renderHedgeRows('summary')}
-      ${state.superScorePick ? `<div class="summary-row special-summary"><span>Super Score</span><strong>${state.superScorePick.home_goals}-${state.superScorePick.away_goals}</strong><span>Scoreline Pick</span><span class="summary-status"></span></div>` : ''}
     </div>
   `;
   saveAllButton.hidden = true;
   editButton.hidden = false;
+  wireSpecialPanels();
   wireCurseMarkers();
   updatePredictionCountdowns();
   predictionCountdownTimer = window.setInterval(updatePredictionCountdowns, 30000);
@@ -945,6 +957,15 @@ function renderSuperScorePanel() {
 
   const deadline = superScoreDeadlineAt();
   const locked = isPast(deadline);
+  const hasSavedPick = (
+    state.superScorePick?.home_goals !== null
+    && state.superScorePick?.home_goals !== undefined
+    && state.superScorePick?.away_goals !== null
+    && state.superScorePick?.away_goals !== undefined
+  );
+  const savedScoreline = hasSavedPick
+    ? `${state.superScorePick.home_goals}-${state.superScorePick.away_goals}`
+    : '';
   return `
     <section class="hedge-panel super-score-panel" data-super-score-panel>
       <span class="super-score-shine" aria-hidden="true"></span>
@@ -957,7 +978,11 @@ function renderSuperScorePanel() {
           <span class="score-separator">-</span>
           <input class="score-input" data-super-score-away type="text" inputmode="numeric" maxlength="2" value="${state.superScorePick?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Super Score away goals">
         </div>
-        <button class="super-score-save" type="button" data-save-super-score ${locked ? 'disabled' : ''}>Save</button>
+        <button class="super-score-save" type="button" data-save-super-score ${locked ? 'disabled' : ''}>${hasSavedPick ? 'Update Super Score' : 'Save Super Score'}</button>
+      </div>
+      <div class="super-score-status ${hasSavedPick ? 'is-saved' : 'is-pending'}" role="status">
+        <span class="super-score-status-light" aria-hidden="true"></span>
+        <strong>${hasSavedPick ? `Saved: ${savedScoreline}` : 'Not saved yet'}</strong>
       </div>
       <p class="super-score-deadline">${locked ? 'Super Score is locked for this gameweek.' : `Deadline: ${countdownText(deadline)}`}</p>
     </section>

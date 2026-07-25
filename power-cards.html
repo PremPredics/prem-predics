@@ -6068,6 +6068,134 @@ html.capacitor-android .veto-curse-description {
   max-height: none;
   overflow: visible;
 }
+
+.veto-carousel-list {
+  display: block !important;
+  width: min(100%, 590px);
+  max-height: none;
+  overflow: visible;
+  padding: 10px;
+  margin: 0 auto;
+}
+
+.veto-carousel-shell {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.veto-carousel-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+  background: rgba(22, 7, 54, 0.72);
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.12);
+}
+
+.veto-carousel-list .veto-curse-btn {
+  width: min(100%, 500px);
+  min-height: 330px;
+  grid-template-rows: auto auto auto minmax(118px, 1fr);
+  padding: 18px 16px;
+  overflow: visible;
+}
+
+.veto-carousel-list .veto-curse-description {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 118px;
+  max-height: none;
+  overflow: visible;
+  color: #fff;
+}
+
+.veto-carousel-nav {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) auto minmax(110px, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 500px);
+}
+
+.veto-carousel-nav button {
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+  color: #fff;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 7px 16px rgba(29, 8, 68, 0.28);
+}
+
+.veto-carousel-nav button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+}
+
+.veto-carousel-nav strong {
+  min-width: 48px;
+  color: #fff;
+  text-align: center;
+}
+
+.veto-carousel-help {
+  min-height: 1.25em;
+  margin: 0;
+  color: #fff;
+  font-weight: 800;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .veto-carousel-list {
+    width: min(100%, 380px);
+    padding: 6px;
+  }
+
+  .veto-carousel-list .veto-curse-btn {
+    width: 100%;
+    min-height: 360px;
+    grid-template-rows: auto auto auto minmax(135px, 1fr);
+    padding: 16px 13px;
+  }
+
+  .veto-carousel-list .veto-curse-description {
+    min-height: 135px;
+  }
+
+  .veto-carousel-nav {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    width: 100%;
+    gap: 6px;
+  }
+
+  .veto-carousel-nav button {
+    min-height: 40px;
+    padding: 8px 7px;
+    font-size: 0.75rem;
+  }
+}
+
+html.capacitor-android .veto-carousel-list .veto-curse-btn {
+  width: 100%;
+  max-width: 380px;
+  min-height: 360px;
+  grid-template-rows: auto auto auto minmax(135px, 1fr);
+  overflow: visible;
+}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#7b61d8">
@@ -7480,7 +7608,7 @@ function renderPlayerBoxes() {
       <div class="player-box ${isCurrentPlayer ? 'vas-player' : 'opponent-player'}">
         <h2 style="color: ${nameColor}">${escapeHtml(getPlayerName(playerKey))}</h2>
         <div class="player-hand-container">
-          <div class="hand-label">${isCurrentPlayer ? 'Hand (Click to play):' : 'Hand:'}</div>
+          <div class="hand-label">${isCurrentPlayer ? 'Hand (Click to View/Play):' : 'Hand:'}</div>
           <div id="${playerKey}Hand" class="hand">
             <div class="dealt-card-target" id="${playerKey}CardTarget"></div>
           </div>
@@ -9146,11 +9274,18 @@ async function confirmSteal() {
   const { opponent, index } = gameState.selectedSteal;
   const player = gameState.stealMode;
   const opponentUserId = gameState.playerUserIds?.[opponent] || null;
+  const selectedCard = gameState.players?.[opponent]?.hand?.[index] || null;
+  let stolenCardName = pileCardName(selectedCard) || 'Regular Card';
 
   let stolenThroughDatabase = false;
   if (cardRuntime?.stealCard && gameState.stealModeEffectId && gameState.selectedSteal.cardInstanceId) {
     try {
-      await cardRuntime.stealCard(gameState.stealModeEffectId, gameState.selectedSteal.cardInstanceId, opponentUserId);
+      const stolenCard = await cardRuntime.stealCard(
+        gameState.stealModeEffectId,
+        gameState.selectedSteal.cardInstanceId,
+        opponentUserId
+      );
+      stolenCardName = stolenCard?.card_name || stolenCardName;
       stolenThroughDatabase = true;
     } catch (error) {
       showSiteNotice(error.message || 'Could not steal that card.', 'Curse of the Thief');
@@ -9172,7 +9307,10 @@ async function confirmSteal() {
   }
   save();
   render();
-  showSiteNotice('Curse of the Thief is now complete.', 'Curse of the Thief');
+  showSiteNotice(
+    `Curse of the Thief is complete. ${stolenCardName} has been added to your hand.`,
+    'Curse of the Thief'
+  );
 }
 
 function showGameCardPreview() {
@@ -10659,6 +10797,7 @@ async function syncMedals() {
       return new Promise((resolve, reject) => {
         let settled = false;
         let selectedIndex = null;
+        let visibleIndex = 0;
         const originalTitle = titleEl.textContent;
         const originalBackText = backButton.textContent;
         const originalListClass = list.className;
@@ -10705,38 +10844,65 @@ async function syncMedals() {
         }
 
         function renderChoices() {
-          list.innerHTML = curses.map((effect, index) => {
-            const definition = getNestedRecord(effect.card_definitions);
-            const curseName = definition?.name || 'Curse Card';
-            const playedBy = playerNameById.get(effect.played_by_user_id) || 'Opponent';
-            const gameweekLabel = effect.gameweek_number
-              ? `GW${effect.gameweek_number}`
-              : 'Current Gameweek';
-            const playedByMarkupHtml = effect.played_by_user_id
-              ? playedByMarkup(effect.played_by_user_id, 'used', effect.gameweek_number || null)
-              : `Played by <span>${escapeHtml(playedBy)}</span>`;
-            return `
-              <button class="opponent-target-btn veto-curse-btn ${selectedIndex === index ? 'selected' : ''}" type="button" data-veto-index="${index}" aria-pressed="${selectedIndex === index ? 'true' : 'false'}">
+          const effect = curses[visibleIndex];
+          const definition = getNestedRecord(effect.card_definitions);
+          const curseName = definition?.name || 'Curse Card';
+          const playedBy = playerNameById.get(effect.played_by_user_id) || 'Opponent';
+          const gameweekLabel = effect.gameweek_number
+            ? `GW${effect.gameweek_number}`
+            : 'Current Gameweek';
+          const playedByMarkupHtml = effect.played_by_user_id
+            ? playedByMarkup(effect.played_by_user_id, 'used', effect.gameweek_number || null)
+            : `Played by <span>${escapeHtml(playedBy)}</span>`;
+          const isSelected = selectedIndex === visibleIndex;
+          const selectedElsewhere = selectedIndex !== null && !isSelected;
+
+          list.innerHTML = `
+            <div class="veto-carousel-shell">
+              <span class="veto-carousel-count">Curse ${visibleIndex + 1} of ${curses.length}</span>
+              <button class="opponent-target-btn veto-curse-btn ${isSelected ? 'selected' : ''}" type="button" data-veto-index="${visibleIndex}" aria-pressed="${isSelected ? 'true' : 'false'}">
                 <span class="veto-played-by">${playedByMarkupHtml}</span>
                 <span class="veto-curse-name">${escapeHtml(curseName)}</span>
                 <span class="veto-curse-meta">${escapeHtml(gameweekLabel)}</span>
                 <span class="veto-curse-description">${escapeHtml(cardDescriptionFor(curseName).replace(curseName, '').trim())}</span>
               </button>
-            `;
-          }).join('');
+              ${curses.length > 1 ? `
+                <div class="veto-carousel-nav">
+                  <button type="button" data-veto-prev ${visibleIndex === 0 ? 'disabled' : ''}>Previous</button>
+                  <strong>${visibleIndex + 1} / ${curses.length}</strong>
+                  <button type="button" data-veto-next ${visibleIndex === curses.length - 1 ? 'disabled' : ''}>Next</button>
+                </div>
+              ` : ''}
+              <p class="veto-carousel-help">${
+                isSelected
+                  ? 'Selected for veto.'
+                  : selectedElsewhere
+                    ? 'Your selected Curse is retained. Navigate back or tap this card to change it.'
+                    : 'Tap the card to select it.'
+              }</p>
+            </div>
+          `;
 
-          list.querySelectorAll('[data-veto-index]').forEach((button) => {
-            button.addEventListener('click', () => {
-              selectedIndex = Number(button.dataset.vetoIndex);
-              confirmButton.disabled = false;
-              renderChoices();
-            });
+          list.querySelector('[data-veto-index]')?.addEventListener('click', () => {
+            selectedIndex = visibleIndex;
+            confirmButton.disabled = false;
+            renderChoices();
+          });
+
+          list.querySelector('[data-veto-prev]')?.addEventListener('click', () => {
+            visibleIndex = Math.max(0, visibleIndex - 1);
+            renderChoices();
+          });
+
+          list.querySelector('[data-veto-next]')?.addEventListener('click', () => {
+            visibleIndex = Math.min(curses.length - 1, visibleIndex + 1);
+            renderChoices();
           });
         }
 
         titleEl.textContent = 'Choose Which Curse To Veto';
         backButton.textContent = 'Back';
-        list.className = `${originalListClass} veto-curse-list`;
+        list.className = `${originalListClass} veto-curse-list veto-carousel-list`;
         renderChoices();
         backButton.before(confirmButton);
 
