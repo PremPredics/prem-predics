@@ -147,6 +147,8 @@ declare
   token_row public.card_draw_tokens;
   selected_card record;
   selected_ids uuid[] := array[]::uuid[];
+  member_count integer;
+  draw_count integer;
 begin
   if target_user is null then
     raise exception 'You must be logged in.';
@@ -169,6 +171,16 @@ begin
   perform public.sync_my_card_draw_tokens(target_competition_id);
   perform public.ensure_league_card_decks(target_competition_id);
 
+  select count(*)::integer into member_count
+  from public.competition_members cm
+  where cm.competition_id = target_competition_id;
+
+  draw_count := case
+    when member_count <= 3 then 1
+    when member_count <= 6 then 2
+    else 3
+  end;
+
   select * into token_row
   from public.card_draw_tokens cdt
   where cdt.competition_id = target_competition_id
@@ -190,14 +202,14 @@ begin
       and lc.owner_user_id is null
       and lc.zone = 'premium_deck'
     order by random()
-    limit 3
+    limit draw_count
     for update skip locked
   loop
     selected_ids := array_append(selected_ids, selected_card.id);
   end loop;
 
-  if cardinality(selected_ids) <> 3 then
-    raise exception 'The Super Card deck does not contain three cards.';
+  if cardinality(selected_ids) <> draw_count then
+    raise exception 'The Super Card deck does not contain the % card(s) required for this league size.', draw_count;
   end if;
 
   update public.card_draw_tokens

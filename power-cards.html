@@ -628,7 +628,7 @@ button:disabled {
 .premium-pack-stage { width: min(100%, 1040px); text-align: center; }
 .premium-pack-title { margin: 0 0 22px; color: #fff8c7; font-size: clamp(2rem, 6vw, 4rem); text-shadow: 0 3px 0 #6b3f00, 0 0 24px #fff3a0; }
 .premium-pack-shell { width: 150px; aspect-ratio: 0.72; margin: 0 auto 22px; border: 4px solid #fff2a8; border-radius: 8px; background: linear-gradient(145deg, #fff7c8, #d9960d 45%, #703e02); box-shadow: 0 0 40px #fff0a0; animation: premiumPackCrack 1.05s ease forwards; }
-.premium-pack-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 220px)); justify-content: center; gap: 20px; }
+.premium-pack-cards { display: grid; grid-template-columns: repeat(var(--premium-pack-count, 3), minmax(0, 220px)); justify-content: center; gap: 20px; }
 .premium-pack-card { min-width: 0; aspect-ratio: 0.7; border: 3px solid #fff0a6; border-radius: 8px; padding: 18px 12px; background: linear-gradient(145deg, #7a4b05, #f0b729 35%, #fff5b8 52%, #b36c08 78%); box-shadow: 0 0 28px rgba(255,226,112,.85); display: flex; flex-direction: column; justify-content: space-between; animation: premiumCardDeal .65s both; }
 .premium-pack-card:nth-child(2) { animation-delay: .14s; }
 .premium-pack-card:nth-child(3) { animation-delay: .28s; }
@@ -638,7 +638,7 @@ button:disabled {
 @keyframes premiumPackCrack { 0% { transform: scale(.65) rotate(-4deg); opacity: 0; } 65% { transform: scale(1.08) rotate(2deg); opacity: 1; } 100% { transform: scale(.2); opacity: 0; height: 0; margin-bottom: 0; } }
 @keyframes premiumCardDeal { from { transform: translateY(70px) scale(.72); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (max-width: 640px) {
-  .premium-pack-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .premium-pack-cards { grid-template-columns: repeat(var(--premium-pack-count, 3), minmax(0, 1fr)); width: min(100%, calc(var(--premium-pack-count, 3) * 220px)); margin-inline: auto; gap: 8px; }
   .premium-pack-card { padding: 12px 6px; }
   .premium-pack-card-description { font-size: clamp(.58rem, 2.45vw, .76rem); }
 }
@@ -7874,6 +7874,8 @@ async function startCardReveal(deckType) {
 async function showPremiumPackReveal(drawnCards) {
   const reveal = document.getElementById('premiumPackReveal');
   const cards = document.getElementById('premiumPackCards');
+  const revealCount = Math.max(1, Math.min(3, drawnCards.length));
+  cards.style.setProperty('--premium-pack-count', String(revealCount));
   cards.innerHTML = drawnCards.map((drawn) => `
     <article class="premium-pack-card">
       <div class="premium-pack-card-name">${escapeHtml(normalizeCardName(drawn.card_name || 'Super Card'))}</div>
