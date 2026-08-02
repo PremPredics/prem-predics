@@ -613,6 +613,36 @@ button:disabled {
   display: flex;
 }
 
+.premium-pack-reveal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  overflow-y: auto;
+  padding: max(24px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+  background: radial-gradient(circle at 50% 28%, #fff7bd 0, #f7c948 18%, #b56b08 55%, #3d2104 100%);
+  color: #fff;
+}
+
+.premium-pack-reveal.show { display: grid; place-items: center; }
+.premium-pack-stage { width: min(100%, 1040px); text-align: center; }
+.premium-pack-title { margin: 0 0 22px; color: #fff8c7; font-size: clamp(2rem, 6vw, 4rem); text-shadow: 0 3px 0 #6b3f00, 0 0 24px #fff3a0; }
+.premium-pack-shell { width: 150px; aspect-ratio: 0.72; margin: 0 auto 22px; border: 4px solid #fff2a8; border-radius: 8px; background: linear-gradient(145deg, #fff7c8, #d9960d 45%, #703e02); box-shadow: 0 0 40px #fff0a0; animation: premiumPackCrack 1.05s ease forwards; }
+.premium-pack-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 220px)); justify-content: center; gap: 20px; }
+.premium-pack-card { min-width: 0; aspect-ratio: 0.7; border: 3px solid #fff0a6; border-radius: 8px; padding: 18px 12px; background: linear-gradient(145deg, #7a4b05, #f0b729 35%, #fff5b8 52%, #b36c08 78%); box-shadow: 0 0 28px rgba(255,226,112,.85); display: flex; flex-direction: column; justify-content: space-between; animation: premiumCardDeal .65s both; }
+.premium-pack-card:nth-child(2) { animation-delay: .14s; }
+.premium-pack-card:nth-child(3) { animation-delay: .28s; }
+.premium-pack-card-name { font-size: clamp(1rem, 2vw, 1.35rem); font-weight: 900; color: #fff; text-shadow: 0 2px 0 #231000; }
+.premium-pack-card-description { font-size: clamp(.72rem, 1.4vw, .92rem); line-height: 1.28; font-weight: 800; color: #301a00; }
+.premium-pack-back { width: min(320px, 88vw); margin-top: 26px; padding: 14px 20px; border: 2px solid #fff3b0; border-radius: 8px; background: #3f176c; color: #fff; font: inherit; font-weight: 900; cursor: pointer; box-shadow: 0 0 22px rgba(255,239,145,.65); }
+@keyframes premiumPackCrack { 0% { transform: scale(.65) rotate(-4deg); opacity: 0; } 65% { transform: scale(1.08) rotate(2deg); opacity: 1; } 100% { transform: scale(.2); opacity: 0; height: 0; margin-bottom: 0; } }
+@keyframes premiumCardDeal { from { transform: translateY(70px) scale(.72); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 640px) {
+  .premium-pack-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .premium-pack-card { padding: 12px 6px; }
+  .premium-pack-card-description { font-size: clamp(.58rem, 2.45vw, .76rem); }
+}
+
 .fullscreen-card-content {
   position: relative;
   width: 100%;
@@ -6242,6 +6272,15 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
     </div>
   </div>
 
+  <div class="premium-pack-reveal" id="premiumPackReveal" aria-hidden="true">
+    <div class="premium-pack-stage">
+      <h2 class="premium-pack-title">YOU HAVE DRAWN</h2>
+      <div class="premium-pack-shell" aria-hidden="true"></div>
+      <div class="premium-pack-cards" id="premiumPackCards"></div>
+      <button class="premium-pack-back" type="button" onclick="closePremiumPackReveal()">Back</button>
+    </div>
+  </div>
+
   <!-- Super Draw Reveal -->
   <div class="super-draw-reveal" id="superDrawReveal" aria-hidden="true">
     <div class="super-draw-stage">
@@ -6887,13 +6926,13 @@ const cardDescriptions = {
   "Curse of the Even Number": "Curse of the Even Number\n\nValid for 1 Gameweek. Opponent can only Predict an Even number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time. Cannot be picked whilst Curse of The Random is active.",
   "Curse of the Odd Number": "Curse of the Odd Number\n\nValid for 1 Gameweek. Opponent can only Predict an Odd number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time. Cannot be picked whilst Curse of The Random is active.",
 
-  "Super Star Man": "Super Star Man\n\nCan only be played after you have saved a Star Man for this Gameweek. Star Man points are TRIPLED. Yellow and Red cards are 0pts. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
-  "Super Golden Gameweek": "Super Golden Gameweek\n\nPrediction League points for all games are DOUBLED. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
-  "Super Sub": "Super Sub\n\nStar Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don't earn negative points. Curse Cards don't apply on the Super Sub, Power Cards Apply.",
-  "Super Score": "Super Score\n\nChoose one scoreline before the Gameweek's first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.",
-  "Super Draw": "Super Draw\n\nDraw 5 Regular Cards from the Regular Deck.",
-  "Super Duo": "Super Duo\n\nChoose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player's team's first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.",
-  "Super Pen": "Super Pen\n\nGain 1 Medal any time a penalty is scored in the active range. Duration: 1 Gameweek for 2-3 player leagues, 2 Gameweeks for 4-6, and 3 Gameweeks for 7-10.",
+  "Super Star Man": "Super Star Man\n\nValid for 1 Gameweek. Can only be played after you have saved a Star Man for this Gameweek. Star Man points are TRIPLED. Yellow and Red cards are 0pts. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.",
+  "Super Golden Gameweek": "Super Golden Gameweek\n\nValid for 1 Gameweek. Prediction League points for all games are DOUBLED. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.",
+  "Super Sub": "Super Sub\n\nValid for 1 Gameweek. Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don't earn negative points. Curse Cards don't apply on the Super Sub, Power Cards Apply. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.",
+  "Super Score": "Super Score\n\nValid for 1 Gameweek. Choose one scoreline before the Gameweek's first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.",
+  "Super Draw": "Super Draw\n\nValid for 1 Gameweek. Draw 5 Regular Cards from the Regular Deck. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.",
+  "Super Duo": "Super Duo\n\nValid for 1 Gameweek. Choose a 2nd Star Man until that player's team's first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.",
+  "Super Pen": "Super Pen\n\nValid for 1 Gameweek. Gain 1 Medal any time a penalty is scored in the active range. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.",
 
   "Game of Goals": "Game of Goals\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Goals in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
   "Game of Corners": "Game of Corners\n\nBest of 5 Gameweeks, closest answer wins, predict the Total Corners in each Gameweek. Winner gets +1 UC point and earns 1 Super Medal.",
@@ -7814,18 +7853,49 @@ async function startCardReveal(deckType) {
   setDeckChoiceBusy(true);
 
   try {
-    const drawn = await cardRuntime.redeemCardDraw(deckType);
-    const drawnCardName = normalizeCardName(drawn?.card_name || '');
-    if (!drawn?.card_instance_id || !drawnCardName) {
+    const drawnResult = await cardRuntime.redeemCardDraw(deckType);
+    const drawnCards = Array.isArray(drawnResult) ? drawnResult : [drawnResult];
+    if (!drawnCards.length || drawnCards.some((drawn) => !drawn?.card_instance_id || !normalizeCardName(drawn?.card_name || ''))) {
       await syncHandFromDatabase({ force: true });
       throw new Error('The draw completed, but the card details were not returned cleanly. Your hand has been refreshed.');
     }
-    await drawAndRevealCard(deckType, getCurrentPlayerKey(), drawnCardName);
+    if (deckType === 'premium') {
+      await showPremiumPackReveal(drawnCards);
+    } else {
+      await drawAndRevealCard(deckType, getCurrentPlayerKey(), normalizeCardName(drawnCards[0].card_name));
+    }
   } catch (error) {
     sequenceInProgress = false;
     setDeckChoiceBusy(false);
     showSiteNotice(error.message || 'Could not draw that card.', 'Draw Card', 'warning');
   }
+}
+
+async function showPremiumPackReveal(drawnCards) {
+  const reveal = document.getElementById('premiumPackReveal');
+  const cards = document.getElementById('premiumPackCards');
+  cards.innerHTML = drawnCards.map((drawn) => `
+    <article class="premium-pack-card">
+      <div class="premium-pack-card-name">${escapeHtml(normalizeCardName(drawn.card_name || 'Super Card'))}</div>
+      <div class="premium-pack-card-description">${escapeHtml(drawn.card_description || cardDescriptionFor(drawn.card_name || ''))}</div>
+    </article>
+  `).join('');
+  reveal.classList.add('show');
+  reveal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('card-preview-open');
+  await syncHandFromDatabase({ force: true });
+  updateDecksDisplay();
+  render();
+  save();
+}
+
+function closePremiumPackReveal() {
+  const reveal = document.getElementById('premiumPackReveal');
+  reveal.classList.remove('show');
+  reveal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('card-preview-open');
+  sequenceInProgress = false;
+  setDeckChoiceBusy(false);
 }
 
 function selectPlayerForCard(player) {
@@ -10580,7 +10650,7 @@ async function syncMedals() {
       'Super Score': { cardId: 'super_score', effectKey: 'super_score', duration: 1, target: 'self', deadlineExempt: true },
       'Super Draw': { cardId: 'super_draw', effectKey: 'super_draw', duration: 1, target: 'self', deadlineExempt: true },
       'Super Duo': { cardId: 'super_duo', effectKey: 'super_duo', duration: 1, target: 'self', deadlineExempt: true },
-      'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 3, target: 'self', deadlineExempt: true },
+      'Super Pen': { cardId: 'super_pen', effectKey: 'super_pen', duration: 1, target: 'self', deadlineExempt: true },
     };
     cardEffectRules['Curse of the Gambler'] = cardEffectRules['Curse of the Random'];
     cardEffectRules['Curse of the Random Roulette'] = cardEffectRules['Curse Of The Microstate'];
@@ -11660,11 +11730,7 @@ async function syncMedals() {
     }
 
     function effectiveCardDuration(rule) {
-      const fixedOneGameweekSupers = new Set(['super_draw', 'super_sub', 'super_score', 'super_duo']);
-      if (rule.cardId?.startsWith('super_') && !fixedOneGameweekSupers.has(rule.cardId)) {
-        return superDurationForLeague();
-      }
-
+      if (rule.cardId?.startsWith('super_')) return 1;
       return rule.duration || 1;
     }
 
@@ -12085,22 +12151,26 @@ async function syncMedals() {
         }
       },
       async redeemCardDraw(deckType) {
-        const { data, error } = await supabase.rpc('redeem_card_draw_token', {
-          target_competition_id: context.league.id,
-          target_deck_type: deckType,
-        });
+        const rpcName = deckType === 'premium'
+          ? 'redeem_super_card_draw_token'
+          : 'redeem_card_draw_token';
+        const rpcArgs = deckType === 'premium'
+          ? { target_competition_id: context.league.id }
+          : { target_competition_id: context.league.id, target_deck_type: deckType };
+        const { data, error } = await supabase.rpc(rpcName, rpcArgs);
 
         if (error) {
           throw error;
         }
 
-        const row = Array.isArray(data) ? data[0] : data;
+        const rows = Array.isArray(data) ? data : [data];
+        const row = rows[0];
         medalBalances = {
           regular: Number(row?.regular_medals || 0),
           super: Number(row?.super_medals || 0),
         };
         updateMedalDisplays();
-        return row;
+        return deckType === 'premium' ? rows : row;
       },
       async drawEffectCards(effectId, count) {
         const { data, error } = await supabase.rpc('draw_regular_cards_for_effect', {
@@ -12181,6 +12251,12 @@ async function syncMedals() {
           await assertLateScoutCanBePlayed(activeGameweek, fixtures, context, supabase);
         } else if (rule.effectKey === 'super_score' && firstKickoffAt && new Date(firstKickoffAt).getTime() <= Date.now()) {
           throw new Error('Super Score must be played before the Gameweek starts.');
+        } else if (rule.effectKey === 'super_duo' && !fixtures.some((fixture) => {
+          return String(fixture.status || '').toLowerCase() !== 'postponed'
+            && fixture.kickoff_at
+            && new Date(fixture.kickoff_at).getTime() > Date.now();
+        })) {
+          throw new Error('Super Duo cannot be played if all matches in the gameweek have Kicked-Off');
         } else if (!rule.deadlineExempt) {
           assertCardPlayDeadline(rule, activeGameweek);
         }

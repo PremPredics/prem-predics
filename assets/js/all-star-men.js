@@ -417,7 +417,26 @@ function openStarCurseModal(gameweekId) {
   if (titleElement) {
     titleElement.textContent = effects.length === 1 ? 'Active Card' : 'Active Cards';
   }
-  starCurseModalBody.innerHTML = effects.map(curseCardDetailMarkup).join('');
+  let activeIndex = 0;
+  const renderPage = () => {
+    starCurseModalBody.innerHTML = `
+      <div class="card-effect-pager">
+        <div class="card-effect-pager-card">${curseCardDetailMarkup(effects[activeIndex])}</div>
+        ${effects.length > 1 ? `<div class="card-effect-pager-nav">
+          <button type="button" class="card-effect-pager-btn" data-card-page="previous" ${activeIndex === 0 ? 'disabled' : ''}>Previous</button>
+          <span class="card-effect-pager-count">${activeIndex + 1} of ${effects.length}</span>
+          <button type="button" class="card-effect-pager-btn" data-card-page="next" ${activeIndex === effects.length - 1 ? 'disabled' : ''}>Next</button>
+        </div>` : ''}
+      </div>`;
+    starCurseModalBody.querySelectorAll('[data-card-page]').forEach((button) => {
+      button.addEventListener('click', () => {
+        activeIndex += button.dataset.cardPage === 'next' ? 1 : -1;
+        activeIndex = Math.max(0, Math.min(effects.length - 1, activeIndex));
+        renderPage();
+      });
+    });
+  };
+  renderPage();
   starCurseModal.classList.add('show');
   starCurseModal.setAttribute('aria-hidden', 'false');
 }

@@ -418,6 +418,58 @@
           line-height: 1.25;
         }
       }
+
+      .card-effect-pager {
+        width: min(100%, 470px);
+        margin: 0 auto;
+        display: grid;
+        justify-items: center;
+        gap: 14px;
+        overflow: visible;
+      }
+
+      .card-effect-pager-card {
+        width: 100%;
+        display: grid;
+        place-items: center;
+        overflow: visible;
+      }
+
+      .card-effect-pager-card > * {
+        margin-inline: auto !important;
+      }
+
+      .card-effect-pager-nav {
+        width: min(100%, 390px);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 10px;
+      }
+
+      .card-effect-pager-btn {
+        min-height: 44px;
+        border: 2px solid rgba(255,255,255,.72);
+        border-radius: 8px;
+        background: linear-gradient(135deg, #6d35d9, #3d126f);
+        color: #fff;
+        font: inherit;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(165,102,255,.45);
+      }
+
+      .card-effect-pager-btn:disabled {
+        opacity: .38;
+        cursor: default;
+        box-shadow: none;
+      }
+
+      .card-effect-pager-count {
+        color: #fff;
+        font-weight: 900;
+        white-space: nowrap;
+      }
     `;
     document.head.appendChild(style);
   }

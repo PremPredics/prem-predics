@@ -547,18 +547,30 @@ function openCurseModal(fixtureId, kind = 'curse') {
       ? (effects.length === 1 ? 'Active Power' : 'Active Powers')
       : (effects.length === 1 ? 'Active Curse' : 'Active Curses');
   }
-  curseModalBody.classList.toggle('audit-trail', effects.length > 1);
-  curseModalBody.innerHTML = effects
-    .map(curseCardDetailMarkup)
-    .join('<div class="curse-audit-separator"><span>AND</span><span>THEN</span></div>');
+  let activeIndex = 0;
+  const renderPage = () => {
+    curseModalBody.classList.remove('audit-trail');
+    curseModalBody.innerHTML = `
+      <div class="card-effect-pager">
+        <div class="card-effect-pager-card">${curseCardDetailMarkup(effects[activeIndex])}</div>
+        ${effects.length > 1 ? `<div class="card-effect-pager-nav">
+          <button type="button" class="card-effect-pager-btn" data-card-page="previous" ${activeIndex === 0 ? 'disabled' : ''}>Previous</button>
+          <span class="card-effect-pager-count">${activeIndex + 1} of ${effects.length}</span>
+          <button type="button" class="card-effect-pager-btn" data-card-page="next" ${activeIndex === effects.length - 1 ? 'disabled' : ''}>Next</button>
+        </div>` : ''}
+      </div>`;
+    curseModalBody.querySelectorAll('[data-card-page]').forEach((button) => {
+      button.addEventListener('click', () => {
+        activeIndex += button.dataset.cardPage === 'next' ? 1 : -1;
+        activeIndex = Math.max(0, Math.min(effects.length - 1, activeIndex));
+        renderPage();
+      });
+    });
+  };
+  renderPage();
   curseModal.classList.add('show');
   curseModal.setAttribute('aria-hidden', 'false');
 
-  window.requestAnimationFrame(() => {
-    if (window.matchMedia('(max-width: 650px)').matches && effects.length > 1) {
-      curseModalBody.scrollLeft = curseModalBody.scrollWidth;
-    }
-  });
 }
 
 function closeCurseModal() {

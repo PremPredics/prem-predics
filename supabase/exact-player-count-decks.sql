@@ -190,7 +190,19 @@ all_quantities as (
     mc.deck_variant_id,
     fc.card_id,
     case
-      when fc.card_id in ('super_score', 'super_duo') and mc.member_count >= 6 then 2
+      when fc.card_id in (
+        'super_star_man',
+        'super_golden_gameweek',
+        'super_sub',
+        'super_score',
+        'super_draw',
+        'super_duo',
+        'super_pen'
+      ) then case
+        when mc.member_count <= 3 then 1
+        when mc.member_count <= 6 then 2
+        else 3
+      end
       else fc.quantity
     end as quantity
   from member_counts mc
@@ -203,8 +215,24 @@ on conflict (deck_variant_id, card_id) do update
 set quantity = excluded.quantity;
 
 update public.card_definitions
-set description = 'Draw 5 Regular Cards from the Regular Deck.'
-where id = 'super_draw';
+set description = case id
+  when 'super_star_man' then 'Can only be played after you have saved a Star Man for this Gameweek. Star Man points are tripled; yellow and red cards are 0 points. Valid for 1 Gameweek.'
+  when 'super_golden_gameweek' then 'Prediction League points for all games are doubled. Valid for 1 Gameweek.'
+  when 'super_sub' then 'Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don''t earn negative points. Curse Cards don''t apply on the Super Sub, Power Cards Apply. Valid for 1 Gameweek.'
+  when 'super_score' then 'Choose one scoreline before the Gameweek''s first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek.'
+  when 'super_draw' then 'Draw 5 Regular Cards from the Regular Deck. Valid for 1 Gameweek.'
+  when 'super_duo' then 'Choose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player''s team''s first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek.'
+  when 'super_pen' then 'Gain 1 Medal any time a penalty is scored in the Gameweek. Valid for 1 Gameweek.'
+end || ' Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'
+where id in (
+  'super_star_man',
+  'super_golden_gameweek',
+  'super_sub',
+  'super_score',
+  'super_draw',
+  'super_duo',
+  'super_pen'
+);
 
 create or replace function public.ensure_league_card_decks(target_competition_id uuid)
 returns void
@@ -231,50 +259,22 @@ begin
     raise exception 'You are not a member of this private league.';
   end if;
 
-  select count(*)
+  select greatest(
+      count(*)::integer,
+      coalesce(target_competition.locked_member_count, 0),
+      2
+    )
     into member_count
   from public.competition_members
   where competition_id = target_competition_id;
 
-  -- Before lock, keep the live deck aligned to the current member count.
-  -- At lock time, freeze the exact deck for the final member count.
+  -- Deck growth is top-up only. Never remove cards that are already in play.
   target_deck_variant := coalesce(
-    target_competition.locked_deck_variant_id,
     public.deck_variant_for_member_count(least(10, greatest(2, member_count))),
+    target_competition.locked_deck_variant_id,
+    target_competition.deck_variant_id,
     'players_2'
   );
-
-  with desired as (
-    select cdc.card_id, cdc.quantity
-    from public.card_deck_cards cdc
-    join public.card_definitions cd on cd.id = cdc.card_id
-    where cdc.deck_variant_id = target_deck_variant
-      and cd.deck_type in ('regular', 'premium')
-  ),
-  existing as (
-    select lc.card_id, count(*) as current_count
-    from public.league_cards lc
-    where lc.competition_id = target_competition_id
-    group by lc.card_id
-  ),
-  removable as (
-    select
-      lc.id,
-      row_number() over (partition by lc.card_id order by lc.created_at desc, lc.id) as removable_rank,
-      greatest(coalesce(e.current_count, 0) - coalesce(d.quantity, 0), 0) as surplus_count
-    from public.league_cards lc
-    left join desired d on d.card_id = lc.card_id
-    left join existing e on e.card_id = lc.card_id
-    join public.card_definitions cd on cd.id = lc.card_id
-    where lc.competition_id = target_competition_id
-      and lc.owner_user_id is null
-      and lc.zone in ('regular_deck', 'premium_deck')
-      and cd.deck_type in ('regular', 'premium')
-  )
-  delete from public.league_cards lc
-  using removable r
-  where lc.id = r.id
-    and r.removable_rank <= r.surplus_count;
 
   insert into public.league_cards (competition_id, card_id, zone, sort_order, source)
   select

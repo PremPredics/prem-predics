@@ -33,13 +33,13 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('curse_even_number', 'Curse of the Even Number', 'curse', 'regular', 'curse_even_number', 'Valid for 1 Gameweek. Opponent can only predict even team goal totals. Must be played at least 24 hours before the gameweek''s first KO time. Cannot be picked whilst Curse of The Random is active.'),
     ('curse_odd_number', 'Curse of the Odd Number', 'curse', 'regular', 'curse_odd_number', 'Valid for 1 Gameweek. Opponent can only predict odd team goal totals. Must be played at least 24 hours before the gameweek''s first KO time. Cannot be picked whilst Curse of The Random is active.'),
 
-    ('super_star_man', 'Super Star Man', 'super', 'premium', 'super_star_man', 'Can only be played after you have saved a Star Man for this Gameweek. Star Man points are tripled; yellow and red cards are 0 points.'),
-    ('super_golden_gameweek', 'Super Golden Gameweek', 'super', 'premium', 'super_golden_gameweek', 'Prediction League points for all games are doubled.'),
-    ('super_sub', 'Super Sub', 'super', 'premium', 'super_sub', 'Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don''t earn negative points. Curse Cards don''t apply on the Super Sub, Power Cards Apply.'),
-    ('super_score', 'Super Score', 'super', 'premium', 'super_score', 'Choose one scoreline before the Gameweek''s first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'),
-    ('super_draw', 'Super Draw', 'super', 'premium', 'super_draw', 'Draw 5 Regular Cards from the Regular Deck.'),
-    ('super_duo', 'Super Duo', 'super', 'premium', 'super_duo', 'Choose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player''s team''s first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-5 player leagues, 2 cards in 6-10 player leagues.'),
-    ('super_pen', 'Super Pen', 'super', 'premium', 'super_pen', 'Gain 1 Medal any time a penalty is scored in the active range.'),
+    ('super_star_man', 'Super Star Man', 'super', 'premium', 'super_star_man', 'Can only be played after you have saved a Star Man for this Gameweek. Star Man points are tripled; yellow and red cards are 0 points. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
+    ('super_golden_gameweek', 'Super Golden Gameweek', 'super', 'premium', 'super_golden_gameweek', 'Prediction League points for all games are doubled. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
+    ('super_sub', 'Super Sub', 'super', 'premium', 'super_sub', 'Star Man can be swapped at any time for any other Star Man whose first game in the Gameweek has not kicked-off. Yellow Cards and Red Cards don''t earn negative points. Curse Cards don''t apply on the Super Sub, Power Cards Apply. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
+    ('super_score', 'Super Score', 'super', 'premium', 'super_score', 'Choose one scoreline before the Gameweek''s first kick-off. Every game with this scoreline (Home vs Away) will earn +3 UC pts. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
+    ('super_draw', 'Super Draw', 'super', 'premium', 'super_draw', 'Draw 5 Regular Cards from the Regular Deck. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
+    ('super_duo', 'Super Duo', 'super', 'premium', 'super_duo', 'Choose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player''s team''s first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
+    ('super_pen', 'Super Pen', 'super', 'premium', 'super_pen', 'Gain 1 Medal any time a penalty is scored in the Gameweek. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
 
     ('game_goals', 'Game of Goals', 'game', 'game', 'game_goals', 'Best-of-5 minigame: predict total goals each gameweek. Winner earns +1 UC point and 1 Super Medal.'),
     ('game_corners', 'Game of Corners', 'game', 'game', 'game_corners', 'Best-of-5 minigame: predict total corners each gameweek. Winner earns +1 UC point and 1 Super Medal.'),
@@ -184,7 +184,8 @@ all_quantities as (
     mc.deck_variant_id,
     fc.card_id,
     case
-      when fc.card_id in ('super_score', 'super_duo') and mc.member_count >= 6 then 2
+      when fc.card_id in ('super_star_man', 'super_golden_gameweek', 'super_sub', 'super_score', 'super_draw', 'super_duo', 'super_pen') then
+        case when mc.member_count <= 3 then 1 when mc.member_count <= 6 then 2 else 3 end
       else fc.quantity
     end as quantity
   from member_counts mc
