@@ -302,20 +302,71 @@ for each row execute function public.guard_super_duo_final_kickoff();
 do $$
 declare
   function_sql text;
+  function_sql_lower text;
   updated_sql text;
+  deadline_anchor integer;
+  exemption_start integer;
+  exemption_end integer;
+  exemption_clause text;
+  super_sub_position integer;
+  insertion_text text;
 begin
   function_sql := pg_get_functiondef('public.enforce_card_play_deadline()'::regprocedure);
-  updated_sql := replace(
-    function_sql,
-    E'''super_pen'',\n    ''super_sub''\n  ) then',
-    E'''super_pen'',\n    ''super_sub'',\n    ''super_duo''\n  ) then'
-  );
-  if updated_sql = function_sql
-    and function_sql not like '%''super_pen'',%''super_sub'',%''super_duo''%'
-  then
-    raise exception 'Could not update the existing Super Duo deadline exemption safely.';
+  function_sql_lower := lower(function_sql);
+
+  -- Locate the deadline-exemption list after the first-kickoff lookup instead
+  -- of relying on the whitespace used when the function was created.
+  deadline_anchor := strpos(function_sql_lower, 'select min(kickoff_at)');
+  if deadline_anchor = 0 then
+    raise exception 'Could not locate the first-kickoff lookup in enforce_card_play_deadline().';
   end if;
-  if updated_sql <> function_sql then
+
+  exemption_start := strpos(
+    substring(function_sql_lower from deadline_anchor),
+    'if card_row.effect_key in ('
+  );
+  if exemption_start = 0 then
+    raise exception 'Could not locate the deadline exemption list in enforce_card_play_deadline().';
+  end if;
+  exemption_start := deadline_anchor + exemption_start - 1;
+
+  exemption_end := strpos(
+    substring(function_sql_lower from exemption_start),
+    ') then'
+  );
+  if exemption_end = 0 then
+    raise exception 'Could not locate the end of the deadline exemption list.';
+  end if;
+  exemption_end := exemption_start + exemption_end + length(') then') - 2;
+
+  exemption_clause := substring(
+    function_sql from exemption_start for exemption_end - exemption_start + 1
+  );
+
+  if lower(exemption_clause) not like '%''super_duo''%' then
+    super_sub_position := strpos(lower(exemption_clause), '''super_sub''');
+    if super_sub_position = 0 then
+      raise exception 'Could not locate Super Sub in the deadline exemption list.';
+    end if;
+
+    insertion_text := case
+      when strpos(exemption_clause, E'\n') > 0
+        then E',\n    ''super_duo'''
+      else ', ''super_duo'''
+    end;
+
+    exemption_clause := overlay(
+      exemption_clause
+      placing insertion_text
+      from super_sub_position + length('''super_sub''')
+      for 0
+    );
+    updated_sql := overlay(
+      function_sql
+      placing exemption_clause
+      from exemption_start
+      for exemption_end - exemption_start + 1
+    );
     execute updated_sql;
   end if;
 end;
