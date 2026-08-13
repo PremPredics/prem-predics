@@ -940,7 +940,7 @@ async function renderFixtureStats() {
   list.innerHTML = `
     <div class="admin-row fixture-stats" data-fixture-id="${fixtureId}">
       <strong>${escapeHtml(fixtureLabel(state.fixtures.find((fixture) => fixture.id === fixtureId)))}</strong>
-      <label><input data-heavy-snow type="checkbox" ${data?.played_in_heavy_snow ? 'checked' : ''}> Heavy snow</label>
+      <label><input data-heavy-snow type="checkbox" ${data?.played_in_heavy_snow ? 'checked' : ''}> Early Bath (red card in first 15 minutes)</label>
     </div>
   `;
   setButtonsDisabled(saveButtons, false);
