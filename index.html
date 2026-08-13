@@ -85,6 +85,23 @@ header img:hover {
     drop-shadow(0 0 28px rgba(255,255,255,0.26));
 }
 
+.pwa-install-control {
+  align-self: center;
+  margin: 0 auto 2px;
+  padding: 7px 16px;
+  border: 1px solid rgba(255,255,255,.62);
+  border-radius: 999px;
+  background: rgba(46,16,102,.72);
+  color: #fff;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 5px 14px rgba(46,16,102,.22);
+}
+
+@media (min-width: 651px) { .pwa-install-control { display: none !important; } }
+
 /* ===== CONTAINER ===== */
 .container {
   flex: 1;
@@ -791,6 +808,8 @@ footer {
   </div>
 </header>
 
+<button class="pwa-install-control" type="button" data-pwa-install hidden>Install Prem Predics</button>
+
 <!-- ===== CONTAINER FOR CENTERED CONTENT ===== -->
 <div class="container">
   <div class="account-panel" data-auth-panel></div>
@@ -855,6 +874,36 @@ footer {
       button.blur();
     });
   });
+
+  (() => {
+    const button = document.querySelector('[data-pwa-install]');
+    if (!button) return;
+    let deferredPrompt = null;
+    const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true
+      || window.Capacitor?.isNativePlatform?.();
+    const refresh = () => {
+      button.hidden = isStandalone() || !deferredPrompt || window.innerWidth > 650;
+    };
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPrompt = event;
+      refresh();
+    });
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      refresh();
+    });
+    window.addEventListener('resize', refresh);
+    button.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      refresh();
+    });
+    refresh();
+  })();
 </script>
 <script type="module" src="assets/js/site-auth.js"></script>
 <script type="module" src="assets/js/index-admin.js"></script>

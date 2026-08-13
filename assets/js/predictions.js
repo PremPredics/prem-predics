@@ -58,8 +58,6 @@ const state = {
   hedgeEffect: null,
   hedgeEffects: [],
   hedgePredictions: [],
-  godEffect: null,
-  godPrediction: null,
   superGoldenGameweekEffect: null,
   superScoreEffect: null,
   superScorePick: null,
@@ -324,10 +322,6 @@ function visiblePredictionPowersForFixture(fixture) {
 
   powers.push(...hedgeEffectsForFixture(fixture));
 
-  if (fixture && state.godEffect && state.godEffect.fixture_id === fixture.id) {
-    powers.push(state.godEffect);
-  }
-
   return powers.sort((a, b) => effectPlayedAtMs(a) - effectPlayedAtMs(b));
 }
 
@@ -335,7 +329,6 @@ function ownPredictionPanelPowers() {
   return [
     state.pessimistEffect,
     ...sortedHedgeEffects(),
-    state.godEffect,
     state.superGoldenGameweekEffect,
     state.superScoreEffect,
   ]
@@ -504,7 +497,6 @@ async function loadExistingPredictions() {
   if (!state.fixtures.length) {
     state.predictions = new Map();
     state.hedgePredictions = [];
-    state.godPrediction = null;
     return;
   }
 
@@ -523,7 +515,6 @@ async function loadExistingPredictions() {
     .filter((prediction) => prediction.prediction_slot === 'primary')
     .map((prediction) => [prediction.fixture_id, prediction]));
   state.hedgePredictions = (data || []).filter((prediction) => isHedgeSlot(prediction.prediction_slot));
-  state.godPrediction = (data || []).find((prediction) => prediction.prediction_slot === 'power_of_god') || null;
   if (state.fixtures.length && state.predictions.size === state.fixtures.length) {
     state.mode = 'summary';
   }
@@ -646,10 +637,6 @@ async function loadActivePredictionEffects() {
   state.hedgeEffects = ownEffects.filter((effect) => effectKey(effect) === 'power_hedge');
   state.hedgeEffect = state.hedgeEffects[0] || null;
 
-  state.godEffect = ownEffects.find((effect) => (
-    effectKey(effect) === 'power_of_god'
-  )) || null;
-
   state.superGoldenGameweekEffect = ownEffects.find((effect) => (
     effectKey(effect) === 'super_golden_gameweek'
   )) || null;
@@ -707,7 +694,6 @@ function renderSummary() {
               lockText: fixtureLockText(fixture),
               effectsMarkup: `${renderPowerMarker(fixture)}${renderCurseMarker(fixture)}`,
             })}
-            ${state.godPrediction?.fixture_id === fixture.id ? `<small class="prediction-row-note">Power of God: ${state.godPrediction.home_goals}-${state.godPrediction.away_goals}</small>` : ''}
           </article>
         `;
       }).join('')}
@@ -780,7 +766,7 @@ function renderEdit() {
 }
 
 function renderSpecialPanels() {
-  return `${renderGodPanel()}${renderSuperScorePanel()}`;
+  return renderSuperScorePanel();
 }
 
 function renderPowerEffectMarker(effect) {
@@ -917,39 +903,6 @@ function renderHedgeRow(effect, index, mode = 'edit') {
   `;
 }
 
-function renderGodPanel() {
-  if (!state.godEffect) {
-    return '';
-  }
-
-  const selectedFixtureId = state.godEffect.fixture_id || state.godPrediction?.fixture_id || '';
-  const selectedFixture = state.fixtures.find((fixture) => fixture.id === selectedFixtureId);
-  const locked = selectedFixture ? isPast(selectedFixture.second_half_deadline_at) : false;
-  const fixtureOptions = state.fixtures.map((fixture) => `
-    <option value="${fixture.id}" ${fixture.id === selectedFixtureId ? 'selected' : ''}>
-      ${escapeHtml(fixtureLabel(fixture))}
-    </option>
-  `).join('');
-
-  return `
-    <section class="hedge-panel god-panel" data-god-panel>
-      <h3>Power of God</h3>
-      <p class="state-text">Choose one match to override before the second-half deadline.</p>
-      <div class="hedge-controls">
-        <select data-god-fixture ${state.godEffect.fixture_id ? 'disabled' : ''}>
-          <option value="">Choose match</option>
-          ${fixtureOptions}
-        </select>
-        <input class="score-input" data-god-home type="text" inputmode="numeric" maxlength="2" value="${state.godPrediction?.home_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God home goals">
-        <span class="score-separator">-</span>
-        <input class="score-input" data-god-away type="text" inputmode="numeric" maxlength="2" value="${state.godPrediction?.away_goals ?? ''}" ${locked ? 'disabled' : ''} aria-label="Power of God away goals">
-        <button type="button" data-save-god ${locked ? 'disabled' : ''}>Save</button>
-      </div>
-      <p class="state-text">${selectedFixture ? `Deadline: ${countdownText(selectedFixture.second_half_deadline_at)}` : 'Pick a match to see the deadline.'}</p>
-    </section>
-  `;
-}
-
 function renderSuperScorePanel() {
   if (!state.superScoreEffect) {
     return '';
@@ -1006,12 +959,6 @@ function wireSpecialPanels() {
       saveHedgePrediction(row.dataset.hedgeEffectId);
     });
   });
-
-  const godPanel = fixturesContainer.querySelector('[data-god-panel]');
-  godPanel?.querySelectorAll('input').forEach((input) => {
-    input.addEventListener('input', () => cleanScoreInput(input));
-  });
-  godPanel?.querySelector('[data-save-god]')?.addEventListener('click', saveGodPrediction);
 
   const superScorePanel = fixturesContainer.querySelector('[data-super-score-panel]');
   superScorePanel?.querySelectorAll('input').forEach((input) => {
@@ -1406,66 +1353,6 @@ async function saveHedgePrediction(effectId) {
   setMessage('Hedge prediction saved.', 'success');
   render();
   restoreDraftPredictionInputs(draftPredictions);
-}
-
-async function saveGodPrediction() {
-  const panel = fixturesContainer.querySelector('[data-god-panel]');
-  const fixtureId = panel?.querySelector('[data-god-fixture]')?.value;
-  const homeInput = panel?.querySelector('[data-god-home]');
-  const awayInput = panel?.querySelector('[data-god-away]');
-
-  if (!state.godEffect || !fixtureId || !homeInput?.value || !awayInput?.value) {
-    setMessage('Choose a match and enter both Power of God scores.', 'error');
-    return;
-  }
-
-  const fixture = state.fixtures.find((item) => item.id === fixtureId);
-  if (!fixture || isPast(fixture.second_half_deadline_at)) {
-    setMessage('The second-half deadline has passed for this match.', 'error');
-    return;
-  }
-
-  setMessage('Saving Power of God prediction...', 'info');
-
-  if (!state.godEffect.fixture_id || state.godEffect.fixture_id !== fixtureId) {
-    const { error: effectError } = await supabase
-      .from('active_card_effects')
-      .update({ fixture_id: fixtureId })
-      .eq('id', state.godEffect.id)
-      .eq('played_by_user_id', state.user.id);
-
-    if (effectError) {
-      setMessage(effectError.message || 'Could not choose Power of God match.', 'error');
-      return;
-    }
-
-    state.godEffect.fixture_id = fixtureId;
-  }
-
-  const row = {
-    competition_id: state.league.id,
-    season_id: state.league.season_id,
-    fixture_id: fixtureId,
-    user_id: state.user.id,
-    prediction_slot: 'power_of_god',
-    home_goals: Number(homeInput.value),
-    away_goals: Number(awayInput.value),
-    source_card_effect_id: state.godEffect.id,
-    submitted_at: new Date().toISOString(),
-  };
-
-  const { error } = await supabase.from('predictions').upsert(row, {
-    onConflict: 'competition_id,fixture_id,user_id,prediction_slot',
-  });
-
-  if (error) {
-    setMessage(error.message || 'Could not save Power of God prediction.', 'error');
-    return;
-  }
-
-  state.godPrediction = row;
-  setMessage('Power of God prediction saved.', 'success');
-  render();
 }
 
 async function saveSuperScorePick() {

@@ -335,6 +335,10 @@ function starManPowerAppliesToPick(effect, gameweek, pick) {
   }
 
   const key = effectKey(effect);
+  if (key === 'power_goal') {
+    return String(pick.pick_slot || 'primary') === 'primary';
+  }
+
   if (String(pick.source_card_effect_id || '') === String(effect.id)) {
     return true;
   }

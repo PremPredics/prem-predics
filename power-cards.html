@@ -6226,6 +6226,11 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
   grid-template-rows: auto auto auto minmax(135px, 1fr);
   overflow: visible;
 }
+/* Power of God in-match replacement picker */
+.god-fixture-picker,
+.god-score-inputs { display:flex; align-items:center; justify-content:center; gap:12px; }
+.god-fixture-picker button { min-width:44px; }
+.god-score-inputs input { width:74px; padding:12px 8px; border:2px solid #d8b4fe; border-radius:8px; background:#fff; color:#2e1065; text-align:center; font:inherit; font-weight:900; }
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#7b61d8">
@@ -6902,14 +6907,14 @@ const cardDescriptions = {
   "Power of the Laundrette": "Power of the Laundrette\n\nValid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power Of The Clean Sweep": "Power Of The Clean Sweep\nValid for 1 Gameweek.\n\nIf you score a point in every game this Gameweek, earn bonus +5 UC pts.\n\nMust be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Pessimist": "Power of the Pessimist\n\nValid for 1 Gameweek. DOUBLE points for all Predictions if no team scores 3+ goals. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Immigrants": "Power of the Immigrants\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power Of The Foreigners": "Power Of The Foreigners\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Lanky Crouch": "Power of the Lanky Crouch\n\nValid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Small and Mighty": "Power of the Small and Mighty\n\nValid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of God": "Power of God\n\nValid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.",
   "Power of the Hedge": "Power of the Hedge\n\nValid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek's first KO time. Cannot be played on a fixture while Curse of the Deleted Match is active.",
   "Power of the Assist King": "Power of the Assist King\n\nValid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Late Scout": "Power of the Late Scout\n\nValid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team's first match in the Gameweek kicks off.",
-  "Power of the Snow": "Power of the Snow\n\nValid for 1 Gameweek. Any Predicted match played in heavy snow scores DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power Of The Early Bath": "Power Of The Early Bath\n\nValid for 1 Gameweek. Predictions for fixtures marked as having a red card in the first 15 minutes score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
 
   "Curse of the Hated": "Curse of the Hated\n\nValid for 1 Gameweek. Opponent must predict 8-2 in at least one game this Gameweek. Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Random": "Curse of the Random\n\nValid for 1 Gameweek. For 3 games, roll a dice to determine the score predictions of an opponent. Must be played at least 24 hours before the gameweek's first KO time.",
@@ -6946,6 +6951,9 @@ cardDescriptions["Curse of the Gambler"] = cardDescriptions["Curse of the Random
 cardDescriptions["Curse of the Random Roulette"] = cardDescriptions["Curse Of The Microstate"];
 cardDescriptions["Power of the Rocket Man"] = cardDescriptions["Power Of The Clean Sweep"];
 cardDescriptions["Curse of the Bench Warmer"] = cardDescriptions["Curse of the Furious"];
+cardDescriptions["Power Of The Foreigners"] = "Power Of The Foreigners\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.";
+cardDescriptions["Power Of The Early Bath"] = "Power Of The Early Bath\n\nValid for 1 Gameweek. Predictions for fixtures marked as having a red card in the first 15 minutes score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.";
+cardDescriptions["Power of God"] = "Power of God\n\nChange one current-Gameweek match prediction from kick-off until 60 minutes after kick-off.";
 
 // POWER CARDS - 34 TOTAL
 const powerCards = [
@@ -6955,14 +6963,14 @@ const powerCards = [
   "Power of the Laundrette", "Power of the Laundrette",
   "Power Of The Clean Sweep", "Power Of The Clean Sweep",
   "Power of the Pessimist", "Power of the Pessimist",
-  "Power of the Immigrants", "Power of the Immigrants", "Power of the Immigrants",
+  "Power Of The Foreigners", "Power Of The Foreigners", "Power Of The Foreigners",
   "Power of the Lanky Crouch", "Power of the Lanky Crouch", "Power of the Lanky Crouch",
   "Power of the Small and Mighty", "Power of the Small and Mighty", "Power of the Small and Mighty",
   "Power of God", "Power of God",
   "Power of the Hedge", "Power of the Hedge", "Power of the Hedge",
   "Power of the Assist King", "Power of the Assist King",
   "Power of the Late Scout", "Power of the Late Scout",
-  "Power of the Snow"
+  "Power Of The Early Bath"
 ];
 
 // CURSE CARDS - 26 TOTAL
@@ -6998,6 +7006,8 @@ const gameCards = [
 // Card type mapping
 const cardTypeMap = {};
 powerCards.forEach(card => { cardTypeMap[card] = 'power'; });
+cardTypeMap["Power Of The Foreigners"] = 'power';
+cardTypeMap["Power Of The Early Bath"] = 'power';
 curseCards.forEach(card => { cardTypeMap[card] = 'curse'; });
 premiumCards.forEach(card => { cardTypeMap[card] = 'super'; });
 gameCards.forEach(card => { cardTypeMap[card] = 'game'; });
@@ -7084,6 +7094,8 @@ function normalizeCardName(cardName) {
   if (cardName === "Curse of the Random Roulette") return "Curse Of The Microstate";
   if (cardName === "Power of the Rocket Man") return "Power Of The Clean Sweep";
   if (cardName === "Curse of the Bench Warmer") return "Curse of the Furious";
+  if (cardName === "Power of the Immigrants") return "Power Of The Foreigners";
+  if (cardName === "Power of the Snow") return "Power Of The Early Bath";
   return cardName;
 }
 
@@ -7860,7 +7872,15 @@ async function startCardReveal(deckType) {
       throw new Error('The draw completed, but the card details were not returned cleanly. Your hand has been refreshed.');
     }
     if (deckType === 'premium') {
-      await showPremiumPackReveal(drawnCards);
+      for (const drawn of drawnCards) {
+        sequenceInProgress = true;
+        setDeckChoiceBusy(true);
+        await drawAndRevealCard('premium', getCurrentPlayerKey(), normalizeCardName(drawn.card_name));
+      }
+      await syncHandFromDatabase({ force: true });
+      updateDecksDisplay();
+      render();
+      save();
     } else {
       await drawAndRevealCard(deckType, getCurrentPlayerKey(), normalizeCardName(drawnCards[0].card_name));
     }
@@ -8934,7 +8954,14 @@ async function confirmCardPlay() {
 
   const keepPlayedCardInHand = isSwapCard || shouldKeepPlayedCardInHand(activation);
   let discardPlayedCardPromise = Promise.resolve();
-  if (keepPlayedCardInHand) {
+  if (activation?.__cardConsumedAtomically) {
+    gameState.discardPile.push(discardPileItem(
+      card,
+      gameState.playerUserIds?.[player] || null,
+      'used',
+      activation?.gameweek_number || null
+    ));
+  } else if (keepPlayedCardInHand) {
     markCardInstanceAsUsed(player, index, activation);
   } else {
     gameState.discardPile.push(discardPileItem(
@@ -10624,14 +10651,14 @@ async function syncMedals() {
       'Power of the Laundrette': { cardId: 'power_laundrette', effectKey: 'power_laundrette', duration: 1, target: 'self' },
       'Power Of The Clean Sweep': { cardId: 'power_rocket_man', effectKey: 'power_clean_sweep', duration: 1, target: 'self' },
       'Power of the Pessimist': { cardId: 'power_pessimist', effectKey: 'power_pessimist', duration: 1, target: 'self' },
-      'Power of the Immigrants': { cardId: 'power_immigrants', effectKey: 'power_immigrants', duration: 1, target: 'self' },
+      'Power Of The Foreigners': { cardId: 'power_immigrants', effectKey: 'power_immigrants', duration: 1, target: 'self' },
       'Power of the Lanky Crouch': { cardId: 'power_lanky_crouch', effectKey: 'power_lanky_crouch', duration: 1, target: 'self' },
       'Power of the Small and Mighty': { cardId: 'power_small_and_mighty', effectKey: 'power_small_and_mighty', duration: 1, target: 'self' },
-      'Power of God': { cardId: 'power_of_god', effectKey: 'power_of_god', duration: 1, target: 'self', deadlineExempt: true },
+      'Power of God': { cardId: 'power_of_god', effectKey: 'power_of_god', duration: 1, target: 'self', deadlineExempt: true, special: 'god' },
       'Power of the Hedge': { cardId: 'power_hedge', effectKey: 'power_hedge', duration: 1, target: 'self', fixture: true },
       'Power of the Assist King': { cardId: 'power_assist_king', effectKey: 'power_assist_king', duration: 1, target: 'self' },
       'Power of the Late Scout': { cardId: 'power_late_scout', effectKey: 'power_late_scout', duration: 1, target: 'self', deadlineExempt: true },
-      'Power of the Snow': { cardId: 'power_snow', effectKey: 'power_snow', duration: 1, target: 'self' },
+      'Power Of The Early Bath': { cardId: 'power_snow', effectKey: 'power_snow', duration: 1, target: 'self' },
       'Curse of the Hated': { cardId: 'curse_hated', effectKey: 'curse_hated', duration: 1, target: 'opponent', special: 'hated' },
       'Curse of the Random': { cardId: 'curse_gambler', effectKey: 'curse_gambler', duration: 1, target: 'opponent', special: 'gambler' },
       'Curse of the Furious': { cardId: 'curse_bench_warmer', effectKey: 'curse_furious', duration: 1, target: 'opponent' },
@@ -11713,6 +11740,100 @@ async function syncMedals() {
       `;
     }
 
+    async function playPowerOfGod(activeGameweek, fixtures, cardInstanceId) {
+      const nowMs = Date.now();
+      const eligible = fixtures.filter((fixture) => {
+        const kickoffMs = new Date(fixture.kickoff_at).getTime();
+        return Number.isFinite(kickoffMs)
+          && nowMs >= kickoffMs
+          && nowMs < kickoffMs + (60 * 60 * 1000)
+          && !['postponed', 'final', 'completed', 'finished', 'full_time', 'ft'].includes(String(fixture.status || '').toLowerCase());
+      });
+      if (!eligible.length) {
+        throw new Error('This Card cannot be played until a match has kicked off and is not in the Second Half yet.');
+      }
+
+      const { data: predictions, error: predictionError } = await supabase
+        .from('predictions')
+        .select('fixture_id, home_goals, away_goals')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('user_id', context.user.id)
+        .eq('prediction_slot', 'primary')
+        .in('fixture_id', eligible.map((fixture) => fixture.id));
+      if (predictionError) throw predictionError;
+      return choosePowerOfGodReplacement(activeGameweek, eligible, predictions || [], cardInstanceId);
+    }
+
+    function choosePowerOfGodReplacement(activeGameweek, eligible, predictions, cardInstanceId) {
+      const predictionByFixture = new Map(predictions.map((prediction) => [String(prediction.fixture_id), prediction]));
+      const selectable = eligible.filter((fixture) => predictionByFixture.has(String(fixture.id)));
+      if (!selectable.length) throw new Error('No normal prediction exists for an eligible fixture.');
+      return new Promise((resolve, reject) => {
+        const modal = document.getElementById('opponentTargetModal');
+        const title = document.getElementById('opponentTargetTitle');
+        const list = document.getElementById('opponentTargetList');
+        const cancel = document.getElementById('opponentTargetCancel');
+        let index = 0;
+        let swipeStartX = null;
+        const cleanup = () => {
+          modal.classList.remove('show'); modal.setAttribute('aria-hidden', 'true');
+          cancel.onclick = null; list.innerHTML = '';
+        };
+        const renderChoice = () => {
+          const fixture = selectable[index];
+          const prediction = predictionByFixture.get(String(fixture.id));
+          title.textContent = 'Power of God';
+          list.innerHTML = `
+            <div class="god-fixture-picker">
+              <button type="button" data-god-prev aria-label="Previous fixture">&#8592;</button>
+              <strong>${escapeHtml(fixtureChoiceLabel(fixture))}</strong>
+              <button type="button" data-god-next aria-label="Next fixture">&#8594;</button>
+            </div>
+            <p>Current prediction: <strong>${prediction.home_goals}-${prediction.away_goals}</strong></p>
+            <div class="god-score-inputs">
+              <input type="number" min="0" max="99" inputmode="numeric" data-god-home aria-label="Replacement home goals">
+              <span>-</span>
+              <input type="number" min="0" max="99" inputmode="numeric" data-god-away aria-label="Replacement away goals">
+            </div>
+            <button type="button" class="fixture-choice-confirm" data-god-submit>Replace Prediction</button>`;
+          list.querySelector('[data-god-prev]').onclick = () => { index = (index - 1 + selectable.length) % selectable.length; renderChoice(); };
+          list.querySelector('[data-god-next]').onclick = () => { index = (index + 1) % selectable.length; renderChoice(); };
+          list.querySelector('[data-god-submit]').onclick = async () => {
+            const home = Number(list.querySelector('[data-god-home]').value);
+            const away = Number(list.querySelector('[data-god-away]').value);
+            if (!Number.isInteger(home) || home < 0 || !Number.isInteger(away) || away < 0) {
+              showSiteNotice('Enter both replacement scores.', 'Power of God', 'warning'); return;
+            }
+            try {
+              const { data, error } = await supabase.rpc('play_power_of_god_and_replace_prediction', {
+                target_competition_id: context.league.id,
+                target_card_instance_id: cardInstanceId,
+                target_gameweek_id: activeGameweek.gameweek_id,
+                target_fixture_id: fixture.id,
+                target_home_goals: home,
+                target_away_goals: away,
+              });
+              if (error) throw error;
+              cleanup(); resolve({ ...(data || {}), __cardConsumedAtomically: true, __skipFinalNotice: true });
+              showSiteNotice(`${data?.fixture_name || fixtureChoiceLabel(fixture)} is now ${home}-${away}.`, 'Power of God Successful');
+            } catch (error) { cleanup(); reject(error); }
+          };
+          list.ontouchstart = (event) => { swipeStartX = event.changedTouches?.[0]?.clientX ?? null; };
+          list.ontouchend = (event) => {
+            const endX = event.changedTouches?.[0]?.clientX;
+            if (swipeStartX === null || !Number.isFinite(endX) || Math.abs(endX - swipeStartX) < 45) return;
+            index = endX < swipeStartX ? (index + 1) % selectable.length : (index - 1 + selectable.length) % selectable.length;
+            swipeStartX = null;
+            renderChoice();
+          };
+        };
+        cancel.textContent = 'Back';
+        cancel.onclick = () => { cleanup(); reject(new Error('Card play cancelled.')); };
+        renderChoice(); modal.classList.add('show'); modal.setAttribute('aria-hidden', 'false');
+      });
+    }
+
     async function endGameweekId(activeGameweek, duration) {
       if (duration <= 1) return activeGameweek.gameweek_id;
       const targetNumber = Math.min(Number(activeGameweek.gameweek_number) + duration - 1, 38);
@@ -12269,6 +12390,9 @@ async function syncMedals() {
 
         if (rule.special === 'veto') {
           return playVeto(activeGameweek);
+        }
+        if (rule.special === 'god') {
+          return playPowerOfGod(activeGameweek, fixtures, cardInstanceId);
         }
 
         const members = await leagueMembers();

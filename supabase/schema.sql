@@ -2327,13 +2327,13 @@ select
   coalesce(pgs.red_cards, 0) as red_cards,
   p.nationality,
   p.height_cm,
-  (
+  case when smp.pick_slot = 'primary' then (
     select count(*)::integer from effect_windows ew
     where ew.competition_id = smp.competition_id
       and ew.played_by_user_id = smp.user_id
       and ew.effect_key = 'power_goal'
       and gw.number between ew.start_number and ew.end_number
-  ) as power_goal_count,
+  ) else 0 end as power_goal_count,
   exists (
     select 1 from effect_windows ew
     where ew.competition_id = smp.competition_id
