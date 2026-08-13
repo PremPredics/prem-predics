@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v24';
+const CACHE_VERSION = 'prem-predics-pwa-v25';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -56,7 +56,7 @@ const APP_SHELL = [
   './assets/js/league.js',
   './assets/js/leagues.js',
   './assets/js/legal-footer.js',
-  './assets/js/login.js',
+  './assets/js/login.js?v=20260813-2',
   './assets/js/medals.js',
   './assets/js/prediction-hub.js',
   './assets/js/predictions.js',
