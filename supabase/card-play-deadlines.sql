@@ -9,7 +9,7 @@
 
 with canonical_card_descriptions (id, description) as (
   values
-    ('power_goal', 'Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek''s first KO time.'),
+    ('power_goal', 'Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per card played). Each card stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_swap', 'Discard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand.'),
     ('power_veto', 'Veto a Curse played by your opponent.'),
     ('power_laundrette', 'Valid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek''s first KO time.'),
@@ -18,7 +18,7 @@ with canonical_card_descriptions (id, description) as (
     ('power_immigrants', 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_lanky_crouch', 'Valid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_small_and_mighty', 'Valid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
-    ('power_of_god', 'Valid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.'),
+    ('power_of_god', 'Change one current Gameweek match prediction from kick-off until the start of the 2nd half.'),
     ('power_hedge', 'Valid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek''s first KO time. Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.'),
     ('power_assist_king', 'Valid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_late_scout', 'Valid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team''s first match in the Gameweek kicks off.'),

@@ -6901,7 +6901,7 @@ const HEDGE_DELETED_MATCH_CONFLICT_TEXT = 'Power of the Hedge and Curse of the D
 
 // CARD DESCRIPTIONS DATABASE
 const cardDescriptions = {
-  "Power of the Goal": "Power of the Goal\n\nValid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek's first KO time.",
+  "Power of the Goal": "Power of the Goal\n\nValid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per card played). Each card stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Swap": "Power of the Swap\n\nDiscard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand.",
   "Power of the Veto": "Power of the Veto\n\nVeto a Curse played by your opponent.",
   "Power of the Laundrette": "Power of the Laundrette\n\nValid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek's first KO time.",
@@ -6910,7 +6910,7 @@ const cardDescriptions = {
   "Power Of The Foreigners": "Power Of The Foreigners\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Lanky Crouch": "Power of the Lanky Crouch\n\nValid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Small and Mighty": "Power of the Small and Mighty\n\nValid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of God": "Power of God\n\nValid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.",
+  "Power of God": "Power of God\n\nChange one current Gameweek match prediction from kick-off until the start of the 2nd half.",
   "Power of the Hedge": "Power of the Hedge\n\nValid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek's first KO time. Cannot be played on a fixture while Curse of the Deleted Match is active.",
   "Power of the Assist King": "Power of the Assist King\n\nValid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Late Scout": "Power of the Late Scout\n\nValid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team's first match in the Gameweek kicks off.",
@@ -6953,7 +6953,7 @@ cardDescriptions["Power of the Rocket Man"] = cardDescriptions["Power Of The Cle
 cardDescriptions["Curse of the Bench Warmer"] = cardDescriptions["Curse of the Furious"];
 cardDescriptions["Power Of The Foreigners"] = "Power Of The Foreigners\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.";
 cardDescriptions["Power Of The Early Bath"] = "Power Of The Early Bath\n\nValid for 1 Gameweek. Predictions for fixtures marked as having a red card in the first 15 minutes score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.";
-cardDescriptions["Power of God"] = "Power of God\n\nChange one current-Gameweek match prediction from kick-off until 60 minutes after kick-off.";
+cardDescriptions["Power of God"] = "Power of God\n\nChange one current Gameweek match prediction from kick-off until the start of the 2nd half.";
 
 // POWER CARDS - 34 TOTAL
 const powerCards = [
@@ -11033,6 +11033,40 @@ async function syncMedals() {
       });
     }
 
+    async function applyCurseTargetCooldown(opponents, activeGameweek) {
+      if (opponents.length <= 1) return opponents;
+      const currentNumber = Number(activeGameweek?.gameweek_number || 0);
+      const { data: effects, error } = await supabase
+        .from('active_card_effects')
+        .select('target_user_id, gameweek_id, start_gameweek_id, played_at, card_definitions!inner(category)')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('played_by_user_id', context.user.id)
+        .eq('card_definitions.category', 'curse')
+        .neq('status', 'cancelled')
+        .not('target_user_id', 'is', null);
+      if (error) throw error;
+
+      const gameweekIds = [...new Set((effects || []).map((effect) => effect.start_gameweek_id || effect.gameweek_id).filter(Boolean))];
+      let numberById = new Map();
+      if (gameweekIds.length) {
+        const { data: gameweeks, error: gameweekError } = await supabase.from('gameweeks').select('id, number').in('id', gameweekIds);
+        if (gameweekError) throw gameweekError;
+        numberById = new Map((gameweeks || []).map((gameweek) => [String(gameweek.id), Number(gameweek.number)]));
+      }
+      const lastTargetNumber = new Map();
+      (effects || []).forEach((effect) => {
+        const number = numberById.get(String(effect.start_gameweek_id || effect.gameweek_id || '')) || 0;
+        const key = String(effect.target_user_id || '');
+        if (number > (lastTargetNumber.get(key) || 0)) lastTargetNumber.set(key, number);
+      });
+      return opponents.map((member) => {
+        const lastNumber = lastTargetNumber.get(String(member.user_id)) || 0;
+        const blocked = lastNumber > 0 && currentNumber - lastNumber < 3;
+        return blocked ? { ...member, disabled: true, disabledReason: `Cursed in GW${lastNumber}; available again in GW${lastNumber + 3}` } : member;
+      });
+    }
+
     function playerNameForUserId(userId) {
       const playerKey = Object.entries(gameState.playerUserIds || {})
         .find(([, currentUserId]) => String(currentUserId || '') === String(userId || ''))?.[0];
@@ -12404,17 +12438,15 @@ async function syncMedals() {
         let randomFixtureState = null;
 
         if (rule.target === 'opponent') {
-          let opponentOptions = opponents;
+          let opponentOptions = await applyCurseTargetCooldown(opponents, activeGameweek);
           if (rule.special === 'gambler') {
-            opponentOptions = await Promise.all(opponents.map(async (member) => {
+            opponentOptions = await Promise.all(opponentOptions.map(async (member) => {
               const state = await randomFixtureStateForTarget(member.user_id, fixtures, activeGameweek);
               return {
                 ...member,
                 __randomFixtureState: state,
-                disabled: state.eligibleFixtures.length < 3,
-                disabledReason: state.eligibleFixtures.length < 3
-                  ? `${state.eligibleFixtures.length}/3 fixtures available`
-                  : '',
+                disabled: member.disabled || state.eligibleFixtures.length < 3,
+                disabledReason: member.disabledReason || (state.eligibleFixtures.length < 3 ? `${state.eligibleFixtures.length}/3 fixtures available` : ''),
               };
             }));
           }

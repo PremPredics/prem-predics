@@ -9,7 +9,7 @@ set name = case effect_key
   description = case effect_key
     when 'power_immigrants' then 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'
     when 'power_snow' then 'Valid for 1 Gameweek. Predictions for fixtures marked as having a red card in the first 15 minutes score DOUBLE points. Must be played at least 90 minutes before the gameweek''s first KO time.'
-    when 'power_of_god' then 'Change one current-Gameweek match prediction from kick-off until 60 minutes after kick-off.'
+    when 'power_of_god' then 'Change one current Gameweek match prediction from kick-off until the start of the 2nd half.'
     else description
   end
 where effect_key in ('power_immigrants', 'power_snow', 'power_of_god');
