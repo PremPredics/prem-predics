@@ -153,6 +153,8 @@ select {
 
 .forgot-password-link {
   display: block;
+  width: max-content;
+  max-width: 100%;
   margin: -4px 0 16px auto;
   padding: 2px 0;
   border: 0;
@@ -378,7 +380,7 @@ footer {
         <input name="password" type="password" autocomplete="current-password" required minlength="6" data-password-input>
       </label>
 
-      <button class="forgot-password-link" type="button" data-forgot-password>Forgot Your Password?</button>
+      <a class="forgot-password-link" href="login.html?mode=recovery" data-forgot-password>Forgot Your Password?</a>
 
       <div class="signup-fields" data-signup-fields hidden>
         <label>
@@ -442,7 +444,7 @@ footer {
 
 <footer>2026 Prem Predics | Login</footer>
 
-<script type="module" src="assets/js/login.js"></script>
+<script type="module" src="assets/js/login.js?v=20260813-2"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

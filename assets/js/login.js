@@ -73,7 +73,7 @@ function setFormBusy(isBusy) {
   modeButtons.forEach((button) => {
     button.disabled = isBusy;
   });
-  forgotPasswordButton.disabled = isBusy;
+  forgotPasswordButton.setAttribute('aria-disabled', String(isBusy));
   recoveryBackButton.disabled = isBusy;
 }
 
@@ -171,7 +171,8 @@ modeButtons.forEach((button) => {
   });
 });
 
-forgotPasswordButton.addEventListener('click', () => {
+forgotPasswordButton.addEventListener('click', (event) => {
+  event.preventDefault();
   if (!isSubmitting && !isRedirecting) {
     setMode('recovery');
     form.elements.email.focus();
