@@ -1706,6 +1706,44 @@ create trigger active_card_effects_enforce_card_play_deadline
 before insert on public.active_card_effects
 for each row execute function public.enforce_card_play_deadline();
 
+create or replace function public.enforce_curse_target_cooldown()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  target_category text;
+  member_count integer;
+  current_gameweek_number integer;
+  last_target_gameweek_number integer;
+begin
+  if coalesce(new.status, 'active') = 'cancelled' or new.target_user_id is null then return new; end if;
+  select cd.category into target_category from public.card_definitions cd where cd.id = new.card_id;
+  if target_category <> 'curse' then return new; end if;
+  select count(*)::integer into member_count from public.competition_members cm where cm.competition_id = new.competition_id;
+  if member_count <= 2 then return new; end if;
+  perform pg_advisory_xact_lock(hashtextextended(new.competition_id::text || ':' || new.played_by_user_id::text, 0));
+  select gw.number into current_gameweek_number from public.gameweeks gw where gw.id = coalesce(new.start_gameweek_id, new.gameweek_id);
+  if current_gameweek_number is null then return new; end if;
+  select max(previous_gw.number) into last_target_gameweek_number
+  from public.active_card_effects ace
+  join public.card_definitions cd on cd.id = ace.card_id and cd.category = 'curse'
+  join public.gameweeks previous_gw on previous_gw.id = coalesce(ace.start_gameweek_id, ace.gameweek_id)
+  where ace.id is distinct from new.id and ace.competition_id = new.competition_id
+    and ace.season_id = new.season_id and ace.played_by_user_id = new.played_by_user_id
+    and ace.target_user_id = new.target_user_id and ace.status <> 'cancelled';
+  if last_target_gameweek_number is not null and current_gameweek_number - last_target_gameweek_number < 3 then
+    raise exception 'You cannot target this player with another Curse Card until Gameweek %.', last_target_gameweek_number + 3;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger active_card_effects_enforce_curse_target_cooldown
+before insert
+on public.active_card_effects for each row execute function public.enforce_curse_target_cooldown();
+
 create or replace function public.enforce_hedge_deleted_match_conflict()
 returns trigger
 language plpgsql

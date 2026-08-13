@@ -3,7 +3,7 @@
 
 with cards (id, name, category, deck_type, effect_key, description) as (
   values
-    ('power_goal', 'Power of the Goal', 'power', 'regular', 'power_goal', 'Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek''s first KO time.'),
+    ('power_goal', 'Power of the Goal', 'power', 'regular', 'power_goal', 'Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per card played). Each card stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_swap', 'Power of the Swap', 'power', 'regular', 'power_swap', 'Discard this card and one other card, then draw 3 Regular Deck cards and keep 2.'),
     ('power_veto', 'Power of the Veto', 'power', 'regular', 'power_veto', 'Cancel an opponent Curse.'),
     ('power_laundrette', 'Power of the Laundrette', 'power', 'regular', 'power_laundrette', 'Valid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek''s first KO time.'),
@@ -12,7 +12,7 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('power_immigrants', 'Power Of The Foreigners', 'power', 'regular', 'power_immigrants', 'Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_lanky_crouch', 'Power of the Lanky Crouch', 'power', 'regular', 'power_lanky_crouch', 'Valid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_small_and_mighty', 'Power of the Small and Mighty', 'power', 'regular', 'power_small_and_mighty', 'Valid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek''s first KO time.'),
-    ('power_of_god', 'Power of God', 'power', 'regular', 'power_of_god', 'Change one current-Gameweek match prediction from kick-off until 60 minutes after kick-off.'),
+    ('power_of_god', 'Power of God', 'power', 'regular', 'power_of_god', 'Change one current Gameweek match prediction from kick-off until the start of the 2nd half.'),
     ('power_hedge', 'Power of the Hedge', 'power', 'regular', 'power_hedge', 'Valid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek''s first KO time. Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.'),
     ('power_assist_king', 'Power of the Assist King', 'power', 'regular', 'power_assist_king', 'Star Man assists score double points.'),
     ('power_late_scout', 'Power of the Late Scout', 'power', 'regular', 'power_late_scout', 'Play at any time. Choose Star Man after lineups; each player is available until their team first kicks off in the gameweek.'),

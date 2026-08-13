@@ -1084,6 +1084,7 @@
             <div class="strategy-panel">
                 <p><strong><span class="keyword text-power">Power</span>, <span class="keyword text-curse">Curse</span> and <span class="keyword text-super">Super Cards</span></strong> can change predictions, Star Man scoring, card draws, restrictions, bonuses and penalties.</p>
                 <p><strong><span class="keyword text-curse">Curse order matters:</span></strong> If any fixture is affected by more than one Curse Card, then the most recently played Curse Card will take affect, voiding the effects of previous cards.</p>
+                <p><strong><span class="keyword text-curse">Choosing a Curse target:</span></strong> In a 2-player league, you may target the same opponent with consecutive Curse Cards. In leagues with 3-10 players, you cannot target the same player again with your next Curse Card until 3 Gameweeks have passed; unavailable players are greyed out when choosing a target.</p>
                 <p><strong><span class="keyword text-game">Game Cards</span> (7 Total)</strong> are best-of-5 minigames drawn every 5 gameweeks starting in GW1. Win to earn 1 Super Medal.</p>
                 <p><strong>Start with 1 <span class="keyword text-power">Power Card</span> + 1 <span class="keyword text-curse">Curse Card</span></strong> from your league's Regular Deck.</p>
                 <p><strong>Reach milestones</strong> to earn medals. Each medal can be spent to draw 1 card from the Regular Deck.</p>
@@ -1154,7 +1155,7 @@
         // Complete cards data
         const cardsData = {
             power: [
-                { name: "Power of the Goal", count: 3, description: "Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek's first KO time." },
+                { name: "Power of the Goal", count: 3, description: "Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per card played). Each card stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek's first KO time." },
                 { name: "Power of the Swap", count: 3, description: "Discard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand." },
                 { name: "Power of the Veto", count: 3, description: "Veto a Curse played by your opponent." },
                 { name: "Power of the Laundrette", count: 2, description: "Valid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek's first KO time." },
@@ -1163,7 +1164,7 @@
                 { name: "Power Of The Foreigners", count: 3, description: "Valid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time." },
                 { name: "Power of the Lanky Crouch", count: 3, description: "Valid for 1 Gameweek. Star Men 6ft1 (185cm) or taller score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time." },
                 { name: "Power of the Small and Mighty", count: 3, description: "Valid for 1 Gameweek. Star Men 5ft9 (175cm) or shorter score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time." },
-                { name: "Power of God", count: 2, description: "Change one current-Gameweek match prediction from kick-off until 60 minutes after kick-off." },
+                { name: "Power of God", count: 2, description: "Change one current Gameweek match prediction from kick-off until the start of the 2nd half." },
                 { name: "Power of the Hedge", count: 3, description: "Valid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek's first KO time. Cannot be played on a fixture while Curse of the Deleted Match is active." },
                 { name: "Power of the Assist King", count: 2, description: "Valid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time." },
                 { name: "Power of the Late Scout", count: 2, description: "Valid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team's first match in the Gameweek kicks off." },
