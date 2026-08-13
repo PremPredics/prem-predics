@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v22';
+const CACHE_VERSION = 'prem-predics-pwa-v23';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -35,6 +35,7 @@ const APP_SHELL = [
   './assets/icon.png',
   './assets/splash.png',
   './assets/css/legal-pages.css',
+  './assets/css/pwa-install.css',
   './assets/js/all-predictions.js',
   './assets/js/all-star-men.js',
   './assets/js/capacitor-app.js',
