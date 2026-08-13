@@ -1,10 +1,10 @@
 {
-  "id": "/",
+  "id": "./",
   "name": "Prem Predics",
   "short_name": "Prem Predics",
   "description": "Private Premier League prediction leagues with Power Cards, Curse Cards, Star Men and Game Cards.",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#7b61d8",
   "theme_color": "#7b61d8",
@@ -41,14 +41,14 @@
       "name": "My Leagues",
       "short_name": "Leagues",
       "description": "Open your private leagues.",
-      "url": "/leagues.html",
+      "url": "./leagues.html",
       "icons": [{ "src": "assets/pwa/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "How To Play",
       "short_name": "Rules",
       "description": "Read the Prem Predics rules.",
-      "url": "/how-to-play.html",
+      "url": "./how-to-play.html",
       "icons": [{ "src": "assets/pwa/icon-192.png", "sizes": "192x192" }]
     }
   ]

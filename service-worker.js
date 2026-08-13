@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v22';
+const CACHE_VERSION = 'prem-predics-pwa-v24';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -6,6 +6,7 @@ const APP_SHELL = [
   './',
   './index.html',
   './login.html',
+  './reset-password.html',
   './leagues.html',
   './league.html',
   './prediction-hub.html',
@@ -35,6 +36,8 @@ const APP_SHELL = [
   './assets/icon.png',
   './assets/splash.png',
   './assets/css/legal-pages.css',
+  './assets/css/pwa-install.css',
+  './assets/css/password-reset.css',
   './assets/js/all-predictions.js',
   './assets/js/all-star-men.js',
   './assets/js/capacitor-app.js',
@@ -59,6 +62,7 @@ const APP_SHELL = [
   './assets/js/predictions.js',
   './assets/js/profile.js',
   './assets/js/pwa.js',
+  './assets/js/reset-password.js',
   './assets/js/site-auth.js',
   './assets/js/star-man-hub.js',
   './assets/js/star-man.js',
@@ -96,6 +100,11 @@ function isDocumentRequest(request) {
     || request.headers.get('accept')?.includes('text/html');
 }
 
+function isPasswordResetDocument(url) {
+  return url.origin === self.location.origin
+    && url.pathname.endsWith('/reset-password.html');
+}
+
 function isLocalAppAsset(url) {
   if (url.origin !== self.location.origin) {
     return false;
@@ -120,6 +129,15 @@ async function networkFirstDocument(request) {
     return response;
   } catch {
     return caches.match('./offline.html');
+  }
+}
+
+async function sensitiveDocument(request) {
+  try {
+    return await fetch(request, { cache: 'no-store' });
+  } catch {
+    const cachedResetPage = await caches.match('./reset-password.html');
+    return cachedResetPage || caches.match('./offline.html');
   }
 }
 
@@ -183,6 +201,11 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.origin !== self.location.origin && !SAFE_STATIC_HOSTS.has(url.hostname)) {
+    return;
+  }
+
+  if (isDocumentRequest(request) && isPasswordResetDocument(url)) {
+    event.respondWith(sensitiveDocument(request));
     return;
   }
 

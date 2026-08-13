@@ -8,6 +8,7 @@ const distDir = path.join(root, 'dist');
 const itemsToCopy = [
   'index.html',
   'login.html',
+  'reset-password.html',
   'profile.html',
   'prediction-hub.html',
   'predictions.html',

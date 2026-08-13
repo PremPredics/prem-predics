@@ -3,9 +3,15 @@ import { getMatchingCountry, populateCountryOptions } from './countries.js';
 
 const form = document.querySelector('[data-auth-form]');
 const modeButtons = document.querySelectorAll('[data-auth-mode]');
+const modeTabs = document.querySelector('[data-mode-tabs]');
 const title = document.querySelector('[data-auth-title]');
 const submitButton = document.querySelector('[data-auth-submit]');
 const message = document.querySelector('[data-auth-message]');
+const passwordField = document.querySelector('[data-password-field]');
+const passwordInput = document.querySelector('[data-password-input]');
+const forgotPasswordButton = document.querySelector('[data-forgot-password]');
+const recoveryIntro = document.querySelector('[data-recovery-intro]');
+const recoveryBackButton = document.querySelector('[data-recovery-back]');
 const signupFields = document.querySelector('[data-signup-fields]');
 const signupOnlyInputs = document.querySelectorAll('[data-signup-only]');
 const favoriteTeamSelect = document.querySelector('[data-favorite-team]');
@@ -14,6 +20,8 @@ const nationalityOptions = document.querySelector('[data-nationality-options]');
 let mode = 'signin';
 let isSubmitting = false;
 let isRedirecting = false;
+
+const PASSWORD_RESET_REDIRECT_URL = 'https://prempredics.com/reset-password.html';
 
 const fallbackPremierLeagueTeams = [
   'Bournemouth',
@@ -42,7 +50,22 @@ const currentPremierLeagueTeamNames = new Set(fallbackPremierLeagueTeams);
 
 function redirectTarget() {
   const params = new URLSearchParams(window.location.search);
-  return params.get('redirect') || 'index.html';
+  const requestedTarget = params.get('redirect');
+
+  if (!requestedTarget) {
+    return 'index.html';
+  }
+
+  try {
+    const target = new URL(requestedTarget, window.location.href);
+    if (target.origin !== window.location.origin || !['http:', 'https:'].includes(target.protocol)) {
+      return 'index.html';
+    }
+
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return 'index.html';
+  }
 }
 
 function setFormBusy(isBusy) {
@@ -50,6 +73,8 @@ function setFormBusy(isBusy) {
   modeButtons.forEach((button) => {
     button.disabled = isBusy;
   });
+  forgotPasswordButton.disabled = isBusy;
+  recoveryBackButton.disabled = isBusy;
 }
 
 function safeRedirect(target = redirectTarget()) {
@@ -70,9 +95,17 @@ function setMessage(text, type = 'info') {
 function setMode(nextMode) {
   mode = nextMode;
   const isSignup = mode === 'signup';
+  const isRecovery = mode === 'recovery';
 
-  title.textContent = isSignup ? 'Create Account' : 'Log In';
-  submitButton.textContent = isSignup ? 'Create Account' : 'Log In';
+  title.textContent = isSignup ? 'Create Account' : isRecovery ? 'Reset Password' : 'Log In';
+  submitButton.textContent = isSignup ? 'Create Account' : isRecovery ? 'Email Reset Link' : 'Log In';
+  modeTabs.hidden = isRecovery;
+  passwordField.hidden = isRecovery;
+  passwordInput.disabled = isRecovery;
+  passwordInput.required = !isRecovery;
+  forgotPasswordButton.hidden = mode !== 'signin';
+  recoveryIntro.hidden = !isRecovery;
+  recoveryBackButton.hidden = !isRecovery;
   signupFields.hidden = !isSignup;
 
   signupOnlyInputs.forEach((input) => {
@@ -138,6 +171,20 @@ modeButtons.forEach((button) => {
   });
 });
 
+forgotPasswordButton.addEventListener('click', () => {
+  if (!isSubmitting && !isRedirecting) {
+    setMode('recovery');
+    form.elements.email.focus();
+  }
+});
+
+recoveryBackButton.addEventListener('click', () => {
+  if (!isSubmitting && !isRedirecting) {
+    setMode('signin');
+    form.elements.password.focus();
+  }
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (isSubmitting || isRedirecting) {
@@ -165,6 +212,19 @@ form.addEventListener('submit', async (event) => {
     : null;
 
   try {
+    if (mode === 'recovery') {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: PASSWORD_RESET_REDIRECT_URL,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setMessage('If an account exists for that email, a password reset link is on its way. Check your inbox and spam folder.', 'success');
+      return;
+    }
+
     if (mode === 'signup') {
       if (displayName.length < 2) {
         setMessage('Username must be at least 2 characters.', 'error');
@@ -220,8 +280,8 @@ form.addEventListener('submit', async (event) => {
         return;
       }
 
-      setMessage('Account created. Check your email if Supabase asks you to confirm it, then log in.', 'success');
       setMode('signin');
+      setMessage('Account created. Check your email if Supabase asks you to confirm it, then log in.', 'success');
       return;
     }
 
@@ -232,7 +292,10 @@ form.addEventListener('submit', async (event) => {
 
     safeRedirect();
   } catch (error) {
-    setMessage(error.message || 'Something went wrong. Please try again.', 'error');
+    const fallbackMessage = mode === 'recovery'
+      ? 'We could not send a reset email right now. Wait a moment, then try again.'
+      : 'Something went wrong. Please try again.';
+    setMessage(mode === 'recovery' ? fallbackMessage : error.message || fallbackMessage, 'error');
   } finally {
     if (!isRedirecting) {
       isSubmitting = false;
@@ -258,5 +321,11 @@ if (!navigator.onLine) {
 } else {
   await loadFavoriteTeams();
   populateCountryOptions(nationalityOptions);
-  setMode('signin');
+  const params = new URLSearchParams(window.location.search);
+  setMode(params.get('mode') === 'recovery' ? 'recovery' : 'signin');
+
+  if (params.get('password_reset') === 'success') {
+    setMessage('Your password has been updated. Log in with your new password.', 'success');
+    window.history.replaceState(null, '', 'login.html');
+  }
 }
