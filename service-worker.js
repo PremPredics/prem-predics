@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v29';
+const CACHE_VERSION = 'prem-predics-pwa-v30';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

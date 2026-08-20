@@ -3,6 +3,7 @@
   const installButtons = Array.from(document.querySelectorAll('[data-pwa-install]'));
   let deferredInstallPrompt = null;
   let installedThisSession = false;
+  let installedRelatedAppDetected = false;
   let instructionDialog = null;
   let previouslyFocusedElement = null;
 
@@ -18,6 +19,7 @@
 
   function isInstalled() {
     return installedThisSession
+      || installedRelatedAppDetected
       || window.matchMedia('(display-mode: standalone)').matches
       || window.matchMedia('(display-mode: fullscreen)').matches
       || window.navigator.standalone === true
@@ -44,14 +46,14 @@
     if (isFirefox()) {
       return {
         title: 'Install Prem Predics',
-        message: 'On Android, open the Firefox menu and choose Install. On desktop, open Prem Predics in Chrome or Edge and choose Install Prem Predics from the browser menu.'
+        message: 'On Android, open Prem Predics in Google Chrome and choose Install app for the full standalone app. Firefox may only create a browser shortcut. On desktop, use your browser\'s Install Prem Predics option.'
       };
     }
 
     if (/android/i.test(navigator.userAgent)) {
       return {
         title: 'Install Prem Predics on Android',
-        message: 'Open your browser menu (⋮), then choose Install app or Add to Home screen.'
+        message: 'Open Prem Predics in Google Chrome, open the menu (⋮), then choose Install app. Do not choose Create shortcut. If an older shortcut keeps showing Chrome branding, remove it first and reinstall with Install app.'
       };
     }
 
@@ -114,6 +116,21 @@
     });
   }
 
+  async function detectInstalledRelatedApp() {
+    if (isCapacitorNativeApp() || typeof navigator.getInstalledRelatedApps !== 'function') {
+      return;
+    }
+
+    try {
+      const relatedApps = await navigator.getInstalledRelatedApps();
+      installedRelatedAppDetected = relatedApps.some((app) => app?.platform === 'webapp');
+    } catch (error) {
+      console.warn('Prem Predics installed-app detection failed:', error);
+    }
+
+    refreshInstallButtons();
+  }
+
   async function requestInstall() {
     if (isInstalled()) {
       refreshInstallButtons();
@@ -160,6 +177,7 @@
     button.addEventListener('click', requestInstall);
   });
   refreshInstallButtons();
+  detectInstalledRelatedApp();
 
   if (!navigator.onLine && !isOfflinePage) {
     window.location.replace('offline.html');

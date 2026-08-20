@@ -10,6 +10,14 @@
   "theme_color": "#7b61d8",
   "orientation": "portrait",
   "categories": ["games", "sports", "entertainment"],
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "/manifest.webmanifest",
+      "id": "https://prempredics.com/"
+    }
+  ],
   "icons": [
     {
       "src": "assets/pwa/icon-192.png",
