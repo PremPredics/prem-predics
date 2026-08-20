@@ -461,6 +461,7 @@ function wireStarCurseMarkers() {
 }
 
 async function renderRows() {
+  const isOwnView = String(state.selectedUserId || '') === String(state.user?.id || '');
   const [picks, starManEffects] = await Promise.all([
     loadPicks(),
     loadStarManEffects(),
@@ -475,7 +476,7 @@ async function renderRows() {
     const locked = isPast(gameweek.star_man_locks_at);
     const pick = picks.get(String(gameweek.gameweek_id));
 
-    if (!locked || !pick) {
+    if ((!locked && !isOwnView) || !pick) {
       return '';
     }
 
@@ -486,7 +487,7 @@ async function renderRows() {
     state.visibleEffectsByGameweek.set(String(gameweek.gameweek_id), effects);
     const points = pointsByPick.get(`${pick.gameweek_id}:${pick.player_id}`) || 0;
     return `
-      <div class="star-row">
+      <div class="star-row${locked ? '' : ' unlocked'}">
         <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
         <span class="star-choice">
           <span class="star-name">${escapeHtml(pick.player_name)}</span>
@@ -498,7 +499,8 @@ async function renderRows() {
     `;
   }).filter(Boolean);
 
-  starMenList.innerHTML = rows.join('') || '<p class="state-text">No Star Men chosen yet.</p>';
+  const emptyMessage = isOwnView ? 'No Star Men chosen yet.' : 'No locked Star Men to show yet.';
+  starMenList.innerHTML = rows.join('') || `<p class="state-text">${emptyMessage}</p>`;
   wireStarCurseMarkers();
 }
 

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v25';
+const CACHE_VERSION = 'prem-predics-pwa-v26';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -39,7 +39,7 @@ const APP_SHELL = [
   './assets/css/pwa-install.css',
   './assets/css/password-reset.css',
   './assets/js/all-predictions.js',
-  './assets/js/all-star-men.js',
+  './assets/js/all-star-men.js?v=20260820-1',
   './assets/js/capacitor-app.js',
   './assets/js/correct-scores.js',
   './assets/js/countries.js',
@@ -53,19 +53,19 @@ const APP_SHELL = [
   './assets/js/index-admin.js',
   './assets/js/leaderboard.js',
   './assets/js/league-context.js',
-  './assets/js/league.js',
+  './assets/js/league.js?v=20260820-fixture-lock-count',
   './assets/js/leagues.js',
   './assets/js/legal-footer.js',
   './assets/js/login.js?v=20260813-2',
   './assets/js/medals.js',
   './assets/js/prediction-hub.js',
   './assets/js/predictions.js',
-  './assets/js/profile.js',
+  './assets/js/profile.js?v=20260820-1',
   './assets/js/pwa.js',
   './assets/js/reset-password.js',
   './assets/js/site-auth.js',
   './assets/js/star-man-hub.js',
-  './assets/js/star-man.js',
+  './assets/js/star-man.js?v=20260820-1',
   './assets/js/statistics.js',
   './assets/js/supabase-client.js',
   './assets/js/ui-polish.js',

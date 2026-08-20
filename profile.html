@@ -216,6 +216,134 @@ button,
   background: rgba(255,255,255,0.1);
 }
 
+body.profile-crop-open {
+  overflow: hidden;
+}
+
+.profile-crop-modal[hidden] {
+  display: none;
+}
+
+.profile-crop-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: rgba(8, 3, 20, 0.76);
+  backdrop-filter: blur(7px);
+}
+
+.profile-crop-dialog {
+  width: min(520px, 100%);
+  max-height: calc(100dvh - 36px);
+  overflow: auto;
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 22px;
+  border: 2px solid rgba(216, 180, 254, 0.5);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(46, 16, 102, 0.99), rgba(17, 7, 38, 0.99));
+  box-shadow: 0 24px 70px rgba(0,0,0,0.58);
+  color: #fff;
+  text-align: center;
+}
+
+.profile-crop-dialog h2,
+.profile-crop-dialog p {
+  margin: 0;
+}
+
+.profile-crop-help {
+  color: #e9d5ff;
+  line-height: 1.45;
+}
+
+.profile-crop-stage {
+  position: relative;
+  width: min(320px, 76vw);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.86);
+  border-radius: 50%;
+  background: #2e1065;
+  box-shadow: 0 0 0 5px rgba(196, 132, 252, 0.22), 0 16px 36px rgba(0,0,0,0.38);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.profile-crop-stage:focus-visible {
+  outline: 3px solid #fef08a;
+  outline-offset: 5px;
+}
+
+.profile-crop-stage.is-dragging {
+  cursor: grabbing;
+}
+
+.profile-crop-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.profile-crop-zoom-label {
+  width: min(360px, 100%);
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  color: #fff;
+}
+
+.profile-crop-zoom-controls {
+  width: min(400px, 100%);
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-crop-zoom-controls input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: #c084fc;
+}
+
+.profile-crop-zoom-controls button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.profile-crop-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.profile-crop-actions button {
+  width: auto;
+  min-width: 116px;
+  margin: 0;
+}
+
+.profile-crop-use {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+
 .message { min-height: 24px; margin: 14px 0 0; }
 .message[data-type="success"] { color: #bbf7d0; }
 .message[data-type="error"] { color: #fecaca; }
@@ -287,6 +415,16 @@ footer {
     background: linear-gradient(135deg, rgba(46, 16, 102, 0.96), rgba(76, 29, 149, 0.92));
     border: 1px solid rgba(216, 180, 254, 0.34);
     color: #fff;
+  }
+
+  .profile-crop-dialog {
+    padding: 18px 14px;
+  }
+
+  .profile-crop-actions button,
+  .profile-crop-zoom-controls button {
+    width: auto;
+    margin: 0;
   }
 }
 
@@ -404,10 +542,49 @@ footer {
   </section>
 </main>
 
+<div class="profile-crop-modal" data-profile-crop-modal hidden>
+  <section
+    class="profile-crop-dialog"
+    data-profile-crop-dialog
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="profile-crop-title"
+    aria-describedby="profile-crop-help"
+    tabindex="-1"
+  >
+    <h2 id="profile-crop-title">Position Your Profile Picture</h2>
+    <p class="profile-crop-help" id="profile-crop-help">Drag the photo to move it. Use the zoom control to fit it inside the circle.</p>
+    <div
+      class="profile-crop-stage"
+      data-profile-crop-stage
+      role="img"
+      aria-label="Profile picture crop. Drag, or use the arrow keys, to reposition the photo."
+      tabindex="0"
+    >
+      <canvas width="512" height="512" data-profile-crop-canvas></canvas>
+    </div>
+    <label class="profile-crop-zoom-label" for="profile-crop-zoom">
+      <span>Zoom</span>
+      <output data-profile-crop-zoom-output>100%</output>
+    </label>
+    <div class="profile-crop-zoom-controls">
+      <button type="button" data-profile-crop-zoom-out aria-label="Zoom out">&minus;</button>
+      <input id="profile-crop-zoom" data-profile-crop-zoom type="range" min="1" max="3" step="0.01" value="1">
+      <button type="button" data-profile-crop-zoom-in aria-label="Zoom in">+</button>
+    </div>
+    <p class="message" data-profile-crop-message role="status" aria-live="polite"></p>
+    <div class="profile-crop-actions">
+      <button class="subtle-btn" type="button" data-profile-crop-cancel>Cancel</button>
+      <button class="subtle-btn" type="button" data-profile-crop-reset>Reset</button>
+      <button class="profile-crop-use" type="button" data-profile-crop-use>Use Photo</button>
+    </div>
+  </section>
+</div>
+
 <footer>2026 Prem Predics | Edit Profile</footer>
 
 <script type="module" src="assets/js/site-auth.js"></script>
-<script type="module" src="assets/js/profile.js"></script>
+<script type="module" src="assets/js/profile.js?v=20260820-1"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

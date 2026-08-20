@@ -75,6 +75,34 @@ function isoFromMs(value) {
   return value ? new Date(value).toISOString() : null;
 }
 
+function fixturePredictionLockTime(fixture) {
+  if (fixture?.prediction_locks_at) {
+    const configuredLockTime = new Date(fixture.prediction_locks_at).getTime();
+    if (Number.isFinite(configuredLockTime)) {
+      return configuredLockTime;
+    }
+  }
+
+  if (fixture?.kickoff_at) {
+    const kickoffTime = new Date(fixture.kickoff_at).getTime();
+    if (Number.isFinite(kickoffTime)) {
+      return kickoffTime - (90 * 60 * 1000);
+    }
+  }
+
+  return null;
+}
+
+function predictionLockProgress(fixtures, now = Date.now()) {
+  const totalCount = fixtures.length;
+  const lockedCount = fixtures.reduce((count, fixture) => {
+    const lockTime = fixturePredictionLockTime(fixture);
+    return count + (lockTime !== null && now >= lockTime ? 1 : 0);
+  }, 0);
+
+  return { lockedCount, totalCount };
+}
+
 function compactCountdownText(value) {
   if (!value) {
     return 'Not Set';
@@ -542,8 +570,16 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
   ]);
 
   function update() {
+    const { lockedCount, totalCount } = predictionLockProgress(fixtures);
+    const predictionDeadlineOptions = lockedCount > 0
+      ? {
+          message: `${gameweekLabelText} ${lockedCount}/${totalCount} Predictions Locked`,
+          messageClassName: 'bad locked message',
+        }
+      : { completed: predictionsCompleted };
+
     deadlineStrip.innerHTML = [
-      renderDeadlineCard(`${gameweekLabelText} Predictions Deadline`, isoFromMs(predictionDeadlineMs), { completed: predictionsCompleted }),
+      renderDeadlineCard(`${gameweekLabelText} Predictions Deadline`, isoFromMs(predictionDeadlineMs), predictionDeadlineOptions),
       renderDeadlineCard(`${gameweekLabelText} Star Man Deadline`, starDeadline, { completed: starManCompleted }),
       renderDeadlineCard(`${gameweekLabelText} Game Card Deadline`, starDeadline, { completed: gameCardCompletion.completed, enabled: gameCardCompletion.enabled }),
       renderDeadlineCard('Play Power Card Deadline', isoFromMs(predictionDeadlineMs), cardDeadlineOptions),

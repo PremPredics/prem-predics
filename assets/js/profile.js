@@ -13,14 +13,42 @@ const nationalityOptions = document.querySelector('[data-nationality-options]');
 const profileImageInput = document.querySelector('[data-profile-image]');
 const profileImagePreview = document.querySelector('[data-profile-photo-preview]');
 const removeProfileImageButton = document.querySelector('[data-remove-profile-image]');
+const profileCropModal = document.querySelector('[data-profile-crop-modal]');
+const profileCropDialog = document.querySelector('[data-profile-crop-dialog]');
+const profileCropStage = document.querySelector('[data-profile-crop-stage]');
+const profileCropCanvas = document.querySelector('[data-profile-crop-canvas]');
+const profileCropZoomInput = document.querySelector('[data-profile-crop-zoom]');
+const profileCropZoomOutput = document.querySelector('[data-profile-crop-zoom-output]');
+const profileCropZoomOutButton = document.querySelector('[data-profile-crop-zoom-out]');
+const profileCropZoomInButton = document.querySelector('[data-profile-crop-zoom-in]');
+const profileCropCancelButton = document.querySelector('[data-profile-crop-cancel]');
+const profileCropResetButton = document.querySelector('[data-profile-crop-reset]');
+const profileCropUseButton = document.querySelector('[data-profile-crop-use]');
+const profileCropMessage = document.querySelector('[data-profile-crop-message]');
 const emailOutput = document.querySelector('[data-email]');
 const message = document.querySelector('[data-profile-message]');
 const passwordMessage = document.querySelector('[data-password-message]');
 const leagueHubBack = document.querySelector('[data-league-hub-back]');
 
+const PROFILE_IMAGE_MAX_FILE_SIZE = 5 * 1024 * 1024;
+const PROFILE_IMAGE_MAX_DATA_URL_LENGTH = 700000;
+const PROFILE_IMAGE_OUTPUT_SIZE = 256;
+const PROFILE_CROP_MIN_ZOOM = 1;
+const PROFILE_CROP_MAX_ZOOM = 3;
+const PROFILE_CROP_ZOOM_STEP = 0.1;
+
 let originalDisplayName = '';
 let profileImageUrl = null;
 let currentEmail = '';
+let profileCropImage = null;
+let profileCropObjectUrl = null;
+let profileCropZoom = PROFILE_CROP_MIN_ZOOM;
+let profileCropOffsetX = 0;
+let profileCropOffsetY = 0;
+let profileCropPointerId = null;
+let profileCropLastPointerX = 0;
+let profileCropLastPointerY = 0;
+let profileCropReturnFocus = null;
 
 function setMessage(text, type = 'info') {
   message.textContent = text;
@@ -30,6 +58,11 @@ function setMessage(text, type = 'info') {
 function setPasswordMessage(text, type = 'info') {
   passwordMessage.textContent = text;
   passwordMessage.dataset.type = type;
+}
+
+function setProfileCropMessage(text, type = 'info') {
+  profileCropMessage.textContent = text;
+  profileCropMessage.dataset.type = type;
 }
 
 function escapeHtml(value) {
@@ -87,15 +120,6 @@ function setProfileImagePreview(imageUrl, displayName) {
   profileImagePreview.replaceChildren(document.createTextNode(getInitial(displayName)));
 }
 
-function readFileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => resolve(reader.result));
-    reader.addEventListener('error', () => reject(reader.error));
-    reader.readAsDataURL(file);
-  });
-}
-
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -105,37 +129,217 @@ function loadImage(src) {
   });
 }
 
-async function createProfileImageUrl(file) {
+function validateProfileImageFile(file) {
   if (!file.type.startsWith('image/')) {
     throw new Error('Choose an image file.');
   }
 
-  if (file.size > 5 * 1024 * 1024) {
+  if (file.size > PROFILE_IMAGE_MAX_FILE_SIZE) {
     throw new Error('Profile picture must be smaller than 5MB.');
   }
+}
 
-  const dataUrl = await readFileAsDataUrl(file);
-  const image = await loadImage(dataUrl);
-  const canvas = document.createElement('canvas');
-  const size = Math.min(image.width, image.height);
-  const outputSize = 256;
-  const context = canvas.getContext('2d');
+function profileCropIsOpen() {
+  return !profileCropModal.hidden;
+}
 
-  canvas.width = outputSize;
-  canvas.height = outputSize;
-  context.drawImage(
-    image,
-    (image.width - size) / 2,
-    (image.height - size) / 2,
-    size,
-    size,
-    0,
-    0,
-    outputSize,
-    outputSize
+function getProfileCropScale() {
+  if (!profileCropImage) {
+    return 1;
+  }
+
+  return Math.max(
+    profileCropCanvas.width / profileCropImage.naturalWidth,
+    profileCropCanvas.height / profileCropImage.naturalHeight
+  ) * profileCropZoom;
+}
+
+function clampProfileCropOffsets() {
+  if (!profileCropImage) {
+    profileCropOffsetX = 0;
+    profileCropOffsetY = 0;
+    return;
+  }
+
+  const scale = getProfileCropScale();
+  const scaledWidth = profileCropImage.naturalWidth * scale;
+  const scaledHeight = profileCropImage.naturalHeight * scale;
+  const maxOffsetX = Math.max(0, (scaledWidth - profileCropCanvas.width) / 2);
+  const maxOffsetY = Math.max(0, (scaledHeight - profileCropCanvas.height) / 2);
+
+  profileCropOffsetX = Math.max(-maxOffsetX, Math.min(maxOffsetX, profileCropOffsetX));
+  profileCropOffsetY = Math.max(-maxOffsetY, Math.min(maxOffsetY, profileCropOffsetY));
+}
+
+function renderProfileCrop() {
+  const context = profileCropCanvas.getContext('2d');
+  if (!context) {
+    throw new Error('This device could not prepare the picture editor.');
+  }
+
+  context.fillStyle = '#2e1065';
+  context.fillRect(0, 0, profileCropCanvas.width, profileCropCanvas.height);
+
+  if (!profileCropImage) {
+    return;
+  }
+
+  clampProfileCropOffsets();
+
+  const scale = getProfileCropScale();
+  const scaledWidth = profileCropImage.naturalWidth * scale;
+  const scaledHeight = profileCropImage.naturalHeight * scale;
+  const left = ((profileCropCanvas.width - scaledWidth) / 2) + profileCropOffsetX;
+  const top = ((profileCropCanvas.height - scaledHeight) / 2) + profileCropOffsetY;
+
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = 'high';
+  context.drawImage(profileCropImage, left, top, scaledWidth, scaledHeight);
+}
+
+function setProfileCropZoom(nextZoom) {
+  profileCropZoom = Math.max(
+    PROFILE_CROP_MIN_ZOOM,
+    Math.min(PROFILE_CROP_MAX_ZOOM, Number(nextZoom) || PROFILE_CROP_MIN_ZOOM)
   );
+  profileCropZoomInput.value = String(profileCropZoom);
+  profileCropZoomOutput.value = `${Math.round(profileCropZoom * 100)}%`;
+  clampProfileCropOffsets();
+  renderProfileCrop();
+}
 
-  return canvas.toDataURL('image/jpeg', 0.86);
+function resetProfileCrop() {
+  profileCropOffsetX = 0;
+  profileCropOffsetY = 0;
+  setProfileCropZoom(PROFILE_CROP_MIN_ZOOM);
+  setProfileCropMessage('');
+}
+
+function revokeProfileCropObjectUrl() {
+  if (profileCropObjectUrl) {
+    URL.revokeObjectURL(profileCropObjectUrl);
+    profileCropObjectUrl = null;
+  }
+}
+
+function releaseProfileCropPointer() {
+  if (profileCropPointerId !== null && profileCropStage.hasPointerCapture(profileCropPointerId)) {
+    profileCropStage.releasePointerCapture(profileCropPointerId);
+  }
+
+  profileCropPointerId = null;
+  profileCropStage.classList.remove('is-dragging');
+}
+
+function closeProfileCrop() {
+  releaseProfileCropPointer();
+  profileCropModal.hidden = true;
+  document.body.classList.remove('profile-crop-open');
+  profileImageInput.value = '';
+  profileCropImage = null;
+  revokeProfileCropObjectUrl();
+
+  const context = profileCropCanvas.getContext('2d');
+  context?.clearRect(0, 0, profileCropCanvas.width, profileCropCanvas.height);
+
+  const returnFocus = profileCropReturnFocus;
+  profileCropReturnFocus = null;
+  if (returnFocus instanceof HTMLElement && returnFocus.isConnected) {
+    returnFocus.focus({ preventScroll: true });
+  }
+}
+
+function openProfileCrop(image, objectUrl) {
+  if (!image.naturalWidth || !image.naturalHeight) {
+    throw new Error('Could not read that image.');
+  }
+
+  revokeProfileCropObjectUrl();
+  profileCropObjectUrl = objectUrl;
+  profileCropImage = image;
+  profileCropOffsetX = 0;
+  profileCropOffsetY = 0;
+  profileCropZoom = PROFILE_CROP_MIN_ZOOM;
+  profileCropZoomInput.value = String(profileCropZoom);
+  profileCropZoomOutput.value = '100%';
+  setProfileCropMessage('');
+  try {
+    renderProfileCrop();
+  } catch (error) {
+    profileCropImage = null;
+    profileCropObjectUrl = null;
+    throw error;
+  }
+
+  profileCropModal.hidden = false;
+  document.body.classList.add('profile-crop-open');
+  window.requestAnimationFrame(() => profileCropStage.focus({ preventScroll: true }));
+}
+
+function moveProfileCropByClientPixels(deltaX, deltaY) {
+  if (!profileCropImage) {
+    return;
+  }
+
+  const stageBounds = profileCropStage.getBoundingClientRect();
+  if (!stageBounds.width || !stageBounds.height) {
+    return;
+  }
+
+  profileCropOffsetX += deltaX * (profileCropCanvas.width / stageBounds.width);
+  profileCropOffsetY += deltaY * (profileCropCanvas.height / stageBounds.height);
+  clampProfileCropOffsets();
+  renderProfileCrop();
+}
+
+function getProfileCropFocusableElements() {
+  return [...profileCropDialog.querySelectorAll('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+    .filter((element) => !element.hidden);
+}
+
+function useProfileCrop() {
+  if (!profileCropImage) {
+    setProfileCropMessage('Choose a picture first.', 'error');
+    return;
+  }
+
+  try {
+    const outputCanvas = document.createElement('canvas');
+    const outputContext = outputCanvas.getContext('2d');
+    if (!outputContext) {
+      throw new Error('This device could not finish cropping the picture.');
+    }
+
+    outputCanvas.width = PROFILE_IMAGE_OUTPUT_SIZE;
+    outputCanvas.height = PROFILE_IMAGE_OUTPUT_SIZE;
+    outputContext.fillStyle = '#2e1065';
+    outputContext.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
+    outputContext.imageSmoothingEnabled = true;
+    outputContext.imageSmoothingQuality = 'high';
+    outputContext.drawImage(
+      profileCropCanvas,
+      0,
+      0,
+      profileCropCanvas.width,
+      profileCropCanvas.height,
+      0,
+      0,
+      outputCanvas.width,
+      outputCanvas.height
+    );
+
+    const croppedImageUrl = outputCanvas.toDataURL('image/jpeg', 0.86);
+    if (!croppedImageUrl.startsWith('data:image/jpeg') || croppedImageUrl.length > PROFILE_IMAGE_MAX_DATA_URL_LENGTH) {
+      throw new Error('The cropped picture is too large. Try a different picture.');
+    }
+
+    closeProfileCrop();
+    profileImageUrl = croppedImageUrl;
+    setProfileImagePreview(profileImageUrl, displayNameInput.value || originalDisplayName);
+    setMessage('Profile picture cropped and ready to save.', 'success');
+  } catch (error) {
+    setProfileCropMessage(error.message || 'Could not crop that image.', 'error');
+  }
 }
 
 async function loadTeams() {
@@ -198,13 +402,161 @@ profileImageInput.addEventListener('change', async () => {
     return;
   }
 
+  let objectUrl = null;
+  profileCropReturnFocus = document.activeElement;
+
   try {
-    profileImageUrl = await createProfileImageUrl(file);
-    setProfileImagePreview(profileImageUrl, displayNameInput.value || originalDisplayName);
-    setMessage('Profile picture ready to save.', 'success');
+    validateProfileImageFile(file);
+    objectUrl = URL.createObjectURL(file);
+    const image = await loadImage(objectUrl);
+    profileImageInput.value = '';
+    openProfileCrop(image, objectUrl);
+    objectUrl = null;
   } catch (error) {
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
+    }
+
+    profileCropReturnFocus = null;
     profileImageInput.value = '';
     setMessage(error.message || 'Could not use that image.', 'error');
+  }
+});
+
+profileCropZoomInput.addEventListener('input', () => {
+  setProfileCropZoom(profileCropZoomInput.value);
+});
+
+profileCropZoomOutButton.addEventListener('click', () => {
+  setProfileCropZoom(profileCropZoom - PROFILE_CROP_ZOOM_STEP);
+});
+
+profileCropZoomInButton.addEventListener('click', () => {
+  setProfileCropZoom(profileCropZoom + PROFILE_CROP_ZOOM_STEP);
+});
+
+profileCropCancelButton.addEventListener('click', closeProfileCrop);
+profileCropResetButton.addEventListener('click', resetProfileCrop);
+profileCropUseButton.addEventListener('click', useProfileCrop);
+
+profileCropModal.addEventListener('click', (event) => {
+  if (event.target === profileCropModal) {
+    closeProfileCrop();
+  }
+});
+
+profileCropStage.addEventListener('pointerdown', (event) => {
+  if (
+    !profileCropImage
+    || profileCropPointerId !== null
+    || (event.pointerType === 'mouse' && event.button !== 0)
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  profileCropPointerId = event.pointerId;
+  profileCropLastPointerX = event.clientX;
+  profileCropLastPointerY = event.clientY;
+  profileCropStage.setPointerCapture(event.pointerId);
+  profileCropStage.classList.add('is-dragging');
+});
+
+profileCropStage.addEventListener('pointermove', (event) => {
+  if (event.pointerId !== profileCropPointerId) {
+    return;
+  }
+
+  event.preventDefault();
+  moveProfileCropByClientPixels(
+    event.clientX - profileCropLastPointerX,
+    event.clientY - profileCropLastPointerY
+  );
+  profileCropLastPointerX = event.clientX;
+  profileCropLastPointerY = event.clientY;
+});
+
+profileCropStage.addEventListener('pointerup', (event) => {
+  if (event.pointerId === profileCropPointerId) {
+    releaseProfileCropPointer();
+  }
+});
+
+profileCropStage.addEventListener('pointercancel', (event) => {
+  if (event.pointerId === profileCropPointerId) {
+    releaseProfileCropPointer();
+  }
+});
+
+profileCropStage.addEventListener('lostpointercapture', () => {
+  profileCropPointerId = null;
+  profileCropStage.classList.remove('is-dragging');
+});
+
+profileCropStage.addEventListener('wheel', (event) => {
+  if (!profileCropImage || !event.deltaY) {
+    return;
+  }
+
+  event.preventDefault();
+  setProfileCropZoom(profileCropZoom - (Math.sign(event.deltaY) * PROFILE_CROP_ZOOM_STEP));
+}, { passive: false });
+
+profileCropStage.addEventListener('keydown', (event) => {
+  const movement = event.shiftKey ? 20 : 6;
+  const directions = {
+    ArrowLeft: [-movement, 0],
+    ArrowRight: [movement, 0],
+    ArrowUp: [0, -movement],
+    ArrowDown: [0, movement],
+  };
+  const direction = directions[event.key];
+
+  if (!direction) {
+    return;
+  }
+
+  event.preventDefault();
+  moveProfileCropByClientPixels(direction[0], direction[1]);
+});
+
+document.addEventListener('keydown', (event) => {
+  if (!profileCropIsOpen()) {
+    return;
+  }
+
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeProfileCrop();
+    return;
+  }
+
+  if (event.key !== 'Tab') {
+    return;
+  }
+
+  const focusableElements = getProfileCropFocusableElements();
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (!firstElement || !lastElement) {
+    event.preventDefault();
+    profileCropDialog.focus();
+    return;
+  }
+
+  if (!profileCropDialog.contains(document.activeElement)) {
+    event.preventDefault();
+    firstElement.focus();
+    return;
+  }
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault();
+    lastElement.focus();
+  } else if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault();
+    firstElement.focus();
   }
 });
 
