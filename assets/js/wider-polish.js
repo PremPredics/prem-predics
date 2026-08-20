@@ -470,6 +470,47 @@
         font-weight: 900;
         white-space: nowrap;
       }
+
+      :where(
+        .page-head [data-view-title],
+        .correct-score-title,
+        .account-name,
+        .account-action-detail,
+        .admin-row.user-overview > strong,
+        .notice-body,
+        .pending-swap
+      ) {
+        min-width: 0;
+        max-width: 100%;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      :where(
+        .curse-card-played-by,
+        .star-curse-played-by,
+        .card-effect-player-line,
+        .card-preview-played-by,
+        .card-preview-target,
+        .veto-played-by
+      ) {
+        min-width: 0;
+        max-width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .curse-card-played-by > span:not(.played-by-avatar),
+      .star-curse-played-by > span:not(.star-curse-played-by-avatar),
+      .card-effect-player-line > span:not(.played-by-avatar),
+      .card-preview-played-by > span:not(.card-preview-played-by-avatar),
+      .card-preview-target > span:not(.card-preview-played-by-avatar),
+      .veto-played-by > span:not(.card-preview-played-by-avatar) {
+        min-width: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
     `;
     document.head.appendChild(style);
   }

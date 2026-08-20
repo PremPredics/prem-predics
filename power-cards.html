@@ -3928,6 +3928,9 @@ button:disabled {
 }
 
 .player-box h2 {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   text-align: center;
   margin-top: 0;
   margin-bottom: 14px;
@@ -3940,6 +3943,9 @@ button:disabled {
     0 0 8px rgba(255,255,255,0.28);
   font-size: clamp(1.35rem, 2vw, 1.8rem);
   font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player-box.vas-player h2 {
@@ -7657,7 +7663,7 @@ function renderPlayerBoxes() {
     const nameColor = safeProfileColor(gameState.playerColors?.[playerKey]);
     return `
       <div class="player-box ${isCurrentPlayer ? 'vas-player' : 'opponent-player'}">
-        <h2 style="color: ${nameColor}">${escapeHtml(getPlayerName(playerKey))}</h2>
+        <h2 style="color: ${nameColor}" title="${escapeHtml(getPlayerName(playerKey))}">${escapeHtml(getPlayerName(playerKey))}</h2>
         <div class="player-hand-container">
           <div class="hand-label">${isCurrentPlayer ? 'Hand (Click to View/Play):' : 'Hand:'}</div>
           <div id="${playerKey}Hand" class="hand">

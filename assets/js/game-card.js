@@ -21,15 +21,20 @@ const state = {
   rounds: [],
   gameweeks: [],
   predictions: new Map(),
+  visiblePredictions: new Map(),
   results: new Map(),
   members: new Map(),
   roundStandings: new Map(),
   weekScores: new Map(),
   historyOpen: false,
   selectedHistoryRoundId: null,
+  activeLeaderboardRoundIds: new Set(),
 };
 
 let countdownTimer = null;
+let refreshPromise = null;
+let bootComplete = false;
+const refreshedDeadlineKeys = new Set();
 
 function setMessage(text, type = 'info') {
   message.textContent = text;
@@ -144,6 +149,10 @@ function closeCardModal() {
 
 function predictionKey(roundId, gameweekId) {
   return `${roundId}:${gameweekId}`;
+}
+
+function visiblePredictionKey(roundId, gameweekId, userId) {
+  return `${roundId}:${gameweekId}:${userId}`;
 }
 
 function resultKey(cardId, gameweekId) {
@@ -315,6 +324,9 @@ async function loadRounds() {
 async function loadPredictionsAndResults() {
   const visibleRounds = visibleRoundsForPage();
   if (!visibleRounds.length) {
+    state.predictions = new Map();
+    state.visiblePredictions = new Map();
+    state.results = new Map();
     return;
   }
 
@@ -325,7 +337,6 @@ async function loadPredictionsAndResults() {
   const { data: predictions, error: predictionError } = await supabase
     .from('game_card_predictions')
     .select('id, round_id, gameweek_id, user_id, predicted_value, updated_at')
-    .eq('user_id', state.user.id)
     .in('round_id', roundIds)
     .in('gameweek_id', gameweekIds);
 
@@ -333,10 +344,17 @@ async function loadPredictionsAndResults() {
     throw predictionError;
   }
 
-  state.predictions = new Map((predictions || []).map((prediction) => [
-    predictionKey(prediction.round_id, prediction.gameweek_id),
+  const visiblePredictions = predictions || [];
+  state.visiblePredictions = new Map(visiblePredictions.map((prediction) => [
+    visiblePredictionKey(prediction.round_id, prediction.gameweek_id, prediction.user_id),
     prediction,
   ]));
+  state.predictions = new Map(visiblePredictions
+    .filter((prediction) => String(prediction.user_id) === String(state.user.id))
+    .map((prediction) => [
+      predictionKey(prediction.round_id, prediction.gameweek_id),
+      prediction,
+    ]));
 
   let results = [];
   const { data: globalResults, error: globalResultError } = await supabase
@@ -375,16 +393,10 @@ async function loadPredictionsAndResults() {
 }
 
 async function loadHistoryData() {
-  const historyRounds = visibleRoundsForPage().filter((round) => roundStatus(round) === 'history');
+  const leaderboardRounds = visibleRoundsForPage();
   state.members = new Map();
   state.roundStandings = new Map();
   state.weekScores = new Map();
-
-  if (!historyRounds.length) {
-    return;
-  }
-
-  const roundIds = historyRounds.map((round) => round.id);
 
   const { data: members, error: memberError } = await supabase
     .from('competition_members')
@@ -412,6 +424,12 @@ async function loadHistoryData() {
       }
     });
   }
+
+  if (!leaderboardRounds.length) {
+    return;
+  }
+
+  const roundIds = leaderboardRounds.map((round) => round.id);
 
   const [{ data: standings, error: standingsError }, { data: scores, error: scoresError }] = await Promise.all([
     supabase
@@ -474,7 +492,7 @@ function renderRows(round) {
     return `
       <article class="gameweek-row ${current && isActiveRound ? 'current-gameweek' : ''}" data-round-id="${round.id}" data-gameweek-id="${gameweek.gameweek_id}" data-current-gameweek="${current && isActiveRound ? 'true' : 'false'}">
         <strong class="gameweek-badge">GW${escapeHtml(gameweek.gameweek_number)}</strong>
-        <span class="deadline ${deadlineClass}" data-deadline="${escapeHtml(editable ? gameweek.star_man_locks_at || '' : '')}">
+        <span class="deadline ${deadlineClass}" data-deadline="${escapeHtml(isActiveRound && current ? gameweek.star_man_locks_at || '' : '')}">
           ${escapeHtml(rowDeadlineText(gameweek, isActiveRound))}
         </span>
         <span class="result-value ${result ? '' : 'pending'}">${escapeHtml(resultText)}</span>
@@ -512,6 +530,7 @@ function renderRound(round) {
         </div>
       </div>
       ${renderRows(round)}
+      ${status === 'active' ? renderActiveLeaderboard(round) : ''}
     </section>
   `;
 }
@@ -572,6 +591,106 @@ function actualValueForGameweek(round, gameweek) {
     && item.actual_value !== '');
   return score?.actual_value ?? null;
 }
+
+function activeStandingLookup(round) {
+  return new Map((state.roundStandings.get(String(round.id)) || []).map((row) => [String(row.user_id), row]));
+}
+
+function activeLeaderboardMembers(round) {
+  const standings = activeStandingLookup(round);
+  return [...state.members.entries()]
+    .map(([userId, profile]) => ({
+      userId,
+      profile,
+      standing: standings.get(String(userId)) || null,
+    }))
+    .sort((a, b) => {
+      const aRank = Number(a.standing?.round_rank || Number.POSITIVE_INFINITY);
+      const bRank = Number(b.standing?.round_rank || Number.POSITIVE_INFINITY);
+      return aRank - bRank
+        || String(a.profile?.display_name || 'Player').localeCompare(String(b.profile?.display_name || 'Player'));
+    });
+}
+
+function renderActivePredictionCell(round, gameweek, userId) {
+  const ownPrediction = String(userId) === String(state.user.id);
+  const locked = isPast(gameweek.star_man_locks_at);
+  const prediction = state.visiblePredictions.get(visiblePredictionKey(round.id, gameweek.gameweek_id, userId));
+
+  if (!ownPrediction && !locked) {
+    const hiddenLabel = `Hidden until GW${gameweek.gameweek_number} locks`;
+    return `<span class="history-week-rank" aria-label="${escapeHtml(hiddenLabel)}" title="${escapeHtml(hiddenLabel)}">&#128274;</span>`;
+  }
+
+  const value = prediction?.predicted_value;
+  if (value !== null && value !== undefined && value !== '') {
+    return `<span class="history-week-rank history-week-value">${escapeHtml(formatActualValue(value))}</span>`;
+  }
+
+  if (locked) {
+    return '<span class="history-week-rank missing" aria-label="No prediction">X</span>';
+  }
+
+  return '<span class="history-week-rank" aria-label="Not entered yet">-</span>';
+}
+
+function renderActiveLeaderboardDetail(round) {
+  const definition = normaliseNested(round.card_definitions);
+  const cardName = definition?.name || 'Game Card';
+  const gameweeks = roundGameweeks(round);
+  const members = activeLeaderboardMembers(round);
+
+  return `
+    <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
+      <h3 class="history-detail-title">Current ${escapeHtml(cardName)} Leaderboard</h3>
+      <p class="history-detail-description">Your picks show now. Rivals reveal after each GW locks.</p>
+      <div class="history-result-row history-result-head">
+        <span>Player</span>
+        <span>Current</span>
+        ${gameweeks.map((gameweek) => `<span class="gameweek-badge history-week-heading">GW${escapeHtml(gameweek.gameweek_number)}</span>`).join('')}
+      </div>
+      <div class="history-result-row history-actual-row">
+        <span class="history-player-cell history-actual-label">
+          <span class="history-avatar history-actual-spacer" aria-hidden="true"></span>
+          <strong>Actual</strong>
+        </span>
+        <span class="history-final-rank history-actual-final" aria-hidden="true"></span>
+        ${gameweeks.map((gameweek) => {
+          const actual = actualValueForGameweek(round, gameweek);
+          const display = actual === null || actual === undefined || actual === '' ? '-' : formatActualValue(actual);
+          return `<span class="history-week-rank history-week-value">${escapeHtml(display)}</span>`;
+        }).join('')}
+      </div>
+      ${members.map(({ userId, profile, standing }) => {
+        const ownRow = String(userId) === String(state.user.id);
+        const currentRank = standing?.completed_gameweeks ? ordinalRank(standing.round_rank) : '-';
+        return `
+          <div class="history-result-row ${ownRow ? 'current-user' : ''}">
+            <span class="history-player-cell">
+              ${avatarMarkup(profile)}
+              <strong>${escapeHtml(profile.display_name || 'Player')}${ownRow ? ' (You)' : ''}</strong>
+            </span>
+            <span class="history-final-rank">${escapeHtml(currentRank)}</span>
+            ${gameweeks.map((gameweek) => renderActivePredictionCell(round, gameweek, userId)).join('')}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderActiveLeaderboard(round) {
+  const open = state.activeLeaderboardRoundIds.has(String(round.id));
+  return `
+    <section class="game-history-launch">
+      <button class="history-toggle-btn" type="button" data-toggle-active-leaderboard="${escapeHtml(round.id)}" aria-expanded="${open ? 'true' : 'false'}">
+        ${open ? 'Hide' : 'View'} Current Game Card Leaderboard
+      </button>
+      ${open ? renderActiveLeaderboardDetail(round) : ''}
+    </section>
+  `;
+}
+
 function renderHistoryRoundCards(rounds) {
   return `
     <div class="game-history-card-grid">
@@ -721,6 +840,18 @@ function renderRounds() {
     });
   });
 
+  content.querySelectorAll('[data-toggle-active-leaderboard]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const roundId = String(button.dataset.toggleActiveLeaderboard || '');
+      if (state.activeLeaderboardRoundIds.has(roundId)) {
+        state.activeLeaderboardRoundIds.delete(roundId);
+      } else {
+        state.activeLeaderboardRoundIds.add(roundId);
+      }
+      renderRounds();
+    });
+  });
+
   content.querySelector('[data-open-game-history]')?.addEventListener('click', () => {
     state.historyOpen = true;
     state.selectedHistoryRoundId = null;
@@ -744,6 +875,28 @@ function renderRounds() {
   countdownTimer = window.setInterval(updateCountdowns, 30000);
 }
 
+function refreshVisibleGameCardData() {
+  if (!bootComplete || !state.league) {
+    return Promise.resolve();
+  }
+
+  if (!refreshPromise) {
+    refreshPromise = Promise.all([
+      loadPredictionsAndResults(),
+      loadHistoryData(),
+    ])
+      .then(() => renderRounds())
+      .catch((error) => {
+        setMessage(error.message || 'Could not refresh Game Card predictions.', 'error');
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+}
+
 function updateCountdowns() {
   content.querySelectorAll('[data-deadline]').forEach((element) => {
     if (!element.dataset.deadline) {
@@ -751,13 +904,23 @@ function updateCountdowns() {
     }
 
     const locked = isPast(element.dataset.deadline);
+    const wasLocked = element.dataset.wasLocked === 'true';
     element.textContent = locked ? 'Locked' : countdownText(element.dataset.deadline);
     element.classList.toggle('locked', locked);
+    element.dataset.wasLocked = locked ? 'true' : 'false';
 
     const row = element.closest('[data-gameweek-id]');
     const editable = row?.dataset.currentGameweek === 'true' && !locked;
     row?.querySelector('[data-prediction-input]')?.toggleAttribute('disabled', !editable);
     row?.querySelector('[data-save-game-card]')?.toggleAttribute('disabled', !editable);
+
+    if (locked && !wasLocked) {
+      const refreshKey = `${row?.dataset.roundId || ''}:${row?.dataset.gameweekId || ''}:${element.dataset.deadline}`;
+      if (!refreshedDeadlineKeys.has(refreshKey)) {
+        refreshedDeadlineKeys.add(refreshKey);
+        void refreshVisibleGameCardData();
+      }
+    }
   });
 }
 
@@ -813,10 +976,18 @@ async function savePrediction(row) {
     return;
   }
 
-  state.predictions.set(predictionKey(roundId, gameweekId), { round_id: roundId, gameweek_id: gameweekId, predicted_value: value });
+  const savedPrediction = {
+    round_id: roundId,
+    gameweek_id: gameweekId,
+    user_id: state.user.id,
+    predicted_value: value,
+  };
+  state.predictions.set(predictionKey(roundId, gameweekId), savedPrediction);
+  state.visiblePredictions.set(visiblePredictionKey(roundId, gameweekId, state.user.id), savedPrediction);
   row.querySelector('.save-light')?.classList.add('saved');
   row.querySelector('.save-light')?.setAttribute('aria-label', 'Prediction saved');
   row.querySelector('.save-light')?.setAttribute('title', 'Prediction saved');
+  renderRounds();
   setMessage('Game Card prediction saved.', 'success');
 }
 
@@ -836,10 +1007,12 @@ async function clearPrediction(row, roundId, gameweekId) {
   }
 
   state.predictions.delete(predictionKey(roundId, gameweekId));
+  state.visiblePredictions.delete(visiblePredictionKey(roundId, gameweekId, state.user.id));
   const light = row.querySelector('.save-light');
   light?.classList.remove('saved');
   light?.setAttribute('aria-label', 'No prediction saved');
   light?.setAttribute('title', 'No prediction saved');
+  renderRounds();
   setMessage('Game Card prediction cleared.', 'success');
 }
 
@@ -870,8 +1043,10 @@ async function boot() {
     await loadRounds();
     await loadPredictionsAndResults();
     await loadHistoryData();
+    bootComplete = true;
     renderRounds();
   } catch (error) {
+    bootComplete = false;
     content.innerHTML = `<p class="state-text">${escapeHtml(error.message || 'Could not load Game Card page.')}</p>`;
   }
 }
@@ -882,5 +1057,17 @@ closeCardButton?.addEventListener('click', closeCardModal);
 cardModal?.addEventListener('click', (event) => {
   if (event.target === cardModal) {
     closeCardModal();
+  }
+});
+
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    void refreshVisibleGameCardData();
+  }
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    void refreshVisibleGameCardData();
   }
 });

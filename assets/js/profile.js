@@ -583,6 +583,11 @@ form.addEventListener('submit', async (event) => {
     return;
   }
 
+  if (displayName.length > 28 && displayName !== originalDisplayName) {
+    setMessage('Username must be 28 characters or fewer.', 'error');
+    return;
+  }
+
   if (!firstName) {
     setMessage('First name is required.', 'error');
     return;

@@ -216,6 +216,82 @@ button,
   background: rgba(255,255,255,0.1);
 }
 
+.profile-photo-actions .profile-photo-add,
+.profile-photo-actions .profile-photo-remove {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  font-weight: 900;
+  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+}
+
+.profile-photo-actions .profile-photo-add {
+  color: #2e1065;
+  background: linear-gradient(135deg, #fde68a 0%, #facc15 52%, #d97706 100%);
+  border-color: #fef3c7;
+  box-shadow:
+    0 0 18px rgba(250, 204, 21, 0.46),
+    0 7px 16px rgba(146, 64, 14, 0.28),
+    inset 0 1px 0 rgba(255,255,255,0.72);
+}
+
+.profile-photo-actions .profile-photo-add input {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.profile-photo-actions .profile-photo-add:focus-within {
+  outline: 3px solid #2e1065;
+  outline-offset: 3px;
+}
+
+.profile-photo-actions .profile-photo-remove {
+  color: #fff;
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 58%, #7f1d1d 100%);
+  border-color: rgba(254, 202, 202, 0.9);
+  box-shadow:
+    0 0 18px rgba(239, 68, 68, 0.42),
+    0 7px 16px rgba(127, 29, 29, 0.3),
+    inset 0 1px 0 rgba(255,255,255,0.22);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.55);
+}
+
+.profile-photo-actions .profile-photo-remove:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .profile-photo-actions .profile-photo-add:hover,
+  .profile-photo-actions .profile-photo-remove:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.07) saturate(1.06);
+  }
+}
+
+.profile-photo-actions .profile-photo-add:active,
+.profile-photo-actions .profile-photo-remove:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.profile-photo-actions .profile-photo-add:has(input:disabled),
+.profile-photo-actions .profile-photo-remove:disabled {
+  opacity: 0.5;
+  filter: grayscale(0.35);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.profile-photo-actions .profile-photo-add input:disabled {
+  cursor: not-allowed;
+}
+
 body.profile-crop-open {
   overflow: hidden;
 }
@@ -474,17 +550,17 @@ footer {
       <div class="profile-photo-editor">
         <div class="profile-photo-preview" data-profile-photo-preview>?</div>
         <div class="profile-photo-actions">
-          <label class="file-btn link-btn">
+          <label class="file-btn link-btn profile-photo-add">
             Add/Edit Profile Pic
             <input name="profileImage" type="file" accept="image/png,image/jpeg,image/webp" data-profile-image>
           </label>
-          <button class="subtle-btn" type="button" data-remove-profile-image>Remove</button>
+          <button class="subtle-btn profile-photo-remove" type="button" data-remove-profile-image>Remove</button>
         </div>
       </div>
 
       <label>
         Username
-        <input name="displayName" required minlength="2" maxlength="40" autocomplete="nickname">
+        <input name="displayName" required minlength="2" maxlength="28" autocomplete="nickname">
       </label>
       <p class="hint">Your username can be changed once per active season.</p>
 
@@ -584,7 +660,7 @@ footer {
 <footer>2026 Prem Predics | Edit Profile</footer>
 
 <script type="module" src="assets/js/site-auth.js"></script>
-<script type="module" src="assets/js/profile.js?v=20260820-1"></script>
+<script type="module" src="assets/js/profile.js?v=20260820-2"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

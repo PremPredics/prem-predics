@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v27';
+const CACHE_VERSION = 'prem-predics-pwa-v29';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -46,7 +46,7 @@ const APP_SHELL = [
   './assets/js/desktop-polish.js',
   './assets/js/desktop-prediction-final-polish.js',
   './assets/js/desktop-summary-polish.js',
-  './assets/js/game-card.js',
+  './assets/js/game-card.js?v=20260820-live-leaderboard',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js',
   './assets/js/index-actions.js',
@@ -56,11 +56,11 @@ const APP_SHELL = [
   './assets/js/league.js?v=20260820-fixture-lock-count',
   './assets/js/leagues.js',
   './assets/js/legal-footer.js',
-  './assets/js/login.js?v=20260813-2',
+  './assets/js/login.js?v=20260820-username-28',
   './assets/js/medals.js',
   './assets/js/prediction-hub.js',
   './assets/js/predictions.js',
-  './assets/js/profile.js?v=20260820-1',
+  './assets/js/profile.js?v=20260820-2',
   './assets/js/pwa.js',
   './assets/js/reset-password.js',
   './assets/js/site-auth.js',

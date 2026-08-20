@@ -268,6 +268,9 @@ tbody tr:nth-child(even) {
 }
 
 .username {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
   border: 0;
   padding: 0;
   background: transparent;
@@ -278,6 +281,7 @@ tbody tr:nth-child(even) {
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .username:hover {
@@ -372,8 +376,14 @@ tbody tr:nth-child(even) {
 }
 
 .profile-panel h2 {
+  width: 100%;
+  min-width: 0;
   margin: 2px 0 0;
   color: #fff;
+  line-height: 1.15;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .profile-panel p {
