@@ -1,9 +1,11 @@
--- Correct Super Medal redemption to match the league-size tier:
---   2-3 members: 1 Super Card
---   4-6 members: 2 Super Cards
---   7-10 members: 3 Super Cards
+-- Guarantee that every multi-card Super Medal reward contains different
+-- Super Card types:
+--   2-3 league members: 1 Super Card
+--   4-6 league members: 2 different Super Cards
+--   7-10 league members: 3 different Super Cards
 --
--- This is safe to run after super-card-tiered-decks-and-three-card-draw-2026-08-02.sql.
+-- Run once in the Supabase SQL Editor. This replaces one function only. It
+-- does not delete or rewrite leagues, existing hands, medals, or draw history.
 
 begin;
 
@@ -95,6 +97,10 @@ begin
     raise exception 'The Premium Deck does not contain % different Super Card types for this draw.', draw_count;
   end if;
 
+  -- Take one physical card from each chosen type. Types with the most copies
+  -- remaining are selected first, with random ordering between equal counts.
+  -- That keeps later medal draws balanced and prevents the final player from
+  -- being left with several copies of only one Super Card type.
   for selected_card in
     with selected_types as materialized (
       select lc.card_id
@@ -124,7 +130,7 @@ begin
   end loop;
 
   if cardinality(selected_ids) <> draw_count then
-    raise exception 'The Super Card deck does not contain the % card(s) required for this league size.', draw_count;
+    raise exception 'The Premium Deck does not contain the % different card(s) required for this league size.', draw_count;
   end if;
 
   select count(distinct lc.card_id)::integer
@@ -189,4 +195,12 @@ $$;
 revoke all on function public.redeem_super_card_draw_token(uuid) from public;
 grant execute on function public.redeem_super_card_draw_token(uuid) to authenticated;
 
+notify pgrst, 'reload schema';
+
 commit;
+
+-- Read-only confirmation: should return one row with the function name.
+select routine_name
+from information_schema.routines
+where routine_schema = 'public'
+  and routine_name = 'redeem_super_card_draw_token';

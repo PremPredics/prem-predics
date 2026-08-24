@@ -149,6 +149,9 @@ declare
   selected_ids uuid[] := array[]::uuid[];
   member_count integer;
   draw_count integer;
+  available_type_count integer;
+  selected_type_count integer;
+  updated_card_count integer;
 begin
   if target_user is null then
     raise exception 'You must be logged in.';
@@ -167,6 +170,12 @@ begin
   if not public.league_card_draws_unlocked(target_competition_id) then
     raise exception 'Cards can only be drawn after Gameweek 1';
   end if;
+
+  -- Serialize Premium Deck redemptions inside each league so two simultaneous
+  -- medal uses cannot select the same card instances or upset deck balance.
+  perform pg_advisory_xact_lock(
+    hashtextextended('prem_predics_super_draw:' || target_competition_id::text, 0)
+  );
 
   perform public.sync_my_card_draw_tokens(target_competition_id);
   perform public.ensure_league_card_decks(target_competition_id);
@@ -195,15 +204,41 @@ begin
     raise exception 'You do not have an available premium medal.';
   end if;
 
+  select count(distinct lc.card_id)::integer
+    into available_type_count
+  from public.league_cards lc
+  where lc.competition_id = target_competition_id
+    and lc.owner_user_id is null
+    and lc.zone = 'premium_deck';
+
+  if available_type_count < draw_count then
+    raise exception 'The Premium Deck does not contain % different Super Card types for this draw.', draw_count;
+  end if;
+
   for selected_card in
-    select lc.id
-    from public.league_cards lc
-    where lc.competition_id = target_competition_id
-      and lc.owner_user_id is null
-      and lc.zone = 'premium_deck'
-    order by random()
-    limit draw_count
-    for update skip locked
+    with selected_types as materialized (
+      select lc.card_id
+      from public.league_cards lc
+      where lc.competition_id = target_competition_id
+        and lc.owner_user_id is null
+        and lc.zone = 'premium_deck'
+      group by lc.card_id
+      order by count(*) desc, random()
+      limit draw_count
+    )
+    select picked.id
+    from selected_types selected_type
+    cross join lateral (
+      select lc.id
+      from public.league_cards lc
+      where lc.competition_id = target_competition_id
+        and lc.owner_user_id is null
+        and lc.zone = 'premium_deck'
+        and lc.card_id = selected_type.card_id
+      order by random()
+      limit 1
+      for update skip locked
+    ) picked
   loop
     selected_ids := array_append(selected_ids, selected_card.id);
   end loop;
@@ -212,13 +247,29 @@ begin
     raise exception 'The Super Card deck does not contain the % card(s) required for this league size.', draw_count;
   end if;
 
+  select count(distinct lc.card_id)::integer
+    into selected_type_count
+  from public.league_cards lc
+  where lc.id = any(selected_ids);
+
+  if selected_type_count <> draw_count then
+    raise exception 'A Super Medal draw cannot contain duplicate Super Card types.';
+  end if;
+
   update public.card_draw_tokens
   set status = 'redeemed', redeemed_at = now()
   where id = token_row.id;
 
   update public.league_cards
   set owner_user_id = target_user, zone = 'hand', updated_at = now()
-  where id = any(selected_ids);
+  where id = any(selected_ids)
+    and owner_user_id is null
+    and zone = 'premium_deck';
+
+  get diagnostics updated_card_count = row_count;
+  if updated_card_count <> draw_count then
+    raise exception 'The Premium Deck changed during this draw. No medal or cards were used; please try again.';
+  end if;
 
   insert into public.card_draw_events (
     competition_id, season_id, user_id, token_id,

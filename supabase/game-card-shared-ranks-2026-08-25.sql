@@ -1,5 +1,8 @@
 -- Make equal Game Card scores share their position.
--- Run this once in Supabase SQL Editor.
+-- Run or re-run this in Supabase SQL Editor.
+--
+-- Final ties use total absolute distance and then the stored random tiebreak.
+-- Main-leaderboard UC points are deliberately not a Game Card tiebreak.
 --
 -- This migration changes views only. It does not delete or rewrite leagues,
 -- users, predictions, results, cards, or any other saved game data.
@@ -95,7 +98,6 @@ ranked as (
       order by
         standings.rank_points asc,
         standings.total_difference asc,
-        coalesce(gcrt.uc_points_at_tiebreak, 0) desc,
         coalesce(gcrt.random_tiebreak_rank, 999999) asc
     ) as round_rank
   from standings

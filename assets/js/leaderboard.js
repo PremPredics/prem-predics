@@ -54,7 +54,7 @@ function bindLeaderboardHeaderLinks() {
     });
   });
 }
-function compareRows(a, b) {
+function compareRankingCriteria(a, b) {
   return (
     numberValue(b.ultimate_champion_points) - numberValue(a.ultimate_champion_points)
     || numberValue(b.prediction_points) - numberValue(a.prediction_points)
@@ -66,6 +66,15 @@ function compareRows(a, b) {
     || numberValue(a.star_man_yellows) - numberValue(b.star_man_yellows)
     || numberValue(a.star_man_reds) - numberValue(b.star_man_reds)
   );
+}
+
+function compareRows(a, b) {
+  return compareRankingCriteria(a, b)
+    || String(a.display_name || 'Player').localeCompare(
+      String(b.display_name || 'Player'),
+      'en-GB',
+      { sensitivity: 'base' },
+    );
 }
 
 function sortRows(rows) {
@@ -82,7 +91,7 @@ function render(rows, profilesById) {
   let previousRow = null;
 
   body.innerHTML = sortRows(rows).map((row, index) => {
-    if (!previousRow || compareRows(previousRow, row) !== 0) {
+    if (!previousRow || compareRankingCriteria(previousRow, row) !== 0) {
       displayedRank = index + 1;
     }
     previousRow = row;

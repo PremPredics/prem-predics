@@ -4,7 +4,7 @@
 -- Weekly ranks are competition-style ranks: tied closest guesses share the
 -- same rank, and the next rank skips ahead. Final round ranking is lowest
 -- total weekly-rank score first, then lowest total absolute difference, then
--- highest UC points at tiebreak, then the stored random tiebreak.
+-- the stored random tiebreak. Main-leaderboard UC points are not considered.
 
 begin;
 
@@ -97,7 +97,6 @@ ranked as (
       order by
         standings.rank_points asc,
         standings.total_difference asc,
-        coalesce(gcrt.uc_points_at_tiebreak, 0) desc,
         coalesce(gcrt.random_tiebreak_rank, 999999) asc
     ) as round_rank
   from standings

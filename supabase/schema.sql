@@ -3071,7 +3071,6 @@ ranked as (
       order by
         standings.rank_points asc,
         standings.total_difference asc,
-        coalesce(gcrt.uc_points_at_tiebreak, 0) desc,
         coalesce(gcrt.random_tiebreak_rank, 999999) asc
     ) as round_rank
   from standings

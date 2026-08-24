@@ -596,6 +596,14 @@ function activeStandingLookup(round) {
   return new Map((state.roundStandings.get(String(round.id)) || []).map((row) => [String(row.user_id), row]));
 }
 
+function compareDisplayNames(a, b) {
+  return String(a || 'Player').localeCompare(
+    String(b || 'Player'),
+    'en-GB',
+    { sensitivity: 'base' },
+  );
+}
+
 function activeLeaderboardMembers(round) {
   const standings = activeStandingLookup(round);
   return [...state.members.entries()]
@@ -608,7 +616,7 @@ function activeLeaderboardMembers(round) {
       const aRank = Number(a.standing?.round_rank || Number.POSITIVE_INFINITY);
       const bRank = Number(b.standing?.round_rank || Number.POSITIVE_INFINITY);
       return aRank - bRank
-        || String(a.profile?.display_name || 'Player').localeCompare(String(b.profile?.display_name || 'Player'));
+        || compareDisplayNames(a.profile?.display_name, b.profile?.display_name);
     });
 }
 
@@ -718,7 +726,13 @@ function renderHistoryDetail(round) {
   const definition = normaliseNested(round.card_definitions);
   const cardName = definition?.name || 'Game Card';
   const standings = [...(state.roundStandings.get(String(round.id)) || [])]
-    .sort((a, b) => Number(a.round_rank || 999) - Number(b.round_rank || 999));
+    .sort((a, b) => (
+      Number(a.round_rank || 999) - Number(b.round_rank || 999)
+      || compareDisplayNames(
+        profileForUser(a.user_id)?.display_name,
+        profileForUser(b.user_id)?.display_name,
+      )
+    ));
   const gameweeks = roundGameweeks(round);
   const scoreLookup = scoreLookupForRound(round);
 
