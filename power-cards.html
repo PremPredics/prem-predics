@@ -2572,6 +2572,32 @@ button:disabled {
   line-height: 1.12;
 }
 
+.opponent-player-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 132px;
+}
+
+.opponent-target-name {
+  display: block;
+  width: 100%;
+  min-height: 1.35em;
+  padding: 5px 7px;
+  border: 1px solid rgba(233, 213, 255, 0.44);
+  border-radius: 8px;
+  background: rgba(76, 29, 149, 0.68);
+  color: #fff !important;
+  font-size: clamp(0.8rem, 2vw, 0.96rem);
+  font-weight: 950;
+  line-height: 1.16;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.82);
+}
+
 .opponent-target-btn:hover {
   transform: translateY(-2px);
   border-color: rgba(248, 113, 113, 0.78);
@@ -3333,6 +3359,10 @@ button:disabled {
   .opponent-target-btn {
     min-height: 86px;
     padding: 10px 8px;
+  }
+
+  .opponent-player-btn {
+    min-height: 118px;
   }
 
   .opponent-target-list {
@@ -11133,6 +11163,10 @@ async function syncMedals() {
       return { blockedFixtureIds, eligibleFixtures };
     }
 
+    function opponentDisplayName(member) {
+      return String(member?.display_name || member?.username || '').trim() || 'Player';
+    }
+
     function opponentAvatar(member) {
       const imageUrl = member.profile_image_url?.startsWith('data:image/')
         ? member.profile_image_url
@@ -11142,8 +11176,19 @@ async function syncMedals() {
         return `<span class="opponent-target-avatar"><img src="${escapeHtml(imageUrl)}" alt=""></span>`;
       }
 
-      const initial = (member.display_name || 'P').trim().charAt(0).toUpperCase() || 'P';
+      const initial = opponentDisplayName(member).charAt(0).toUpperCase() || 'P';
       return `<span class="opponent-target-avatar">${escapeHtml(initial)}</span>`;
+    }
+
+    function opponentButtonMarkup(member, index) {
+      const opponentName = opponentDisplayName(member);
+      return `
+        <button class="opponent-target-btn opponent-player-btn ${member.disabled ? 'disabled' : ''}" type="button" data-opponent-index="${index}" aria-label="Choose ${escapeHtml(opponentName)}" aria-pressed="false" title="${escapeHtml(opponentName)}" ${member.disabled ? 'disabled aria-disabled="true"' : ''}>
+          ${opponentAvatar(member)}
+          <span class="opponent-target-name">${escapeHtml(opponentName)}</span>
+          ${member.disabledReason ? `<small class="opponent-target-disabled-reason">${escapeHtml(member.disabledReason)}</small>` : ''}
+        </button>
+      `;
     }
 
     function chooseOpponentFromModal(opponents) {
@@ -11207,13 +11252,7 @@ async function syncMedals() {
           }
         }
 
-        list.innerHTML = opponents.map((member, index) => `
-          <button class="opponent-target-btn ${member.disabled ? 'disabled' : ''}" type="button" data-opponent-index="${index}" ${member.disabled ? 'disabled aria-disabled="true"' : ''}>
-            ${opponentAvatar(member)}
-            <span>${escapeHtml(member.display_name)}</span>
-            ${member.disabledReason ? `<small class="opponent-target-disabled-reason">${escapeHtml(member.disabledReason)}</small>` : ''}
-          </button>
-        `).join('');
+        list.innerHTML = opponents.map(opponentButtonMarkup).join('');
 
         list.querySelectorAll('[data-opponent-index]').forEach((button) => {
           button.addEventListener('click', () => {
