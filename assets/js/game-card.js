@@ -439,7 +439,7 @@ async function loadHistoryData() {
       .in('round_id', roundIds),
     supabase
       .from('game_card_week_scores')
-      .select('round_id, gameweek_id, gameweek_number, user_id, predicted_value, actual_value, difference, is_weekly_winner')
+      .select('round_id, gameweek_id, gameweek_number, user_id, predicted_value, actual_value, difference, is_weekly_winner, weekly_rank')
       .eq('competition_id', state.league.id)
       .in('round_id', roundIds),
   ]);

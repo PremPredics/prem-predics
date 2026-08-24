@@ -3031,22 +3031,14 @@ select
   ranked.predicted_value,
   ranked.actual_value,
   ranked.difference,
-  ranked.weekly_rank = 1 as is_weekly_winner
+  ranked.weekly_rank = 1 as is_weekly_winner,
+  ranked.weekly_rank
 from ranked;
 
 create or replace view public.game_card_round_standings
 with (security_invoker = true)
 as
-with scored_with_ranks as (
-  select
-    gcs.*,
-    rank() over (
-      partition by gcs.round_id, gcs.gameweek_id
-      order by gcs.difference asc
-    ) as weekly_rank
-  from public.game_card_week_scores gcs
-),
-standings as (
+with standings as (
   select
     round_id,
     competition_id,
@@ -3058,7 +3050,7 @@ standings as (
     count(*) filter (where is_weekly_winner) as weekly_wins,
     sum(difference) as total_difference,
     sum(weekly_rank) as rank_points
-  from scored_with_ranks
+  from public.game_card_week_scores
   group by round_id, competition_id, season_id, card_id, round_number, user_id
 ),
 ranked as (
@@ -3074,14 +3066,13 @@ ranked as (
     standings.total_difference,
     coalesce(gcrt.uc_points_at_tiebreak, 0) as uc_points_at_tiebreak,
     coalesce(gcrt.random_tiebreak_rank, 999999) as random_tiebreak_rank,
-    row_number() over (
+    rank() over (
       partition by standings.round_id
       order by
         standings.rank_points asc,
         standings.total_difference asc,
         coalesce(gcrt.uc_points_at_tiebreak, 0) desc,
-        coalesce(gcrt.random_tiebreak_rank, 999999) asc,
-        standings.user_id asc
+        coalesce(gcrt.random_tiebreak_rank, 999999) asc
     ) as round_rank
   from standings
   left join public.game_card_round_tiebreaks gcrt

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v35';
+const CACHE_VERSION = 'prem-predics-pwa-v36';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -46,12 +46,12 @@ const APP_SHELL = [
   './assets/js/desktop-polish.js',
   './assets/js/desktop-prediction-final-polish.js',
   './assets/js/desktop-summary-polish.js',
-  './assets/js/game-card.js?v=20260820-live-leaderboard',
+  './assets/js/game-card.js?v=20260825-shared-ranks',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js',
   './assets/js/index-actions.js',
   './assets/js/index-admin.js',
-  './assets/js/leaderboard.js',
+  './assets/js/leaderboard.js?v=20260825-shared-ranks',
   './assets/js/league-context.js',
   './assets/js/league.js?v=20260820-fixture-lock-count',
   './assets/js/leagues.js',

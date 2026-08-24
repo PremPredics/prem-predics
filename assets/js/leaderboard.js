@@ -54,19 +54,22 @@ function bindLeaderboardHeaderLinks() {
     });
   });
 }
-function sortRows(rows) {
-  return rows.sort((a, b) => (
+function compareRows(a, b) {
+  return (
     numberValue(b.ultimate_champion_points) - numberValue(a.ultimate_champion_points)
     || numberValue(b.prediction_points) - numberValue(a.prediction_points)
-    || numberValue(b.star_man_points) - numberValue(a.star_man_points)
     || numberValue(b.correct_scores) - numberValue(a.correct_scores)
     || numberValue(b.correct_results) - numberValue(a.correct_results)
+    || numberValue(b.star_man_points) - numberValue(a.star_man_points)
     || numberValue(b.star_man_goals) - numberValue(a.star_man_goals)
     || numberValue(b.star_man_assists) - numberValue(a.star_man_assists)
     || numberValue(a.star_man_yellows) - numberValue(b.star_man_yellows)
-    || numberValue(b.star_man_reds) - numberValue(a.star_man_reds)
-    || String(a.display_name || '').localeCompare(String(b.display_name || ''), 'en-GB')
-  ));
+    || numberValue(a.star_man_reds) - numberValue(b.star_man_reds)
+  );
+}
+
+function sortRows(rows) {
+  return rows.sort(compareRows);
 }
 
 function render(rows, profilesById) {
@@ -75,14 +78,22 @@ function render(rows, profilesById) {
     return;
   }
 
+  let displayedRank = 0;
+  let previousRow = null;
+
   body.innerHTML = sortRows(rows).map((row, index) => {
+    if (!previousRow || compareRows(previousRow, row) !== 0) {
+      displayedRank = index + 1;
+    }
+    previousRow = row;
+
     const displayName = row.display_name || 'Player';
     const profile = profilesById.get(row.user_id);
     const firstName = profile?.first_name || 'Not set';
 
     return `
       <tr>
-        <td class="rank">${index + 1}</td>
+        <td class="rank">${displayedRank}</td>
         <td>
           <div class="player-cell">
             ${avatarMarkup(profile, displayName)}

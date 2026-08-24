@@ -1,10 +1,8 @@
--- Fix Game Card weekly ranks and final winner ordering.
+-- Make equal Game Card scores share their position.
 -- Run this once in Supabase SQL Editor.
 --
--- Weekly ranks are competition-style ranks: tied closest guesses share the
--- same rank, and the next rank skips ahead. Final round ranking is lowest
--- total weekly-rank score first, then lowest total absolute difference, then
--- highest UC points at tiebreak, then the stored random tiebreak.
+-- This migration changes views only. It does not delete or rewrite leagues,
+-- users, predictions, results, cards, or any other saved game data.
 
 begin;
 
@@ -113,4 +111,29 @@ from ranked;
 grant select on public.game_card_week_scores to authenticated;
 grant select on public.game_card_round_standings to authenticated;
 
+notify pgrst, 'reload schema';
+
 commit;
+
+-- Read-only confirmation. Equal differences must have the same weekly_rank;
+-- equal current ranking totals must have the same round_rank.
+select
+  round_id,
+  gameweek_number,
+  predicted_value,
+  actual_value,
+  difference,
+  weekly_rank,
+  user_id
+from public.game_card_week_scores
+order by round_id, gameweek_number, weekly_rank, user_id;
+
+select
+  round_id,
+  round_rank,
+  completed_gameweeks,
+  weekly_wins,
+  total_difference,
+  user_id
+from public.game_card_round_standings
+order by round_id, round_rank, user_id;
