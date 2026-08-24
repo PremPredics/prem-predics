@@ -6939,7 +6939,7 @@ const HEDGE_DELETED_MATCH_CONFLICT_TEXT = 'Power of the Hedge and Curse of the D
 const cardDescriptions = {
   "Power of the Goal": "Power of the Goal\n\nValid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Swap": "Power of the Swap\n\nDiscard this card and one other unused card from your hand, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand. You cannot play it unless that other unused card is available.",
-  "Power of the Veto": "Power of the Veto\n\nVeto a Curse played by your opponent.",
+  "Power of the Veto": "Power of the Veto\n\nVeto an active Curse targeting you after it is played and before that Gameweek's first kick-off. Both cards are discarded immediately.",
   "Power of the Laundrette": "Power of the Laundrette\n\nValid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power Of The Clean Sweep": "Power Of The Clean Sweep\nValid for 1 Gameweek.\n\nIf you score a point in every game this Gameweek, earn bonus +5 UC pts.\n\nMust be played at least 90 minutes before the gameweek's first KO time.",
   "Power of the Pessimist": "Power of the Pessimist\n\nValid for 1 Gameweek. DOUBLE points for all Predictions if no team scores 3+ goals. Must be played at least 90 minutes before the gameweek's first KO time.",
@@ -8988,7 +8988,8 @@ async function confirmCardPlay() {
     }
   }
 
-  const keepPlayedCardInHand = isSwapCard || shouldKeepPlayedCardInHand(activation);
+  const keepPlayedCardInHand = !activation?.__cardConsumedAtomically
+    && (isSwapCard || shouldKeepPlayedCardInHand(activation));
   let discardPlayedCardPromise = Promise.resolve();
   if (activation?.__cardConsumedAtomically) {
     gameState.discardPile.push(discardPileItem(
@@ -12024,34 +12025,37 @@ async function syncMedals() {
       };
     }
 
-    async function vetoActiveCurse(effectId) {
-      const { error } = await supabase.rpc('veto_my_active_curse', {
-        target_competition_id: context.league.id,
-        target_card_effect_id: effectId,
-      });
-
-      if (!error) {
-        return;
+    function assertVetoBeforeFirstKickoff(activeGameweek) {
+      const firstKickoffMs = new Date(activeGameweek?.first_fixture_kickoff_at || '').getTime();
+      if (!Number.isFinite(firstKickoffMs)) {
+        throw new Error('The Gameweek first kick-off could not be found, so the Curse cannot be vetoed.');
       }
-
-      const functionMissing = error.code === '42883' || String(error.message || '').toLowerCase().includes('veto_my_active_curse');
-      if (!functionMissing) {
-        throw error;
-      }
-
-      const { error: updateError } = await supabase
-        .from('active_card_effects')
-        .update({ status: 'vetoed', resolved_at: new Date().toISOString() })
-        .eq('id', effectId)
-        .eq('target_user_id', context.user.id)
-        .eq('status', 'active');
-
-      if (updateError) {
-        throw updateError;
+      if (Date.now() >= firstKickoffMs) {
+        throw new Error("Power of the Veto must be played before the Gameweek's first kick-off.");
       }
     }
 
-    async function playVeto(activeGameweek) {
+    async function vetoActiveCurse(effectId, vetoCardInstanceId) {
+      if (!vetoCardInstanceId) {
+        throw new Error('An unused Power of the Veto from your hand is required.');
+      }
+
+      const { data, error } = await supabase.rpc('veto_my_active_curse', {
+        target_competition_id: context.league.id,
+        target_card_effect_id: effectId,
+        target_veto_card_instance_id: vetoCardInstanceId,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    }
+
+    async function playVeto(activeGameweek, vetoCardInstanceId) {
+      assertVetoBeforeFirstKickoff(activeGameweek);
+
       const { data, error } = await supabase
         .from('active_card_effects')
         .select('id, played_by_user_id, gameweek_id, start_gameweek_id, card_definitions(name, category)')
@@ -12069,13 +12073,24 @@ async function syncMedals() {
         curses.map((effect) => ({ ...effect, gameweek_number: activeGameweek.gameweek_number })),
         playerNameById
       );
-      await vetoActiveCurse(chosen.id);
+      assertVetoBeforeFirstKickoff(activeGameweek);
+      const vetoEffectId = await vetoActiveCurse(chosen.id, vetoCardInstanceId);
       return {
-        id: chosen.id,
+        id: vetoEffectId,
+        card_instance_id: vetoCardInstanceId,
+        card_id: 'power_veto',
+        played_by_user_id: context.user.id,
+        target_user_id: chosen.played_by_user_id,
+        gameweek_id: activeGameweek.gameweek_id,
+        start_gameweek_id: activeGameweek.gameweek_id,
+        status: 'resolved',
         vetoed: true,
         activeGameweek,
+        gameweek_number: activeGameweek.gameweek_number,
+        first_fixture_kickoff_at: activeGameweek.first_fixture_kickoff_at,
+        __cardConsumedAtomically: true,
         __noticeTitle: 'Power of the Veto',
-        __noticeMessage: 'Curse vetoed.',
+        __noticeMessage: 'Curse vetoed. Both cards have been discarded.',
       };
     }
 
@@ -12526,7 +12541,7 @@ async function syncMedals() {
         await assertHeightPowerCanBePlayed(rule, activeGameweek, context, supabase);
 
         if (rule.special === 'veto') {
-          return playVeto(activeGameweek);
+          return playVeto(activeGameweek, cardInstanceId);
         }
         if (rule.special === 'god') {
           return playPowerOfGod(activeGameweek, fixtures, cardInstanceId);
