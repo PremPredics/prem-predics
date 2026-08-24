@@ -9818,7 +9818,7 @@ async function assertFirstLeagueGameweekCompleted(runtimeContext, client) {
   const graceMs = 3 * 60 * 60 * 1000;
   const stillInFirstWeek = fixtures.some((fixture) => {
     const status = String(fixture.status || '').toLowerCase();
-    if (['completed', 'finished', 'full_time', 'ft'].includes(status)) {
+    if (['final', 'completed', 'finished', 'full_time', 'ft'].includes(status)) {
       return false;
     }
     const kickoffMs = fixture.kickoff_at ? new Date(fixture.kickoff_at).getTime() : 0;

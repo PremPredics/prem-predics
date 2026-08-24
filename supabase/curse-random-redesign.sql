@@ -163,7 +163,7 @@ begin
       from public.fixtures f
       where f.season_id = new.season_id
         and f.gameweek_id = league_start_gameweek_id
-        and lower(coalesce(f.status, '')) not in ('completed', 'finished', 'full_time', 'ft')
+        and lower(coalesce(f.status, '')) not in ('final', 'completed', 'finished', 'full_time', 'ft')
         and (f.kickoff_at is null or now() < f.kickoff_at + interval '3 hours')
     )
     and not public.is_admin()
