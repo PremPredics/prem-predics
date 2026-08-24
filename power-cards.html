@@ -11069,6 +11069,69 @@ async function syncMedals() {
       });
     }
 
+    function sameOpponentUser(left, right) {
+      return Boolean(left && right) && String(left) === String(right);
+    }
+
+    function applyCurseTargetLimits(opponents, effects, currentUserId, memberCount) {
+      const activeCurseCounts = new Map();
+      (effects || []).forEach((effect) => {
+        if (
+          String(effect.status || '').toLowerCase() !== 'active'
+          || !effect.target_user_id
+          || sameOpponentUser(effect.target_user_id, effect.played_by_user_id)
+        ) {
+          return;
+        }
+        const targetId = String(effect.target_user_id);
+        activeCurseCounts.set(targetId, (activeCurseCounts.get(targetId) || 0) + 1);
+      });
+
+      const previousCurse = Number(memberCount) >= 3
+        ? (effects || []).find((effect) => {
+          const status = String(effect.status || '').toLowerCase();
+          return sameOpponentUser(effect.played_by_user_id, currentUserId)
+            && effect.target_user_id
+            && !sameOpponentUser(effect.target_user_id, effect.played_by_user_id)
+            && !['cancelled', 'removed'].includes(status);
+        })
+        : null;
+
+      return (opponents || []).map((member) => {
+        const disabledReasons = member.disabledReason ? [member.disabledReason] : [];
+        const activeCount = activeCurseCounts.get(String(member.user_id)) || 0;
+
+        if (activeCount >= 3) {
+          disabledReasons.push('Maximum of 3 active Curses reached');
+        }
+        if (previousCurse && sameOpponentUser(previousCurse.target_user_id, member.user_id)) {
+          disabledReasons.push('Your previous Curse this Gameweek targeted this player');
+        }
+
+        return {
+          ...member,
+          disabled: Boolean(member.disabled) || disabledReasons.length > (member.disabledReason ? 1 : 0),
+          disabledReason: disabledReasons.join('; '),
+        };
+      });
+    }
+
+    async function curseTargetOptionsForGameweek(opponents, activeGameweek, memberCount) {
+      const { data, error } = await supabase
+        .from('active_card_effects')
+        .select('id, target_user_id, played_by_user_id, status, played_at, card_definitions!inner(category)')
+        .eq('competition_id', context.league.id)
+        .eq('season_id', context.league.season_id)
+        .eq('gameweek_id', activeGameweek.gameweek_id)
+        .eq('card_definitions.category', 'curse')
+        .not('target_user_id', 'is', null)
+        .order('played_at', { ascending: false })
+        .order('id', { ascending: false });
+
+      if (error) throw error;
+      return applyCurseTargetLimits(opponents, data || [], context.user.id, memberCount);
+    }
+
     function playerNameForUserId(userId) {
       const playerKey = Object.entries(gameState.playerUserIds || {})
         .find(([, currentUserId]) => String(currentUserId || '') === String(userId || ''))?.[0];
@@ -12449,17 +12512,19 @@ async function syncMedals() {
         let randomFixtureState = null;
 
         if (rule.target === 'opponent') {
-          let opponentOptions = opponents;
+          let opponentOptions = await curseTargetOptionsForGameweek(opponents, activeGameweek, members.length);
           if (rule.special === 'gambler') {
-            opponentOptions = await Promise.all(opponents.map(async (member) => {
+            opponentOptions = await Promise.all(opponentOptions.map(async (member) => {
               const state = await randomFixtureStateForTarget(member.user_id, fixtures, activeGameweek);
+              const unavailableForRandom = state.eligibleFixtures.length < 3;
               return {
                 ...member,
                 __randomFixtureState: state,
-                disabled: state.eligibleFixtures.length < 3,
-                disabledReason: state.eligibleFixtures.length < 3
-                  ? `${state.eligibleFixtures.length}/3 fixtures available`
-                  : '',
+                disabled: Boolean(member.disabled) || unavailableForRandom,
+                disabledReason: [
+                  member.disabledReason,
+                  unavailableForRandom ? `${state.eligibleFixtures.length}/3 fixtures available` : '',
+                ].filter(Boolean).join('; '),
               };
             }));
           }
