@@ -10,7 +10,7 @@
 with canonical_card_descriptions (id, description) as (
   values
     ('power_goal', 'Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek''s first KO time.'),
-    ('power_swap', 'Discard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand.'),
+    ('power_swap', 'Discard this card and one other unused card from your hand, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand. It cannot be played unless that other unused card is available.'),
     ('power_veto', 'Veto a Curse played by your opponent.'),
     ('power_laundrette', 'Valid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_rocket_man', 'Valid for 1 Gameweek. If you score a point in every game this Gameweek, earn bonus +5 UC pts. Must be played at least 90 minutes before the gameweek''s first KO time.'),

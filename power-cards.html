@@ -6938,7 +6938,7 @@ const HEDGE_DELETED_MATCH_CONFLICT_TEXT = 'Power of the Hedge and Curse of the D
 // CARD DESCRIPTIONS DATABASE
 const cardDescriptions = {
   "Power of the Goal": "Power of the Goal\n\nValid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Swap": "Power of the Swap\n\nDiscard this card and one other card, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand.",
+  "Power of the Swap": "Power of the Swap\n\nDiscard this card and one other unused card from your hand, then Draw 3 cards from the Regular Deck and pick 2 to keep in your hand. You cannot play it unless that other unused card is available.",
   "Power of the Veto": "Power of the Veto\n\nVeto a Curse played by your opponent.",
   "Power of the Laundrette": "Power of the Laundrette\n\nValid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek's first KO time.",
   "Power Of The Clean Sweep": "Power Of The Clean Sweep\nValid for 1 Gameweek.\n\nIf you score a point in every game this Gameweek, earn bonus +5 UC pts.\n\nMust be played at least 90 minutes before the gameweek's first KO time.",
@@ -8915,8 +8915,8 @@ async function confirmCardPlay() {
       showSiteNotice('You need at least 3 cards in the Regular Deck to play Power of the Swap!', 'Power of the Swap');
       return;
     }
-    if (gameState.players[player].hand.length < 2) {
-      showSiteNotice('You need at least 2 cards in your hand to play Power of the Swap!', 'Power of the Swap');
+    if (!eligibleSwapDiscardIndexes(player, index, selectedCardInstanceId).length) {
+      showSiteNotice('You need at least one other unused card in your hand to play Power of the Swap!', 'Power of the Swap');
       return;
     }
   }
@@ -9216,6 +9216,18 @@ function cardInstanceFromDrawn(card) {
   return typeof card === 'string' ? null : card?.id;
 }
 
+function eligibleSwapDiscardIndexes(player, playedIndex, playedCardInstanceId = null) {
+  return (gameState.handCardInstancesByPlayer?.[player] || []).reduce((indexes, cardInstance, index) => {
+    const isPlayedSwap = (playedCardInstanceId && cardInstance?.id === playedCardInstanceId)
+      || index === playedIndex;
+    const isAlreadyUsed = Boolean(cardInstance?.id && gameState.usedCardEffectsByInstance?.[cardInstance.id]);
+    if (!isPlayedSwap && cardInstance?.id && !isAlreadyUsed) {
+      indexes.push(index);
+    }
+    return indexes;
+  }, []);
+}
+
 function startSwap(player, card, options = {}) {
   gameState.pendingSwap = {
     player,
@@ -9248,6 +9260,19 @@ async function confirmSwap() {
   const swap = gameState.pendingSwap;
   if (swap.discardChoice === null) {
     showSiteNotice('Select one card to discard.', 'Power of the Swap');
+    return;
+  }
+
+  const currentHandInstances = gameState.handCardInstancesByPlayer?.[swap.player] || [];
+  const eligibleDiscardIndexes = eligibleSwapDiscardIndexes(swap.player, swap.playedIndex, swap.cardInstanceId);
+  const selectedDiscardIsEligible = eligibleDiscardIndexes.some((index) => (
+    currentHandInstances[index]?.id === swap.discardChoiceInstanceId
+  ));
+  if (!selectedDiscardIsEligible) {
+    swap.discardChoice = null;
+    swap.discardChoiceInstanceId = null;
+    showSiteNotice('That card is no longer available. Choose another unused card to discard.', 'Power of the Swap');
+    render();
     return;
   }
 
@@ -10560,6 +10585,10 @@ async function syncMedals() {
           && effect.status === 'active'
           && definition?.effect_key === 'power_swap';
       });
+
+      if (gameState.pendingSwap?.effectId && !pendingSwapEffect) {
+        gameState.pendingSwap = null;
+      }
 
       if (ownPlayerKey && pendingSwapEffect && !gameState.pendingSwap && !gameState.pendingRandomCurse && !gameState.pendingSuperSub && !gameState.pendingSuperDuo && !gameState.stealMode) {
         const { data: drawEvents, error: drawEventsError } = await supabase

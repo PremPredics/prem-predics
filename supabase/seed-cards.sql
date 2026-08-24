@@ -4,7 +4,7 @@
 with cards (id, name, category, deck_type, effect_key, description) as (
   values
     ('power_goal', 'Power of the Goal', 'power', 'regular', 'power_goal', 'Valid for 1 Gameweek. +1 Goal for Star Man this week (+3 UC Points per copy played). Each copy stacks as a separate fixed +3 UC Points. Other Power Cards cannot multiply the points earned from Power Of The Goal. Must be played at least 90 minutes before the gameweek''s first KO time.'),
-    ('power_swap', 'Power of the Swap', 'power', 'regular', 'power_swap', 'Discard this card and one other card, then draw 3 Regular Deck cards and keep 2.'),
+    ('power_swap', 'Power of the Swap', 'power', 'regular', 'power_swap', 'Discard this card and one other unused card from your hand, then draw 3 Regular Deck cards and keep 2. It cannot be played unless that other unused card is available.'),
     ('power_veto', 'Power of the Veto', 'power', 'regular', 'power_veto', 'Cancel an opponent Curse.'),
     ('power_laundrette', 'Power of the Laundrette', 'power', 'regular', 'power_laundrette', 'Valid for 1 Gameweek. DOUBLE points for any Correct Result with a Clean Sheet in the actual game. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('power_rocket_man', 'Power Of The Clean Sweep', 'power', 'regular', 'power_clean_sweep', 'Valid for 1 Gameweek. If you score a point in every game, earn bonus +5 UC pts. Must be played at least 90 minutes before the gameweek''s first KO time.'),
