@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v37';
+const CACHE_VERSION = 'prem-predics-pwa-v38';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -38,7 +38,7 @@ const APP_SHELL = [
   './assets/css/legal-pages.css',
   './assets/css/pwa-install.css',
   './assets/css/password-reset.css',
-  './assets/js/all-predictions.js',
+  './assets/js/all-predictions.js?v=20260825-current-gameweek',
   './assets/js/all-star-men.js?v=20260820-1',
   './assets/js/capacitor-app.js',
   './assets/js/correct-scores.js',
@@ -53,7 +53,7 @@ const APP_SHELL = [
   './assets/js/index-admin.js',
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260820-fixture-lock-count',
+  './assets/js/league.js?v=20260825-lock-progress-align',
   './assets/js/leagues.js',
   './assets/js/legal-footer.js',
   './assets/js/login.js?v=20260820-username-28',

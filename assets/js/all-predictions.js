@@ -172,7 +172,15 @@ function gameweekHasLockedPredictions(gameweek) {
   return fixtures.some((fixture) => isPast(fixture.prediction_locks_at));
 }
 
-function mostRecentPublicIndex(activeGameweek) {
+function initialGameweekIndex(activeGameweek) {
+  const activeIndex = state.gameweeks.findIndex((gameweek) => (
+    String(gameweek.gameweek_id) === String(activeGameweek?.gameweek_id)
+  ));
+
+  if (activeIndex >= 0) {
+    return activeIndex;
+  }
+
   const publicIndexes = state.gameweeks
     .map((gameweek, index) => ({ gameweek, index }))
     .filter(({ gameweek }) => gameweekHasLockedPredictions(gameweek));
@@ -181,7 +189,7 @@ function mostRecentPublicIndex(activeGameweek) {
     return publicIndexes[publicIndexes.length - 1].index;
   }
 
-  return Math.max(0, state.gameweeks.findIndex((gameweek) => gameweek.gameweek_id === activeGameweek?.gameweek_id));
+  return 0;
 }
 
 function renderPlayers() {
@@ -834,7 +842,7 @@ async function loadData(activeGameweek) {
   });
 
   state.selectedUserId = state.user.id;
-  state.selectedGameweekIndex = mostRecentPublicIndex(activeGameweek);
+  state.selectedGameweekIndex = initialGameweekIndex(activeGameweek);
 }
 
 previousButton.addEventListener('click', () => {

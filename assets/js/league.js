@@ -574,7 +574,7 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
     const predictionDeadlineOptions = lockedCount > 0
       ? {
           message: `${gameweekLabelText} ${lockedCount}/${totalCount} Predictions Locked`,
-          messageClassName: 'bad locked message',
+          messageClassName: 'bad locked message prediction-lock-progress',
         }
       : { completed: predictionsCompleted };
 
