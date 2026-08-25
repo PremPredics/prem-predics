@@ -227,13 +227,13 @@ function earliestDeadline(fixtures) {
 function actionCountdownText(value) {
   const remainingMs = new Date(value).getTime() - Date.now();
   if (!Number.isFinite(remainingMs) || remainingMs <= 0) {
-    return '0m 00s';
+    return '0m';
   }
 
-  const totalSeconds = Math.max(1, Math.ceil(remainingMs / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}m ${String(seconds).padStart(2, '0')}s`;
+  const totalMinutes = Math.max(1, Math.ceil(remainingMs / 60000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return hours > 0 ? `${hours}hr ${minutes}m` : `${minutes}m`;
 }
 
 function startActionCountdowns() {

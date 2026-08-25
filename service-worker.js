@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v39';
+const CACHE_VERSION = 'prem-predics-pwa-v40';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -49,7 +49,7 @@ const APP_SHELL = [
   './assets/js/game-card.js?v=20260825-alpha-ties',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js',
-  './assets/js/index-actions.js?v=20260825-member-count',
+  './assets/js/index-actions.js?v=20260825-hours-minutes',
   './assets/js/index-admin.js',
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
