@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v40';
+const CACHE_VERSION = 'prem-predics-pwa-v41';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -65,7 +65,7 @@ const APP_SHELL = [
   './assets/js/reset-password.js',
   './assets/js/site-auth.js',
   './assets/js/star-man-hub.js',
-  './assets/js/star-man.js?v=20260820-1',
+  './assets/js/star-man.js?v=20260825-late-scout-lock',
   './assets/js/statistics.js',
   './assets/js/supabase-client.js',
   './assets/js/ui-polish.js',

@@ -21,7 +21,7 @@ with canonical_card_descriptions (id, description) as (
     ('power_of_god', 'Valid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.'),
     ('power_hedge', 'Valid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek''s first KO time. Power of the Hedge and Curse of the Deleted Match cannot be played on this match while the other card is active.'),
     ('power_assist_king', 'Valid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
-    ('power_late_scout', 'Valid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team''s first match in the Gameweek kicks off.'),
+    ('power_late_scout', 'Valid for 1 Gameweek. Play before the final Gameweek match kicks off and before your currently selected Star Man''s team kicks off. After the normal Star Man deadline, you may choose or change your Star Man only while both the current selection''s team and the replacement player''s team have not kicked off. Once your selected Star Man''s match starts, that selection is final.'),
     ('power_snow', 'Valid for 1 Gameweek. Any Predicted match played in heavy snow scores DOUBLE points. Must be played at least 90 minutes before the gameweek''s first KO time.'),
     ('curse_hated', 'Valid for 1 Gameweek. Opponent must predict 8-2 in at least one game this Gameweek. Must be played at least 24 hours before the gameweek''s first KO time.'),
     ('curse_gambler', 'Valid for 1 Gameweek. For 3 games, roll a dice to determine the score predictions of an opponent. Must be played at least 24 hours before the gameweek''s first KO time.'),
@@ -261,6 +261,110 @@ drop trigger if exists active_card_effects_enforce_card_play_deadline on public.
 create trigger active_card_effects_enforce_card_play_deadline
 before insert on public.active_card_effects
 for each row execute function public.enforce_card_play_deadline();
+
+create or replace function public.player_gameweek_first_kickoff_at(
+  target_season_id uuid,
+  target_gameweek_id bigint,
+  target_player_id uuid
+)
+returns timestamptz
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select min(f.kickoff_at)
+  from public.fixtures f
+  join public.players p on p.id = target_player_id
+  where f.season_id = target_season_id
+    and f.gameweek_id = target_gameweek_id
+    and lower(coalesce(f.status, '')) <> 'postponed'
+    and (
+      p.team_id in (f.home_team_id, f.away_team_id)
+      or exists (
+        select 1
+        from public.player_team_assignments pta
+        where pta.player_id = target_player_id
+          and pta.season_id = target_season_id
+          and pta.team_id in (f.home_team_id, f.away_team_id)
+          and pta.starts_gameweek_id <= target_gameweek_id
+          and (pta.ends_gameweek_id is null or pta.ends_gameweek_id >= target_gameweek_id)
+      )
+    );
+$$;
+
+create or replace function public.enforce_late_scout_play_timing()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  target_effect_key text;
+  target_gameweek_id bigint;
+  current_star_man_player_id uuid;
+  current_star_man_kickoff timestamptz;
+begin
+  select cd.effect_key
+    into target_effect_key
+  from public.card_definitions cd
+  where cd.id = new.card_id;
+
+  if target_effect_key is distinct from 'power_late_scout' or public.is_admin() then
+    return new;
+  end if;
+
+  target_gameweek_id := coalesce(new.start_gameweek_id, new.gameweek_id);
+  if target_gameweek_id is null then
+    raise exception 'Power of the Late Scout requires an active Gameweek.';
+  end if;
+
+  if not exists (
+    select 1
+    from public.fixtures f
+    where f.season_id = new.season_id
+      and f.gameweek_id = target_gameweek_id
+      and lower(coalesce(f.status, '')) <> 'postponed'
+      and f.kickoff_at > now()
+  ) then
+    raise exception 'Power of the Late Scout cannot be played after the final match in this Gameweek has kicked off.';
+  end if;
+
+  select smp.player_id
+    into current_star_man_player_id
+  from public.star_man_picks smp
+  where smp.competition_id = new.competition_id
+    and smp.season_id = new.season_id
+    and smp.gameweek_id = target_gameweek_id
+    and smp.user_id = new.played_by_user_id
+    and smp.pick_slot = 'primary'
+  limit 1;
+
+  if current_star_man_player_id is not null then
+    current_star_man_kickoff := public.player_gameweek_first_kickoff_at(
+      new.season_id,
+      target_gameweek_id,
+      current_star_man_player_id
+    );
+
+    if current_star_man_kickoff is null then
+      raise exception 'Power of the Late Scout cannot be played because the selected Star Man has no eligible match in this Gameweek.';
+    end if;
+
+    if now() >= current_star_man_kickoff then
+      raise exception 'Power of the Late Scout cannot be played because your selected Star Man''s match has already kicked off.';
+    end if;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists active_card_effects_enforce_late_scout_play_timing on public.active_card_effects;
+
+create trigger active_card_effects_enforce_late_scout_play_timing
+before insert on public.active_card_effects
+for each row execute function public.enforce_late_scout_play_timing();
 
 create or replace function public.enforce_hedge_deleted_match_conflict()
 returns trigger

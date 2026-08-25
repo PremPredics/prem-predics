@@ -54,10 +54,13 @@ const state = {
   },
   pendingPlayerPreview: null,
   historyPage: 0,
+  deadlineRefreshTimer: null,
 };
 
 const HISTORY_PAGE_SIZE = 6;
 const AVAILABLE_PLAYER_REVEAL_LIMIT = 65;
+const LATE_SCOUT_SELECTED_MATCH_STARTED = "Power of the Late Scout can no longer change your Star Man because your selected Star Man's match has already kicked off.";
+const LATE_SCOUT_ALL_MATCHES_STARTED = 'Power of the Late Scout can no longer change your Star Man because every match in this Gameweek has kicked off.';
 
 const CURSE_ACTIVATION_MS = 24 * 60 * 60 * 1000;
 const effectNameOverrides = {
@@ -235,6 +238,38 @@ function isExistingPick(slot, player) {
   return Boolean(player) && String(state.existingPicks.get(slot) || '') === String(player.id);
 }
 
+function existingPickPlayer(slot) {
+  const playerId = state.existingPicks.get(slot);
+  return state.players.find((player) => String(player.id) === String(playerId || '')) || null;
+}
+
+function existingPrimaryPickHasKickedOff() {
+  const currentPlayer = existingPickPlayer('primary');
+  const fixture = currentPlayer ? playerFixture(currentPlayer) : null;
+  return Boolean(fixture?.kickoff_at && isPast(fixture.kickoff_at));
+}
+
+function hasUnstartedGameweekFixture() {
+  return state.fixtures.some((fixture) => (
+    String(fixture.status || '').toLowerCase() !== 'postponed'
+    && fixture.kickoff_at
+    && !isPast(fixture.kickoff_at)
+  ));
+}
+
+function lateScoutPrimaryLockReason() {
+  if (!ownEffect('power_late_scout')) {
+    return '';
+  }
+  if (existingPrimaryPickHasKickedOff()) {
+    return LATE_SCOUT_SELECTED_MATCH_STARTED;
+  }
+  if (!hasUnstartedGameweekFixture()) {
+    return LATE_SCOUT_ALL_MATCHES_STARTED;
+  }
+  return '';
+}
+
 function canSearchSlot(slot) {
   const gameweekLocked = isPast(state.activeGameweek?.star_man_locks_at);
   if (!gameweekLocked) {
@@ -245,17 +280,26 @@ function canSearchSlot(slot) {
     return Boolean(ownEffect('super_duo'));
   }
 
-  return Boolean(ownEffect('power_late_scout') || ownEffect('super_sub'));
+  const lateScout = ownEffect('power_late_scout');
+  if (lateScout && !lateScoutPrimaryLockReason()) {
+    return true;
+  }
+
+  return Boolean(ownEffect('super_sub'));
 }
 
 function applySlotSearchState(slot) {
   const { input, results, button } = slotElements(slot);
   const canSearch = canSearchSlot(slot);
+  const lateScoutLockReason = slot === 'primary' && !canSearch ? lateScoutPrimaryLockReason() : '';
 
   if (input) {
     input.disabled = !canSearch;
     input.readOnly = !canSearch;
-    input.placeholder = canSearch ? 'Search player' : 'Star Man locked';
+    input.placeholder = canSearch
+      ? 'Search player'
+      : (lateScoutLockReason ? 'Selected Star Man is locked' : 'Star Man locked');
+    input.title = lateScoutLockReason || (canSearch ? '' : 'Star Man locked');
   }
 
   if (!canSearch && results) {
@@ -265,6 +309,10 @@ function applySlotSearchState(slot) {
 
   if (!canSearch && button) {
     button.disabled = true;
+  }
+
+  if (lateScoutLockReason) {
+    setMessage(slot, lateScoutLockReason, 'error');
   }
 
   return canSearch;
@@ -676,7 +724,10 @@ function hasMicrostateNationality(player) {
 function playerFixture(player) {
   return state.fixtures.find((fixture) => (
     String(fixture.status || '').toLowerCase() !== 'postponed'
-    && (fixture.home_team_id === player.team_id || fixture.away_team_id === player.team_id)
+    && (
+      String(fixture.home_team_id) === String(player.team_id)
+      || String(fixture.away_team_id) === String(player.team_id)
+    )
   ));
 }
 
@@ -706,8 +757,20 @@ function deadlineCheck(player, slot) {
   }
 
   const lateScout = ownEffect('power_late_scout');
-  if (lateScout && fixture && !isPast(fixture.kickoff_at)) {
-    return { allowed: true, reason: '', sourceCardEffectId: lateScout.id };
+  if (lateScout) {
+    const currentPickLockReason = lateScoutPrimaryLockReason();
+    if (!currentPickLockReason && !isPast(fixture.kickoff_at)) {
+      return { allowed: true, reason: '', sourceCardEffectId: lateScout.id };
+    }
+    if (currentPickLockReason) {
+      return { allowed: false, reason: currentPickLockReason, sourceCardEffectId: lateScout.id };
+    }
+    return { allowed: false, reason: "this player's team has already kicked off", sourceCardEffectId: lateScout.id };
+  }
+
+  const superSub = ownEffect('super_sub');
+  if (superSub && !isPast(fixture.kickoff_at)) {
+    return { allowed: true, reason: '', sourceCardEffectId: superSub.id };
   }
 
   return { allowed: false, reason: 'Star Man deadline has passed.', sourceCardEffectId: null };
@@ -1552,6 +1615,12 @@ async function clearPick(slot) {
     return;
   }
 
+  if (slot === 'primary' && existingPrimaryPickHasKickedOff()) {
+    setMessage(slot, "Your selected Star Man's match has already kicked off, so that pick can no longer be removed.", 'error');
+    applySlotSearchState(slot);
+    return;
+  }
+
   setMessage(slot, slot === 'super_duo' ? 'Clearing Super Duo...' : 'Clearing Star Man...', 'info');
 
   const { error } = await supabase
@@ -1663,6 +1732,11 @@ async function boot() {
     renderStarManHistory();
     renderSearch('primary');
     renderSearch('super_duo');
+
+    state.deadlineRefreshTimer = window.setInterval(() => {
+      applySlotSearchState('primary');
+      applySlotSearchState('super_duo');
+    }, 15000);
   } catch (error) {
     leagueTitle.textContent = 'Star Man unavailable';
     gameweekSummary.textContent = error.message || 'Could not load Star Man page.';

@@ -6949,7 +6949,7 @@ const cardDescriptions = {
   "Power of God": "Power of God\n\nValid for 1 Gameweek. Change ONE match prediction before the start of the 2nd Half.",
   "Power of the Hedge": "Power of the Hedge\n\nValid for 1 Gameweek. Predict TWO scorelines for one match, best result counts. Must be played at least 90 minutes before the gameweek's first KO time. Cannot be played on a fixture while Curse of the Deleted Match is active.",
   "Power of the Assist King": "Power of the Assist King\n\nValid for 1 Gameweek. Star Man assists score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
-  "Power of the Late Scout": "Power of the Late Scout\n\nValid for 1 Gameweek. Play at any time. Choose your Star Man after line-ups are announced; each player remains available until their team's first match in the Gameweek kicks off.",
+  "Power of the Late Scout": "Power of the Late Scout\n\nValid for 1 Gameweek. Play before the final Gameweek match kicks off and before your currently selected Star Man's team kicks off. After the normal Star Man deadline, you may choose or change your Star Man only while both the current selection's team and the replacement player's team have not kicked off. Once your selected Star Man's match starts, that selection is final.",
   "Power Of The Early Bath": "Power Of The Early Bath\n\nValid for 1 Gameweek. Predictions for fixtures marked as having a red card in the first 15 minutes score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.",
 
   "Curse of the Hated": "Curse of the Hated\n\nValid for 1 Gameweek. Opponent must predict 8-2 in at least one game this Gameweek. Must be played at least 24 hours before the gameweek's first KO time.",
@@ -9848,6 +9848,72 @@ async function assertHedgeDeletedMatchCompatibility(rule, fixtureId, targetUserI
 }
 
 async function assertLateScoutCanBePlayed(activeGameweek, fixtures, runtimeContext, client) {
+  const nowMs = Date.now();
+  const scheduledFixtures = (fixtures || []).filter((fixture) => (
+    String(fixture.status || '').toLowerCase() !== 'postponed'
+    && fixture.kickoff_at
+    && Number.isFinite(new Date(fixture.kickoff_at).getTime())
+  ));
+
+  if (!scheduledFixtures.some((fixture) => new Date(fixture.kickoff_at).getTime() > nowMs)) {
+    throw new Error('Power of the Late Scout cannot be played after the final match in this Gameweek has kicked off.');
+  }
+
+  const { data: currentPick, error: pickError } = await client
+    .from('star_man_picks')
+    .select('player_id')
+    .eq('competition_id', runtimeContext.league.id)
+    .eq('season_id', runtimeContext.league.season_id)
+    .eq('gameweek_id', activeGameweek.gameweek_id)
+    .eq('user_id', runtimeContext.user.id)
+    .eq('pick_slot', 'primary')
+    .maybeSingle();
+
+  if (pickError) {
+    throw pickError;
+  }
+  if (!currentPick?.player_id) {
+    return true;
+  }
+
+  const [playerResult, assignmentResult] = await Promise.all([
+    client
+      .from('players')
+      .select('team_id')
+      .eq('id', currentPick.player_id)
+      .single(),
+    client
+      .from('player_team_assignments')
+      .select('team_id')
+      .eq('player_id', currentPick.player_id)
+      .eq('season_id', runtimeContext.league.season_id)
+      .lte('starts_gameweek_id', activeGameweek.gameweek_id)
+      .or(`ends_gameweek_id.is.null,ends_gameweek_id.gte.${activeGameweek.gameweek_id}`),
+  ]);
+
+  if (playerResult.error) {
+    throw playerResult.error;
+  }
+  if (assignmentResult.error) {
+    throw assignmentResult.error;
+  }
+
+  const selectedTeamIds = new Set([
+    playerResult.data?.team_id,
+    ...(assignmentResult.data || []).map((assignment) => assignment.team_id),
+  ].filter(Boolean).map(String));
+  const selectedFixture = scheduledFixtures.find((fixture) => (
+    selectedTeamIds.has(String(fixture.home_team_id))
+    || selectedTeamIds.has(String(fixture.away_team_id))
+  ));
+
+  if (!selectedFixture) {
+    throw new Error('Power of the Late Scout cannot be played because your selected Star Man has no eligible match in this Gameweek.');
+  }
+  if (new Date(selectedFixture.kickoff_at).getTime() <= nowMs) {
+    throw new Error("Power of the Late Scout cannot be played because your selected Star Man's match has already kicked off.");
+  }
+
   return true;
 }
 
