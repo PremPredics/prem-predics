@@ -5,6 +5,8 @@ import { supabase } from './supabase-client.js';
 const panel = document.querySelector('[data-home-action-panel]');
 const list = document.querySelector('[data-home-action-list]');
 const HOME_ACTION_STYLE_ID = 'prem-predics-home-action-style';
+let actionCountdownTimer = null;
+let deadlineRefreshQueued = false;
 
 function injectHomeActionStyles() {
   if (document.getElementById(HOME_ACTION_STYLE_ID)) {
@@ -65,11 +67,31 @@ function injectHomeActionStyles() {
       white-space: nowrap !important;
     }
 
+    .home-action-league-details {
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 1px !important;
+    }
+
     .home-action-league-name {
       max-width: 100% !important;
       color: #fff !important;
       font-weight: 1000 !important;
       line-height: 1.05 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+
+    .home-action-member-count {
+      max-width: 100% !important;
+      color: rgba(237, 233, 254, 0.72) !important;
+      font-size: 9px !important;
+      font-weight: 750 !important;
+      line-height: 1 !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
       white-space: nowrap !important;
@@ -118,6 +140,7 @@ function injectHomeActionStyles() {
       justify-content: center !important;
       align-items: center !important;
       gap: 4px !important;
+      height: 58px !important;
       min-height: 58px !important;
       padding: 8px 6px !important;
       border-radius: 11px !important;
@@ -129,6 +152,15 @@ function injectHomeActionStyles() {
         inset 0 1px 0 rgba(255,255,255,0.16) !important;
     }
 
+    .home-action-countdown {
+      color: #fde68a !important;
+      font-size: 9px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      text-shadow: 0 0 8px rgba(250, 204, 21, 0.34) !important;
+    }
+
     @media (max-width: 768px) {
       .home-action-league-pill {
         gap: 8px !important;
@@ -137,6 +169,10 @@ function injectHomeActionStyles() {
 
       .home-action-league-name {
         font-size: 13.5px !important;
+      }
+
+      .home-action-member-count {
+        font-size: 8.5px !important;
       }
 
       .home-action-gameweek {
@@ -156,6 +192,7 @@ function injectHomeActionStyles() {
       }
 
       .home-action-status-line {
+        height: 54px !important;
         min-height: 54px !important;
         padding: 7px 3px !important;
       }
@@ -164,6 +201,10 @@ function injectHomeActionStyles() {
       .home-action-status {
         font-size: 10.5px !important;
       }
+
+      .home-action-countdown {
+        font-size: 8.5px !important;
+      }
     }
   `;
   document.head.appendChild(style);
@@ -171,6 +212,64 @@ function injectHomeActionStyles() {
 
 function isPast(value) {
   return value ? Date.now() >= new Date(value).getTime() : false;
+}
+
+function earliestDeadline(fixtures) {
+  return fixtures
+    .map((fixture) => ({
+      value: fixture.prediction_locks_at,
+      time: new Date(fixture.prediction_locks_at).getTime(),
+    }))
+    .filter((deadline) => deadline.value && Number.isFinite(deadline.time))
+    .sort((a, b) => a.time - b.time)[0]?.value || null;
+}
+
+function actionCountdownText(value) {
+  const remainingMs = new Date(value).getTime() - Date.now();
+  if (!Number.isFinite(remainingMs) || remainingMs <= 0) {
+    return '0m 00s';
+  }
+
+  const totalSeconds = Math.max(1, Math.ceil(remainingMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}m ${String(seconds).padStart(2, '0')}s`;
+}
+
+function startActionCountdowns() {
+  if (actionCountdownTimer) {
+    window.clearInterval(actionCountdownTimer);
+    actionCountdownTimer = null;
+  }
+
+  function update() {
+    let deadlineReached = false;
+    const countdowns = list.querySelectorAll('[data-home-action-deadline]');
+    countdowns.forEach((countdown) => {
+      const deadline = countdown.dataset.homeActionDeadline;
+      const remainingMs = new Date(deadline).getTime() - Date.now();
+      countdown.textContent = actionCountdownText(deadline);
+      deadlineReached ||= Number.isFinite(remainingMs) && remainingMs <= 0;
+    });
+
+    if (deadlineReached && !deadlineRefreshQueued) {
+      deadlineRefreshQueued = true;
+      if (actionCountdownTimer) {
+        window.clearInterval(actionCountdownTimer);
+        actionCountdownTimer = null;
+      }
+      window.setTimeout(() => {
+        deadlineRefreshQueued = false;
+        boot();
+      }, 250);
+    }
+
+    return countdowns.length;
+  }
+
+  if (update()) {
+    actionCountdownTimer = window.setInterval(update, 1000);
+  }
 }
 
 function normaliseActionState(state) {
@@ -183,7 +282,9 @@ function normaliseActionState(state) {
   return ['complete', 'required', 'na'].includes(state) ? state : 'na';
 }
 
-function statusMarkup(state) {
+function statusMarkup(result) {
+  const state = result && typeof result === 'object' ? result.state : result;
+  const deadline = result && typeof result === 'object' ? result.deadline : null;
   const actionState = normaliseActionState(state);
   const labels = {
     complete: 'Completed',
@@ -191,14 +292,21 @@ function statusMarkup(state) {
     na: 'N/A',
   };
 
-  return `<span class="home-action-status ${actionState}">${labels[actionState]}</span>`;
+  const hasCountdown = actionState === 'required'
+    && deadline
+    && Number.isFinite(new Date(deadline).getTime());
+  const countdownMarkup = hasCountdown
+    ? `<small class="home-action-countdown" data-home-action-deadline="${escapeHtml(deadline)}">${escapeHtml(actionCountdownText(deadline))}</small>`
+    : '';
+
+  return `<span class="home-action-status ${actionState}">${labels[actionState]}</span>${countdownMarkup}`;
 }
 
-function actionStatus(label, state) {
+function actionStatus(label, result) {
   return `
     <span class="home-action-status-line">
       <strong>${escapeHtml(label)}:</strong>
-      ${statusMarkup(state)}
+      ${statusMarkup(result)}
     </span>
   `;
 }
@@ -207,6 +315,14 @@ function hasSavedGameCardValue(row) {
   return row?.predicted_value !== null
     && row?.predicted_value !== undefined
     && String(row.predicted_value) !== '';
+}
+
+function memberCountsByLeague(memberRows) {
+  return (memberRows || []).reduce((counts, member) => {
+    const key = String(member.competition_id);
+    counts.set(key, (counts.get(key) || 0) + 1);
+    return counts;
+  }, new Map());
 }
 
 async function predictionStatus(userId, league, activeGameweek) {
@@ -223,27 +339,31 @@ async function predictionStatus(userId, league, activeGameweek) {
   const playableFixtures = (fixtures || []).filter((fixture) => fixture.status !== 'postponed');
   const openFixtures = playableFixtures.filter((fixture) => !isPast(fixture.prediction_locks_at));
   if (!openFixtures.length) {
-    return true;
+    return { state: 'complete', deadline: null };
   }
 
-  const { count, error } = await supabase
+  const { data, error } = await supabase
     .from('predictions')
-    .select('fixture_id', { count: 'exact', head: true })
+    .select('fixture_id')
     .eq('competition_id', league.id)
     .eq('user_id', userId)
     .eq('prediction_slot', 'primary')
-    .in('fixture_id', playableFixtures.map((fixture) => fixture.id));
+    .in('fixture_id', openFixtures.map((fixture) => fixture.id));
 
   if (error) {
     throw error;
   }
 
-  return Number(count || 0) >= playableFixtures.length;
+  const predictedFixtureIds = new Set((data || []).map((prediction) => String(prediction.fixture_id)));
+  const missingOpenFixtures = openFixtures.filter((fixture) => !predictedFixtureIds.has(String(fixture.id)));
+  return missingOpenFixtures.length
+    ? { state: 'required', deadline: earliestDeadline(missingOpenFixtures) }
+    : { state: 'complete', deadline: null };
 }
 
 async function starManStatus(userId, league, activeGameweek) {
   if (isPast(activeGameweek.star_man_locks_at)) {
-    return true;
+    return { state: 'complete', deadline: null };
   }
 
   const { data, error } = await supabase
@@ -259,12 +379,14 @@ async function starManStatus(userId, league, activeGameweek) {
     throw error;
   }
 
-  return Boolean(data);
+  return data
+    ? { state: 'complete', deadline: null }
+    : { state: 'required', deadline: activeGameweek.star_man_locks_at };
 }
 
 async function gameCardStatus(userId, league, activeGameweek) {
   if (!activeGameweek) {
-    return 'na';
+    return { state: 'na', deadline: null };
   }
 
   try {
@@ -286,7 +408,7 @@ async function gameCardStatus(userId, league, activeGameweek) {
     ]);
 
     if (gameweekError || roundError) {
-      return 'na';
+      return { state: 'na', deadline: null };
     }
 
     const numberById = new Map((gameweeks || []).map((gameweek) => [String(gameweek.id), Number(gameweek.number)]));
@@ -301,7 +423,7 @@ async function gameCardStatus(userId, league, activeGameweek) {
     });
 
     if (!activeRound) {
-      return 'na';
+      return { state: 'na', deadline: null };
     }
 
     const { data, error } = await supabase
@@ -313,20 +435,22 @@ async function gameCardStatus(userId, league, activeGameweek) {
       .maybeSingle();
 
     if (error) {
-      return 'na';
+      return { state: 'na', deadline: null };
     }
 
     if (hasSavedGameCardValue(data)) {
-      return 'complete';
+      return { state: 'complete', deadline: null };
     }
 
-    return isPast(activeGameweek.star_man_locks_at) ? 'na' : 'required';
+    return isPast(activeGameweek.star_man_locks_at)
+      ? { state: 'na', deadline: null }
+      : { state: 'required', deadline: activeGameweek.star_man_locks_at };
   } catch {
-    return 'na';
+    return { state: 'na', deadline: null };
   }
 }
 
-async function leagueRow(userId, league) {
+async function leagueRow(userId, league, memberCount) {
   const { activeGameweek } = await loadActiveGameweek(league);
   if (!activeGameweek) {
     return '';
@@ -337,12 +461,18 @@ async function leagueRow(userId, league) {
     starManStatus(userId, league, activeGameweek),
     gameCardStatus(userId, league, activeGameweek),
   ]);
+  const memberCountMarkup = Number.isInteger(memberCount)
+    ? `<small class="home-action-member-count">${memberCount} ${memberCount === 1 ? 'user' : 'users'}</small>`
+    : '';
 
   return `
     <div class="home-action-row">
       <div class="home-action-league-pill">
         <span class="home-action-league-copy">
-          <strong class="home-action-league-name">${escapeHtml(league.name)}</strong>
+          <span class="home-action-league-details">
+            <strong class="home-action-league-name">${escapeHtml(league.name)}</strong>
+            ${memberCountMarkup}
+          </span>
           <small class="home-action-gameweek">GW${escapeHtml(activeGameweek.gameweek_number)}</small>
         </span>
         <a class="home-action-open" href="${leagueUrl('league.html', league.id)}">Enter</a>
@@ -380,7 +510,17 @@ async function boot() {
   }
 
   const leagues = data.map((row) => normaliseNested(row.competitions)).filter(Boolean);
-  const rows = (await Promise.all(leagues.map((league) => leagueRow(user.id, league))))
+  const leagueIds = leagues.map((league) => league.id);
+  const { data: memberRows, error: memberError } = await supabase
+    .from('competition_members')
+    .select('competition_id')
+    .in('competition_id', leagueIds);
+  const memberCounts = memberError
+    ? new Map()
+    : memberCountsByLeague(memberRows);
+  const rows = (await Promise.all(leagues.map((league) => (
+    leagueRow(user.id, league, memberCounts.get(String(league.id)))
+  ))))
     .filter(Boolean);
 
   if (!rows.length) {
@@ -389,6 +529,7 @@ async function boot() {
 
   list.innerHTML = rows.join('');
   panel.hidden = false;
+  startActionCountdowns();
 }
 
 boot().catch(() => {

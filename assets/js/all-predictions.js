@@ -172,6 +172,16 @@ function gameweekHasLockedPredictions(gameweek) {
   return fixtures.some((fixture) => isPast(fixture.prediction_locks_at));
 }
 
+function predictionScoreText(prediction, locked, canViewPrediction) {
+  if (!canViewPrediction) {
+    return '-';
+  }
+  if (!prediction) {
+    return locked ? 'X-X' : '-';
+  }
+  return `${prediction.home_goals}-${prediction.away_goals}`;
+}
+
 function initialGameweekIndex(activeGameweek) {
   const activeIndex = state.gameweeks.findIndex((gameweek) => (
     String(gameweek.gameweek_id) === String(activeGameweek?.gameweek_id)
@@ -684,11 +694,7 @@ async function renderPredictionRows(gameweek) {
       : [];
     state.visibleEffectsByFixture.set(`${fixture.id}:curse`, curses);
     state.visibleEffectsByFixture.set(`${fixture.id}:power`, powers);
-    const score = !canViewPrediction
-      ? '-'
-      : prediction
-        ? `${prediction.home_goals}-${prediction.away_goals}`
-        : 'X-X';
+    const score = predictionScoreText(prediction, locked, canViewPrediction);
     const actualScore = result
       ? `${result.home_goals}-${result.away_goals}`
       : '-';

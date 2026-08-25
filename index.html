@@ -310,12 +310,32 @@ header img:hover {
   white-space: nowrap;
 }
 
+.home-action-league-details {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
 .home-action-league-name {
   max-width: 100%;
   color: #fff;
   font-size: 15px;
   font-weight: 1000;
   line-height: 1.05;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-action-member-count {
+  max-width: 100%;
+  color: rgba(237, 233, 254, 0.72);
+  font-size: 9px;
+  font-weight: 750;
+  line-height: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -364,6 +384,7 @@ header img:hover {
   justify-content: center;
   align-items: center;
   gap: 4px;
+  height: 58px;
   padding: 8px 6px;
   border-radius: 11px;
   background: #8a00c4;
@@ -374,6 +395,15 @@ header img:hover {
   box-shadow:
     0 0 15px rgba(218, 0, 255, 0.46),
     inset 0 1px 0 rgba(255,255,255,0.16);
+}
+
+.home-action-countdown {
+  color: #fde68a;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.34);
 }
 
 .home-action-status-line strong {
@@ -616,6 +646,10 @@ footer {
     font-size: 13.5px;
   }
 
+  .home-action-member-count {
+    font-size: 8.5px;
+  }
+
   .home-action-gameweek {
     font-size: 10.5px;
     padding: 2px 6px;
@@ -632,6 +666,7 @@ footer {
   }
 
   .home-action-status-line {
+    height: 54px;
     min-height: 54px;
     gap: 3px;
     padding: 7px 3px;
@@ -643,6 +678,10 @@ footer {
 
   .home-action-status {
     font-size: 10.5px;
+  }
+
+  .home-action-countdown {
+    font-size: 8.5px;
   }
 
   .menu {
@@ -862,7 +901,7 @@ footer {
 </script>
 <script type="module" src="assets/js/site-auth.js"></script>
 <script type="module" src="assets/js/index-admin.js"></script>
-<script type="module" src="assets/js/index-actions.js?v=16"></script>
+<script type="module" src="assets/js/index-actions.js?v=20260825-member-count"></script>
 
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
