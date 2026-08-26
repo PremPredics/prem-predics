@@ -26,6 +26,12 @@ const state = {
   members: new Map(),
   roundStandings: new Map(),
   weekScores: new Map(),
+  underdogFixtures: [],
+  underdogTeams: new Map(),
+  underdogPositions: new Map(),
+  underdogPositionGameweek: null,
+  underdogDataError: '',
+  underdogMatchesOpenRoundIds: new Set(),
   historyOpen: false,
   selectedHistoryRoundId: null,
   activeLeaderboardRoundIds: new Set(),
@@ -510,6 +516,61 @@ function renderRows(round) {
   return `<div class="gameweek-list">${rows}</div>`;
 }
 
+function renderUnderdogMatches(round) {
+  if (roundStatus(round) !== 'active' || !isUnderdogRound(round)) {
+    return '';
+  }
+
+  const roundId = String(round.id);
+  const open = state.underdogMatchesOpenRoundIds.has(roundId);
+  const activeNumber = Number(state.activeGameweek?.gameweek_number || 0);
+  const positionNote = state.underdogPositionGameweek
+    ? `League positions after GW${state.underdogPositionGameweek}, entering GW${activeNumber}.`
+    : `Opening league positions for GW${activeNumber}.`;
+
+  let panel = '';
+  if (open) {
+    if (state.underdogDataError) {
+      panel = `<div class="underdog-match-panel"><p class="state-text">${escapeHtml(state.underdogDataError)}</p></div>`;
+    } else {
+      panel = `
+        <div class="underdog-match-panel">
+          <div class="underdog-match-heading">
+            <h3>GW${escapeHtml(activeNumber)} Matches</h3>
+            <p>${escapeHtml(positionNote)}</p>
+          </div>
+          <div class="underdog-fixture-list">
+            ${state.underdogFixtures.map((fixture) => {
+              const homePosition = state.underdogPositions.get(String(fixture.home_team_id));
+              const awayPosition = state.underdogPositions.get(String(fixture.away_team_id));
+              const kickoff = formatFixtureKickoff(fixture.kickoff_at);
+              return `
+                <article class="underdog-fixture-row">
+                  <span class="underdog-position">${escapeHtml(ordinalRank(homePosition))}</span>
+                  <strong class="underdog-team underdog-home-team">${escapeHtml(underdogTeamName(fixture.home_team_id))}</strong>
+                  <span class="underdog-versus" aria-label="versus">–</span>
+                  <strong class="underdog-team underdog-away-team">${escapeHtml(underdogTeamName(fixture.away_team_id))}</strong>
+                  <span class="underdog-position">${escapeHtml(ordinalRank(awayPosition))}</span>
+                  ${kickoff ? `<time datetime="${escapeHtml(fixture.kickoff_at)}">${escapeHtml(kickoff)}</time>` : ''}
+                </article>
+              `;
+            }).join('') || '<p class="state-text">No playable fixtures were found for this Gameweek.</p>'}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  return `
+    <section class="underdog-match-browser">
+      <button class="underdog-matches-toggle" type="button" data-toggle-underdog-matches="${escapeHtml(round.id)}" aria-expanded="${open ? 'true' : 'false'}">
+        ${open ? 'Hide Matches' : 'View Matches'}
+      </button>
+      ${panel}
+    </section>
+  `;
+}
+
 function renderRound(round) {
   const definition = normaliseNested(round.card_definitions);
   const cardName = definition?.name || 'Game Card';
@@ -529,10 +590,101 @@ function renderRound(round) {
           <p>${escapeHtml(cardInstruction(cardName))}</p>
         </div>
       </div>
+      ${renderUnderdogMatches(round)}
       ${renderRows(round)}
       ${status === 'active' ? renderActiveLeaderboard(round) : ''}
     </section>
   `;
+}
+
+function isUnderdogRound(round) {
+  const definition = normaliseNested(round?.card_definitions);
+  return round?.card_id === 'game_underdog' || definition?.name === 'Game of The Underdog';
+}
+
+function underdogTeamName(teamId) {
+  return state.underdogTeams.get(String(teamId))?.name || 'Team';
+}
+
+function formatFixtureKickoff(value) {
+  if (!value) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(value));
+}
+
+async function loadUnderdogMatchData() {
+  state.underdogFixtures = [];
+  state.underdogTeams = new Map();
+  state.underdogPositions = new Map();
+  state.underdogPositionGameweek = null;
+  state.underdogDataError = '';
+
+  const activeUnderdogRound = state.rounds.find((round) => roundStatus(round) === 'active' && isUnderdogRound(round));
+  if (!activeUnderdogRound || !state.activeGameweek) {
+    return;
+  }
+
+  const activeNumber = Number(state.activeGameweek.gameweek_number);
+  const previousGameweek = [...state.gameweeks]
+    .filter((gameweek) => Number(gameweek.gameweek_number) < activeNumber)
+    .sort((a, b) => Number(b.gameweek_number) - Number(a.gameweek_number))[0] || null;
+  const positionGameweek = previousGameweek || state.activeGameweek;
+
+  const [fixtureResponse, teamResponse, standingResponse] = await Promise.all([
+    supabase
+      .from('fixtures')
+      .select('id, gameweek_id, home_team_id, away_team_id, kickoff_at, status, sort_order')
+      .eq('season_id', state.league.season_id)
+      .eq('gameweek_id', state.activeGameweek.gameweek_id)
+      .order('kickoff_at', { ascending: true })
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('teams')
+      .select('id, name')
+      .order('name', { ascending: true }),
+    supabase
+      .from('team_gameweek_computed_standings')
+      .select('team_id, team_name, league_position')
+      .eq('season_id', state.league.season_id)
+      .eq('gameweek_id', positionGameweek.gameweek_id)
+      .order('league_position', { ascending: true }),
+  ]);
+
+  const firstError = fixtureResponse.error || teamResponse.error || standingResponse.error;
+  if (firstError) {
+    state.underdogDataError = firstError.message || 'Could not load the Gameweek matches.';
+    return;
+  }
+
+  state.underdogFixtures = (fixtureResponse.data || [])
+    .filter((fixture) => String(fixture.status || '').toLowerCase() !== 'postponed');
+  state.underdogTeams = new Map((teamResponse.data || []).map((team) => [String(team.id), team]));
+
+  const fixtureTeamIds = new Set(state.underdogFixtures
+    .flatMap((fixture) => [fixture.home_team_id, fixture.away_team_id])
+    .filter(Boolean)
+    .map(String));
+  const standings = (standingResponse.data || [])
+    .filter((standing) => fixtureTeamIds.has(String(standing.team_id)))
+    .sort((a, b) => (
+      Number(a.league_position) - Number(b.league_position)
+      || String(a.team_name || '').localeCompare(String(b.team_name || ''))
+    ));
+
+  state.underdogPositions = new Map(standings.map((standing, index) => [
+    String(standing.team_id),
+    Number(standing.league_position) || index + 1,
+  ]));
+  state.underdogPositionGameweek = previousGameweek?.gameweek_number || null;
 }
 
 function weeklyRankLookup(round) {
@@ -691,7 +843,7 @@ function renderActiveLeaderboard(round) {
   const open = state.activeLeaderboardRoundIds.has(String(round.id));
   return `
     <section class="game-history-launch">
-      <button class="history-toggle-btn" type="button" data-toggle-active-leaderboard="${escapeHtml(round.id)}" aria-expanded="${open ? 'true' : 'false'}">
+      <button class="history-toggle-btn active-leaderboard-toggle" type="button" data-toggle-active-leaderboard="${escapeHtml(round.id)}" aria-expanded="${open ? 'true' : 'false'}">
         ${open ? 'Hide' : 'View'} Current Game Card Leaderboard
       </button>
       ${open ? renderActiveLeaderboardDetail(round) : ''}
@@ -866,6 +1018,18 @@ function renderRounds() {
     });
   });
 
+  content.querySelectorAll('[data-toggle-underdog-matches]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const roundId = String(button.dataset.toggleUnderdogMatches || '');
+      if (state.underdogMatchesOpenRoundIds.has(roundId)) {
+        state.underdogMatchesOpenRoundIds.delete(roundId);
+      } else {
+        state.underdogMatchesOpenRoundIds.add(roundId);
+      }
+      renderRounds();
+    });
+  });
+
   content.querySelector('[data-open-game-history]')?.addEventListener('click', () => {
     state.historyOpen = true;
     state.selectedHistoryRoundId = null;
@@ -898,6 +1062,7 @@ function refreshVisibleGameCardData() {
     refreshPromise = Promise.all([
       loadPredictionsAndResults(),
       loadHistoryData(),
+      loadUnderdogMatchData(),
     ])
       .then(() => renderRounds())
       .catch((error) => {
@@ -1055,8 +1220,11 @@ async function boot() {
     }
 
     await loadRounds();
-    await loadPredictionsAndResults();
-    await loadHistoryData();
+    await Promise.all([
+      loadPredictionsAndResults(),
+      loadHistoryData(),
+      loadUnderdogMatchData(),
+    ]);
     bootComplete = true;
     renderRounds();
   } catch (error) {

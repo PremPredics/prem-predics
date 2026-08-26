@@ -18,6 +18,8 @@ const state = {
   fixtures: [],
   players: [],
   rosterPlayers: [],
+  playerStatPlayers: [],
+  playerTeamAssignments: [],
   cards: [],
   rosterQueue: [],
 };
@@ -66,6 +68,73 @@ function gameweekNumber(gameweekId) {
   return state.gameweeks.find((gameweek) => String(gameweek.id) === String(gameweekId))?.number || '';
 }
 
+function playerTeamAssignments(playerId) {
+  return state.playerTeamAssignments
+    .filter((assignment) => String(assignment.player_id) === String(playerId))
+    .sort((a, b) => Number(gameweekNumber(a.starts_gameweek_id)) - Number(gameweekNumber(b.starts_gameweek_id)));
+}
+
+function assignmentCoversGameweek(assignment, gameweekId) {
+  const targetValue = gameweekNumber(gameweekId);
+  const startValue = gameweekNumber(assignment.starts_gameweek_id);
+  const hasOpenEnd = assignment.ends_gameweek_id === null || assignment.ends_gameweek_id === undefined;
+  const endValue = hasOpenEnd ? null : gameweekNumber(assignment.ends_gameweek_id);
+
+  if (targetValue === '' || startValue === '' || (!hasOpenEnd && endValue === '')) {
+    return false;
+  }
+
+  const targetNumber = Number(targetValue);
+  const startNumber = Number(startValue);
+  const endNumber = hasOpenEnd ? Number.POSITIVE_INFINITY : Number(endValue);
+
+  return Number.isFinite(targetNumber)
+    && Number.isFinite(startNumber)
+    && startNumber <= targetNumber
+    && endNumber >= targetNumber;
+}
+
+function assignedTeamIdForGameweek(playerId, gameweekId) {
+  const assignment = playerTeamAssignments(playerId)
+    .filter((item) => assignmentCoversGameweek(item, gameweekId))
+    .sort((a, b) => Number(gameweekNumber(b.starts_gameweek_id)) - Number(gameweekNumber(a.starts_gameweek_id)))[0];
+
+  return assignment?.team_id || null;
+}
+
+function playerTeamIdForFixture(player, fixture) {
+  if (!player || !fixture) {
+    return null;
+  }
+
+  const fixtureTeamIds = [String(fixture.home_team_id), String(fixture.away_team_id)];
+  const assignments = playerTeamAssignments(player.id);
+  const assignedTeamId = assignedTeamIdForGameweek(player.id, fixture.gameweek_id);
+  if (assignments.length) {
+    return assignedTeamId && fixtureTeamIds.includes(String(assignedTeamId))
+      ? assignedTeamId
+      : null;
+  }
+
+  if (fixtureTeamIds.includes(String(player.team_id))) {
+    return player.team_id;
+  }
+
+  return null;
+}
+
+function playerTeamHistoryLabel(player) {
+  const teamIds = playerTeamAssignments(player.id)
+    .map((assignment) => assignment.team_id)
+    .filter((teamId, index, values) => values.findIndex((value) => String(value) === String(teamId)) === index);
+
+  if (player.team_id && !teamIds.some((teamId) => String(teamId) === String(player.team_id))) {
+    teamIds.push(player.team_id);
+  }
+
+  return teamIds.map(teamName).join(' → ') || teamName(player.team_id);
+}
+
 function fixtureLabel(fixture) {
   return `GW${gameweekNumber(fixture.gameweek_id)} - ${teamName(fixture.home_team_id)} v ${teamName(fixture.away_team_id)}`;
 }
@@ -92,6 +161,7 @@ function playerSearchText(player) {
     player.surname,
     player.nationality,
     teamName(player.team_id),
+    playerTeamHistoryLabel(player),
   ].filter(Boolean).join(' '));
 }
 
@@ -221,6 +291,23 @@ async function loadReferenceData() {
   state.players = playerResponse.data || [];
   state.rosterPlayers = rosterPlayerResponse.data || [];
   state.cards = (cardResponse.data || []).filter((card) => card.deck_type === 'game' || card.id === 'super_pen');
+
+  const { data: playerTeamAssignmentsData, error: playerTeamAssignmentsError } = await supabase
+    .from('player_team_assignments')
+    .select('season_id, player_id, team_id, starts_gameweek_id, ends_gameweek_id')
+    .eq('season_id', state.season.id)
+    .range(0, 9999);
+
+  if (playerTeamAssignmentsError) {
+    throw playerTeamAssignmentsError;
+  }
+
+  state.playerTeamAssignments = playerTeamAssignmentsData || [];
+  const assignedPlayerIds = new Set(state.playerTeamAssignments.map((assignment) => String(assignment.player_id)));
+  state.playerStatPlayers = state.rosterPlayers.filter((player) => (
+    assignedPlayerIds.has(String(player.id))
+    || state.currentSeasonTeamIds.has(String(player.team_id))
+  ));
 }
 
 function showSection(name) {
@@ -964,9 +1051,9 @@ async function saveFixtureStats(message) {
   setMessage(message, error ? error.message : 'Fixture stats saved.', error ? 'error' : 'success');
 }
 
-function sortedTeamFixtures(teamId) {
+function sortedPlayerFixtures(player) {
   return state.fixtures
-    .filter((fixture) => fixture.home_team_id === teamId || fixture.away_team_id === teamId)
+    .filter((fixture) => Boolean(playerTeamIdForFixture(player, fixture)))
     .sort((a, b) => {
       const gameweekDiff = Number(gameweekNumber(a.gameweek_id)) - Number(gameweekNumber(b.gameweek_id));
       if (gameweekDiff) {
@@ -977,7 +1064,7 @@ function sortedTeamFixtures(teamId) {
 }
 
 function selectedPlayerStatPlayer() {
-  return state.players.find((player) => player.id === playerStatFlow.playerId) || null;
+  return state.playerStatPlayers.find((player) => player.id === playerStatFlow.playerId) || null;
 }
 
 function selectedPlayerStatFixture() {
@@ -1028,7 +1115,7 @@ function matchingPlayerStatsSearchResults() {
     return [];
   }
 
-  return state.players
+  return state.playerStatPlayers
     .filter((player) => playerMatchesSearch(player, playerStatFlow.query))
     .slice(0, 24);
 }
@@ -1098,9 +1185,9 @@ function renderPlayerStatsSearch() {
   list.innerHTML = results.map((player) => `
     <button class="admin-pick-card ${player.id === playerStatFlow.playerId ? 'active' : ''}" type="button" data-player-stats-player="${player.id}">
       ${escapeHtml(player.display_name)}
-      <small>${escapeHtml(teamName(player.team_id))}</small>
+      <small>${escapeHtml(playerTeamHistoryLabel(player))}${player.is_active ? '' : ' · inactive'}</small>
     </button>
-  `).join('') || '<p class="section-copy">No matching active players found.</p>';
+  `).join('') || '<p class="section-copy">No matching current-season players found.</p>';
 
   list.querySelectorAll('[data-player-stats-player]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -1121,7 +1208,7 @@ function renderPlayerStatsFixtureList() {
     return;
   }
 
-  const fixtures = sortedTeamFixtures(player.team_id);
+  const fixtures = sortedPlayerFixtures(player);
   if (playerStatFlow.fixtureId && !fixtures.some((fixture) => fixture.id === playerStatFlow.fixtureId)) {
     playerStatFlow.fixtureId = null;
   }
@@ -1130,7 +1217,7 @@ function renderPlayerStatsFixtureList() {
     <div class="admin-step-actions">
       <button class="admin-step-back" type="button" data-player-stats-back-player>Change Player</button>
     </div>
-    <p class="section-copy">${escapeHtml(player.display_name)} - ${escapeHtml(teamName(player.team_id))}</p>
+    <p class="section-copy">${escapeHtml(player.display_name)} - ${escapeHtml(playerTeamHistoryLabel(player))}</p>
     ${fixtures.map((fixture) => `
     <button class="admin-pick-card ${fixture.id === playerStatFlow.fixtureId ? 'active' : ''}" type="button" data-player-stats-fixture="${fixture.id}">
       ${escapeHtml(fixtureLabel(fixture))}
@@ -1178,6 +1265,12 @@ async function renderPlayerStatsEntry() {
     return;
   }
 
+  const fixtureTeamId = playerTeamIdForFixture(player, fixture);
+  if (!fixtureTeamId) {
+    entry.innerHTML = '<p class="section-copy">This player was not assigned to either club for this fixture.</p>';
+    return;
+  }
+
   const { data, error } = await supabase
     .from('player_fixture_stats')
     .select('goals, assists, yellow_cards, red_cards')
@@ -1193,7 +1286,7 @@ async function renderPlayerStatsEntry() {
   entry.innerHTML = `
     <div class="player-stat-summary">
       <strong>${escapeHtml(player.display_name)}</strong>
-      <span>${escapeHtml(fixtureLabel(fixture))}</span>
+      <span>${escapeHtml(fixtureLabel(fixture))} · ${escapeHtml(teamName(fixtureTeamId))}</span>
     </div>
     <div class="player-stat-save-row">
       <button class="admin-step-back" type="button" data-player-stats-back-fixture>Change Fixture</button>
@@ -1234,13 +1327,19 @@ async function saveSelectedPlayerStats(message) {
     return;
   }
 
-  const isHome = player.team_id === fixture.home_team_id;
+  const fixtureTeamId = playerTeamIdForFixture(player, fixture);
+  if (!fixtureTeamId) {
+    setMessage(message, 'This player was not assigned to either team for that Gameweek.', 'error');
+    return;
+  }
+
+  const isHome = String(fixtureTeamId) === String(fixture.home_team_id);
   const fixtureStats = {
     season_id: state.season.id,
     fixture_id: fixture.id,
     gameweek_id: fixture.gameweek_id,
     player_id: player.id,
-    team_id: player.team_id,
+    team_id: fixtureTeamId,
     opponent_team_id: isHome ? fixture.away_team_id : fixture.home_team_id,
     was_home_team: isHome,
     goals: numberOrZero(entry.querySelector('[data-goals]').value),
