@@ -4,6 +4,7 @@ import {
   leagueUrl,
   loadLeagueContext,
   normaliseNested,
+  shortTeamName,
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 
@@ -603,7 +604,7 @@ function isUnderdogRound(round) {
 }
 
 function underdogTeamName(teamId) {
-  return state.underdogTeams.get(String(teamId))?.name || 'Team';
+  return shortTeamName(state.underdogTeams.get(String(teamId))?.name || 'Team');
 }
 
 function formatFixtureKickoff(value) {
