@@ -1,7 +1,16 @@
 import { supabase } from './supabase-client.js';
 
 const loginPage = 'login.html';
+const ACCOUNT_PROFILE_CACHE_PREFIX = 'premPredicsAccountProfile:v1:';
+const PROFILE_REQUEST_TIMEOUT_MS = 5000;
+const PROFILE_RETRY_DELAYS_MS = [0, 250, 900];
+const PROFILE_REFRESH_MIN_INTERVAL_MS = 30000;
 let signOutInProgress = false;
+let activeAccountUser = null;
+let activeAccountPanel = null;
+let profileRefreshPromise = null;
+let profileRefreshUserId = null;
+let lastProfileRefreshAt = 0;
 
 function currentPageName() {
   const path = window.location.pathname;
@@ -233,6 +242,72 @@ function escapeHtml(value) {
   }[character]));
 }
 
+function accountProfileCacheKey(userId) {
+  return `${ACCOUNT_PROFILE_CACHE_PREFIX}${userId}`;
+}
+
+function normaliseAccountProfile(profile) {
+  const displayName = String(profile?.display_name || '').trim();
+  if (!displayName) {
+    return null;
+  }
+
+  const profileImageUrl = typeof profile?.profile_image_url === 'string'
+    && profile.profile_image_url.startsWith('data:image/')
+    ? profile.profile_image_url
+    : null;
+
+  return {
+    display_name: displayName,
+    profile_image_url: profileImageUrl,
+    updated_at: profile?.updated_at || null,
+  };
+}
+
+function readCachedAccountProfile(userId) {
+  try {
+    const cached = JSON.parse(localStorage.getItem(accountProfileCacheKey(userId)) || 'null');
+    return normaliseAccountProfile(cached);
+  } catch {
+    return null;
+  }
+}
+
+function cacheAccountProfile(userId, profile) {
+  const normalised = normaliseAccountProfile(profile);
+  if (!normalised || !userId) {
+    return;
+  }
+
+  const cacheValue = JSON.stringify({
+    ...normalised,
+    cached_at: new Date().toISOString(),
+  });
+
+  try {
+    localStorage.setItem(accountProfileCacheKey(userId), cacheValue);
+  } catch {
+    try {
+      localStorage.setItem(accountProfileCacheKey(userId), JSON.stringify({
+        display_name: normalised.display_name,
+        profile_image_url: null,
+        updated_at: normalised.updated_at,
+        cached_at: new Date().toISOString(),
+      }));
+    } catch {
+      // The live profile still renders even when this device blocks local storage.
+    }
+  }
+}
+
+function profileFromUserMetadata(user) {
+  const metadata = user?.user_metadata || {};
+  return normaliseAccountProfile({
+    display_name: metadata.display_name || metadata.username || metadata.user_name,
+    profile_image_url: metadata.profile_image_url || metadata.avatar_url,
+  });
+}
+
 function profileHref() {
   const competitionId = getCompetitionIdFromUrl();
   return competitionId
@@ -317,14 +392,57 @@ async function getCurrentUser() {
   return null;
 }
 
-async function getProfile(userId) {
-  const { data } = await supabase
-    .from('profiles')
-    .select('display_name, profile_image_url')
-    .eq('id', userId)
-    .maybeSingle();
+function wait(milliseconds) {
+  return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+}
 
-  return data;
+async function requestProfile(userId) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), PROFILE_REQUEST_TIMEOUT_MS);
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('display_name, profile_image_url, updated_at')
+      .eq('id', userId)
+      .abortSignal(controller.signal)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    const profile = normaliseAccountProfile(data);
+    if (!profile) {
+      throw new Error('The signed-in profile was not returned.');
+    }
+
+    return profile;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+async function getProfile(userId) {
+  let lastError = null;
+
+  for (const delay of PROFILE_RETRY_DELAYS_MS) {
+    if (delay) {
+      await wait(delay);
+    }
+
+    if (!navigator.onLine) {
+      throw new Error('The profile cannot refresh while this device is offline.');
+    }
+
+    try {
+      return await requestProfile(userId);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error('The profile could not be loaded.');
 }
 
 async function getLeagueMembership(userId, competitionId) {
@@ -354,16 +472,14 @@ function updateLeagueBackButtons(competitionId) {
   });
 }
 
-async function updateAccountPanel(user) {
-  const panel = document.querySelector('[data-auth-panel]');
+function renderAccountPanel(panel, user, profile, source = 'fallback') {
   if (!panel || !user) {
     return;
   }
 
-  const profile = await getProfile(user.id);
-
-  const displayName = profile?.display_name || user.email;
+  const displayName = profile?.display_name || user.email || 'Player';
   const safeDisplayName = escapeHtml(displayName);
+  panel.dataset.profileSource = source;
 
   panel.innerHTML = `
     <div class="account-panel-content">
@@ -389,6 +505,70 @@ async function updateAccountPanel(user) {
   bindSignOutButtons(panel);
 }
 
+function refreshAccountProfile(user, panel, { force = false } = {}) {
+  if (!user || !panel || !navigator.onLine) {
+    return Promise.resolve(null);
+  }
+
+  const userId = String(user.id);
+  if (profileRefreshPromise && profileRefreshUserId === userId) {
+    return profileRefreshPromise;
+  }
+
+  const now = Date.now();
+  if (!force && now - lastProfileRefreshAt < PROFILE_REFRESH_MIN_INTERVAL_MS) {
+    return Promise.resolve(null);
+  }
+
+  lastProfileRefreshAt = now;
+  profileRefreshUserId = userId;
+
+  let refreshRequest;
+  refreshRequest = getProfile(user.id)
+    .then((profile) => {
+      cacheAccountProfile(user.id, profile);
+      if (activeAccountPanel === panel && String(activeAccountUser?.id) === userId) {
+        renderAccountPanel(panel, user, profile, 'live');
+      }
+      return profile;
+    })
+    .catch((error) => {
+      console.warn('Prem Predics kept the last known profile after a refresh problem:', error?.message || error);
+      return null;
+    })
+    .finally(() => {
+      if (profileRefreshPromise === refreshRequest) {
+        profileRefreshPromise = null;
+        profileRefreshUserId = null;
+      }
+    });
+
+  profileRefreshPromise = refreshRequest;
+  return refreshRequest;
+}
+
+function updateAccountPanel(user) {
+  const panel = document.querySelector('[data-auth-panel]');
+  if (!panel || !user) {
+    return;
+  }
+
+  activeAccountUser = user;
+  activeAccountPanel = panel;
+
+  const cachedProfile = readCachedAccountProfile(user.id);
+  const metadataProfile = profileFromUserMetadata(user);
+  const initialProfile = cachedProfile || metadataProfile;
+  const source = cachedProfile ? 'cache' : metadataProfile ? 'metadata' : 'fallback';
+
+  if (!cachedProfile && metadataProfile) {
+    cacheAccountProfile(user.id, metadataProfile);
+  }
+
+  renderAccountPanel(panel, user, initialProfile, source);
+  void refreshAccountProfile(user, panel, { force: true });
+}
+
 async function boot() {
   const user = await getCurrentUser();
   const requiresAuth = document.body.dataset.requireAuth === 'true';
@@ -403,7 +583,7 @@ async function boot() {
     return;
   }
 
-  await updateAccountPanel(user);
+  updateAccountPanel(user);
   bindSignOutButtons(document);
 
   if (requiresLeague) {
@@ -434,5 +614,36 @@ async function boot() {
     updateLeagueBackButtons(competitionId);
   }
 }
+
+function refreshActiveAccountProfile(force = false) {
+  if (!activeAccountUser || !activeAccountPanel) {
+    return;
+  }
+  void refreshAccountProfile(activeAccountUser, activeAccountPanel, { force });
+}
+
+window.addEventListener('online', () => refreshActiveAccountProfile(true));
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    refreshActiveAccountProfile(true);
+  }
+});
+window.addEventListener('storage', (event) => {
+  if (!activeAccountUser || !activeAccountPanel) {
+    return;
+  }
+
+  if (event.key === accountProfileCacheKey(activeAccountUser.id)) {
+    const cachedProfile = readCachedAccountProfile(activeAccountUser.id);
+    if (cachedProfile) {
+      renderAccountPanel(activeAccountPanel, activeAccountUser, cachedProfile, 'cache');
+    }
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    refreshActiveAccountProfile(false);
+  }
+});
 
 boot();

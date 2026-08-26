@@ -36,10 +36,12 @@ const PROFILE_IMAGE_OUTPUT_SIZE = 256;
 const PROFILE_CROP_MIN_ZOOM = 1;
 const PROFILE_CROP_MAX_ZOOM = 3;
 const PROFILE_CROP_ZOOM_STEP = 0.1;
+const ACCOUNT_PROFILE_CACHE_PREFIX = 'premPredicsAccountProfile:v1:';
 
 let originalDisplayName = '';
 let profileImageUrl = null;
 let currentEmail = '';
+let currentUserId = '';
 let profileCropImage = null;
 let profileCropObjectUrl = null;
 let profileCropZoom = PROFILE_CROP_MIN_ZOOM;
@@ -73,6 +75,39 @@ function escapeHtml(value) {
     '"': '&quot;',
     "'": '&#39;',
   }[character]));
+}
+
+function cacheAccountProfile(userId, profile) {
+  const displayName = String(profile?.display_name || '').trim();
+  if (!userId || !displayName) {
+    return;
+  }
+
+  const imageUrl = typeof profile?.profile_image_url === 'string'
+    && profile.profile_image_url.startsWith('data:image/')
+    ? profile.profile_image_url
+    : null;
+  const cacheKey = `${ACCOUNT_PROFILE_CACHE_PREFIX}${userId}`;
+
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify({
+      display_name: displayName,
+      profile_image_url: imageUrl,
+      updated_at: profile?.updated_at || null,
+      cached_at: new Date().toISOString(),
+    }));
+  } catch {
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify({
+        display_name: displayName,
+        profile_image_url: null,
+        updated_at: profile?.updated_at || null,
+        cached_at: new Date().toISOString(),
+      }));
+    } catch {
+      // Saving the profile itself must still succeed if this device blocks local storage.
+    }
+  }
 }
 
 function confirmAction(text, confirmText = 'Yes') {
@@ -369,12 +404,13 @@ async function loadProfile() {
     return;
   }
 
+  currentUserId = userData.user.id;
   currentEmail = userData.user.email;
   emailOutput.textContent = currentEmail;
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('display_name, first_name, last_name, nationality, favorite_team_id, profile_image_url, favorite_color')
+    .select('display_name, first_name, last_name, nationality, favorite_team_id, profile_image_url, favorite_color, updated_at')
     .eq('id', userData.user.id)
     .maybeSingle();
 
@@ -394,6 +430,7 @@ async function loadProfile() {
     ? data.profile_image_url
     : null;
   setProfileImagePreview(profileImageUrl, originalDisplayName);
+  cacheAccountProfile(currentUserId, data);
 }
 
 profileImageInput.addEventListener('change', async () => {
@@ -631,6 +668,11 @@ form.addEventListener('submit', async (event) => {
     ? data.profile_image_url
     : null;
   setProfileImagePreview(profileImageUrl, originalDisplayName);
+  cacheAccountProfile(currentUserId, {
+    display_name: originalDisplayName,
+    profile_image_url: profileImageUrl,
+    updated_at: data?.updated_at || null,
+  });
   setMessage('Profile saved.', 'success');
 });
 
