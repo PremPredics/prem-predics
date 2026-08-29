@@ -1,4 +1,6 @@
 -- Player Stats identity/history repair. Run THIS WHOLE FILE in one SQL Editor run.
+-- The executable migration is deliberately ONE anonymous SQL statement so the
+-- Supabase SQL Editor cannot lose setup objects between separately run statements.
 -- Safe to run again. No reset, DELETE, TRUNCATE, player merge, ID rewrite,
 -- reactivation or deactivation. No competition/prediction/card/result/stat writes.
 -- Existing historical rows and every existing foreign key are preserved.
@@ -15,10 +17,13 @@
 -- Non-null mismatches, conflicting identities, uncertain tenure and inactive-only
 -- identities are reported, not guessed. Review audit output before/after running.
 
-begin;
+do $player_stats_migration$
+declare
+  player_stats_integrity_report jsonb;
+begin
 set local lock_timeout = '5s';
 set local statement_timeout = '90s';
-select pg_advisory_xact_lock(hashtext('pp_player_stats_pool_integrity_20260828'));
+perform pg_advisory_xact_lock(hashtext('pp_player_stats_pool_integrity_20260828'));
 
 -- Supabase's SQL Editor may commit individual top-level statements. Temporary
 -- objects and migration-owned schemas have both proved unreliable there. Use
@@ -63,18 +68,16 @@ create table if not exists public.player_name_aliases (
   primary key (player_id, name)
 );
 alter table public.player_name_aliases enable row level security;
-do $$ begin
-  if not exists (select 1 from pg_policies where schemaname = 'public'
+if not exists (select 1 from pg_policies where schemaname = 'public'
     and tablename = 'player_name_aliases' and policyname = 'authenticated read player names') then
-    create policy "authenticated read player names" on public.player_name_aliases
-      for select to authenticated using (true);
-  end if;
-  if not exists (select 1 from pg_policies where schemaname = 'public'
+  create policy "authenticated read player names" on public.player_name_aliases
+    for select to authenticated using (true);
+end if;
+if not exists (select 1 from pg_policies where schemaname = 'public'
     and tablename = 'player_name_aliases' and policyname = 'admins manage player names') then
-    create policy "admins manage player names" on public.player_name_aliases
-      for all to authenticated using (public.is_admin()) with check (public.is_admin());
-  end if;
-end $$;
+  create policy "admins manage player names" on public.player_name_aliases
+    for all to authenticated using (public.is_admin()) with check (public.is_admin());
+end if;
 grant select, insert, update, delete on public.player_name_aliases to authenticated;
 
 create table public.pp_migration_player_stats_20260829_season as
@@ -87,11 +90,9 @@ select s.id, s.name, coalesce((
 ), (select max(g.number) from public.gameweeks g where g.season_id = s.id)) as current_gw
 from public.seasons s where s.is_active = true;
 revoke all on public.pp_migration_player_stats_20260829_season from public, anon, authenticated;
-do $$ begin
-  if (select count(*) from public.pp_migration_player_stats_20260829_season) <> 1 then
-    raise exception 'Stopped safely: exactly one active season is required. No changes committed.';
-  end if;
-end $$;
+if (select count(*) from public.pp_migration_player_stats_20260829_season) <> 1 then
+  raise exception 'Stopped safely: exactly one active season is required. No changes committed.';
+end if;
 
 create table public.pp_migration_player_stats_20260829_repairs (
   repair text, player_id uuid, display_name text, details jsonb
@@ -1877,19 +1878,21 @@ $$;
 revoke all on function public.audit_player_stats_pool(integer) from public;
 grant execute on function public.audit_player_stats_pool(integer) to authenticated;
 
--- One result cell avoids SQL Editor's row display limit hiding affected players.
+-- Keep the report in a block variable; emit it as a SQL Editor notice after cleanup.
 select jsonb_build_object(
   'repairs', coalesce((select jsonb_agg(to_jsonb(r) order by repair, display_name)
     from public.pp_migration_player_stats_20260829_repairs r), '[]'::jsonb),
   'review', coalesce((select jsonb_agg(to_jsonb(a) order by issue, display_name) from public.audit_player_stats_pool() a), '[]'::jsonb)
-) as player_stats_integrity_report;
+) into player_stats_integrity_report;
 drop table
   public.pp_migration_player_stats_20260829_unique_active,
   public.pp_migration_player_stats_20260829_identity_matches,
   public.pp_migration_player_stats_20260829_identity_source,
   public.pp_migration_player_stats_20260829_repairs,
   public.pp_migration_player_stats_20260829_season;
-commit;
+raise notice 'player_stats_integrity_report: %', player_stats_integrity_report;
+end
+$player_stats_migration$;
 
 -- Subsequent audit (no writes):
 -- select * from public.audit_player_stats_pool() order by issue, display_name;

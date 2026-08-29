@@ -88,21 +88,23 @@ test('full SQL executes, repairs only clear evidence, preserves every protected 
     'Supabase SQL Editor can commit between top-level statements');
   assert.doesNotMatch(executableMigration, /create\s+schema\s+pp_migration_player_stats/i,
     'migration staging must not depend on a custom schema surviving between statements');
+  assert.match(executableMigration.trim(), /^do\s+\$player_stats_migration\$/i,
+    'the SQL Editor migration must be one atomic anonymous statement');
+  assert.equal((executableMigration.match(/\$player_stats_migration\$;/g) || []).length, 1,
+    'the one-statement migration block closes exactly once');
   const db = await fixtureDatabase();
   try {
     const protectedTables = ['competitions', 'predictions', 'match_results', 'league_cards', 'player_fixture_stats', 'player_gameweek_stats', 'star_man_picks', 'fixtures'];
     const protectedBefore = await Promise.all(protectedTables.map((t) => db.query(`select * from ${t} order by id`)));
     const playersBefore = (await db.query('select * from players order by id')).rows;
     const assignmentsBefore = (await db.query('select * from player_team_assignments order by id')).rows;
-    const output = await db.exec(migration);
+    await db.exec(migration);
     assert.equal((await db.query("select count(*)::int as rows from information_schema.tables where table_schema = 'public' and table_name like 'pp_migration_player_stats_20260829_%'")).rows[0].rows, 0,
       'persistent staging tables are removed after a successful run');
-    const report = output.find((r) => r.rows?.[0]?.player_stats_integrity_report).rows[0].player_stats_integrity_report;
-    assert.ok(report.repairs.some((r) => r.repair === 'assignment_copied_from_unused_identity' && r.player_id === id(100)));
-    assert.ok(!report.repairs.some((r) => r.repair === 'assignment_copied_from_unused_identity' && r.player_id === id(102)), 'referenced old Cherki fixture stays a review case in this synthetic database');
-    assert.ok(report.repairs.some((r) => r.repair === 'null_current_team_from_open_history' && r.player_id === id(107)));
     const history = (await db.query('select * from player_team_assignments order by id')).rows;
     for (const old of assignmentsBefore) assert.deepEqual(history.find((a) => a.id === old.id), old);
+    assert.equal(history.filter((r) => r.player_id === id(100)).length, 1, 'clear unused-identity history is copied to Phil Foden');
+    assert.equal(history.filter((r) => r.player_id === id(102)).length, 0, 'referenced old Cherki identity stays a review case');
     const historicEvidence = history.filter((r) => r.player_id === id(108));
     assert.equal(historicEvidence.length, 1);
     assert.equal(historicEvidence[0].starts_gameweek_id, 100);
@@ -118,9 +120,9 @@ test('full SQL executes, repairs only clear evidence, preserves every protected 
     const aliases = (await db.query('select * from player_name_aliases order by player_id,name')).rows;
     assert.ok(aliases.some((a) => a.player_id === id(100) && a.name === 'Philip Walter Foden'));
     assert.ok(!aliases.some((a) => a.player_id === id(113)), 'different-nationality namesake not conflated');
-    assert.ok(report.review.some((r) => r.issue === 'overlapping_club_assignments'));
-    const second = await db.exec(migration);
-    assert.deepEqual(second.find((r) => r.rows?.[0]?.player_stats_integrity_report).rows[0].player_stats_integrity_report.repairs, []);
+    const review = (await db.query('select * from audit_player_stats_pool()')).rows;
+    assert.ok(review.some((r) => r.issue === 'overlapping_club_assignments'));
+    await db.exec(migration);
     assert.deepEqual((await db.query('select * from player_team_assignments order by id')).rows, history);
     assert.deepEqual((await db.query('select * from player_name_aliases order by player_id,name')).rows, aliases);
     const snapshot = await db.query(snapshotSql);

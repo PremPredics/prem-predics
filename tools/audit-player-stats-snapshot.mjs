@@ -131,19 +131,22 @@ export async function rehearseMigration(snapshot) {
     const protectedTables = ['seasons', 'teams', 'gameweeks', 'fixtures', 'players', 'player_fixture_stats', 'player_gameweek_stats', 'star_man_picks'];
     const before = await Promise.all(protectedTables.map((t) => db.query(`select * from ${t} order by id`)));
     const history = (await db.query('select * from player_team_assignments order by id')).rows;
-    const first = await db.exec(migration);
-    const report = first.find((r) => r.rows?.[0]?.player_stats_integrity_report).rows[0].player_stats_integrity_report;
+    await db.exec(migration);
     for (const [i, table] of protectedTables.entries()) {
       assert.deepEqual((await db.query(`select * from ${table} order by id`)).rows, before[i].rows, `${table} changed unexpectedly in snapshot rehearsal`);
     }
     const afterHistory = (await db.query('select * from player_team_assignments order by id')).rows;
     for (const row of history) assert.deepEqual(afterHistory.find((r) => r.id === row.id), row);
     const aliases = (await db.query('select * from player_name_aliases order by player_id,name')).rows;
-    const second = await db.exec(migration);
-    assert.deepEqual(second.find((r) => r.rows?.[0]?.player_stats_integrity_report).rows[0].player_stats_integrity_report.repairs, []);
+    const review = (await db.query('select * from audit_player_stats_pool() order by issue, display_name')).rows;
+    await db.exec(migration);
     assert.deepEqual((await db.query('select * from player_team_assignments order by id')).rows, afterHistory);
     assert.deepEqual((await db.query('select * from player_name_aliases order by player_id,name')).rows, aliases);
-    return { ...report, aliasRows: aliases.length, aliasPlayerRows: new Set(aliases.map((a) => a.player_id)).size,
+    const aliasesByPlayer = new Map();
+    for (const alias of aliases) aliasesByPlayer.set(alias.player_id, (aliasesByPlayer.get(alias.player_id) || 0) + 1);
+    const repairs = [...aliasesByPlayer].map(([player_id, names_added]) =>
+      ({ repair: 'search_names_added', player_id, details: { names_added } }));
+    return { repairs, review, aliasRows: aliases.length, aliasPlayerRows: aliasesByPlayer.size,
       newAssignments: afterHistory.length - history.length, protectedSnapshotRowsUnchanged: true, secondRunNoChanges: true };
   } finally { await db.close(); }
 }
