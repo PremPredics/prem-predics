@@ -120,6 +120,8 @@ input[type="checkbox"] {
 
 .admin-content[hidden],
 .admin-section[hidden],
+.admin-picker-panel[hidden],
+.player-stat-entry[hidden],
 .gate[hidden] {
   display: none;
 }
@@ -632,6 +634,10 @@ footer {
             <input data-player-stats-search type="search" placeholder="Search player name" autocomplete="off">
             <button class="primary" type="button" data-player-stats-confirm>Confirm Player</button>
           </div>
+          <label class="player-stats-toggle" style="display:flex;align-items:center;gap:10px;margin:14px 0;cursor:pointer">
+            <input data-player-stats-include-deactivated type="checkbox" style="width:20px;height:20px;flex:none;accent-color:#f5d76e">
+            <span>Include deactivated players</span>
+          </label>
           <div class="admin-picker-grid" data-player-stats-player-list></div>
         </section>
         <section class="admin-picker-panel" data-player-step="fixture">
@@ -718,8 +724,8 @@ footer {
 
 <footer>2026 Prem Predics | Global Admin</footer>
 
-<script type="module" src="assets/js/site-auth.js?v=20260826-profile-reliability"></script>
-<script type="module" src="assets/js/global-admin.js?v=20260826-player-team-history"></script>
+<script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
+<script type="module" src="assets/js/global-admin.js?v=20260828-player-pool"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

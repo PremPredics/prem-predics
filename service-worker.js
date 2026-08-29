@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v42';
+const CACHE_VERSION = 'prem-predics-pwa-v43';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -48,9 +48,13 @@ const APP_SHELL = [
   './assets/js/desktop-summary-polish.js',
   './assets/js/game-card.js?v=20260826-underdog-short-team-names',
   './assets/js/gameweek-context.js',
-  './assets/js/global-admin.js?v=20260826-player-team-history',
-  './assets/js/index-actions.js?v=20260825-hours-minutes',
-  './assets/js/index-admin.js',
+  './assets/js/global-admin.js?v=20260828-player-pool',
+  './assets/js/index-actions.js?v=20260828-startup-reliability',
+  './assets/js/index-admin.js?v=20260828-startup-reliability',
+  './assets/js/async-read.js',
+  './assets/js/load-all-rows.js',
+  './assets/js/player-stats-pool.js',
+  './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
   './assets/js/league.js?v=20260825-lock-progress-align',
@@ -63,7 +67,7 @@ const APP_SHELL = [
   './assets/js/profile.js?v=20260826-account-profile-cache',
   './assets/js/pwa.js',
   './assets/js/reset-password.js',
-  './assets/js/site-auth.js?v=20260826-profile-reliability',
+  './assets/js/site-auth.js?v=20260828-startup-reliability',
   './assets/js/star-man-hub.js',
   './assets/js/star-man.js?v=20260825-late-scout-lock',
   './assets/js/statistics.js',

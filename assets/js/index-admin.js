@@ -1,4 +1,5 @@
 import { supabase } from './supabase-client.js';
+import { getSessionUser } from './session-user.js';
 
 const adminButton = document.querySelector('[data-admin-access]');
 
@@ -7,8 +8,8 @@ async function boot() {
     return;
   }
 
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData?.user) {
+  const user = await getSessionUser();
+  if (!user) {
     return;
   }
 
@@ -16,4 +17,4 @@ async function boot() {
   adminButton.hidden = isAdmin !== true;
 }
 
-boot();
+boot().catch(() => { if (adminButton) adminButton.hidden = true; });

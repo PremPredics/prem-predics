@@ -1,5 +1,7 @@
 import { supabase } from './supabase-client.js';
 import { escapeHtml, normaliseNested, shortTeamName } from './league-context.js';
+import { loadAllRows } from './load-all-rows.js';
+import { createPlayerStatsIndex, normalisePlayerSearch, matchesPlayerSearch } from './player-stats-pool.js';
 
 const gate = document.querySelector('[data-admin-gate]');
 const content = document.querySelector('[data-admin-content]');
@@ -20,6 +22,8 @@ const state = {
   rosterPlayers: [],
   playerStatPlayers: [],
   playerTeamAssignments: [],
+  playerStatIndex: null,
+  playerNameAliases: new Map(),
   cards: [],
   rosterQueue: [],
 };
@@ -28,7 +32,10 @@ const playerStatFlow = {
   query: '',
   playerId: null,
   fixtureId: null,
+  includeDeactivated: false,
 };
+
+let playerStatsEntryRequest = 0;
 
 function setMessage(element, text, type = 'info') {
   element.textContent = text;
@@ -69,58 +76,11 @@ function gameweekNumber(gameweekId) {
 }
 
 function playerTeamAssignments(playerId) {
-  return state.playerTeamAssignments
-    .filter((assignment) => String(assignment.player_id) === String(playerId))
-    .sort((a, b) => Number(gameweekNumber(a.starts_gameweek_id)) - Number(gameweekNumber(b.starts_gameweek_id)));
-}
-
-function assignmentCoversGameweek(assignment, gameweekId) {
-  const targetValue = gameweekNumber(gameweekId);
-  const startValue = gameweekNumber(assignment.starts_gameweek_id);
-  const hasOpenEnd = assignment.ends_gameweek_id === null || assignment.ends_gameweek_id === undefined;
-  const endValue = hasOpenEnd ? null : gameweekNumber(assignment.ends_gameweek_id);
-
-  if (targetValue === '' || startValue === '' || (!hasOpenEnd && endValue === '')) {
-    return false;
-  }
-
-  const targetNumber = Number(targetValue);
-  const startNumber = Number(startValue);
-  const endNumber = hasOpenEnd ? Number.POSITIVE_INFINITY : Number(endValue);
-
-  return Number.isFinite(targetNumber)
-    && Number.isFinite(startNumber)
-    && startNumber <= targetNumber
-    && endNumber >= targetNumber;
-}
-
-function assignedTeamIdForGameweek(playerId, gameweekId) {
-  const assignment = playerTeamAssignments(playerId)
-    .filter((item) => assignmentCoversGameweek(item, gameweekId))
-    .sort((a, b) => Number(gameweekNumber(b.starts_gameweek_id)) - Number(gameweekNumber(a.starts_gameweek_id)))[0];
-
-  return assignment?.team_id || null;
+  return state.playerStatIndex?.history(playerId) || [];
 }
 
 function playerTeamIdForFixture(player, fixture) {
-  if (!player || !fixture) {
-    return null;
-  }
-
-  const fixtureTeamIds = [String(fixture.home_team_id), String(fixture.away_team_id)];
-  const assignments = playerTeamAssignments(player.id);
-  const assignedTeamId = assignedTeamIdForGameweek(player.id, fixture.gameweek_id);
-  if (assignments.length) {
-    return assignedTeamId && fixtureTeamIds.includes(String(assignedTeamId))
-      ? assignedTeamId
-      : null;
-  }
-
-  if (fixtureTeamIds.includes(String(player.team_id))) {
-    return player.team_id;
-  }
-
-  return null;
+  return state.playerStatIndex?.teamForFixture(player, fixture) || null;
 }
 
 function playerTeamHistoryLabel(player) {
@@ -140,39 +100,14 @@ function fixtureLabel(fixture) {
 }
 
 function normaliseSearchText(value) {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[Øø]/g, 'o')
-    .replace(/[Ææ]/g, 'ae')
-    .replace(/[Œœ]/g, 'oe')
-    .replace(/[Đđ]/g, 'd')
-    .replace(/[Þþ]/g, 'th')
-    .replace(/[Łł]/g, 'l')
-    .toLowerCase()
-    .trim();
-}
-
-function playerSearchText(player) {
-  return normaliseSearchText([
-    player.display_name,
-    player.first_name,
-    player.last_name,
-    player.surname,
-    player.nationality,
-    teamName(player.team_id),
-    playerTeamHistoryLabel(player),
-  ].filter(Boolean).join(' '));
+  return normalisePlayerSearch(value);
 }
 
 function playerMatchesSearch(player, query) {
-  const terms = normaliseSearchText(query).split(/\s+/).filter(Boolean);
-  if (!terms.length) {
-    return false;
-  }
-
-  const haystack = playerSearchText(player);
-  return terms.every((term) => haystack.includes(term));
+  return matchesPlayerSearch(player, query, [
+    teamName(player.team_id), playerTeamHistoryLabel(player),
+    ...(state.playerNameAliases.get(String(player.id)) || []),
+  ]);
 }
 
 function adminAvatar(profile) {
@@ -260,54 +195,56 @@ async function unlockAdmin() {
 }
 
 async function loadReferenceData() {
-  const [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, playerResponse, rosterPlayerResponse, cardResponse] = await Promise.all([
-    supabase.from('seasons').select('id, name, starts_on, ends_on, is_active').order('starts_on', { ascending: false }),
-    supabase.from('teams').select('id, name').order('name', { ascending: true }),
-    supabase.from('gameweeks').select('id, season_id, number, star_man_locks_at').order('number', { ascending: true }),
-    supabase.from('fixtures').select('id, season_id, gameweek_id, original_gameweek_id, home_team_id, away_team_id, kickoff_at, status, sort_order').order('kickoff_at', { ascending: true }),
-    supabase.from('players').select('id, display_name, first_name, last_name, surname, nationality, team_id, height_cm, squad_status, is_active').eq('is_active', true).order('display_name', { ascending: true }).range(0, 4999),
-    supabase.from('players').select('id, display_name, first_name, last_name, surname, nationality, team_id, height_cm, squad_status, is_active').order('display_name', { ascending: true }).range(0, 9999),
-    supabase.from('card_definitions').select('id, name, deck_type').order('name', { ascending: true }),
+  const seasons = await loadAllRows((first) => supabase.from('seasons')
+    .select('id, name, starts_on, ends_on, is_active', first ? { count: 'exact' } : {})
+    .order('starts_on', { ascending: false }).order('id'));
+  const season = seasons.find((row) => row.is_active) || seasons[0];
+  if (!season) throw new Error('No season found in Supabase.');
+
+  const [teams, gameweeks, fixtures, rosterPlayers, assignments, cards, aliases] = await Promise.all([
+    loadAllRows((first) => supabase.from('teams').select('id, name', first ? { count: 'exact' } : {}).order('name').order('id')),
+    loadAllRows((first) => supabase.from('gameweeks')
+      .select('id, season_id, number, star_man_locks_at', first ? { count: 'exact' } : {})
+      .eq('season_id', season.id).order('number').order('id')),
+    loadAllRows((first) => supabase.from('fixtures')
+      .select('id, season_id, gameweek_id, original_gameweek_id, home_team_id, away_team_id, kickoff_at, status, sort_order', first ? { count: 'exact' } : {})
+      .eq('season_id', season.id).order('kickoff_at').order('id')),
+    loadAllRows((first) => supabase.from('players')
+      .select('id, display_name, first_name, last_name, surname, nationality, team_id, height_cm, squad_status, is_active', first ? { count: 'exact' } : {})
+      .order('display_name').order('id')),
+    loadAllRows((first) => supabase.from('player_team_assignments')
+      .select('id, season_id, player_id, team_id, starts_gameweek_id, ends_gameweek_id', first ? { count: 'exact' } : {})
+      .eq('season_id', season.id).order('id')),
+    loadAllRows((first) => supabase.from('card_definitions').select('id, name, deck_type', first ? { count: 'exact' } : {}).order('name').order('id')),
+    loadAllRows((first) => supabase.from('player_name_aliases')
+      .select('player_id, name', first ? { count: 'exact' } : {}).order('player_id').order('name'))
+      .catch((error) => {
+        // Keep existing admin tools usable while the additive migration is pending.
+        if (['42P01', 'PGRST205'].includes(error.code)) return [];
+        throw error;
+      }),
   ]);
 
-  for (const response of [seasonResponse, teamResponse, gameweekResponse, fixtureResponse, playerResponse, rosterPlayerResponse, cardResponse]) {
-    if (response.error) {
-      throw response.error;
-    }
-  }
-
-  state.seasons = seasonResponse.data || [];
-  state.season = state.seasons.find((season) => season.is_active) || state.seasons[0] || null;
-  if (!state.season) {
-    throw new Error('No season found in Supabase.');
-  }
-  state.teams = teamResponse.data || [];
+  state.seasons = seasons;
+  state.season = season;
+  state.teams = teams;
   state.teamsById = new Map(state.teams.map((team) => [team.id, team]));
-  state.gameweeks = (gameweekResponse.data || []).filter((gameweek) => gameweek.season_id === state.season?.id);
-  state.fixtures = (fixtureResponse.data || []).filter((fixture) => fixture.season_id === state.season?.id);
+  state.gameweeks = gameweeks;
+  state.fixtures = fixtures;
   state.currentSeasonTeamIds = new Set(
     state.fixtures.flatMap((fixture) => [fixture.home_team_id, fixture.away_team_id]).filter(Boolean).map(String),
   );
-  state.players = playerResponse.data || [];
-  state.rosterPlayers = rosterPlayerResponse.data || [];
-  state.cards = (cardResponse.data || []).filter((card) => card.deck_type === 'game' || card.id === 'super_pen');
-
-  const { data: playerTeamAssignmentsData, error: playerTeamAssignmentsError } = await supabase
-    .from('player_team_assignments')
-    .select('season_id, player_id, team_id, starts_gameweek_id, ends_gameweek_id')
-    .eq('season_id', state.season.id)
-    .range(0, 9999);
-
-  if (playerTeamAssignmentsError) {
-    throw playerTeamAssignmentsError;
-  }
-
-  state.playerTeamAssignments = playerTeamAssignmentsData || [];
-  const assignedPlayerIds = new Set(state.playerTeamAssignments.map((assignment) => String(assignment.player_id)));
-  state.playerStatPlayers = state.rosterPlayers.filter((player) => (
-    assignedPlayerIds.has(String(player.id))
-    || state.currentSeasonTeamIds.has(String(player.team_id))
-  ));
+  state.rosterPlayers = rosterPlayers;
+  state.players = rosterPlayers.filter((player) => player.is_active === true);
+  state.cards = cards.filter((card) => card.deck_type === 'game' || card.id === 'super_pen');
+  state.playerTeamAssignments = assignments;
+  state.playerStatIndex = createPlayerStatsIndex({ seasonId: season.id, gameweeks, fixtures, assignments });
+  state.playerStatPlayers = rosterPlayers.filter(state.playerStatIndex.eligible);
+  state.playerNameAliases = new Map();
+  aliases.forEach(({ player_id: playerId, name }) => {
+    const key = String(playerId);
+    state.playerNameAliases.set(key, [...(state.playerNameAliases.get(key) || []), name]);
+  });
 }
 
 function showSection(name) {
@@ -1064,7 +1001,8 @@ function sortedPlayerFixtures(player) {
 }
 
 function selectedPlayerStatPlayer() {
-  return state.playerStatPlayers.find((player) => player.id === playerStatFlow.playerId) || null;
+  return state.playerStatPlayers.find((player) => player.id === playerStatFlow.playerId
+    && (player.is_active === true || playerStatFlow.includeDeactivated)) || null;
 }
 
 function selectedPlayerStatFixture() {
@@ -1116,6 +1054,7 @@ function matchingPlayerStatsSearchResults() {
   }
 
   return state.playerStatPlayers
+    .filter((player) => player.is_active === true || playerStatFlow.includeDeactivated)
     .filter((player) => playerMatchesSearch(player, playerStatFlow.query))
     .slice(0, 24);
 }
@@ -1139,12 +1078,21 @@ function renderPlayerStatsSearch() {
   const list = document.querySelector('[data-player-stats-player-list]');
   const input = document.querySelector('[data-player-stats-search]');
   const confirmButton = document.querySelector('[data-player-stats-confirm]');
+  const includeDeactivated = document.querySelector('[data-player-stats-include-deactivated]');
   if (!list) {
     return;
   }
 
   if (input && document.activeElement !== input) {
     input.value = playerStatFlow.query;
+  }
+
+  if (includeDeactivated) {
+    includeDeactivated.checked = playerStatFlow.includeDeactivated;
+    includeDeactivated.onchange = () => {
+      playerStatFlow.includeDeactivated = includeDeactivated.checked;
+      renderPlayerStatsControls();
+    };
   }
 
   const results = matchingPlayerStatsSearchResults();
@@ -1185,7 +1133,7 @@ function renderPlayerStatsSearch() {
   list.innerHTML = results.map((player) => `
     <button class="admin-pick-card ${player.id === playerStatFlow.playerId ? 'active' : ''}" type="button" data-player-stats-player="${player.id}">
       ${escapeHtml(player.display_name)}
-      <small>${escapeHtml(playerTeamHistoryLabel(player))}${player.is_active ? '' : ' · inactive'}</small>
+      <small>${escapeHtml(playerTeamHistoryLabel(player))}${player.is_active === true ? '' : ' · Deactivated'}</small>
     </button>
   `).join('') || '<p class="section-copy">No matching current-season players found.</p>';
 
@@ -1217,13 +1165,13 @@ function renderPlayerStatsFixtureList() {
     <div class="admin-step-actions">
       <button class="admin-step-back" type="button" data-player-stats-back-player>Change Player</button>
     </div>
-    <p class="section-copy">${escapeHtml(player.display_name)} - ${escapeHtml(playerTeamHistoryLabel(player))}</p>
+    <p class="section-copy">${escapeHtml(player.display_name)} - ${escapeHtml(playerTeamHistoryLabel(player))}${player.is_active === true ? '' : ' · Deactivated'}</p>
     ${fixtures.map((fixture) => `
     <button class="admin-pick-card ${fixture.id === playerStatFlow.fixtureId ? 'active' : ''}" type="button" data-player-stats-fixture="${fixture.id}">
       ${escapeHtml(fixtureLabel(fixture))}
       <small>${escapeHtml(new Date(fixture.kickoff_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }))}</small>
     </button>
-  `).join('') || '<p class="section-copy">No fixtures found for this team.</p>'}
+  `).join('') || '<p class="section-copy">No eligible fixtures. This player needs an unambiguous team assignment for the fixture Gameweek; current club alone does not establish historical eligibility.</p>'}
   `;
 
   list.querySelector('[data-player-stats-back-player]')?.addEventListener('click', () => {
@@ -1246,6 +1194,7 @@ function renderPlayerStatsFixtureList() {
 }
 
 async function renderPlayerStatsEntry() {
+  const requestId = ++playerStatsEntryRequest;
   const entry = document.querySelector('[data-player-stats-entry]');
   const message = document.querySelector('[data-player-stats-message]');
   if (!entry) {
@@ -1271,12 +1220,15 @@ async function renderPlayerStatsEntry() {
     return;
   }
 
+  entry.innerHTML = '<p class="section-copy">Loading player stats...</p>';
   const { data, error } = await supabase
     .from('player_fixture_stats')
     .select('goals, assists, yellow_cards, red_cards')
     .eq('fixture_id', fixture.id)
     .eq('player_id', player.id)
     .maybeSingle();
+
+  if (requestId !== playerStatsEntryRequest) return;
 
   if (error) {
     entry.innerHTML = `<p class="section-copy">${escapeHtml(error.message)}</p>`;
@@ -1285,7 +1237,7 @@ async function renderPlayerStatsEntry() {
 
   entry.innerHTML = `
     <div class="player-stat-summary">
-      <strong>${escapeHtml(player.display_name)}</strong>
+      <strong>${escapeHtml(player.display_name)}${player.is_active === true ? '' : ' · Deactivated'}</strong>
       <span>${escapeHtml(fixtureLabel(fixture))} · ${escapeHtml(teamName(fixtureTeamId))}</span>
     </div>
     <div class="player-stat-save-row">
@@ -1344,17 +1296,8 @@ async function saveSelectedPlayerStats(message) {
     was_home_team: isHome,
     goals: numberOrZero(entry.querySelector('[data-goals]').value),
     assists: numberOrZero(entry.querySelector('[data-assists]').value),
-    outside_box_goals: 0,
-    outside_box_assists: 0,
     yellow_cards: numberOrZero(entry.querySelector('[data-yellows]').value),
     red_cards: numberOrZero(entry.querySelector('[data-reds]').value),
-    started: null,
-    was_benched: null,
-    was_in_matchday_squad: null,
-    was_substituted: null,
-    substituted_on_minute: null,
-    substituted_off_minute: null,
-    minutes_played: null,
     entered_by: state.user.id,
   };
 
@@ -1395,13 +1338,8 @@ async function saveSelectedPlayerStats(message) {
     player_id: player.id,
     goals: totals.goals,
     assists: totals.assists,
-    outside_box_goals: 0,
-    outside_box_assists: 0,
     yellow_cards: totals.yellow_cards,
     red_cards: totals.red_cards,
-    started: null,
-    was_benched: null,
-    minutes_played: null,
     entered_by: state.user.id,
   }, {
     onConflict: 'season_id,gameweek_id,player_id',

@@ -1,4 +1,6 @@
 import { supabase } from './supabase-client.js';
+import { getSessionUser, onSessionUserChange } from './session-user.js';
+import { boundedRead } from './async-read.js';
 
 const loginPage = 'login.html';
 const ACCOUNT_PROFILE_CACHE_PREFIX = 'premPredicsAccountProfile:v1:';
@@ -11,6 +13,8 @@ let activeAccountPanel = null;
 let profileRefreshPromise = null;
 let profileRefreshUserId = null;
 let lastProfileRefreshAt = 0;
+let profileRecoveryTimer = null;
+let profileRecoveryAttempts = 0;
 
 function currentPageName() {
   const path = window.location.pathname;
@@ -379,17 +383,7 @@ function blockedLeaguePage(user, message = 'You need to choose a private league 
 }
 
 async function getCurrentUser() {
-  const { data, error } = await supabase.auth.getUser();
-  if (data?.user) {
-    return data.user;
-  }
-
-  if (error && !navigator.onLine) {
-    const { data: sessionData } = await supabase.auth.getSession();
-    return sessionData?.session?.user || null;
-  }
-
-  return null;
+  return getSessionUser();
 }
 
 function wait(milliseconds) {
@@ -397,30 +391,23 @@ function wait(milliseconds) {
 }
 
 async function requestProfile(userId) {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), PROFILE_REQUEST_TIMEOUT_MS);
+  const { data, error } = await boundedRead((signal) => supabase
+    .from('profiles')
+    .select('display_name, profile_image_url, updated_at')
+    .eq('id', userId)
+    .abortSignal(signal)
+    .maybeSingle(), PROFILE_REQUEST_TIMEOUT_MS);
 
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('display_name, profile_image_url, updated_at')
-      .eq('id', userId)
-      .abortSignal(controller.signal)
-      .maybeSingle();
-
-    if (error) {
-      throw error;
-    }
-
-    const profile = normaliseAccountProfile(data);
-    if (!profile) {
-      throw new Error('The signed-in profile was not returned.');
-    }
-
-    return profile;
-  } finally {
-    window.clearTimeout(timeout);
+  if (error) {
+    throw error;
   }
+
+  const profile = normaliseAccountProfile(data);
+  if (!profile) {
+    throw new Error('The signed-in profile was not returned.');
+  }
+
+  return profile;
 }
 
 async function getProfile(userId) {
@@ -477,7 +464,7 @@ function renderAccountPanel(panel, user, profile, source = 'fallback') {
     return;
   }
 
-  const displayName = profile?.display_name || user.email || 'Player';
+  const displayName = profile?.display_name || 'Loading profile…';
   const safeDisplayName = escapeHtml(displayName);
   panel.dataset.profileSource = source;
 
@@ -526,14 +513,33 @@ function refreshAccountProfile(user, panel, { force = false } = {}) {
   let refreshRequest;
   refreshRequest = getProfile(user.id)
     .then((profile) => {
-      cacheAccountProfile(user.id, profile);
       if (activeAccountPanel === panel && String(activeAccountUser?.id) === userId) {
+        cacheAccountProfile(user.id, profile);
+        profileRecoveryAttempts = 0;
+        window.clearTimeout(profileRecoveryTimer);
         renderAccountPanel(panel, user, profile, 'live');
       }
       return profile;
     })
     .catch((error) => {
       console.warn('Prem Predics kept the last known profile after a refresh problem:', error?.message || error);
+      if (activeAccountPanel === panel && String(activeAccountUser?.id) === userId) {
+        if (panel.dataset.profileSource === 'fallback') {
+          panel.querySelector('.account-name').textContent = 'Profile temporarily unavailable';
+          const retry = panel.querySelector('.account-action-title');
+          if (retry) {
+            retry.textContent = 'Retry profile';
+            retry.parentElement.onclick = (event) => {
+              event.preventDefault();
+              void refreshAccountProfile(user, panel, { force: true });
+            };
+          }
+        }
+        if (profileRecoveryAttempts < 1 && navigator.onLine) {
+          profileRecoveryAttempts += 1;
+          profileRecoveryTimer = window.setTimeout(() => refreshActiveAccountProfile(true), 15000);
+        }
+      }
       return null;
     })
     .finally(() => {
@@ -553,6 +559,12 @@ function updateAccountPanel(user) {
     return;
   }
 
+  const sameUser = String(activeAccountUser?.id) === String(user.id);
+  if (!sameUser) {
+    profileRecoveryAttempts = 0;
+    lastProfileRefreshAt = 0;
+    window.clearTimeout(profileRecoveryTimer);
+  }
   activeAccountUser = user;
   activeAccountPanel = panel;
 
@@ -565,8 +577,12 @@ function updateAccountPanel(user) {
     cacheAccountProfile(user.id, metadataProfile);
   }
 
-  renderAccountPanel(panel, user, initialProfile, source);
-  void refreshAccountProfile(user, panel, { force: true });
+  // TOKEN_REFRESHED/SIGNED_IN can fire on focus. Do not replace a good live
+  // identity with metadata (or restart a request) on every such event.
+  if (!sameUser || panel.dataset.profileSource !== 'live') {
+    renderAccountPanel(panel, user, initialProfile, source);
+  }
+  void refreshAccountProfile(user, panel, { force: !sameUser });
 }
 
 async function boot() {
@@ -622,7 +638,10 @@ function refreshActiveAccountProfile(force = false) {
   void refreshAccountProfile(activeAccountUser, activeAccountPanel, { force });
 }
 
-window.addEventListener('online', () => refreshActiveAccountProfile(true));
+window.addEventListener('online', () => {
+  if (activeAccountUser) refreshActiveAccountProfile(true);
+  else void boot().catch(reportBootError);
+});
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) {
     refreshActiveAccountProfile(true);
@@ -646,4 +665,25 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-boot();
+function reportBootError(error) {
+  console.warn('Prem Predics session is temporarily unavailable:', error?.message || error);
+  const panel = document.querySelector('[data-auth-panel]');
+  if (panel && !activeAccountUser) {
+    panel.innerHTML = '<p>Could not reconnect. <button type="button" data-retry-account>Retry</button></p>';
+    panel.querySelector('[data-retry-account]').onclick = () => void boot().catch(reportBootError);
+  }
+}
+
+onSessionUserChange((user, event) => {
+  if (user) {
+    updateAccountPanel(user);
+  } else if (event === 'SIGNED_OUT') {
+    activeAccountUser = null;
+    window.clearTimeout(profileRecoveryTimer);
+    if (activeAccountPanel) activeAccountPanel.innerHTML = '';
+    activeAccountPanel = null;
+    if (document.body.dataset.requireAuth === 'true') redirectToLogin();
+  }
+});
+
+void boot().catch(reportBootError);

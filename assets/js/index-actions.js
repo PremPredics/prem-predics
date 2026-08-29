@@ -1,12 +1,23 @@
 import { escapeHtml, leagueUrl, normaliseNested } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 import { supabase } from './supabase-client.js';
+import { getSessionUser, onSessionUserChange } from './session-user.js';
+import { boundedRead, readData } from './async-read.js';
 
 const panel = document.querySelector('[data-home-action-panel]');
 const list = document.querySelector('[data-home-action-list]');
 const HOME_ACTION_STYLE_ID = 'prem-predics-home-action-style';
 let actionCountdownTimer = null;
 let deadlineRefreshQueued = false;
+let lastExpiredDeadlines = '';
+let homeGeneration = 0;
+let homeUserId = null;
+let homeRefresh = null;
+let homeLastRefresh = 0;
+let homeRetryTimer = null;
+let homeRetryAttempts = 0;
+let homeRows = new Map();
+const HOME_LEAGUE_CACHE_PREFIX = 'premPredicsHomeLeagues:v1:';
 
 function injectHomeActionStyles() {
   if (document.getElementById(HOME_ACTION_STYLE_ID)) {
@@ -16,6 +27,23 @@ function injectHomeActionStyles() {
   const style = document.createElement('style');
   style.id = HOME_ACTION_STYLE_ID;
   style.textContent = `
+    [data-home-action-message] {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #ede9fe;
+    }
+    [data-home-action-retry] {
+      margin-left: 6px;
+      padding: 5px 12px;
+      min-height: 32px;
+      border: 1px solid #fef3c7;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #fef3c7, #fbbf24);
+      color: #2e1065;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    [data-home-action-retry]:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     .home-action-row {
       display: grid !important;
       grid-template-columns: 1fr !important;
@@ -252,7 +280,9 @@ function startActionCountdowns() {
       deadlineReached ||= Number.isFinite(remainingMs) && remainingMs <= 0;
     });
 
-    if (deadlineReached && !deadlineRefreshQueued) {
+    const expiredKey = Array.from(countdowns).map((node) => node.dataset.homeActionDeadline).sort().join('|');
+    if (deadlineReached && !deadlineRefreshQueued && expiredKey !== lastExpiredDeadlines) {
+      lastExpiredDeadlines = expiredKey;
       deadlineRefreshQueued = true;
       if (actionCountdownTimer) {
         window.clearInterval(actionCountdownTimer);
@@ -279,7 +309,7 @@ function normaliseActionState(state) {
   if (state === false) {
     return 'required';
   }
-  return ['complete', 'required', 'na'].includes(state) ? state : 'na';
+  return ['complete', 'required', 'na', 'pending', 'error'].includes(state) ? state : 'na';
 }
 
 function statusMarkup(result) {
@@ -290,6 +320,8 @@ function statusMarkup(result) {
     complete: 'Completed',
     required: 'Action Required',
     na: 'N/A',
+    pending: 'Checking…',
+    error: 'Unavailable',
   };
 
   const hasCountdown = actionState === 'required'
@@ -325,215 +357,251 @@ function memberCountsByLeague(memberRows) {
   }, new Map());
 }
 
-async function predictionStatus(userId, league, activeGameweek) {
-  const { data: fixtures, error: fixtureError } = await supabase
-    .from('fixtures')
-    .select('id, prediction_locks_at, status')
-    .eq('season_id', league.season_id)
-    .eq('gameweek_id', activeGameweek.gameweek_id);
-
-  if (fixtureError) {
-    throw fixtureError;
-  }
-
-  const playableFixtures = (fixtures || []).filter((fixture) => fixture.status !== 'postponed');
-  const openFixtures = playableFixtures.filter((fixture) => !isPast(fixture.prediction_locks_at));
-  if (!openFixtures.length) {
-    return { state: 'complete', deadline: null };
-  }
-
-  const { data, error } = await supabase
-    .from('predictions')
-    .select('fixture_id')
-    .eq('competition_id', league.id)
-    .eq('user_id', userId)
-    .eq('prediction_slot', 'primary')
-    .in('fixture_id', openFixtures.map((fixture) => fixture.id));
-
-  if (error) {
-    throw error;
-  }
-
-  const predictedFixtureIds = new Set((data || []).map((prediction) => String(prediction.fixture_id)));
-  const missingOpenFixtures = openFixtures.filter((fixture) => !predictedFixtureIds.has(String(fixture.id)));
-  return missingOpenFixtures.length
-    ? { state: 'required', deadline: earliestDeadline(missingOpenFixtures) }
+async function predictionStatus(userId, league, activeGameweek, fixtures) {
+  const openFixtures = fixtures.filter((fixture) => fixture.status !== 'postponed'
+    && fixture.status !== 'final' && !isPast(fixture.prediction_locks_at));
+  if (!openFixtures.length) return { state: 'complete', deadline: null };
+  const data = await readData(() => supabase.from('predictions').select('fixture_id')
+    .eq('competition_id', league.id).eq('user_id', userId).eq('prediction_slot', 'primary')
+    .in('fixture_id', openFixtures.map((fixture) => fixture.id)));
+  const saved = new Set((data || []).map((row) => String(row.fixture_id)));
+  const missing = openFixtures.filter((fixture) => !saved.has(String(fixture.id)));
+  return missing.length
+    ? { state: 'required', deadline: earliestDeadline(missing) }
     : { state: 'complete', deadline: null };
 }
 
 async function starManStatus(userId, league, activeGameweek) {
-  if (isPast(activeGameweek.star_man_locks_at)) {
-    return { state: 'complete', deadline: null };
-  }
-
-  const { data, error } = await supabase
-    .from('star_man_picks')
-    .select('id')
-    .eq('competition_id', league.id)
-    .eq('user_id', userId)
-    .eq('gameweek_id', activeGameweek.gameweek_id)
-    .eq('pick_slot', 'primary')
-    .maybeSingle();
-
-  if (error) {
-    throw error;
-  }
-
-  return data
-    ? { state: 'complete', deadline: null }
+  if (isPast(activeGameweek.star_man_locks_at)) return { state: 'complete', deadline: null };
+  const data = await readData(() => supabase.from('star_man_picks').select('id')
+    .eq('competition_id', league.id).eq('user_id', userId)
+    .eq('gameweek_id', activeGameweek.gameweek_id).eq('pick_slot', 'primary').maybeSingle());
+  return data ? { state: 'complete', deadline: null }
     : { state: 'required', deadline: activeGameweek.star_man_locks_at };
 }
 
-async function gameCardStatus(userId, league, activeGameweek) {
-  if (!activeGameweek) {
-    return { state: 'na', deadline: null };
-  }
-
-  try {
-    await supabase.rpc('ensure_game_card_rounds', {
+async function gameCardStatus(userId, league, activeGameweek, seasonGameweeks) {
+  const roundsQuery = () => supabase.from('game_card_rounds')
+    .select('id, start_gameweek_id, end_gameweek_id, status')
+    .eq('competition_id', league.id).eq('season_id', league.season_id).order('round_number');
+  let [rounds, gameweeks] = await Promise.all([readData(roundsQuery), seasonGameweeks]);
+  // Existing leagues need no write/round-creation round trip on every homepage load.
+  if (!rounds?.length) {
+    const { error } = await boundedRead((signal) => supabase.rpc('ensure_game_card_rounds', {
       target_competition_id: league.id,
-    });
-
-    const [{ data: gameweeks, error: gameweekError }, { data: rounds, error: roundError }] = await Promise.all([
-      supabase
-        .from('gameweeks')
-        .select('id, number')
-        .eq('season_id', league.season_id),
-      supabase
-        .from('game_card_rounds')
-        .select('id, start_gameweek_id, end_gameweek_id, status')
-        .eq('competition_id', league.id)
-        .eq('season_id', league.season_id)
-        .order('round_number', { ascending: true }),
-    ]);
-
-    if (gameweekError || roundError) {
-      return { state: 'na', deadline: null };
-    }
-
-    const numberById = new Map((gameweeks || []).map((gameweek) => [String(gameweek.id), Number(gameweek.number)]));
-    const activeNumber = Number(activeGameweek.gameweek_number || 0);
-    const activeRound = (rounds || []).find((round) => {
-      const startNumber = numberById.get(String(round.start_gameweek_id));
-      const endNumber = numberById.get(String(round.end_gameweek_id));
-      return Number.isFinite(startNumber)
-        && Number.isFinite(endNumber)
-        && activeNumber >= startNumber
-        && activeNumber <= endNumber;
-    });
-
-    if (!activeRound) {
-      return { state: 'na', deadline: null };
-    }
-
-    const { data, error } = await supabase
-      .from('game_card_predictions')
-      .select('id, predicted_value')
-      .eq('round_id', activeRound.id)
-      .eq('gameweek_id', activeGameweek.gameweek_id)
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (error) {
-      return { state: 'na', deadline: null };
-    }
-
-    if (hasSavedGameCardValue(data)) {
-      return { state: 'complete', deadline: null };
-    }
-
-    return isPast(activeGameweek.star_man_locks_at)
-      ? { state: 'na', deadline: null }
-      : { state: 'required', deadline: activeGameweek.star_man_locks_at };
-  } catch {
-    return { state: 'na', deadline: null };
+    }).abortSignal(signal));
+    if (error) throw error;
+    rounds = await readData(roundsQuery);
   }
+  const numbers = new Map((gameweeks || []).map((gw) => [String(gw.id), Number(gw.number)]));
+  const current = Number(activeGameweek.gameweek_number);
+  const round = (rounds || []).find((row) => current >= numbers.get(String(row.start_gameweek_id))
+    && current <= numbers.get(String(row.end_gameweek_id)));
+  if (!round) return { state: 'na', deadline: null };
+  const data = await readData(() => supabase.from('game_card_predictions').select('id, predicted_value')
+    .eq('round_id', round.id).eq('gameweek_id', activeGameweek.gameweek_id)
+    .eq('user_id', userId).maybeSingle());
+  if (hasSavedGameCardValue(data)) return { state: 'complete', deadline: null };
+  return isPast(activeGameweek.star_man_locks_at) ? { state: 'na', deadline: null }
+    : { state: 'required', deadline: activeGameweek.star_man_locks_at };
 }
 
-async function leagueRow(userId, league, memberCount) {
-  const { activeGameweek } = await loadActiveGameweek(league);
-  if (!activeGameweek) {
-    return '';
-  }
-
-  const [predictionsComplete, starManComplete, gameCardActionStatus] = await Promise.all([
-    predictionStatus(userId, league, activeGameweek),
-    starManStatus(userId, league, activeGameweek),
-    gameCardStatus(userId, league, activeGameweek),
-  ]);
-  const memberCountMarkup = Number.isInteger(memberCount)
-    ? `<small class="home-action-member-count">${memberCount} ${memberCount === 1 ? 'user' : 'users'}</small>`
-    : '';
-
+function leagueRow(row) {
+  const { league, memberCount, gameweek, predictions, starMan, gameCard } = row;
+  const members = Number.isInteger(memberCount)
+    ? `<small class="home-action-member-count">${memberCount} ${memberCount === 1 ? 'user' : 'users'}</small>` : '';
   return `
     <div class="home-action-row">
       <div class="home-action-league-pill">
         <span class="home-action-league-copy">
           <span class="home-action-league-details">
             <strong class="home-action-league-name">${escapeHtml(league.name)}</strong>
-            ${memberCountMarkup}
+            ${members}
           </span>
-          <small class="home-action-gameweek">GW${escapeHtml(activeGameweek.gameweek_number)}</small>
+          <small class="home-action-gameweek">${gameweek ? `GW${escapeHtml(gameweek.gameweek_number)}` : 'GW —'}</small>
         </span>
         <a class="home-action-open" href="${leagueUrl('league.html', league.id)}">Enter</a>
       </div>
       <div class="home-action-status-grid">
-        ${actionStatus('Predictions', predictionsComplete)}
-        ${actionStatus('Star Man', starManComplete)}
-        ${actionStatus('Game Card', gameCardActionStatus)}
+        ${actionStatus('Predictions', predictions)}
+        ${actionStatus('Star Man', starMan)}
+        ${actionStatus('Game Card', gameCard)}
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-async function boot() {
-  if (!panel || !list) {
-    return;
-  }
-
-  injectHomeActionStyles();
-
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData?.user;
-  if (!user) {
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from('competition_members')
-    .select('competitions(id, name, season_id, starts_gameweek_id)')
-    .eq('user_id', user.id)
-    .order('joined_at', { ascending: true });
-
-  if (error || !data?.length) {
-    return;
-  }
-
-  const leagues = data.map((row) => normaliseNested(row.competitions)).filter(Boolean);
-  const leagueIds = leagues.map((league) => league.id);
-  const { data: memberRows, error: memberError } = await supabase
-    .from('competition_members')
-    .select('competition_id')
-    .in('competition_id', leagueIds);
-  const memberCounts = memberError
-    ? new Map()
-    : memberCountsByLeague(memberRows);
-  const rows = (await Promise.all(leagues.map((league) => (
-    leagueRow(user.id, league, memberCounts.get(String(league.id)))
-  ))))
-    .filter(Boolean);
-
-  if (!rows.length) {
-    return;
-  }
-
-  list.innerHTML = rows.join('');
+function renderHomeRows() {
+  if (!homeRows.size) return;
+  list.innerHTML = [...homeRows.values()].map(leagueRow).join('');
   panel.hidden = false;
   startActionCountdowns();
 }
 
-boot().catch(() => {
-  if (panel) {
-    panel.hidden = true;
+function homeMessage(text = '') {
+  const message = panel?.querySelector('[data-home-action-message]');
+  if (!message) return;
+  message.hidden = !text;
+  message.querySelector('span').textContent = text;
+}
+
+function cachedHomeLeagues(userId) {
+  try {
+    const cached = JSON.parse(localStorage.getItem(HOME_LEAGUE_CACHE_PREFIX + userId) || 'null');
+    if (cached?.userId !== userId || Date.now() - cached.at > 86400000) return [];
+    return Array.isArray(cached.leagues) ? cached.leagues.filter((l) => l.id && l.name && l.season_id) : [];
+  } catch { return []; }
+}
+
+function cacheHomeLeagues(userId, leagues) {
+  try {
+    // Cache navigation only, never predictions, picks or authoritative action state.
+    localStorage.setItem(HOME_LEAGUE_CACHE_PREFIX + userId, JSON.stringify({
+      userId, at: Date.now(), leagues,
+    }));
+  } catch { /* Storage being unavailable must never prevent live rendering. */ }
+}
+
+function pendingRow(league) {
+  return { league, predictions: 'pending', starMan: 'pending', gameCard: 'pending' };
+}
+
+function reportHomeError(error) {
+  console.warn('Prem Predics Quick Access could not fully refresh:', error?.message || error);
+  if (!panel) return;
+  panel.hidden = false;
+  homeMessage('Some league details could not load. You can still enter your leagues.');
+  if (!homeRows.size) list.innerHTML = '<p>Unable to load Quick Access. Use Retry or open the Leagues page below.</p>';
+  if (homeRetryAttempts < 1 && navigator.onLine) {
+    homeRetryAttempts += 1;
+    homeRetryTimer = window.setTimeout(() => { void boot(); }, 15000);
   }
+}
+
+async function loadHomeActions(generation) {
+  const user = await getSessionUser();
+  if (generation !== homeGeneration) return;
+  if (!user) {
+    homeUserId = null;
+    homeRows.clear();
+    list.innerHTML = '';
+    panel.hidden = true;
+    return;
+  }
+  if (homeUserId !== user.id) {
+    homeUserId = user.id;
+    homeRows = new Map(cachedHomeLeagues(user.id).map((league) => [league.id, pendingRow(league)]));
+    list.innerHTML = '<p>Loading your leagues…</p>';
+  }
+  panel.hidden = false;
+  homeMessage('');
+  renderHomeRows();
+  const current = () => generation === homeGeneration && homeUserId === user.id;
+  const memberships = await readData(() => supabase.from('competition_members')
+    .select('competitions(id, name, season_id, starts_gameweek_id)')
+    .eq('user_id', user.id).order('joined_at'));
+  if (!current()) return;
+  const leagues = (memberships || []).map((row) => normaliseNested(row.competitions)).filter(Boolean);
+  cacheHomeLeagues(user.id, leagues);
+  homeRows = new Map(leagues.map((league) => [league.id, pendingRow(league)]));
+  if (!leagues.length) {
+    list.innerHTML = '';
+    panel.hidden = true;
+    return;
+  }
+  renderHomeRows(); // League links appear before any deadlines/picks/rounds finish.
+  const contexts = new Map();
+  const gameweeksBySeason = new Map();
+  let hadError = false;
+  const counts = readData(() => supabase.from('competition_members').select('competition_id')
+    .in('competition_id', leagues.map((league) => league.id)))
+    .then((members) => {
+      if (!current()) return;
+      const totals = memberCountsByLeague(members);
+      for (const row of homeRows.values()) row.memberCount = totals.get(String(row.league.id)) || 0;
+      renderHomeRows();
+    }).catch((error) => { if (current()) { hadError = true; reportHomeError(error); } });
+
+  const tasks = leagues.map(async (league) => {
+    const row = homeRows.get(league.id);
+    const key = `${league.season_id}:${league.starts_gameweek_id}`;
+    try {
+      if (!contexts.has(key)) contexts.set(key, boundedRead(() => loadActiveGameweek(league)));
+      const { activeGameweek, fixturesByGameweek } = await contexts.get(key);
+      if (!current()) return;
+      row.gameweek = activeGameweek;
+      if (!activeGameweek) {
+        row.predictions = row.starMan = row.gameCard = 'na';
+        renderHomeRows();
+        return;
+      }
+      if (!gameweeksBySeason.has(league.season_id)) {
+        gameweeksBySeason.set(league.season_id, readData(() => supabase.from('gameweeks')
+          .select('id, number').eq('season_id', league.season_id)));
+      }
+      const checks = {
+        predictions: predictionStatus(user.id, league, activeGameweek,
+          fixturesByGameweek.get(String(activeGameweek.gameweek_id)) || []),
+        starMan: starManStatus(user.id, league, activeGameweek),
+        gameCard: gameCardStatus(user.id, league, activeGameweek, gameweeksBySeason.get(league.season_id)),
+      };
+      // Each status paints independently. A slow/failed game-card request cannot
+      // hide Predictions, Star Man or another league.
+      await Promise.allSettled(Object.entries(checks).map(async ([name, request]) => {
+        try {
+          const value = await request;
+          if (current()) { row[name] = value; renderHomeRows(); }
+        } catch (error) {
+          if (current()) { row[name] = 'error'; hadError = true; renderHomeRows(); reportHomeError(error); }
+        }
+      }));
+    } catch (error) {
+      if (current()) {
+        row.predictions = row.starMan = row.gameCard = 'error';
+        hadError = true;
+        renderHomeRows();
+        reportHomeError(error);
+      }
+    }
+  });
+  await Promise.allSettled([counts, ...tasks]);
+  if (current() && !hadError) {
+    homeRetryAttempts = 0;
+    window.clearTimeout(homeRetryTimer);
+    homeMessage('');
+  }
+}
+
+function boot() {
+  if (!panel || !list) return Promise.resolve();
+  if (homeRefresh) return homeRefresh;
+  injectHomeActionStyles();
+  homeLastRefresh = Date.now();
+  const generation = homeGeneration;
+  let request;
+  request = loadHomeActions(generation).catch((error) => {
+    if (generation === homeGeneration) reportHomeError(error);
+  }).finally(() => { if (homeRefresh === request) homeRefresh = null; });
+  homeRefresh = request;
+  return request;
+}
+
+panel?.querySelector('[data-home-action-retry]')?.addEventListener('click', () => { void boot(); });
+window.addEventListener('online', () => { void boot(); });
+window.addEventListener('pageshow', (event) => { if (event.persisted) void boot(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && Date.now() - homeLastRefresh > 30000) void boot();
 });
+onSessionUserChange((user, event) => {
+  if (event === 'SIGNED_OUT' || (homeUserId && user && homeUserId !== user.id)) {
+    homeGeneration += 1;
+    homeRefresh = null;
+    homeUserId = null;
+    homeRows.clear();
+    window.clearTimeout(homeRetryTimer);
+    window.clearInterval(actionCountdownTimer);
+    if (list) list.innerHTML = '';
+    if (panel) panel.hidden = true;
+  }
+  if (user && (!homeUserId || Date.now() - homeLastRefresh > 30000)) void boot();
+});
+void boot();
