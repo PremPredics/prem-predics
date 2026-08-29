@@ -83,6 +83,9 @@ async function fixtureDatabase() {
 }
 
 test('full SQL executes, repairs only clear evidence, preserves every protected row and is idempotent', { timeout: 120000 }, async () => {
+  const executableMigration = migration.replace(/^--.*$/gm, '');
+  assert.doesNotMatch(executableMigration, /create\s+temp(?:orary)?\s+table|on\s+commit\s+drop/i,
+    'Supabase SQL Editor can commit between top-level statements');
   const db = await fixtureDatabase();
   try {
     const protectedTables = ['competitions', 'predictions', 'match_results', 'league_cards', 'player_fixture_stats', 'player_gameweek_stats', 'star_man_picks', 'fixtures'];
@@ -90,6 +93,8 @@ test('full SQL executes, repairs only clear evidence, preserves every protected 
     const playersBefore = (await db.query('select * from players order by id')).rows;
     const assignmentsBefore = (await db.query('select * from player_team_assignments order by id')).rows;
     const output = await db.exec(migration);
+    assert.equal((await db.query("select count(*)::int as rows from pg_namespace where nspname = 'pp_migration_player_stats_20260829'")).rows[0].rows, 0,
+      'private staging schema is removed after a successful run');
     const report = output.find((r) => r.rows?.[0]?.player_stats_integrity_report).rows[0].player_stats_integrity_report;
     assert.ok(report.repairs.some((r) => r.repair === 'assignment_copied_from_unused_identity' && r.player_id === id(100)));
     assert.ok(!report.repairs.some((r) => r.repair === 'assignment_copied_from_unused_identity' && r.player_id === id(102)), 'referenced old Cherki fixture stays a review case in this synthetic database');
