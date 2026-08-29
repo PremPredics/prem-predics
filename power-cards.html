@@ -4238,6 +4238,22 @@ button:disabled {
   animation: stealGlowPulse 4.5s ease-in-out infinite;
 }
 
+#cancelStealBtn {
+  border: 2px solid rgba(226, 232, 240, 0.78);
+  border-radius: 999px;
+  padding: 12px 20px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #fff;
+  font-weight: 900;
+}
+
+.card-tile.steal-unavailable {
+  opacity: 0.4;
+  filter: grayscale(0.88);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 @keyframes stealGlowPulse {
   0%, 100% {
     box-shadow: 0 0 14px rgba(248, 113, 113, 0.62), 0 0 26px rgba(220, 38, 38, 0.34);
@@ -6600,6 +6616,7 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
           <button id="confirmSwapBtn" onclick="confirmSwap()" style="display:none;">Confirm Discard</button>
           <button id="confirmPickBtn" onclick="confirmPick()" style="display:none;">Confirm Picks</button>
           <button id="confirmStealBtn" onclick="confirmSteal()" style="display:none;">Confirm Steal</button>
+          <button id="cancelStealBtn" onclick="cancelStealMode()" style="display:none;">Cancel</button>
         </div>
       </div>
 
@@ -6963,7 +6980,7 @@ const cardDescriptions = {
   "Curse of the Glasses": "Curse of the Glasses\n\nValid for 1 Gameweek. Any 0-0 prediction that the Opponent makes scores NOTHING. Must be played at least 24 hours before the gameweek's first KO time.",
   "Curse of the Deleted Match": "Curse of the Deleted Match\n\nValid for 1 Gameweek. Choose ONE of the Opponent's Predictions, Opponent cannot earn points from this game. Must be played at least 24 hours before the gameweek's first KO time. Cannot be played on a fixture while Power of the Hedge is active.",
   "Curse of the Tiny Club": "Curse of the Tiny Club\n\nValid for 1 Gameweek. Opponent may NOT pick a Star Man from a Top 10 club. Must be played at least 24 hours before the gameweek's first KO time.",
-  "Curse of the Thief": "Curse of the Thief\n\nSteal a card from your Opponent. Cannot steal Super Cards. Must be played at least 24 hours before the gameweek's first KO time.",
+  "Curse of the Thief": "Curse of the Thief\n\nPlay before the Curse deadline, then select one eligible Regular Card directly from another user's hand. The card stays Used while the steal is pending, is discarded when the steal succeeds, and returns unused if the deadline passes. Cannot steal Super Cards.",
   "Curse of the Even Number": "Curse of the Even Number\n\nValid for 1 Gameweek. Opponent can only Predict an Even number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time. Cannot be picked whilst Curse of The Random is active.",
   "Curse of the Odd Number": "Curse of the Odd Number\n\nValid for 1 Gameweek. Opponent can only Predict an Odd number of goals for all teams. Must be played at least 24 hours before the gameweek's first KO time. Cannot be picked whilst Curse of The Random is active.",
 
@@ -7071,12 +7088,16 @@ let gameState = {
   pendingSuperSub: null,
   pendingSuperDuo: null,
   stealMode: null,
+  stealModeEffectId: null,
+  stealModeDeadlineAt: null,
+  stealEligibleOpponentUserIds: [],
+  stealDisabledOpponentReasons: {},
+  stealConfirming: false,
   selectedSteal: null,
   activeGameCard: null,
   pendingCardDraw: { type: null, deckType: null },
   cardToPlay: null,
   pendingCardEffect: null,
-  stealModeEffectId: null,
   selectedDeckType: null,
   currentPlayer: null,
   starterCardsStatus: null
@@ -7090,6 +7111,7 @@ let medalBalances = { regular: 0, super: 0 };
 let handRefreshTimer = null;
 let handRefreshSubscription = null;
 let liveHandRefreshTimer = null;
+let thiefDeadlineTimer = null;
 let handRefreshPromise = null;
 let handRefreshQueuedOptions = null;
 let currentDeckVariantId = 'players_2';
@@ -8888,28 +8910,6 @@ async function confirmCardPlay() {
 
   closeCardPreview();
 
-  if (isThiefCard) {
-    const opponentsWithCards = (gameState.playerOrder || [])
-      .filter((playerKey) => playerKey !== player && (gameState.players[playerKey]?.hand || []).length > 0);
-    if (opponentsWithCards.length === 0) {
-      showSiteNotice('You cannot play Curse of the Thief when your opponent has no cards!', 'Curse of the Thief');
-      return;
-    }
-
-    if (cardRuntime?.canStealFromOpponent) {
-      const targetChecks = await Promise.all(opponentsWithCards.map(async (opponentKey) => {
-        const result = await cardRuntime.canStealFromOpponent(gameState.playerUserIds?.[opponentKey] || null);
-        return { opponentKey, ...result };
-      }));
-      const validTargets = targetChecks.filter((check) => check.canSteal);
-      if (!validTargets.length) {
-        const reason = targetChecks.find((check) => check.message)?.message;
-        showSiteNotice(reason || 'You cannot play Curse of the Thief because there is no valid card to steal.', 'Curse of the Thief');
-        return;
-      }
-    }
-  }
-
   if (isSwapCard) {
     if (gameState.regularDeck.length < 3) {
       showSiteNotice('You need at least 3 cards in the Regular Deck to play Power of the Swap!', 'Power of the Swap');
@@ -9417,10 +9417,104 @@ async function confirmPick() {
 function startStealMode(player, activation = null) {
   gameState.stealMode = player;
   gameState.stealModeEffectId = activation?.id || null;
+  gameState.stealModeDeadlineAt = activation?.deadline_at || activation?.deadlineAt || null;
+  gameState.stealEligibleOpponentUserIds = activation?.eligibleOpponentUserIds || [];
+  gameState.stealDisabledOpponentReasons = activation?.disabledOpponentReasons || {};
+  gameState.stealConfirming = false;
+  gameState.selectedSteal = null;
+  schedulePendingThiefExpiry();
+}
+
+function clearStealMode() {
+  clearTimeout(thiefDeadlineTimer);
+  thiefDeadlineTimer = null;
+  gameState.stealMode = null;
+  gameState.stealModeEffectId = null;
+  gameState.stealModeDeadlineAt = null;
+  gameState.stealEligibleOpponentUserIds = [];
+  gameState.stealDisabledOpponentReasons = {};
+  gameState.stealConfirming = false;
   gameState.selectedSteal = null;
 }
 
+function schedulePendingThiefExpiry() {
+  clearTimeout(thiefDeadlineTimer);
+  thiefDeadlineTimer = null;
+  const deadlineMs = new Date(gameState.stealModeDeadlineAt || '').getTime();
+  if (!Number.isFinite(deadlineMs)) return;
+  const delay = Math.max(0, Math.min(deadlineMs - Date.now() + 250, 2147483000));
+  thiefDeadlineTimer = window.setTimeout(async () => {
+    try {
+      const expired = await cardRuntime?.expireIncompleteThiefPlays?.();
+      if (Number(expired || 0) > 0) {
+        clearStealMode();
+        await syncHandFromDatabase({ force: true });
+        render();
+        showSiteNotice(
+          'The Curse deadline passed before a card was stolen. Curse of the Thief is unused in your hand again.',
+          'Curse of the Thief Expired',
+          'warning'
+        );
+      } else if (gameState.stealModeEffectId) {
+        schedulePendingThiefExpiry();
+      }
+    } catch (error) {
+      console.warn('Could not expire pending Curse of the Thief', error);
+    }
+  }, delay);
+}
+
+function cancelStealMode() {
+  clearStealMode();
+  save();
+  render();
+  showSiteNotice(
+    'Curse of the Thief remains Used and can be completed from the card before the Curse deadline.',
+    'Choose Later'
+  );
+}
+
+async function resumeThiefFromUsedCard(playerKey, usedMeta) {
+  if (!cardRuntime?.refreshThiefAvailability || !usedMeta?.effectId) {
+    return;
+  }
+  try {
+    const availability = await cardRuntime.refreshThiefAvailability({
+      gameweek_id: usedMeta.gameweekId,
+      gameweek_number: usedMeta.gameweekNumber,
+      first_fixture_kickoff_at: usedMeta.firstFixtureKickoffAt,
+    });
+    startStealMode(playerKey, {
+      id: usedMeta.effectId,
+      deadline_at: usedMeta.deadlineAt,
+      ...availability,
+    });
+    render();
+  } catch (error) {
+    showSiteNotice(error.message || 'Could not resume Curse of the Thief.', 'Curse of the Thief', 'warning');
+  }
+}
+
+function stealOpponentIsEligible(playerKey) {
+  const userId = gameState.playerUserIds?.[playerKey];
+  return Boolean(userId) && (gameState.stealEligibleOpponentUserIds || [])
+    .some((eligibleId) => String(eligibleId) === String(userId));
+}
+
+function opponentCardIsStealable(playerKey, index) {
+  const card = gameState.handCardInstancesByPlayer?.[playerKey]?.[index];
+  const usedMeta = card?.id ? gameState.usedCardEffectsByInstance?.[card.id] : null;
+  return stealOpponentIsEligible(playerKey)
+    && Boolean(card?.id)
+    && !usedMeta
+    && card?.deckType !== 'premium'
+    && card?.category !== 'super';
+}
+
 function selectSteal(opponent, index) {
+  if (!opponentCardIsStealable(opponent, index) || gameState.stealConfirming) {
+    return;
+  }
   const cardInstance = gameState.handCardInstancesByPlayer?.[opponent]?.[index];
   gameState.selectedSteal = { opponent, index, cardInstanceId: cardInstance?.id || null };
   render();
@@ -9433,34 +9527,52 @@ async function confirmSteal() {
   }
   
   const { opponent, index } = gameState.selectedSteal;
-  const player = gameState.stealMode;
-  const opponentUserId = gameState.playerUserIds?.[opponent] || null;
   const selectedCard = gameState.players?.[opponent]?.hand?.[index] || null;
   let stolenCardName = pileCardName(selectedCard) || 'Regular Card';
 
-  let stolenThroughDatabase = false;
-  if (cardRuntime?.stealCard && gameState.stealModeEffectId && gameState.selectedSteal.cardInstanceId) {
-    try {
-      const stolenCard = await cardRuntime.stealCard(
-        gameState.stealModeEffectId,
-        gameState.selectedSteal.cardInstanceId,
-        opponentUserId
-      );
-      stolenCardName = stolenCard?.card_name || stolenCardName;
-      stolenThroughDatabase = true;
-    } catch (error) {
-      showSiteNotice(error.message || 'Could not steal that card.', 'Curse of the Thief');
-      return;
-    }
+  if (!cardRuntime?.completeThiefSteal || !gameState.stealModeEffectId || !gameState.selectedSteal.cardInstanceId) {
+    showSiteNotice('Curse of the Thief is still loading. Refresh and try again.', 'Curse of the Thief', 'warning');
+    return;
   }
 
-  if (!stolenThroughDatabase) {
-    gameState.players[player].hand.push(gameState.players[opponent].hand.splice(index, 1)[0]);
+  const confirmButton = document.getElementById('confirmStealBtn');
+  gameState.stealConfirming = true;
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Stealing...';
   }
-  gameState.stealMode = null;
-  gameState.stealModeEffectId = null;
-  gameState.selectedSteal = null;
+
+  try {
+    const result = await cardRuntime.completeThiefSteal(
+      gameState.stealModeEffectId,
+      gameState.selectedSteal.cardInstanceId
+    );
+    if (result?.expired) {
+      clearStealMode();
+      await syncHandFromDatabase({ force: true });
+      save();
+      render();
+      showSiteNotice(
+        'The Curse deadline passed before the steal was confirmed. Curse of the Thief is unused in your hand again.',
+        'Curse of the Thief Expired',
+        'warning'
+      );
+      return;
+    }
+    stolenCardName = result?.stolen_card_name || stolenCardName;
+  } catch (error) {
+    gameState.stealConfirming = false;
+    if (confirmButton) {
+      confirmButton.disabled = false;
+      confirmButton.textContent = 'Confirm Steal';
+    }
+    showSiteNotice(error.message || 'Could not steal that card.', 'Curse of the Thief');
+    return;
+  }
+
+  clearStealMode();
   document.getElementById("confirmStealBtn").style.display = "none";
+  document.getElementById("cancelStealBtn").style.display = "none";
   try {
     await syncHandFromDatabase({ force: true });
   } catch (error) {
@@ -10047,6 +10159,8 @@ function markCardInstanceAsUsed(playerKey, cardIndex, activation) {
     targetUserId: activation.target_user_id || null,
     status: activation.status || 'active',
     gameweekNumber: activation.gameweek_number || '?',
+    gameweekId: activation.start_gameweek_id || activation.gameweek_id || null,
+    deadlineAt: activation.deadline_at || null,
     firstFixtureKickoffAt: activation.first_fixture_kickoff_at || null,
     hasGameweekStarted: gameweekHasStartedFromTime(activation.first_fixture_kickoff_at),
   };
@@ -10139,7 +10253,10 @@ function render() {
       const isOpponentHand = p !== currentPlayerKey;
       const cardInstance = gameState.handCardInstancesByPlayer?.[p]?.[i];
       const usedMeta = cardInstance?.id ? gameState.usedCardEffectsByInstance?.[cardInstance.id] : null;
-      div.className = isOpponentHand
+      const canStealThisCard = Boolean(gameState.stealMode && gameState.stealMode !== p)
+        && opponentCardIsStealable(p, i);
+      const revealOpponentCard = isOpponentHand && canStealThisCard;
+      div.className = isOpponentHand && !revealOpponentCard
         ? `card-tile masked-card ${getMaskedCardClass(c)}`
         : `card-tile ${cardType}`;
       if (usedMeta) {
@@ -10150,17 +10267,17 @@ function render() {
         }
         div.dataset.usedWeek = `GW${usedMeta.gameweekNumber || '?'}`;
         div.innerHTML = `
-          <span class="used-card-name">${escapeHtml(isOpponentHand ? getMaskedCardLabel(c) : c)}</span>
+          <span class="used-card-name">${escapeHtml(isOpponentHand && !revealOpponentCard ? getMaskedCardLabel(c) : c)}</span>
           <span class="used-card-label">Used GW${escapeHtml(usedMeta.gameweekNumber || '?')}</span>
         `;
       } else {
-        div.innerText = isOpponentHand ? getMaskedCardLabel(c) : c;
+        div.innerText = isOpponentHand && !revealOpponentCard ? getMaskedCardLabel(c) : c;
       }
       div.dataset.player = p;
       div.dataset.index = i;
       div.dataset.card = c;
 
-      if ((!usedMeta && (!isOpponentHand || gameState.stealMode)) || (usedMeta && !isOpponentHand)) {
+      if ((!usedMeta && (!isOpponentHand || canStealThisCard)) || (usedMeta && !isOpponentHand)) {
         div.setAttribute('role', 'button');
         div.setAttribute('tabindex', '0');
       }
@@ -10174,6 +10291,10 @@ function render() {
 
         if (usedMeta) {
           if (!isOpponentHand) {
+            if (usedMeta.effectKey === 'curse_thief' && usedMeta.status === 'active' && !usedMeta.targetUserId) {
+              resumeThiefFromUsedCard(p, usedMeta);
+              return;
+            }
             showReadOnlyCardPreview(
               c,
               usedMeta.playedByUserId || gameState.playerUserIds?.[p] || null,
@@ -10185,7 +10306,7 @@ function render() {
           return;
         }
 
-        if (isOpponentHand && !(gameState.stealMode && gameState.stealMode !== p)) {
+        if (isOpponentHand && !canStealThisCard) {
           return;
         }
 
@@ -10194,7 +10315,7 @@ function render() {
           return;
         }
 
-        if (gameState.stealMode && gameState.stealMode !== p) {
+        if (canStealThisCard) {
           selectSteal(p, i);
           document.getElementById("confirmStealBtn").style.display = "block";
           return;
@@ -10211,7 +10332,7 @@ function render() {
       };
 
       div.addEventListener('click', handleCardClick);
-      if ((!usedMeta && (!isOpponentHand || gameState.stealMode)) || (usedMeta && !isOpponentHand)) {
+      if ((!usedMeta && (!isOpponentHand || canStealThisCard)) || (usedMeta && !isOpponentHand)) {
         div.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
@@ -10228,8 +10349,17 @@ function render() {
           div.classList.add('swap-select');
         }
       } else if (gameState.stealMode && gameState.stealMode !== p) {
-        if (gameState.selectedSteal && gameState.selectedSteal.opponent === p && gameState.selectedSteal.index === i)
+        if (!canStealThisCard) {
+          const opponentUserId = gameState.playerUserIds?.[p];
+          const unavailableReason = cardInstance?.deckType === 'premium' || cardInstance?.category === 'super'
+            ? 'Super Cards cannot be stolen'
+            : gameState.stealDisabledOpponentReasons?.[String(opponentUserId)] || 'Unavailable';
+          div.classList.add('steal-unavailable');
+          div.setAttribute('aria-disabled', 'true');
+          div.setAttribute('title', unavailableReason);
+        } else if (gameState.selectedSteal && gameState.selectedSteal.opponent === p && gameState.selectedSteal.index === i) {
           div.classList.add('steal-selected');
+        }
       }
 
       container.appendChild(div);
@@ -10245,6 +10375,9 @@ function render() {
 
   const swapDiv = document.getElementById("pendingSwap");
   const swapSection = document.getElementById("swapSection");
+  const confirmStealButton = document.getElementById("confirmStealBtn");
+  const cancelStealButton = document.getElementById("cancelStealBtn");
+  if (cancelStealButton) cancelStealButton.style.display = gameState.stealMode ? 'block' : 'none';
   swapSection.classList.toggle("pending-active", Boolean(gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.pendingSuperDuo || gameState.stealMode));
   swapSection.classList.toggle("steal-active", Boolean(gameState.stealMode));
   swapSection.classList.toggle("swap-active", Boolean(gameState.pendingSwap) && !gameState.stealMode);
@@ -10307,15 +10440,20 @@ function render() {
     document.getElementById("confirmStealBtn").style.display = "none";
   } else if (gameState.stealMode) {
     const player = getPlayerName(gameState.stealMode);
+    const deadlineText = gameState.stealModeDeadlineAt
+      ? ` Confirm before ${escapeHtml(formatDeadlineForMessage(gameState.stealModeDeadlineAt))}.`
+      : '';
     swapDiv.style.display = "block";
-    swapDiv.innerHTML = `<strong>Steal active for ${escapeHtml(player)}</strong><p>Select a card from an opponents hand below and press Confirm Steal</p>`;
-    document.getElementById("confirmStealBtn").style.display = "block";
+    swapDiv.innerHTML = `<strong>Curse of the Thief Used by ${escapeHtml(player)}</strong><p>Select one available Regular Card directly from another user's hand, then press Confirm Steal.${deadlineText}</p>`;
+    confirmStealButton.style.display = "block";
+    confirmStealButton.disabled = gameState.stealConfirming || !gameState.selectedSteal;
+    confirmStealButton.textContent = gameState.stealConfirming ? 'Stealing...' : 'Confirm Steal';
   } else {
     swapDiv.style.display = "block";
     swapDiv.innerHTML = "<strong>No Pending Swap/Steal</strong><p>Played Swap and Steal effects will appear here.</p>";
     document.getElementById("confirmSwapBtn").style.display = "none";
     document.getElementById("confirmPickBtn").style.display = "none";
-    document.getElementById("confirmStealBtn").style.display = "none";
+    confirmStealButton.style.display = "none";
   }
 
   updateDecksDisplay();
@@ -10459,6 +10597,22 @@ async function syncMedals() {
     }
 
     async function performRefreshHands(options = {}) {
+      try {
+        const { data: expiredThiefCount, error: expiredThiefError } = await supabase.rpc(
+          'expire_my_incomplete_curse_thief_plays',
+          { target_competition_id: context.league.id }
+        );
+        if (expiredThiefError && !isMissingRpcFunction(expiredThiefError)) {
+          throw expiredThiefError;
+        }
+        if (Number(expiredThiefCount || 0) > 0) {
+          clearStealMode();
+          options.force = true;
+        }
+      } catch (error) {
+        console.warn('Could not check pending Curse of the Thief deadline', error);
+      }
+
       if (!options.force && (gameState.pendingSwap || gameState.pendingRandomCurse || gameState.pendingSuperSub || gameState.pendingSuperDuo || gameState.stealMode)) {
         return;
       }
@@ -10519,7 +10673,7 @@ async function syncMedals() {
 
       const { data: playedEffects, error: playedEffectsError } = await supabase
         .from('active_card_effects')
-        .select('id, card_instance_id, gameweek_id, start_gameweek_id, played_at, played_by_user_id, target_user_id, status, card_definitions(effect_key)')
+        .select('id, card_instance_id, gameweek_id, start_gameweek_id, deadline_at, played_at, played_by_user_id, target_user_id, status, card_definitions(effect_key)')
         .eq('competition_id', context.league.id)
         .not('card_instance_id', 'is', null)
         .in('status', ['active', 'resolved', 'vetoed']);
@@ -10568,7 +10722,9 @@ async function syncMedals() {
           playedByUserId: effect.played_by_user_id || null,
           targetUserId: effect.target_user_id || null,
           status: effect.status || '',
+          deadlineAt: effect.deadline_at || null,
           gameweekNumber: gameweek?.gameweek_number || '?',
+          gameweekId: effect.start_gameweek_id || effect.gameweek_id || null,
           firstFixtureKickoffAt,
           hasGameweekStarted: gameweekHasStartedFromTime(firstFixtureKickoffAt),
         };
@@ -10618,7 +10774,12 @@ async function syncMedals() {
           const playerKey = userIdToPlayerKey.get(row.owner_user_id);
           if (playerKey && gameState.players[playerKey]) {
             gameState.players[playerKey].hand.push(cardName);
-            gameState.handCardInstancesByPlayer[playerKey].push({ id: row.id, name: cardName });
+            gameState.handCardInstancesByPlayer[playerKey].push({
+              id: row.id,
+              name: cardName,
+              category: cardDefinition?.category || null,
+              deckType: cardDefinition?.deck_type || null,
+            });
             gameState.cardInstanceIdsByPlayer[playerKey][cardName] = gameState.cardInstanceIdsByPlayer[playerKey][cardName] || [];
             gameState.cardInstanceIdsByPlayer[playerKey][cardName].push(row.id);
           }
@@ -10708,6 +10869,34 @@ async function syncMedals() {
           selectedIndices: [],
           gameweekNumber: gameweekNumberFromEffect(pendingSwapEffect, gameweeksById),
         };
+      }
+
+      const pendingThiefEffect = (playedEffects || []).find((effect) => {
+        const definition = getNestedRecord(effect.card_definitions);
+        return effect.played_by_user_id === context.user.id
+          && effect.status === 'active'
+          && !effect.target_user_id
+          && definition?.effect_key === 'curse_thief';
+      });
+
+      if (gameState.stealModeEffectId && gameState.stealModeEffectId !== pendingThiefEffect?.id) {
+        clearStealMode();
+      }
+
+      if (ownPlayerKey && pendingThiefEffect && !gameState.pendingSwap && !gameState.pendingRandomCurse
+        && !gameState.pendingSuperSub && !gameState.pendingSuperDuo && !gameState.stealMode) {
+        const gameweek = gameweeksById.get(String(pendingThiefEffect.start_gameweek_id || pendingThiefEffect.gameweek_id));
+        const activeGameweek = {
+          gameweek_id: pendingThiefEffect.start_gameweek_id || pendingThiefEffect.gameweek_id,
+          gameweek_number: gameweek?.gameweek_number || '?',
+          first_fixture_kickoff_at: gameweek?.first_fixture_kickoff_at || null,
+        };
+        const availability = await thiefTargetAvailability(activeGameweek);
+        startStealMode(ownPlayerKey, {
+          id: pendingThiefEffect.id,
+          deadline_at: pendingThiefEffect.deadline_at || null,
+          ...availability,
+        });
       }
 
       gameState.discardPile = dbDiscardPile;
@@ -11289,6 +11478,46 @@ async function syncMedals() {
       if (otherCards.length <= 1) {
         throw new Error(`${playerNameForUserId(opponentUserId)} is locked into Power of the Swap and must keep one card available to discard.`);
       }
+    }
+
+    function stealableHandCardCountForUser(userId) {
+      const playerKey = Object.entries(gameState.playerUserIds || {})
+        .find(([, currentUserId]) => String(currentUserId || '') === String(userId || ''))?.[0];
+      if (!playerKey) return 0;
+      return (gameState.handCardInstancesByPlayer?.[playerKey] || []).filter((card) => (
+        Boolean(card?.id)
+        && !gameState.usedCardEffectsByInstance?.[card.id]
+        && card?.deckType !== 'premium'
+        && card?.category !== 'super'
+      )).length;
+    }
+
+    async function thiefTargetAvailability(activeGameweek, members = null) {
+      const leagueMemberRows = members || await leagueMembers();
+      const opponents = leagueMemberRows.filter((member) => member.user_id !== context.user.id);
+      const limitedOptions = await curseTargetOptionsForGameweek(opponents, activeGameweek, leagueMemberRows.length);
+      const checkedOptions = await Promise.all(limitedOptions.map(async (member) => {
+        const reasons = member.disabledReason ? [member.disabledReason] : [];
+        if (stealableHandCardCountForUser(member.user_id) < 1) {
+          reasons.push('No stealable Regular Cards');
+        }
+        try {
+          await assertCanStealFromOpponent(member.user_id);
+        } catch (error) {
+          reasons.push(error.message || 'Temporarily unavailable');
+        }
+        return {
+          ...member,
+          disabled: Boolean(member.disabled) || reasons.length > (member.disabledReason ? 1 : 0),
+          disabledReason: [...new Set(reasons)].filter(Boolean).join('; '),
+        };
+      }));
+      return {
+        eligibleOpponentUserIds: checkedOptions.filter((member) => !member.disabled).map((member) => member.user_id),
+        disabledOpponentReasons: Object.fromEntries(checkedOptions
+          .filter((member) => member.disabled)
+          .map((member) => [String(member.user_id), member.disabledReason || 'Unavailable'])),
+      };
     }
 
     async function deletedMatchFixtureIdsForTarget(targetUserId, activeGameweek) {
@@ -12555,19 +12784,28 @@ async function syncMedals() {
           return { canSteal: false, message: error.message || 'That opponent cannot currently be stolen from.' };
         }
       },
-      async stealCard(effectId, cardInstanceId, opponentUserId = null) {
-        await assertCanStealFromOpponent(opponentUserId);
-        const { data, error } = await supabase.rpc('steal_regular_card_from_opponent', {
+      async completeThiefSteal(effectId, cardInstanceId) {
+        const { data, error } = await supabase.rpc('complete_curse_thief_steal', {
           target_competition_id: context.league.id,
           target_source_card_effect_id: effectId,
-          target_card_instance_id: cardInstanceId,
+          target_stolen_card_instance_id: cardInstanceId,
         });
 
         if (error) {
           throw error;
         }
 
-        return Array.isArray(data) ? data[0] : data;
+        return data || {};
+      },
+      async refreshThiefAvailability(activeGameweek) {
+        return thiefTargetAvailability(activeGameweek);
+      },
+      async expireIncompleteThiefPlays() {
+        const { data, error } = await supabase.rpc('expire_my_incomplete_curse_thief_plays', {
+          target_competition_id: context.league.id,
+        });
+        if (error) throw error;
+        return Number(data || 0);
       },
       async activateCardEffect(cardName, playerKey, cardInstanceId = null) {
         const rule = cardEffectRules[cardName];
@@ -12611,6 +12849,27 @@ async function syncMedals() {
         }
         if (rule.special === 'god') {
           return playPowerOfGod(activeGameweek, fixtures, cardInstanceId);
+        }
+
+        if (rule.effectKey === 'curse_thief') {
+          const members = await leagueMembers();
+          const availability = await thiefTargetAvailability(activeGameweek, members);
+          if (!availability.eligibleOpponentUserIds.length) {
+            const reason = Object.values(availability.disabledOpponentReasons || {})[0];
+            throw new Error(reason || 'No opponent currently has an eligible Regular Card to steal.');
+          }
+          const { data, error } = await supabase.rpc('begin_curse_thief_play', {
+            target_competition_id: context.league.id,
+            target_thief_card_instance_id: cardInstanceId,
+            target_gameweek_id: activeGameweek.gameweek_id,
+          });
+          if (error) throw error;
+          return {
+            ...(data || {}),
+            ...availability,
+            gameweek_number: activeGameweek.gameweek_number,
+            first_fixture_kickoff_at: firstKickoffAt,
+          };
         }
 
         const members = await leagueMembers();

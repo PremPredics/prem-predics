@@ -1857,12 +1857,29 @@ set search_path = pg_catalog, public
 as $$
 declare
   card_category text;
+  card_effect_key text;
   target_gameweek_id bigint;
   target_gameweek_number integer;
   member_count integer;
   active_curse_count integer;
   previous_target_user_id uuid;
+  trusted_thief_target_completion boolean := false;
 begin
+  if tg_op = 'UPDATE' and new.target_user_id is distinct from old.target_user_id then
+    select cd.effect_key
+      into card_effect_key
+    from public.card_definitions cd
+    where cd.id = old.card_id;
+
+    trusted_thief_target_completion :=
+      card_effect_key = 'curse_thief'
+      and old.status = 'active'
+      and new.status = 'active'
+      and old.target_user_id is null
+      and new.target_user_id is not null
+      and current_setting('app.curse_thief_completion_effect_id', true) = old.id::text;
+  end if;
+
   if tg_op = 'UPDATE' then
     if auth.uid() is not null
       and not public.is_admin()
@@ -1875,7 +1892,10 @@ begin
         or new.start_gameweek_id is distinct from old.start_gameweek_id
         or new.end_gameweek_id is distinct from old.end_gameweek_id
         or new.played_by_user_id is distinct from old.played_by_user_id
-        or new.target_user_id is distinct from old.target_user_id
+        or (
+          new.target_user_id is distinct from old.target_user_id
+          and not trusted_thief_target_completion
+        )
       )
     then
       raise exception 'A played card''s owner, target and Gameweek cannot be changed.';
