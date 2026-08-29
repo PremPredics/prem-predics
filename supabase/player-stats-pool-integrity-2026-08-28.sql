@@ -20,14 +20,18 @@ set local lock_timeout = '5s';
 set local statement_timeout = '90s';
 select pg_advisory_xact_lock(hashtext('pp_player_stats_pool_integrity_20260828'));
 
--- Supabase's SQL Editor may commit individual top-level statements. A temporary
--- table declared ON COMMIT DROP can therefore disappear before the next statement.
--- Use a private, migration-owned staging schema so the whole copy/paste works in
--- either execution mode. It is revoked immediately and removed at the end.
+-- Supabase's SQL Editor may commit individual top-level statements. Temporary
+-- objects and migration-owned schemas have both proved unreliable there. Use
+-- uniquely named persistent staging tables in public instead. They are revoked
+-- immediately, cleaned before a retry, and removed after a successful run.
 drop schema if exists pp_migration_player_stats_20260829 cascade;
-create schema pp_migration_player_stats_20260829;
-revoke all on schema pp_migration_player_stats_20260829 from public;
-revoke all on schema pp_migration_player_stats_20260829 from anon, authenticated;
+drop table if exists
+  public.pp_migration_player_stats_20260829_unique_active,
+  public.pp_migration_player_stats_20260829_identity_matches,
+  public.pp_migration_player_stats_20260829_identity_source,
+  public.pp_migration_player_stats_20260829_repairs,
+  public.pp_migration_player_stats_20260829_season
+cascade;
 
 create schema if not exists extensions;
 create extension if not exists unaccent with schema extensions;
@@ -73,7 +77,7 @@ do $$ begin
 end $$;
 grant select, insert, update, delete on public.player_name_aliases to authenticated;
 
-create table pp_migration_player_stats_20260829.season as
+create table public.pp_migration_player_stats_20260829_season as
 select s.id, s.name, coalesce((
   select min(g.number) from public.gameweeks g
   where g.season_id = s.id and exists (
@@ -82,22 +86,25 @@ select s.id, s.name, coalesce((
   )
 ), (select max(g.number) from public.gameweeks g where g.season_id = s.id)) as current_gw
 from public.seasons s where s.is_active = true;
+revoke all on public.pp_migration_player_stats_20260829_season from public, anon, authenticated;
 do $$ begin
-  if (select count(*) from pp_migration_player_stats_20260829.season) <> 1 then
+  if (select count(*) from public.pp_migration_player_stats_20260829_season) <> 1 then
     raise exception 'Stopped safely: exactly one active season is required. No changes committed.';
   end if;
 end $$;
 
-create table pp_migration_player_stats_20260829.repairs (
+create table public.pp_migration_player_stats_20260829_repairs (
   repair text, player_id uuid, display_name text, details jsonb
 );
+revoke all on public.pp_migration_player_stats_20260829_repairs from public, anon, authenticated;
 
-create table pp_migration_player_stats_20260829.identity_source (
+create table public.pp_migration_player_stats_20260829_identity_source (
   source_key text primary key, nationality text, canonical_name text not null, names text[] not null
 );
+revoke all on public.pp_migration_player_stats_20260829_identity_source from public, anon, authenticated;
 
 -- BEGIN GENERATED NAME EVIDENCE (no clubs, activation or roster facts imported).
-insert into pp_migration_player_stats_20260829.identity_source (source_key, nationality, canonical_name, names) values
+insert into public.pp_migration_player_stats_20260829_identity_source (source_key, nationality, canonical_name, names) values
   ('identity-2025-26:Bournemouth:Tyler Shaan Adams', 'United States', 'Tyler Adams', array['Tyler Shaan Adams', 'Tyler Adams']),
   ('identity-2025-26:Bournemouth:Amine Adli', 'Morocco', 'Amine Adli', array['Amine Adli']),
   ('identity-2025-26:Bournemouth:Owen Lucas Bevan', 'Wales', 'Owen Bevan', array['Owen Lucas Bevan', 'Owen Bevan']),
@@ -1660,11 +1667,11 @@ insert into pp_migration_player_stats_20260829.identity_source (source_key, nati
   ('identity-2025-26:Wolverhampton:Bin Xu', 'China', 'Bin Xu', array['Bin Xu']);
 -- END GENERATED NAME EVIDENCE
 
-create table pp_migration_player_stats_20260829.identity_matches as
+create table public.pp_migration_player_stats_20260829_identity_matches as
 with names as materialized (
   select distinct s.source_key, public.pp_player_country_key(s.nationality) as country_key,
     public.pp_player_identity_key(n) as name_key
-  from pp_migration_player_stats_20260829.identity_source s cross join lateral unnest(s.names) n
+  from public.pp_migration_player_stats_20260829_identity_source s cross join lateral unnest(s.names) n
 ), identities as materialized (
   select p.id, public.pp_player_country_key(p.nationality) as country_key,
     public.pp_player_identity_key(p.display_name) as name_key from public.players p
@@ -1674,37 +1681,39 @@ with names as materialized (
 )
 select player_id, min(source_key) as source_key
 from candidates group by player_id having count(*) = 1;
+revoke all on public.pp_migration_player_stats_20260829_identity_matches from public, anon, authenticated;
 
 with added as (
   insert into public.player_name_aliases (player_id, name, source_key)
   select distinct m.player_id, n, m.source_key
-  from pp_migration_player_stats_20260829.identity_matches m
-  join pp_migration_player_stats_20260829.identity_source s using (source_key)
+  from public.pp_migration_player_stats_20260829_identity_matches m
+  join public.pp_migration_player_stats_20260829_identity_source s using (source_key)
   cross join lateral unnest(s.names) n
   where btrim(n) <> ''
   on conflict (player_id, name) do nothing
   returning player_id
 )
-insert into pp_migration_player_stats_20260829.repairs
+insert into public.pp_migration_player_stats_20260829_repairs
 select 'search_names_added', p.id, p.display_name, jsonb_build_object('names_added', count(*))
 from added a join public.players p on p.id = a.player_id group by p.id, p.display_name;
 
 -- A single active row identifies the canonical candidate; more than one is ambiguous.
-create table pp_migration_player_stats_20260829.unique_active as
+create table public.pp_migration_player_stats_20260829_unique_active as
 select m.source_key, (array_agg(p.id) filter (where p.is_active))[1] as player_id
-from pp_migration_player_stats_20260829.identity_matches m join public.players p on p.id = m.player_id
+from public.pp_migration_player_stats_20260829_identity_matches m join public.players p on p.id = m.player_id
 group by m.source_key having count(*) filter (where p.is_active) = 1;
+revoke all on public.pp_migration_player_stats_20260829_unique_active from public, anon, authenticated;
 
 with evidence as (
   select distinct c.id as player_id, c.display_name, a.season_id, a.team_id,
     a.starts_gameweek_id, a.ends_gameweek_id
-  from pp_migration_player_stats_20260829.unique_active u
+  from public.pp_migration_player_stats_20260829_unique_active u
   join public.players c on c.id = u.player_id
-  join pp_migration_player_stats_20260829.identity_source source on source.source_key = u.source_key
-  join pp_migration_player_stats_20260829.identity_matches m on m.source_key = u.source_key and m.player_id <> c.id
+  join public.pp_migration_player_stats_20260829_identity_source source on source.source_key = u.source_key
+  join public.pp_migration_player_stats_20260829_identity_matches m on m.source_key = u.source_key and m.player_id <> c.id
   join public.players old on old.id = m.player_id and old.is_active = false
   join public.player_team_assignments a on a.player_id = old.id
-  join pp_migration_player_stats_20260829.season s on s.id = a.season_id
+  join public.pp_migration_player_stats_20260829_season s on s.id = a.season_id
   join public.gameweeks start_gw on start_gw.id = a.starts_gameweek_id and start_gw.season_id = s.id
   left join public.gameweeks end_gw on end_gw.id = a.ends_gameweek_id and end_gw.season_id = s.id
   where old.team_id = c.team_id and a.team_id = c.team_id
@@ -1715,16 +1724,16 @@ with evidence as (
     and not exists (select 1 from public.player_team_assignments x
       where x.player_id = c.id and x.season_id = s.id)
     -- Do not hide a transfer, an overlapping club, or history on another identity.
-    and not exists (select 1 from pp_migration_player_stats_20260829.identity_matches peers
+    and not exists (select 1 from public.pp_migration_player_stats_20260829_identity_matches peers
       join public.player_team_assignments x on x.player_id = peers.player_id
       where peers.source_key = u.source_key and x.season_id = s.id and x.team_id <> c.team_id)
-    and not exists (select 1 from pp_migration_player_stats_20260829.identity_matches peers
+    and not exists (select 1 from public.pp_migration_player_stats_20260829_identity_matches peers
       join public.player_fixture_stats x on x.player_id = peers.player_id
       where peers.source_key = u.source_key and peers.player_id <> c.id and x.season_id = s.id)
-    and not exists (select 1 from pp_migration_player_stats_20260829.identity_matches peers
+    and not exists (select 1 from public.pp_migration_player_stats_20260829_identity_matches peers
       join public.player_gameweek_stats x on x.player_id = peers.player_id
       where peers.source_key = u.source_key and peers.player_id <> c.id and x.season_id = s.id)
-    and not exists (select 1 from pp_migration_player_stats_20260829.identity_matches peers
+    and not exists (select 1 from public.pp_migration_player_stats_20260829_identity_matches peers
       join public.star_man_picks x on x.player_id = peers.player_id
       where peers.source_key = u.source_key and peers.player_id <> c.id and x.season_id = s.id)
 ), added as (
@@ -1732,7 +1741,7 @@ with evidence as (
   select season_id, player_id, team_id, starts_gameweek_id, ends_gameweek_id from evidence
   returning *
 )
-insert into pp_migration_player_stats_20260829.repairs
+insert into public.pp_migration_player_stats_20260829_repairs
 select 'assignment_copied_from_unused_identity', p.id, p.display_name,
   jsonb_build_object('team_id', a.team_id, 'from_gw_id', a.starts_gameweek_id, 'to_gw_id', a.ends_gameweek_id)
 from added a join public.players p on p.id = a.player_id;
@@ -1742,7 +1751,7 @@ with evidence as (
   select x.season_id, x.player_id, x.gameweek_id,
     (array_agg(distinct x.team_id))[1] as team_id
   from public.player_fixture_stats x
-  join pp_migration_player_stats_20260829.season s on s.id = x.season_id
+  join public.pp_migration_player_stats_20260829_season s on s.id = x.season_id
   join public.fixtures f on f.id = x.fixture_id and f.season_id = x.season_id
     and f.gameweek_id = x.gameweek_id and x.team_id in (f.home_team_id, f.away_team_id)
   group by x.season_id, x.player_id, x.gameweek_id
@@ -1760,14 +1769,14 @@ with evidence as (
   )
   returning *
 )
-insert into pp_migration_player_stats_20260829.repairs
+insert into public.pp_migration_player_stats_20260829_repairs
 select 'single_gw_history_from_fixture_stats', p.id, p.display_name,
   jsonb_build_object('team_id', a.team_id, 'gameweek_id', a.starts_gameweek_id)
 from added a join public.players p on p.id = a.player_id;
 
 with evidence as (
   select a.player_id, (array_agg(distinct a.team_id))[1] as team_id
-  from public.player_team_assignments a join pp_migration_player_stats_20260829.season s on s.id = a.season_id
+  from public.player_team_assignments a join public.pp_migration_player_stats_20260829_season s on s.id = a.season_id
   join public.gameweeks start_gw on start_gw.id = a.starts_gameweek_id and start_gw.season_id = s.id
   left join public.gameweeks end_gw on end_gw.id = a.ends_gameweek_id and end_gw.season_id = s.id
   where start_gw.number <= s.current_gw and (a.ends_gameweek_id is null or end_gw.number >= s.current_gw)
@@ -1776,13 +1785,13 @@ with evidence as (
   update public.players p set team_id = e.team_id
   from evidence e
   where p.id = e.player_id and p.is_active = true and p.team_id is null
-    and exists (select 1 from public.fixtures f join pp_migration_player_stats_20260829.season s on s.id = f.season_id
+    and exists (select 1 from public.fixtures f join public.pp_migration_player_stats_20260829_season s on s.id = f.season_id
       where e.team_id in (f.home_team_id, f.away_team_id))
     and not exists (select 1 from public.players other where other.id <> p.id
       and other.team_id = e.team_id and other.display_name = p.display_name)
   returning p.id, p.display_name, p.team_id
 )
-insert into pp_migration_player_stats_20260829.repairs
+insert into public.pp_migration_player_stats_20260829_repairs
 select 'null_current_team_from_open_history', id, display_name, jsonb_build_object('team_id', team_id) from repaired;
 
 -- Reusable READ-ONLY report. Includes informational intentional deactivations;
@@ -1871,10 +1880,15 @@ grant execute on function public.audit_player_stats_pool(integer) to authenticat
 -- One result cell avoids SQL Editor's row display limit hiding affected players.
 select jsonb_build_object(
   'repairs', coalesce((select jsonb_agg(to_jsonb(r) order by repair, display_name)
-    from pp_migration_player_stats_20260829.repairs r), '[]'::jsonb),
+    from public.pp_migration_player_stats_20260829_repairs r), '[]'::jsonb),
   'review', coalesce((select jsonb_agg(to_jsonb(a) order by issue, display_name) from public.audit_player_stats_pool() a), '[]'::jsonb)
 ) as player_stats_integrity_report;
-drop schema pp_migration_player_stats_20260829 cascade;
+drop table
+  public.pp_migration_player_stats_20260829_unique_active,
+  public.pp_migration_player_stats_20260829_identity_matches,
+  public.pp_migration_player_stats_20260829_identity_source,
+  public.pp_migration_player_stats_20260829_repairs,
+  public.pp_migration_player_stats_20260829_season;
 commit;
 
 -- Subsequent audit (no writes):
