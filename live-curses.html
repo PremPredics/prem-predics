@@ -111,8 +111,12 @@ main { width: min(1240px, 100%); margin: 0 auto; padding: 32px 18px 48px; }
 .victim-title strong { display: block; overflow: hidden; color: #fff; font-size: 1.08rem; text-overflow: ellipsis; white-space: nowrap; }
 .victim-title span { color: #ddd6fe; font-size: .8rem; font-weight: 800; }
 .curse-count { flex: 0 0 auto; display: grid; place-items: center; min-width: 46px; height: 46px; border: 1px solid rgba(254,202,202,.52); border-radius: 8px; background: rgba(127,29,29,.7); color: #fecaca; font-size: 1.25rem; font-weight: 950; }
-.curse-stack { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); align-items: start; gap: 10px; padding: 12px; }
-.curse-entry { display: flex; flex-direction: column; align-self: stretch; gap: 9px; min-width: 0; height: 100%; padding: 10px; border: 1px solid rgba(248,113,113,.24); border-radius: 12px; background: rgba(17,7,38,.5); }
+.curse-card-segment { min-height: 132px; padding: 10px 12px; background: rgba(17,7,38,.34); }
+.curse-stack { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); align-items: start; gap: 10px; }
+.curse-card-slot { display: grid; place-items: start center; min-width: 0; min-height: 112px; padding: 8px; border: 1px solid rgba(248,113,113,.2); border-radius: 10px; background: rgba(17,7,38,.42); }
+.curse-effects-segment { padding: 10px 12px 12px; border-top: 1px solid rgba(216,180,254,.18); background: rgba(46,16,102,.34); }
+.curse-effects-grid { display: grid; grid-template-columns: repeat(var(--effect-columns,1),minmax(0,1fr)); align-items: start; gap: 9px; }
+.curse-effect-entry { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .live-curse-card {
   position: relative;
   isolation: isolate;
@@ -134,7 +138,6 @@ main { width: min(1240px, 100%); margin: 0 auto; padding: 32px 18px 48px; }
   box-shadow: 0 0 18px rgba(251,113,133,.58), 0 4px 12px rgba(0,0,0,.4), inset 0 0 12px rgba(255,255,255,.14);
 }
 .live-card-name { max-width: 100%; color: #fff; font-size: clamp(.78rem, 1.55vw, 1rem); line-height: 1.05; font-weight: 1000; text-align: center; text-shadow: -1px -1px 0 rgba(0,0,0,.92), 1px -1px 0 rgba(0,0,0,.92), -1px 1px 0 rgba(0,0,0,.92), 1px 1px 0 rgba(0,0,0,.92), 0 0 10px rgba(254,202,202,.6); overflow-wrap: normal; word-break: normal; hyphens: none; }
-.curse-entry-info { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
 .curse-impact { padding: 10px 12px; border: 1px solid rgba(216,180,254,.23); border-radius: 9px; background: rgba(46,16,102,.78); color: #ede9fe; }
 .curse-impact.is-locked { border-color: rgba(248,113,113,.48); background: linear-gradient(135deg,rgba(69,10,10,.78),rgba(46,16,102,.78)); }
 .impact-kicker { display: block; margin-bottom: 4px; color: #fca5a5; font-size: .62rem; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
@@ -181,9 +184,11 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
   .hero-stat span { font-size: .58rem; }
   .victim-head { padding: 13px 11px; }
   .avatar { width: 46px; height: 46px; }
-  .curse-stack { padding: 9px; }
+  .curse-card-segment { min-height: 112px; padding: 7px; }
   .curse-stack { gap: 6px; }
-  .curse-entry { padding: 6px; border-radius: 9px; }
+  .curse-card-slot { min-height: 98px; padding: 5px 3px; }
+  .curse-effects-segment { padding: 8px 7px 9px; }
+  .curse-effects-grid { gap: 6px; }
   .live-curse-card { width: min(100%,72px); padding: 8px 5px; border-radius: 8px; }
   .live-card-name { font-size: clamp(.5rem,2.55vw,.7rem); line-height: 1; }
   .curse-impact { padding: 7px 6px; }
@@ -231,7 +236,7 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
 </main>
 <footer>2026 Prem Predics | Live Curses</footer>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/live-curses.js?v=20260830-fixed-three-slots"></script>
+<script type="module" src="assets/js/live-curses.js?v=20260830-separated-effects"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
 </body>

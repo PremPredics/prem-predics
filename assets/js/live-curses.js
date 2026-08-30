@@ -160,23 +160,26 @@ function effectOutcomeMarkup(effect) {
     </section>`;
 }
 
-function curseEntryMarkup(effect) {
-  const source = profileFor(effect.played_by_user_id);
-  const sourceName = sameId(effect.played_by_user_id, state.user?.id) ? 'You' : source.display_name;
+function curseCardMarkup(effect) {
   return `
-    <article class="curse-entry">
+    <article class="curse-card-slot">
       <div class="live-curse-card">
         <strong class="live-card-name">${escapeHtml(effectName(effect))}</strong>
       </div>
-      <div class="curse-entry-info">
-        ${effectOutcomeMarkup(effect)}
-        <div class="curse-meta">
-          ${avatarMarkup(source, 'mini-avatar')}
-          <span>${escapeHtml(effectGameweekText(effect))} &bull; Played by ${escapeHtml(sourceName)} &bull; ${escapeHtml(playedAtText(effect.played_at))}</span>
-        </div>
+    </article>`;
+}
+
+function curseEffectMarkup(effect) {
+  const source = profileFor(effect.played_by_user_id);
+  const sourceName = sameId(effect.played_by_user_id, state.user?.id) ? 'You' : source.display_name;
+  return `
+    <article class="curse-effect-entry">
+      ${effectOutcomeMarkup(effect)}
+      <div class="curse-meta">
+        ${avatarMarkup(source, 'mini-avatar')}
+        <span>${escapeHtml(effectName(effect))} &bull; ${escapeHtml(effectGameweekText(effect))} &bull; Played by ${escapeHtml(sourceName)} &bull; ${escapeHtml(playedAtText(effect.played_at))}</span>
       </div>
-    </article>
-  `;
+    </article>`;
 }
 
 function render() {
@@ -231,7 +234,12 @@ function render() {
           </div>
           <span class="curse-count" title="Active curse count">${effects.length}</span>
         </div>
-        <div class="curse-stack">${sortedEffects.map(curseEntryMarkup).join('')}</div>
+        <div class="curse-card-segment">
+          <div class="curse-stack">${sortedEffects.map(curseCardMarkup).join('')}</div>
+        </div>
+        <div class="curse-effects-segment">
+          <div class="curse-effects-grid" style="--effect-columns:${Math.min(3, effects.length)}">${sortedEffects.map(curseEffectMarkup).join('')}</div>
+        </div>
       </article>`;
   }).join('');
 }
