@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v48';
+const CACHE_VERSION = 'prem-predics-pwa-v49';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -59,7 +59,7 @@ const APP_SHELL = [
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
   './assets/js/league.js?v=20260830-live-curses',
-  './assets/js/live-curses.js?v=20260830-card-outcomes',
+  './assets/js/live-curses.js?v=20260830-clean-card-effects',
   './assets/js/live-curses-model.js',
   './assets/js/leagues.js',
   './assets/js/legal-footer.js',

@@ -111,34 +111,28 @@ main { width: min(1240px, 100%); margin: 0 auto; padding: 32px 18px 48px; }
 .victim-title span { color: #ddd6fe; font-size: .8rem; font-weight: 800; }
 .curse-count { flex: 0 0 auto; display: grid; place-items: center; min-width: 46px; height: 46px; border: 1px solid rgba(254,202,202,.52); border-radius: 8px; background: rgba(127,29,29,.7); color: #fecaca; font-size: 1.25rem; font-weight: 950; }
 .curse-stack { display: grid; gap: 14px; padding: 12px; }
-.curse-entry { display: grid; gap: 9px; min-width: 0; padding: 10px; border: 1px solid rgba(248,113,113,.24); border-radius: 12px; background: rgba(17,7,38,.5); }
+.curse-entry { display: grid; grid-template-columns: minmax(112px, 142px) minmax(0,1fr); align-items: stretch; gap: 12px; min-width: 0; padding: 12px; border: 1px solid rgba(248,113,113,.24); border-radius: 12px; background: rgba(17,7,38,.5); }
 .live-curse-card {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  min-height: 176px;
-  display: flex;
-  flex-direction: column;
-  padding: 18px;
-  border: 3px solid #fb7185;
-  border-radius: 18px;
+  width: 100%;
+  aspect-ratio: 72 / 94;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  padding: 12px 9px;
+  border: 2px solid #fb7185;
+  border-radius: 10px;
   background:
     radial-gradient(circle at 24% 18%, rgba(254,202,202,.58), transparent 20%),
     radial-gradient(circle at 78% 75%, rgba(76,5,25,.6), transparent 32%),
     linear-gradient(45deg, rgba(255,255,255,.18) 0 11%, transparent 11% 25%, rgba(255,255,255,.14) 25% 36%, transparent 36% 100%),
     linear-gradient(135deg,#4c0519 0%,#991b1b 24%,#ef4444 50%,#be123c 72%,#fecaca 100%);
-  box-shadow: 0 0 28px rgba(251,113,133,.62), 0 20px 60px rgba(0,0,0,.8), inset 0 0 22px rgba(255,255,255,.16);
+  box-shadow: 0 0 18px rgba(251,113,133,.58), 0 4px 12px rgba(0,0,0,.4), inset 0 0 12px rgba(255,255,255,.14);
 }
-.live-curse-card::before,
-.live-curse-card::after { content: ''; position: absolute; z-index: -1; pointer-events: none; }
-.live-curse-card::before { width: 170px; height: 170px; top: -90px; right: -40px; border-radius: 50%; background: rgba(255,255,255,.2); filter: blur(2px); }
-.live-curse-card::after { inset: 0; background: linear-gradient(118deg, transparent 28%, rgba(255,255,255,.19) 45%, transparent 61%); transform: translateX(-45%); }
-.card-flare { position: absolute; z-index: -1; left: -55px; bottom: -85px; width: 190px; height: 190px; border-radius: 50%; background: rgba(69,10,10,.5); filter: blur(6px); }
-.curse-name { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.curse-name strong { max-width: 78%; color: #fff; font-size: clamp(1.08rem, 2.3vw, 1.42rem); line-height: 1.08; font-weight: 1000; text-shadow: 0 2px 3px rgba(0,0,0,.8), 0 0 11px rgba(69,10,10,.72); }
-.gw-chip { flex: 0 0 auto; padding: 4px 7px; border: 1px solid rgba(255,255,255,.64); border-radius: 999px; background: rgba(69,10,10,.32); color: #fff; font-size: .68rem; font-weight: 950; box-shadow: inset 0 0 8px rgba(255,255,255,.12); }
-.curse-description { margin: auto 0 12px; color: #fff; font-size: .88rem; line-height: 1.42; font-weight: 750; text-shadow: 0 1px 2px rgba(0,0,0,.72); }
-.card-type { align-self: flex-start; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.38); color: #fff; font-size: .66rem; font-weight: 1000; letter-spacing: .16em; text-transform: uppercase; }
+.live-card-name { max-width: 100%; color: #fff; font-size: clamp(.78rem, 1.55vw, 1rem); line-height: 1.05; font-weight: 1000; text-align: center; text-shadow: -1px -1px 0 rgba(0,0,0,.92), 1px -1px 0 rgba(0,0,0,.92), -1px 1px 0 rgba(0,0,0,.92), 1px 1px 0 rgba(0,0,0,.92), 0 0 10px rgba(254,202,202,.6); overflow-wrap: normal; word-break: normal; hyphens: none; }
+.curse-entry-info { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
 .curse-impact { padding: 10px 12px; border: 1px solid rgba(216,180,254,.23); border-radius: 9px; background: rgba(46,16,102,.78); color: #ede9fe; }
 .curse-impact.is-locked { border-color: rgba(248,113,113,.48); background: linear-gradient(135deg,rgba(69,10,10,.78),rgba(46,16,102,.78)); }
 .impact-kicker { display: block; margin-bottom: 4px; color: #fca5a5; font-size: .62rem; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
@@ -188,9 +182,9 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
   .victim-head { padding: 13px 11px; }
   .avatar { width: 46px; height: 46px; }
   .curse-stack { padding: 9px; }
-  .curse-entry { padding: 8px; }
-  .live-curse-card { min-height: 158px; padding: 15px; border-radius: 15px; }
-  .curse-name strong { max-width: 72%; }
+  .curse-entry { grid-template-columns: 1fr; padding: 10px; }
+  .live-curse-card { width: 118px; padding: 10px 7px; }
+  .live-card-name { font-size: .76rem; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; } }
 </style>
@@ -226,7 +220,7 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
 </main>
 <footer>2026 Prem Predics | Live Curses</footer>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/live-curses.js?v=20260830-card-outcomes"></script>
+<script type="module" src="assets/js/live-curses.js?v=20260830-clean-card-effects"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
 </body>

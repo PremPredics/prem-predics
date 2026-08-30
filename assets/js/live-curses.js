@@ -12,6 +12,16 @@ const targetCount = document.querySelector('[data-target-count]');
 const safeCount = document.querySelector('[data-safe-count]');
 const ownAlert = document.querySelector('[data-own-curse-alert]');
 
+const starManLiveEffectByKey = {
+  curse_alphabet_15: 'The target\'s Star Man choice is restricted by the 15+ alphabet rule.',
+  curse_alphabet_20: 'The target\'s Star Man choice is restricted by the 20+ alphabet rule.',
+  curse_scoring_drought_3: 'The target\'s Star Man pool is restricted by the three-match scoring-drought rule.',
+  curse_scoring_drought_5: 'The target\'s Star Man pool is restricted by the five-match scoring-drought rule.',
+  curse_random_roulette: 'The target\'s Star Man pool is restricted to the selected microstate nationality.',
+  curse_tiny_club: 'The target\'s Star Man pool is restricted by the Tiny Club rule.',
+  curse_furious: 'The target\'s Star Man scoring is affected by the Furious rule.',
+};
+
 const state = {
   user: null,
   league: null,
@@ -44,10 +54,6 @@ function effectKey(effect) {
 function effectName(effect) {
   if (effectKey(effect) === 'curse_gambler') return 'Curse of the Random';
   return effectDefinition(effect).name || effectKey(effect).replaceAll('_', ' ') || 'Curse Card';
-}
-
-function effectDescription(effect) {
-  return effectDefinition(effect).description || 'This Curse is actively affecting the targeted player.';
 }
 
 function profileFor(userId) {
@@ -101,7 +107,7 @@ function effectOutcomeMarkup(effect) {
     const heading = key === 'curse_gambler' ? 'Dice-locked predictions' : 'Locked prediction';
     return `
       <section class="curse-impact is-locked">
-        <span class="impact-kicker">Effect applied now</span>
+        <span class="impact-kicker">Live Effect</span>
         <strong>${escapeHtml(heading)}</strong>
         <div class="forced-score-list">
           ${rows.map((row) => `
@@ -114,24 +120,43 @@ function effectOutcomeMarkup(effect) {
       </section>`;
   }
 
+  if (key === 'curse_deleted_match') {
+    return `
+      <section class="curse-impact is-locked">
+        <span class="impact-kicker">Live Effect</span>
+        <strong>Prediction removed from scoring</strong>
+        <div class="forced-score-list">
+          <div class="forced-score-row">
+            <span>${escapeHtml(fixtureName(effect.fixture_id))}</span>
+            <b>0 pts</b>
+          </div>
+        </div>
+        <small>The cursed player cannot earn prediction points from this match.</small>
+      </section>`;
+  }
+
+  if (starManLiveEffectByKey[key]) {
+    return `
+      <section class="curse-impact">
+        <span class="impact-kicker">Live Effect</span>
+        <p>${escapeHtml(starManLiveEffectByKey[key])}</p>
+      </section>`;
+  }
+
   const impactByKey = {
-    curse_deleted_match: `No prediction points can be earned from ${fixtureName(effect.fixture_id)}.`,
-    curse_glasses: 'Any 0-0 prediction scores no points while this Curse is active.',
-    curse_even_number: 'The target can only enter even team goal totals.',
-    curse_odd_number: 'The target can only enter odd team goal totals.',
-    curse_alphabet_15: 'The target\'s Star Man choice is restricted by the 15+ alphabet rule.',
-    curse_alphabet_20: 'The target\'s Star Man choice is restricted by the 20+ alphabet rule.',
-    curse_scoring_drought_3: 'The target\'s Star Man pool is restricted by the three-match scoring-drought rule.',
-    curse_scoring_drought_5: 'The target\'s Star Man pool is restricted by the five-match scoring-drought rule.',
-    curse_random_roulette: 'The target\'s Star Man pool is restricted to the selected microstate nationality.',
-    curse_tiny_club: 'The target\'s Star Man pool is restricted by the Tiny Club rule.',
-    curse_furious: 'The target\'s Star Man scoring is affected by the Furious rule.',
+    curse_glasses: { heading: 'Prediction scoring restriction', detail: 'Any 0-0 prediction scores no points while this Curse is active.' },
+    curse_even_number: { heading: 'Prediction entry restriction', detail: 'The target can only enter even team goal totals.' },
+    curse_odd_number: { heading: 'Prediction entry restriction', detail: 'The target can only enter odd team goal totals.' },
   };
-  const detail = impactByKey[key] || effectDescription(effect);
+  const impact = impactByKey[key] || {
+    heading: 'Active Curse',
+    detail: 'This Curse is currently affecting the targeted player.',
+  };
   return `
     <section class="curse-impact">
-      <span class="impact-kicker">Live effect</span>
-      <p>${escapeHtml(detail)}</p>
+      <span class="impact-kicker">Live Effect</span>
+      <strong>${escapeHtml(impact.heading)}</strong>
+      <p>${escapeHtml(impact.detail)}</p>
     </section>`;
 }
 
@@ -141,18 +166,14 @@ function curseEntryMarkup(effect) {
   return `
     <article class="curse-entry">
       <div class="live-curse-card">
-        <span class="card-flare" aria-hidden="true"></span>
-        <div class="curse-name">
-          <strong>${escapeHtml(effectName(effect))}</strong>
-          <span class="gw-chip">${escapeHtml(effectGameweekText(effect))}${effect.fixture_id ? ' &bull; Match' : ''}</span>
-        </div>
-        <p class="curse-description">${escapeHtml(effectDescription(effect))}</p>
-        <span class="card-type">Curse Card</span>
+        <strong class="live-card-name">${escapeHtml(effectName(effect))}</strong>
       </div>
-      ${effectOutcomeMarkup(effect)}
-      <div class="curse-meta">
-        ${avatarMarkup(source, 'mini-avatar')}
-        <span>Played by ${escapeHtml(sourceName)} &bull; ${escapeHtml(playedAtText(effect.played_at))}</span>
+      <div class="curse-entry-info">
+        ${effectOutcomeMarkup(effect)}
+        <div class="curse-meta">
+          ${avatarMarkup(source, 'mini-avatar')}
+          <span>${escapeHtml(effectGameweekText(effect))} &bull; Played by ${escapeHtml(sourceName)} &bull; ${escapeHtml(playedAtText(effect.played_at))}</span>
+        </div>
       </div>
     </article>
   `;
