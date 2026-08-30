@@ -5,6 +5,11 @@ import {
 } from './league-context.js';
 import { isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
 import { currentLiveCurseEffects } from './live-curses-model.js';
+import {
+  nextMedalProgress,
+  STAR_MAN_GOAL_MEDAL_THRESHOLDS,
+  UC_POINT_MEDAL_THRESHOLDS,
+} from './medal-progress.js';
 import { supabase } from './supabase-client.js';
 
 const leagueName = document.querySelector('[data-league-name]');
@@ -19,6 +24,7 @@ const playGrid = document.querySelector('[data-play-grid]');
 const profileLink = document.querySelector('[data-profile-link]');
 const profileAvatar = document.querySelector('[data-profile-avatar]');
 const liveCurseAlert = document.querySelector('[data-live-curse-alert]');
+const medalProgressPanel = document.querySelector('[data-medal-progress]');
 let deadlineTimer = null;
 let liveCurseChannel = null;
 let liveCursePollTimer = null;
@@ -77,6 +83,56 @@ function earliestTime(values) {
 
 function isoFromMs(value) {
   return value ? new Date(value).toISOString() : null;
+}
+
+function medalProgressCardMarkup({ label, icon, unit, progress, className }) {
+  const currentText = Number(progress.current).toLocaleString('en-GB');
+  if (progress.complete) {
+    return `
+      <article class="medal-progress-card ${className} complete">
+        <div class="medal-progress-top"><span><i aria-hidden="true">${icon}</i>${escapeHtml(label)}</span><strong>100%</strong></div>
+        <div class="medal-progress-copy"><b>${currentText}</b><span>All milestone medals earned</span></div>
+        <div class="medal-progress-track"><span style="width:100%"></span></div>
+      </article>`;
+  }
+
+  return `
+    <article class="medal-progress-card ${className}">
+      <div class="medal-progress-top"><span><i aria-hidden="true">${icon}</i>${escapeHtml(label)}</span><strong>${progress.percentage}%</strong></div>
+      <div class="medal-progress-copy"><b>${currentText}/${progress.nextThreshold}</b><span>Next medal at ${progress.nextThreshold} ${escapeHtml(unit)}</span></div>
+      <div class="medal-progress-track" role="progressbar" aria-label="${escapeHtml(label)} medal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress.percentage}"><span style="width:${progress.percentage}%"></span></div>
+    </article>`;
+}
+
+async function renderMedalProgress(league, user) {
+  if (!medalProgressPanel) return;
+  medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Loading medal progress...</span>';
+  const { error: syncError } = await supabase.rpc('sync_my_card_draw_tokens', { target_competition_id: league.id });
+  if (syncError) console.warn('Could not sync medal progress', syncError);
+
+  const [leaderboardResponse, tokensResponse] = await Promise.all([
+    supabase.from('leaderboard').select('ultimate_champion_points, star_man_goals')
+      .eq('competition_id', league.id).eq('user_id', user.id).maybeSingle(),
+    supabase.from('card_draw_tokens').select('source_key, status')
+      .eq('competition_id', league.id).eq('user_id', user.id)
+      .eq('source_type', 'accolade').neq('status', 'void'),
+  ]);
+
+  if (leaderboardResponse.error || tokensResponse.error) {
+    medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Medal progress is temporarily unavailable.</span>';
+    return;
+  }
+
+  const ranking = leaderboardResponse.data || {};
+  const sourceKeys = (tokensResponse.data || []).map((token) => token.source_key).filter(Boolean);
+  const ucProgress = nextMedalProgress(ranking.ultimate_champion_points, UC_POINT_MEDAL_THRESHOLDS, sourceKeys, 'uc_points_');
+  const goalsProgress = nextMedalProgress(ranking.star_man_goals, STAR_MAN_GOAL_MEDAL_THRESHOLDS, sourceKeys, 'star_man_goals_');
+  medalProgressPanel.innerHTML = `
+    <div class="medal-progress-heading"><strong>Next Medal Progress</strong><a href="${leagueUrl('medals.html', league.id)}">View Medals</a></div>
+    <div class="medal-progress-grid">
+      ${medalProgressCardMarkup({ label: 'UC Points', icon: '&#9733;', unit: 'UC pts', progress: ucProgress, className: 'uc-progress' })}
+      ${medalProgressCardMarkup({ label: 'Star Man Goals', icon: '&#9917;', unit: 'goals', progress: goalsProgress, className: 'goal-progress' })}
+    </div>`;
 }
 
 async function loadOwnLiveCurseCount(league, user, activeGameweek) {
@@ -752,6 +808,7 @@ async function renderLeague(league, user) {
     profileLink.href = leagueUrl('profile.html', league.id);
   }
   await loadOwnProfile(user);
+  void renderMedalProgress(league, user);
 
   if (activeGameweek) {
     const activeFixtures = fixturesByGameweek.get(String(activeGameweek.gameweek_id)) || [];

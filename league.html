@@ -601,6 +601,25 @@ main {
   50% { box-shadow: 0 0 25px rgba(248, 113, 113, 0.52), inset 0 1px 0 rgba(255,255,255,0.16); }
 }
 
+.medal-progress-panel { margin: -7px 0 18px; padding: 11px 12px 12px; border: 1px solid rgba(250,204,21,.44); border-radius: 12px; background: radial-gradient(circle at 50% 0,rgba(250,204,21,.12),transparent 58%),rgba(17,7,38,.42); box-shadow: inset 0 1px 0 rgba(255,255,255,.08),0 10px 24px rgba(0,0,0,.18); }
+.medal-progress-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.medal-progress-heading strong { color: #fff7c2; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; text-shadow: 0 0 10px rgba(250,204,21,.4); }
+.medal-progress-heading a { color: #fde68a; font-size: .68rem; font-weight: 900; text-decoration: none; }
+.medal-progress-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+.medal-progress-card { --medal-color:#facc15; min-width: 0; padding: 9px 10px; border: 1px solid color-mix(in srgb,var(--medal-color) 40%,rgba(216,180,254,.22)); border-radius: 9px; background: rgba(17,7,38,.54); }
+.medal-progress-card.goal-progress { --medal-color:#4ade80; }
+.medal-progress-top,.medal-progress-copy { display: flex; align-items: center; justify-content: space-between; gap: 7px; min-width: 0; }
+.medal-progress-top span { min-width: 0; overflow: hidden; color: var(--medal-color); font-size: .7rem; font-weight: 950; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.medal-progress-top i { margin-right: 5px; font-style: normal; }
+.medal-progress-top strong { color: #fff; font-size: .78rem; }
+.medal-progress-copy { margin: 5px 0 6px; }
+.medal-progress-copy b { color: #fff; font-size: .82rem; white-space: nowrap; }
+.medal-progress-copy span { overflow: hidden; color: #ddd6fe; font-size: .63rem; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.medal-progress-track { height: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; background: rgba(3,1,10,.72); box-shadow: inset 0 2px 4px rgba(0,0,0,.55); }
+.medal-progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,color-mix(in srgb,var(--medal-color) 68%,#7c3aed),var(--medal-color)); box-shadow: 0 0 10px var(--medal-color); transition: width .55s ease; }
+.medal-progress-card.complete .medal-progress-track span { background: linear-gradient(90deg,#f59e0b,#fff2a8,#facc15); }
+.medal-progress-loading { display: block; color: #ddd6fe; font-size: .75rem; text-align: center; }
+
 .state-text {
   margin: 0;
   color: #ddd6fe;
@@ -805,6 +824,18 @@ footer {
     grid-template-columns: 1fr;
   }
 
+  .medal-progress-panel { margin-top: -8px; padding: 8px; }
+  .medal-progress-heading { margin-bottom: 6px; }
+  .medal-progress-heading strong { font-size: .68rem; }
+  .medal-progress-grid { gap: 6px; }
+  .medal-progress-card { padding: 7px 6px; }
+  .medal-progress-top span { font-size: .56rem; }
+  .medal-progress-top strong { font-size: .65rem; }
+  .medal-progress-copy { align-items: flex-end; flex-direction: column; gap: 1px; margin: 4px 0 5px; }
+  .medal-progress-copy b { align-self: flex-start; font-size: .68rem; }
+  .medal-progress-copy span { width: 100%; font-size: .52rem; text-align: left; }
+  .medal-progress-track { height: 7px; }
+
   .play-card.live-curses-card {
     grid-column: 1;
   }
@@ -875,6 +906,10 @@ footer {
 
     <div class="deadline-strip" data-deadline-strip></div>
 
+    <section class="medal-progress-panel" data-medal-progress aria-live="polite">
+      <span class="medal-progress-loading">Loading medal progress...</span>
+    </section>
+
     <div class="live-curse-alert" data-live-curse-alert aria-live="polite"></div>
 
     <nav class="play-grid" data-play-grid aria-label="Private league pages"></nav>
@@ -884,7 +919,7 @@ footer {
 <footer>2026 Prem Predics | Private League</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260830-live-curses"></script>
+<script type="module" src="assets/js/league.js?v=20260830-medal-progress"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

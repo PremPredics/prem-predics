@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v53';
+const CACHE_VERSION = 'prem-predics-pwa-v54';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -58,9 +58,10 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260830-live-curses',
-  './assets/js/live-curses.js?v=20260830-separated-effects',
+  './assets/js/league.js?v=20260830-medal-progress',
+  './assets/js/live-curses.js?v=20260830-separated-effects-touch',
   './assets/js/live-curses-model.js',
+  './assets/js/medal-progress.js',
   './assets/js/leagues.js',
   './assets/js/legal-footer.js',
   './assets/js/login.js?v=20260820-username-28',
