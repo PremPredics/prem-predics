@@ -19,6 +19,9 @@ const state = {
   members: [],
   profiles: new Map(),
   gameweekNumbers: new Map(),
+  fixtures: new Map(),
+  teams: new Map(),
+  forcedOutcomes: new Map(),
   effects: [],
   channel: null,
   refreshTimer: null,
@@ -78,16 +81,75 @@ function effectGameweekText(effect) {
   return Number(start) === Number(end) ? `GW${start}` : `GW${start}-${end}`;
 }
 
+function fixtureName(fixtureId) {
+  const fixture = state.fixtures.get(String(fixtureId || ''));
+  if (!fixture) return 'the selected match';
+  const home = state.teams.get(String(fixture.home_team_id || '')) || 'Home';
+  const away = state.teams.get(String(fixture.away_team_id || '')) || 'Away';
+  return `${home} vs ${away}`;
+}
+
+function forcedOutcomeRows(effect) {
+  return state.forcedOutcomes.get(String(effect.id || '')) || [];
+}
+
+function effectOutcomeMarkup(effect) {
+  const key = effectKey(effect);
+  const rows = forcedOutcomeRows(effect);
+
+  if ((key === 'curse_gambler' || key === 'curse_hated') && rows.length) {
+    const heading = key === 'curse_gambler' ? 'Dice-locked predictions' : 'Locked prediction';
+    return `
+      <section class="curse-impact is-locked">
+        <span class="impact-kicker">Effect applied now</span>
+        <strong>${escapeHtml(heading)}</strong>
+        <div class="forced-score-list">
+          ${rows.map((row) => `
+            <div class="forced-score-row">
+              <span>${escapeHtml(fixtureName(row.fixture_id))}</span>
+              <b>${escapeHtml(`${row.home_goals}-${row.away_goals}`)}</b>
+            </div>`).join('')}
+        </div>
+        <small>These scores are visible immediately in View All Player Predictions because the cursed player cannot change them.</small>
+      </section>`;
+  }
+
+  const impactByKey = {
+    curse_deleted_match: `No prediction points can be earned from ${fixtureName(effect.fixture_id)}.`,
+    curse_glasses: 'Any 0-0 prediction scores no points while this Curse is active.',
+    curse_even_number: 'The target can only enter even team goal totals.',
+    curse_odd_number: 'The target can only enter odd team goal totals.',
+    curse_alphabet_15: 'The target\'s Star Man choice is restricted by the 15+ alphabet rule.',
+    curse_alphabet_20: 'The target\'s Star Man choice is restricted by the 20+ alphabet rule.',
+    curse_scoring_drought_3: 'The target\'s Star Man pool is restricted by the three-match scoring-drought rule.',
+    curse_scoring_drought_5: 'The target\'s Star Man pool is restricted by the five-match scoring-drought rule.',
+    curse_random_roulette: 'The target\'s Star Man pool is restricted to the selected microstate nationality.',
+    curse_tiny_club: 'The target\'s Star Man pool is restricted by the Tiny Club rule.',
+    curse_furious: 'The target\'s Star Man scoring is affected by the Furious rule.',
+  };
+  const detail = impactByKey[key] || effectDescription(effect);
+  return `
+    <section class="curse-impact">
+      <span class="impact-kicker">Live effect</span>
+      <p>${escapeHtml(detail)}</p>
+    </section>`;
+}
+
 function curseEntryMarkup(effect) {
   const source = profileFor(effect.played_by_user_id);
   const sourceName = sameId(effect.played_by_user_id, state.user?.id) ? 'You' : source.display_name;
   return `
     <article class="curse-entry">
-      <div class="curse-name">
-        <strong>${escapeHtml(effectName(effect))}</strong>
-        <span class="gw-chip">${escapeHtml(effectGameweekText(effect))}${effect.fixture_id ? ' &bull; Match' : ''}</span>
+      <div class="live-curse-card">
+        <span class="card-flare" aria-hidden="true"></span>
+        <div class="curse-name">
+          <strong>${escapeHtml(effectName(effect))}</strong>
+          <span class="gw-chip">${escapeHtml(effectGameweekText(effect))}${effect.fixture_id ? ' &bull; Match' : ''}</span>
+        </div>
+        <p class="curse-description">${escapeHtml(effectDescription(effect))}</p>
+        <span class="card-type">Curse Card</span>
       </div>
-      <p class="curse-description">${escapeHtml(effectDescription(effect))}</p>
+      ${effectOutcomeMarkup(effect)}
       <div class="curse-meta">
         ${avatarMarkup(source, 'mini-avatar')}
         <span>Played by ${escapeHtml(sourceName)} &bull; ${escapeHtml(playedAtText(effect.played_at))}</span>
@@ -168,7 +230,15 @@ async function loadLiveCurses() {
   if (state.loading || !state.league || !state.activeGameweek) return;
   state.loading = true;
   try {
-    const [{ data: effects, error: effectError }, { data: members, error: memberError }, { data: gameweeks, error: gameweekError }] = await Promise.all([
+    const [
+      { data: effects, error: effectError },
+      { data: members, error: memberError },
+      { data: gameweeks, error: gameweekError },
+      { data: fixtures, error: fixtureError },
+      { data: teams, error: teamError },
+      { data: hatedRows, error: hatedError },
+      { data: randomRows, error: randomError },
+    ] = await Promise.all([
       supabase
         .from('active_card_effects')
         .select('id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_at, played_by_user_id, target_user_id, status, payload, card_definitions!inner(effect_key, name, description, category)')
@@ -186,14 +256,45 @@ async function loadLiveCurses() {
         .from('gameweek_deadlines')
         .select('gameweek_id, gameweek_number')
         .eq('season_id', state.league.season_id),
+      supabase
+        .from('fixtures')
+        .select('id, home_team_id, away_team_id')
+        .eq('season_id', state.league.season_id)
+        .eq('gameweek_id', state.activeGameweek.gameweek_id),
+      supabase
+        .from('teams')
+        .select('id, name'),
+      supabase
+        .from('curse_hated_forced_predictions')
+        .select('card_effect_id, fixture_id, home_goals, away_goals')
+        .eq('competition_id', state.league.id)
+        .eq('season_id', state.league.season_id)
+        .eq('gameweek_id', state.activeGameweek.gameweek_id),
+      supabase
+        .from('curse_gambler_rolls')
+        .select('card_effect_id, fixture_id, roll_number, home_goals, away_goals')
+        .eq('competition_id', state.league.id)
+        .eq('season_id', state.league.season_id)
+        .eq('gameweek_id', state.activeGameweek.gameweek_id)
+        .order('roll_number', { ascending: true }),
     ]);
-    if (effectError || memberError || gameweekError) throw effectError || memberError || gameweekError;
+    const firstError = effectError || memberError || gameweekError || fixtureError || teamError || hatedError || randomError;
+    if (firstError) throw firstError;
     state.members = (members || []).map((member) => {
       const profile = normaliseNested(member.profiles) || {};
       return { user_id: member.user_id, display_name: profile.display_name || 'League Player', profile_image_url: profile.profile_image_url || null };
     });
     state.profiles = new Map(state.members.map((member) => [String(member.user_id), member]));
     state.gameweekNumbers = new Map((gameweeks || []).map((gameweek) => [String(gameweek.gameweek_id), Number(gameweek.gameweek_number)]));
+    state.fixtures = new Map((fixtures || []).map((fixture) => [String(fixture.id), fixture]));
+    state.teams = new Map((teams || []).map((team) => [String(team.id), team.name]));
+    state.forcedOutcomes = new Map();
+    [...(hatedRows || []), ...(randomRows || [])].forEach((row) => {
+      const key = String(row.card_effect_id || '');
+      const current = state.forcedOutcomes.get(key) || [];
+      current.push(row);
+      state.forcedOutcomes.set(key, current);
+    });
     state.effects = currentLiveCurseEffects(effects, state.activeGameweek, state.gameweekNumbers);
     render();
   } catch (error) {
@@ -215,6 +316,12 @@ function subscribe() {
     .channel(`live-curses-${state.league.id}`)
     .on('postgres_changes', {
       event: '*', schema: 'public', table: 'active_card_effects', filter: `competition_id=eq.${state.league.id}`,
+    }, scheduleRefresh)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'curse_hated_forced_predictions', filter: `competition_id=eq.${state.league.id}`,
+    }, scheduleRefresh)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'curse_gambler_rolls', filter: `competition_id=eq.${state.league.id}`,
     }, scheduleRefresh)
     .subscribe();
   state.pollTimer = window.setInterval(() => {

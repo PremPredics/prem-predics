@@ -62,6 +62,8 @@ const state = {
   fixtureGameStats: new Map(),
   selectedGameweekIndex: 0,
   selectedUserId: null,
+  curseChannel: null,
+  curseRefreshTimer: null,
 };
 
 function isPast(value) {
@@ -660,11 +662,15 @@ async function renderPredictionRows(gameweek) {
 
   const fixtureRows = fixtures.map((fixture) => {
     const locked = isPast(fixture.prediction_locks_at);
-    const canViewPrediction = locked || sameId(state.selectedUserId, state.user.id);
-    const rawOverride = canViewPrediction ? curseOverrides.get(fixture.id) : null;
+    const rawOverride = curseOverrides.get(fixture.id);
     const override = rawOverride && visibleEffectIds.has(String(rawOverride.source_card_effect_id))
       ? rawOverride
       : null;
+    // A forced Curse prediction is no longer controlled by the target, so it is
+    // public to the league immediately. Ordinary predictions remain private
+    // until their fixture locks.
+    const forcedCurseVisible = Boolean(override);
+    const canViewPrediction = locked || sameId(state.selectedUserId, state.user.id) || forcedCurseVisible;
     const primaryPrediction = primaryPredictions.get(fixture.id);
     const deletedMatch = canViewPrediction ? deletedMatchCurseForFixture(fixture, predictionEffects) : null;
     const prediction = canViewPrediction
@@ -699,7 +705,7 @@ async function renderPredictionRows(gameweek) {
       ? `${result.home_goals}-${result.away_goals}`
       : '-';
     return `
-      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${primaryUnused ? 'unused-hedged' : ''} ${locked && !prediction ? 'missed' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
+      <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${forcedCurseVisible ? 'curse-forced' : ''} ${primaryUnused ? 'unused-hedged' : ''} ${locked && !prediction ? 'missed' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
         <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
         <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
         <strong>${escapeHtml(score)}</strong>
@@ -851,6 +857,27 @@ async function loadData(activeGameweek) {
   state.selectedGameweekIndex = initialGameweekIndex(activeGameweek);
 }
 
+function scheduleCurseRefresh() {
+  window.clearTimeout(state.curseRefreshTimer);
+  state.curseRefreshTimer = window.setTimeout(() => render(), 180);
+}
+
+function subscribeToForcedCurseOutcomes() {
+  if (state.curseChannel) supabase.removeChannel(state.curseChannel);
+  state.curseChannel = supabase
+    .channel(`all-predictions-curses-${state.league.id}`)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'active_card_effects', filter: `competition_id=eq.${state.league.id}`,
+    }, scheduleCurseRefresh)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'curse_hated_forced_predictions', filter: `competition_id=eq.${state.league.id}`,
+    }, scheduleCurseRefresh)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'curse_gambler_rolls', filter: `competition_id=eq.${state.league.id}`,
+    }, scheduleCurseRefresh)
+    .subscribe();
+}
+
 previousButton.addEventListener('click', () => {
   state.selectedGameweekIndex = Math.max(0, state.selectedGameweekIndex - 1);
   render();
@@ -885,9 +912,15 @@ if (context.error) {
     const { activeGameweek } = await loadActiveGameweek(state.league);
     await loadData(activeGameweek);
     await render();
+    subscribeToForcedCurseOutcomes();
   } catch (error) {
     title.textContent = 'Predictions unavailable';
     subtitle.textContent = error.message || 'Could not load predictions.';
     predictionList.innerHTML = '';
   }
 }
+
+window.addEventListener('beforeunload', () => {
+  window.clearTimeout(state.curseRefreshTimer);
+  if (state.curseChannel) supabase.removeChannel(state.curseChannel);
+});

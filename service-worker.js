@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v47';
+const CACHE_VERSION = 'prem-predics-pwa-v48';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -39,7 +39,7 @@ const APP_SHELL = [
   './assets/css/legal-pages.css',
   './assets/css/pwa-install.css',
   './assets/css/password-reset.css',
-  './assets/js/all-predictions.js?v=20260825-missed-only',
+  './assets/js/all-predictions.js?v=20260830-forced-curses-live',
   './assets/js/all-star-men.js?v=20260820-1',
   './assets/js/capacitor-app.js',
   './assets/js/correct-scores.js',
@@ -59,7 +59,7 @@ const APP_SHELL = [
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
   './assets/js/league.js?v=20260830-live-curses',
-  './assets/js/live-curses.js?v=20260830-1',
+  './assets/js/live-curses.js?v=20260830-card-outcomes',
   './assets/js/live-curses-model.js',
   './assets/js/leagues.js',
   './assets/js/legal-footer.js',

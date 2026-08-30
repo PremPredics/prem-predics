@@ -110,14 +110,47 @@ main { width: min(1240px, 100%); margin: 0 auto; padding: 32px 18px 48px; }
 .victim-title strong { display: block; overflow: hidden; color: #fff; font-size: 1.08rem; text-overflow: ellipsis; white-space: nowrap; }
 .victim-title span { color: #ddd6fe; font-size: .8rem; font-weight: 800; }
 .curse-count { flex: 0 0 auto; display: grid; place-items: center; min-width: 46px; height: 46px; border: 1px solid rgba(254,202,202,.52); border-radius: 8px; background: rgba(127,29,29,.7); color: #fecaca; font-size: 1.25rem; font-weight: 950; }
-.curse-stack { display: grid; gap: 10px; padding: 12px; }
-.curse-entry { position: relative; padding: 14px; border: 1px solid rgba(248,113,113,.28); border-radius: 8px; background: rgba(17,7,38,.54); }
-.curse-entry::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 4px; border-radius: 8px 0 0 8px; background: linear-gradient(#fb923c,#ef4444); box-shadow: 0 0 10px rgba(239,68,68,.62); }
-.curse-name { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.curse-name strong { color: #ff7767; font-size: 1rem; }
-.gw-chip { flex: 0 0 auto; padding: 4px 7px; border: 1px solid rgba(254,202,202,.34); border-radius: 999px; color: #fecaca; font-size: .68rem; font-weight: 950; }
-.curse-description { margin: 7px 0 10px; color: #ede9fe; font-size: .84rem; line-height: 1.42; }
-.curse-meta { display: flex; align-items: center; gap: 8px; color: #c4b5fd; font-size: .75rem; font-weight: 750; }
+.curse-stack { display: grid; gap: 14px; padding: 12px; }
+.curse-entry { display: grid; gap: 9px; min-width: 0; padding: 10px; border: 1px solid rgba(248,113,113,.24); border-radius: 12px; background: rgba(17,7,38,.5); }
+.live-curse-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 176px;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border: 3px solid #fb7185;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(254,202,202,.58), transparent 20%),
+    radial-gradient(circle at 78% 75%, rgba(76,5,25,.6), transparent 32%),
+    linear-gradient(45deg, rgba(255,255,255,.18) 0 11%, transparent 11% 25%, rgba(255,255,255,.14) 25% 36%, transparent 36% 100%),
+    linear-gradient(135deg,#4c0519 0%,#991b1b 24%,#ef4444 50%,#be123c 72%,#fecaca 100%);
+  box-shadow: 0 0 28px rgba(251,113,133,.62), 0 20px 60px rgba(0,0,0,.8), inset 0 0 22px rgba(255,255,255,.16);
+}
+.live-curse-card::before,
+.live-curse-card::after { content: ''; position: absolute; z-index: -1; pointer-events: none; }
+.live-curse-card::before { width: 170px; height: 170px; top: -90px; right: -40px; border-radius: 50%; background: rgba(255,255,255,.2); filter: blur(2px); }
+.live-curse-card::after { inset: 0; background: linear-gradient(118deg, transparent 28%, rgba(255,255,255,.19) 45%, transparent 61%); transform: translateX(-45%); }
+.card-flare { position: absolute; z-index: -1; left: -55px; bottom: -85px; width: 190px; height: 190px; border-radius: 50%; background: rgba(69,10,10,.5); filter: blur(6px); }
+.curse-name { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.curse-name strong { max-width: 78%; color: #fff; font-size: clamp(1.08rem, 2.3vw, 1.42rem); line-height: 1.08; font-weight: 1000; text-shadow: 0 2px 3px rgba(0,0,0,.8), 0 0 11px rgba(69,10,10,.72); }
+.gw-chip { flex: 0 0 auto; padding: 4px 7px; border: 1px solid rgba(255,255,255,.64); border-radius: 999px; background: rgba(69,10,10,.32); color: #fff; font-size: .68rem; font-weight: 950; box-shadow: inset 0 0 8px rgba(255,255,255,.12); }
+.curse-description { margin: auto 0 12px; color: #fff; font-size: .88rem; line-height: 1.42; font-weight: 750; text-shadow: 0 1px 2px rgba(0,0,0,.72); }
+.card-type { align-self: flex-start; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.38); color: #fff; font-size: .66rem; font-weight: 1000; letter-spacing: .16em; text-transform: uppercase; }
+.curse-impact { padding: 10px 12px; border: 1px solid rgba(216,180,254,.23); border-radius: 9px; background: rgba(46,16,102,.78); color: #ede9fe; }
+.curse-impact.is-locked { border-color: rgba(248,113,113,.48); background: linear-gradient(135deg,rgba(69,10,10,.78),rgba(46,16,102,.78)); }
+.impact-kicker { display: block; margin-bottom: 4px; color: #fca5a5; font-size: .62rem; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
+.curse-impact > strong { display: block; margin-bottom: 7px; color: #fff; font-size: .88rem; }
+.curse-impact > p { margin: 0; font-size: .78rem; line-height: 1.42; }
+.curse-impact > small { display: block; margin-top: 8px; color: #ddd6fe; font-size: .68rem; line-height: 1.35; }
+.forced-score-list { display: grid; gap: 5px; }
+.forced-score-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 9px; align-items: center; padding: 6px 8px; border-radius: 7px; background: rgba(17,7,38,.5); }
+.forced-score-row span { overflow: hidden; font-size: .76rem; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+.forced-score-row b { min-width: 43px; color: #fecaca; font-size: .94rem; text-align: center; }
+.curse-meta { display: flex; align-items: center; gap: 8px; min-width: 0; color: #c4b5fd; font-size: .75rem; font-weight: 750; }
+.curse-meta > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mini-avatar { width: 26px; height: 26px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.42); border-radius: 50%; background: #6d28d9; color: #fff; font-weight: 950; }
 .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .empty-state, .loading-state, .error-state { grid-column: 1 / -1; padding: 42px 20px; border: 1px dashed rgba(216,180,254,.46); border-radius: 12px; background: rgba(46,16,102,.66); text-align: center; }
@@ -155,7 +188,9 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
   .victim-head { padding: 13px 11px; }
   .avatar { width: 46px; height: 46px; }
   .curse-stack { padding: 9px; }
-  .curse-entry { padding: 12px; }
+  .curse-entry { padding: 8px; }
+  .live-curse-card { min-height: 158px; padding: 15px; border-radius: 15px; }
+  .curse-name strong { max-width: 72%; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; } }
 </style>
@@ -191,7 +226,7 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
 </main>
 <footer>2026 Prem Predics | Live Curses</footer>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/live-curses.js?v=20260830-1"></script>
+<script type="module" src="assets/js/live-curses.js?v=20260830-card-outcomes"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
 </body>

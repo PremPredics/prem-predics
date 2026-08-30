@@ -8,6 +8,8 @@ const pageHtml = readFileSync(new URL('../live-curses.html', import.meta.url), '
 const pageJs = readFileSync(new URL('../assets/js/live-curses.js', import.meta.url), 'utf8');
 const worker = readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
 const realtimeMigration = readFileSync(new URL('../supabase/live-curses-realtime-2026-08-30.sql', import.meta.url), 'utf8');
+const outcomeRealtimeMigration = readFileSync(new URL('../supabase/live-curse-outcomes-realtime-2026-08-30.sql', import.meta.url), 'utf8');
+const predictionsJs = readFileSync(new URL('../assets/js/all-predictions.js', import.meta.url), 'utf8');
 
 test('current Gameweek includes direct and spanning live curses only', () => {
   const gameweeks = new Map([['gw1', 1], ['gw2', 2], ['gw3', 3], ['gw4', 4]]);
@@ -42,9 +44,24 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageJs, /setInterval/);
   assert.match(pageJs, /You have \$\{ownCount\} Live Curse/);
   assert.match(pageJs, /card_definitions!inner/);
-  assert.match(worker, /prem-predics-pwa-v47/);
+  assert.match(pageHtml, /live-curse-card/);
+  assert.match(pageHtml, /radial-gradient\(circle at 24% 18%, rgba\(254,202,202,.58\)/);
+  assert.match(pageHtml, /linear-gradient\(135deg,#4c0519 0%,#991b1b 24%,#ef4444 50%/);
+  assert.match(pageJs, /curse_hated_forced_predictions/);
+  assert.match(pageJs, /curse_gambler_rolls/);
+  assert.match(pageJs, /Effect applied now/);
+  assert.match(pageJs, /Dice-locked predictions/);
+  assert.match(predictionsJs, /const forcedCurseVisible = Boolean\(override\)/);
+  assert.match(predictionsJs, /sameId\(state\.selectedUserId, state\.user\.id\) \|\| forcedCurseVisible/);
+  assert.match(predictionsJs, /all-predictions-curses-/);
+  assert.match(predictionsJs, /table: 'curse_gambler_rolls'/);
+  assert.match(worker, /prem-predics-pwa-v48/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
   assert.doesNotMatch(realtimeMigration, /\b(?:delete|truncate)\s+from\b/i);
+  assert.match(outcomeRealtimeMigration, /curse_hated_forced_predictions/);
+  assert.match(outcomeRealtimeMigration, /curse_gambler_rolls/);
+  assert.match(outcomeRealtimeMigration, /pg_publication_tables/);
+  assert.doesNotMatch(outcomeRealtimeMigration, /\b(?:delete|truncate)\s+from\b/i);
 });
