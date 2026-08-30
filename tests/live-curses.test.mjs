@@ -34,11 +34,15 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(leagueHtml, /live-curses-card/);
   assert.match(pageHtml, /data-curse-board/);
   assert.match(pageHtml, /data-own-curse-alert/);
+  assert.match(pageHtml, /#7b61d8/);
+  assert.match(pageHtml, /#7354ca/);
+  assert.match(pageHtml, /rgba\(46,16,102/);
+  assert.doesNotMatch(leagueHtml, /\.play-card\.live-curses-card\s*\{[^}]*linear-gradient\(145deg, rgba\(127, 29, 29/s);
   assert.match(pageJs, /postgres_changes/);
   assert.match(pageJs, /setInterval/);
   assert.match(pageJs, /You have \$\{ownCount\} Live Curse/);
   assert.match(pageJs, /card_definitions!inner/);
-  assert.match(worker, /prem-predics-pwa-v45/);
+  assert.match(worker, /prem-predics-pwa-v46/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
