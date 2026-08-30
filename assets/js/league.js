@@ -166,7 +166,7 @@ async function renderOwnLiveCurseAlert(league, user, activeGameweek) {
     liveCurseAlert.classList.toggle('show', count > 0);
     liveCurseAlert.innerHTML = count > 0
       ? `<a href="${leagueUrl('live-curses.html', league.id)}">
-          <span class="live-curse-alert-icon" aria-hidden="true">&#128293;</span>
+          <span class="live-curse-alert-icon" aria-hidden="true">&#9760;</span>
           <span class="live-curse-alert-copy">
             <strong>Live Curse Alert</strong>
             <small>You have ${count} Live Curse${count === 1 ? '' : 's'} affecting you</small>

@@ -90,10 +90,10 @@ main {
   display: grid;
   gap: 12px;
   padding: 14px;
-  border-radius: 12px;
-  background: rgba(46, 16, 102, 0.68);
-  border: 2px solid rgba(196, 132, 252, 0.32);
-  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(46, 16, 102, .76), rgba(17, 7, 38, .56));
+  border: 1px solid rgba(216, 180, 254, .34);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 14px 32px rgba(0,0,0,.24);
 }
 
 .player-pills {
@@ -102,7 +102,10 @@ main {
   justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 4px 0;
+  padding: 7px;
+  border: 1px solid rgba(216, 180, 254, .14);
+  border-radius: 11px;
+  background: rgba(17, 7, 38, .28);
 }
 
 .player-pill {
@@ -113,7 +116,7 @@ main {
   -webkit-appearance: none;
   display: grid;
   place-items: center;
-  border: 2px solid rgba(216, 180, 254, 0.24);
+  border: 2px solid rgba(216, 180, 254, 0.3);
   border-radius: 999px;
   background: rgba(17, 7, 38, 0.7);
   color: #fff;
@@ -137,6 +140,10 @@ main {
 
 .correct-score-title {
   margin: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(216, 180, 254, .18);
+  border-radius: 10px;
+  background: rgba(17, 7, 38, .34);
   text-align: center;
   color: #fff;
   font-size: clamp(1.25rem, 3vw, 1.9rem);
@@ -151,23 +158,25 @@ main {
 
 .correct-score-list {
   display: grid;
-  gap: 6px;
+  gap: 7px;
 }
 
 .correct-score-row {
-  min-height: 34px;
+  min-height: 42px;
+  position: relative;
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 72px minmax(0, 1fr) 72px;
+  gap: 7px;
   align-items: center;
-  padding: 6px 8px;
-  border-radius: 999px;
-  background: rgba(17, 7, 38, 0.5);
-  border: 1px solid rgba(250, 204, 21, 0.34);
+  padding: 6px 7px;
+  border-radius: 10px;
+  background: rgba(17, 7, 38, .46);
+  border: 1px solid rgba(216, 180, 254, .18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
 }
 
 .correct-score-row.has-effects {
-  grid-template-columns: 54px minmax(0, 1fr) auto;
+  grid-template-columns: 72px minmax(0, 1fr) 72px;
 }
 
 .correct-fixture {
@@ -176,16 +185,16 @@ main {
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 58px minmax(0, 1fr);
-  gap: 8px;
+  gap: 7px;
   align-items: center;
   text-align: center;
-  color: #ffd700;
+  color: #fde68a;
   font-size: 14px;
   font-weight: 950;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-shadow: 0 0 10px rgba(250, 204, 21, 0.42);
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.28);
 }
 
 .correct-team {
@@ -216,41 +225,42 @@ main {
 }
 
 .correct-gw-pill {
-  min-width: 48px;
-  justify-self: start;
+  min-width: 50px;
+  justify-self: center;
   grid-column: 1;
   grid-row: 1;
   border-radius: 999px;
   padding: 3px 8px;
-  background: rgba(120, 53, 15, 0.72);
-  border: 1px solid rgba(250, 204, 21, 0.72);
+  background: rgba(120, 53, 15, .52);
+  border: 1px solid rgba(250, 204, 21, .48);
   color: #fde68a;
   font-size: 12px;
   font-weight: 950;
   text-align: center;
-  box-shadow: 0 0 10px rgba(250, 204, 21, 0.22);
+  box-shadow: none;
 }
 
 .correct-effects {
   grid-column: 3;
   grid-row: 1;
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  min-width: 30px;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
 }
 
 .effect-marker {
-  width: 29px;
-  height: 29px;
+  width: 27px;
+  height: 27px;
   display: grid;
   place-items: center;
   border-radius: 999px;
-  border: 2px solid rgba(255,255,255,0.9);
+  border: 1px solid rgba(255,255,255,.78);
   color: #fff;
   cursor: pointer;
-  font-size: 17px;
+  font-size: 15px;
   line-height: 1;
   font-weight: 950;
   padding: 0;
@@ -259,17 +269,17 @@ main {
     1px -1px 0 rgba(0,0,0,0.9),
     -1px 1px 0 rgba(0,0,0,0.9),
     1px 1px 0 rgba(0,0,0,0.9);
-  box-shadow: 0 0 13px rgba(255,255,255,0.2), inset 0 0 8px rgba(255,255,255,0.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 3px 8px rgba(0,0,0,.22);
 }
 
 .curse-marker {
   background: linear-gradient(135deg, #7f1d1d, #ef4444 54%, #fb7185);
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.64), inset 0 0 8px rgba(255,255,255,0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 3px 8px rgba(69,10,10,.38);
 }
 
 .power-marker {
   background: linear-gradient(135deg, #075985, #0284c7 54%, #7dd3fc);
-  box-shadow: 0 0 16px rgba(14, 165, 233, 0.64), inset 0 0 8px rgba(255,255,255,0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 3px 8px rgba(7,89,133,.38);
 }
 
 .effect-marker:hover {
@@ -527,12 +537,13 @@ body.card-modal-open {
     height: 40px;
   }
   .correct-score-row {
-    min-height: 31px;
-    padding: 5px 6px;
-    gap: 5px;
+    min-height: 39px;
+    grid-template-columns: 60px minmax(0, 1fr) 60px;
+    padding: 5px;
+    gap: 4px;
   }
   .correct-score-row.has-effects {
-    grid-template-columns: 42px minmax(0, 1fr) auto;
+    grid-template-columns: 60px minmax(0, 1fr) 60px;
   }
   .correct-fixture {
     grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
@@ -543,12 +554,11 @@ body.card-modal-open {
     font-size: 12px;
   }
   .correct-gw-pill {
-    min-width: 42px;
+    min-width: 44px;
     padding: 3px 6px;
     font-size: 11px;
   }
   .correct-effects {
-    min-width: 26px;
     gap: 2px;
   }
   .effect-marker {
@@ -630,7 +640,7 @@ body.card-modal-open {
 <footer>2026 Prem Predics | Correct Scores</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/correct-scores.js"></script>
+<script type="module" src="assets/js/correct-scores.js?v=20260830-centered-effects"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

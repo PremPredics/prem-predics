@@ -179,11 +179,14 @@ function curseEffectMarkup(effect) {
   const sourceName = sameId(effect.played_by_user_id, state.user?.id) ? 'You' : source.display_name;
   return `
     <article class="curse-effect-entry">
-      ${effectOutcomeMarkup(effect)}
       <div class="curse-meta">
         ${avatarMarkup(source, 'mini-avatar')}
-        <span>${escapeHtml(effectName(effect))} &bull; ${escapeHtml(effectGameweekText(effect))} &bull; Played by ${escapeHtml(sourceName)} &bull; ${escapeHtml(playedAtText(effect.played_at))}</span>
+        <span class="curse-meta-copy">
+          <strong>${escapeHtml(effectName(effect))}</strong>
+          <small>${escapeHtml(effectGameweekText(effect))} &bull; Played by ${escapeHtml(sourceName)} &bull; ${escapeHtml(playedAtText(effect.played_at))}</small>
+        </span>
       </div>
+      ${effectOutcomeMarkup(effect)}
     </article>`;
 }
 
@@ -211,7 +214,6 @@ function render() {
   if (!total) {
     board.innerHTML = `
       <div class="empty-state">
-        <span class="empty-icon" aria-hidden="true">&#128524;</span>
         <h3>The league is curse-free... for now.</h3>
         <p>No active Curse Cards are affecting anyone in this Gameweek. This board updates automatically when that changes.</p>
       </div>`;
@@ -237,12 +239,14 @@ function render() {
             <strong>${escapeHtml(isYou ? `${target.display_name} (You)` : target.display_name)}</strong>
             <span>${effects.length === 1 ? 'Under one live Curse' : `Under ${effects.length} live Curses`}</span>
           </div>
-          <span class="curse-count" title="Active curse count">${effects.length}</span>
+          <span class="curse-count" title="Active curse count"><b>${effects.length}</b><small>Live</small></span>
         </div>
         <div class="curse-card-segment">
+          <span class="segment-label">Active Curse Cards</span>
           <div class="curse-stack">${sortedEffects.map(curseCardMarkup).join('')}</div>
         </div>
         <div class="curse-effects-segment">
+          <span class="segment-label">Live Effects</span>
           <div class="curse-effects-grid">${sortedEffects.map(curseEffectMarkup).join('')}</div>
         </div>
       </article>`;

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v55';
+const CACHE_VERSION = 'prem-predics-pwa-v56';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -42,7 +42,7 @@ const APP_SHELL = [
   './assets/js/all-predictions.js?v=20260830-forced-curses-live',
   './assets/js/all-star-men.js?v=20260820-1',
   './assets/js/capacitor-app.js',
-  './assets/js/correct-scores.js',
+  './assets/js/correct-scores.js?v=20260830-centered-effects',
   './assets/js/countries.js',
   './assets/js/desktop-polish.js',
   './assets/js/desktop-prediction-final-polish.js',
@@ -58,8 +58,8 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260830-hub-progress-polish',
-  './assets/js/live-curses.js?v=20260830-effect-polish',
+  './assets/js/league.js?v=20260830-skull-alert',
+  './assets/js/live-curses.js?v=20260830-slick-polish',
   './assets/js/live-curses-model.js',
   './assets/js/medal-progress.js',
   './assets/js/leagues.js',

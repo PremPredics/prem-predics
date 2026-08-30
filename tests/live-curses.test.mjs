@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { currentLiveCurseEffects, effectAppliesToGameweek } from '../assets/js/live-curses-model.js';
 
 const leagueHtml = readFileSync(new URL('../league.html', import.meta.url), 'utf8');
+const leagueJs = readFileSync(new URL('../assets/js/league.js', import.meta.url), 'utf8');
 const pageHtml = readFileSync(new URL('../live-curses.html', import.meta.url), 'utf8');
 const pageJs = readFileSync(new URL('../assets/js/live-curses.js', import.meta.url), 'utf8');
 const worker = readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
@@ -64,6 +65,12 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageHtml, /width: min\(100%,86px\)/);
   assert.match(pageHtml, /curse-card-segment/);
   assert.match(pageHtml, /curse-effects-segment/);
+  assert.match(pageHtml, /segment-label/);
+  assert.match(pageJs, /Active Curse Cards/);
+  assert.match(pageJs, /curse-meta-copy/);
+  assert.doesNotMatch(pageHtml, /curse-hero::after/);
+  assert.doesNotMatch(pageHtml, /\\1F525|🔥/);
+  assert.match(leagueJs, /live-curse-alert-icon[^]*&#9760;/);
   assert.match(pageHtml, /\.curse-effects-grid \{ display: grid; grid-template-columns: minmax\(0,1fr\)/);
   assert.doesNotMatch(pageJs, /--effect-columns/);
   assert.match(pageJs, /sortedEffects\.map\(curseCardMarkup\)/);
@@ -72,7 +79,7 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(predictionsJs, /sameId\(state\.selectedUserId, state\.user\.id\) \|\| forcedCurseVisible/);
   assert.match(predictionsJs, /all-predictions-curses-/);
   assert.match(predictionsJs, /table: 'curse_gambler_rolls'/);
-  assert.match(worker, /prem-predics-pwa-v55/);
+  assert.match(worker, /prem-predics-pwa-v56/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
