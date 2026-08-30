@@ -176,5 +176,5 @@ test('Power Cards UI uses the pending Thief RPCs and forces a fresh PWA cache', 
   assert.doesNotMatch(powerCards, /rpc\('steal_regular_card_from_opponent'/);
   assert.match(powerCards, /opponentCardIsStealable/);
   assert.match(powerCards, /revealOpponentCard/);
-  assert.match(serviceWorker, /prem-predics-pwa-v50/);
+  assert.match(serviceWorker, /prem-predics-pwa-v51/);
 });

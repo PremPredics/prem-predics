@@ -1,25 +1,24 @@
 import { supabase } from './supabase-client.js';
-import { isGameweekStarted, loadActiveGameweek } from './gameweek-context.js';
+import { loadActiveGameweek } from './gameweek-context.js';
 import { escapeHtml, leagueUrl, loadLeagueContext, normaliseNested } from './league-context.js';
 import { currentLiveCurseEffects } from './live-curses-model.js';
 
 const board = document.querySelector('[data-curse-board]');
 const leagueLink = document.querySelector('[data-league-link]');
 const gameweekLabel = document.querySelector('[data-gameweek-label]');
-const boardCaption = document.querySelector('[data-board-caption]');
 const liveCount = document.querySelector('[data-live-count]');
 const targetCount = document.querySelector('[data-target-count]');
 const safeCount = document.querySelector('[data-safe-count]');
 const ownAlert = document.querySelector('[data-own-curse-alert]');
 
 const starManLiveEffectByKey = {
-  curse_alphabet_15: 'The target\'s Star Man choice is restricted by the 15+ alphabet rule.',
-  curse_alphabet_20: 'The target\'s Star Man choice is restricted by the 20+ alphabet rule.',
-  curse_scoring_drought_3: 'The target\'s Star Man pool is restricted by the three-match scoring-drought rule.',
-  curse_scoring_drought_5: 'The target\'s Star Man pool is restricted by the five-match scoring-drought rule.',
-  curse_random_roulette: 'The target\'s Star Man pool is restricted to the selected microstate nationality.',
-  curse_tiny_club: 'The target\'s Star Man pool is restricted by the Tiny Club rule.',
-  curse_furious: 'The target\'s Star Man scoring is affected by the Furious rule.',
+  curse_alphabet_15: (name) => `${name}'s Star Man choice is restricted by the 15+ alphabet rule.`,
+  curse_alphabet_20: (name) => `${name}'s Star Man choice is restricted by the 20+ alphabet rule.`,
+  curse_scoring_drought_3: (name) => `${name}'s Star Man pool is restricted by the three-match scoring-drought rule.`,
+  curse_scoring_drought_5: (name) => `${name}'s Star Man pool is restricted by the five-match scoring-drought rule.`,
+  curse_random_roulette: (name) => `${name}'s Star Man pool is restricted to the selected microstate nationality.`,
+  curse_tiny_club: (name) => `${name}'s Star Man pool is restricted by the Tiny Club rule.`,
+  curse_furious: (name) => `${name}'s Star Man scoring is affected by the Furious rule.`,
 };
 
 const state = {
@@ -102,6 +101,7 @@ function forcedOutcomeRows(effect) {
 function effectOutcomeMarkup(effect) {
   const key = effectKey(effect);
   const rows = forcedOutcomeRows(effect);
+  const targetName = profileFor(effect.target_user_id).display_name || 'League Player';
 
   if ((key === 'curse_gambler' || key === 'curse_hated') && rows.length) {
     const heading = key === 'curse_gambler' ? 'Dice-locked predictions' : 'Locked prediction';
@@ -116,7 +116,7 @@ function effectOutcomeMarkup(effect) {
               <b>${escapeHtml(`${row.home_goals}-${row.away_goals}`)}</b>
             </div>`).join('')}
         </div>
-        <small>These scores are visible immediately in View All Player Predictions because the cursed player cannot change them.</small>
+        <small>These scores are visible immediately in View All Player Predictions because ${escapeHtml(targetName)} cannot change them.</small>
       </section>`;
   }
 
@@ -131,7 +131,7 @@ function effectOutcomeMarkup(effect) {
             <b>0 pts</b>
           </div>
         </div>
-        <small>The cursed player cannot earn prediction points from this match.</small>
+        <small>${escapeHtml(targetName)} cannot earn prediction points from this match.</small>
       </section>`;
   }
 
@@ -139,18 +139,18 @@ function effectOutcomeMarkup(effect) {
     return `
       <section class="curse-impact">
         <span class="impact-kicker">Live Effect</span>
-        <p>${escapeHtml(starManLiveEffectByKey[key])}</p>
+        <p>${escapeHtml(starManLiveEffectByKey[key](targetName))}</p>
       </section>`;
   }
 
   const impactByKey = {
-    curse_glasses: { heading: 'Prediction scoring restriction', detail: 'Any 0-0 prediction scores no points while this Curse is active.' },
-    curse_even_number: { heading: 'Prediction entry restriction', detail: 'The target can only enter even team goal totals.' },
-    curse_odd_number: { heading: 'Prediction entry restriction', detail: 'The target can only enter odd team goal totals.' },
+    curse_glasses: { heading: 'Prediction scoring restriction', detail: `Any 0-0 prediction entered by ${targetName} scores no points while this Curse is active.` },
+    curse_even_number: { heading: 'Prediction entry restriction', detail: `${targetName} can only enter even team goal totals.` },
+    curse_odd_number: { heading: 'Prediction entry restriction', detail: `${targetName} can only enter odd team goal totals.` },
   };
   const impact = impactByKey[key] || {
     heading: 'Active Curse',
-    detail: 'This Curse is currently affecting the targeted player.',
+    detail: `This Curse is currently affecting ${targetName}.`,
   };
   return `
     <section class="curse-impact">
@@ -195,7 +195,6 @@ function render() {
   targetCount.textContent = String(targeted);
   safeCount.textContent = String(Math.max(0, state.members.length - targeted));
   gameweekLabel.textContent = `GW${state.activeGameweek?.gameweek_number || '--'}`;
-  boardCaption.textContent = `${total} active Curse${total === 1 ? '' : 's'} across ${targeted} player${targeted === 1 ? '' : 's'} in Gameweek ${state.activeGameweek?.gameweek_number || '--'}.`;
   ownAlert.classList.toggle('show', ownCount > 0);
   ownAlert.textContent = ownCount > 0
     ? `You have ${ownCount} Live Curse${ownCount === 1 ? '' : 's'} affecting you`
@@ -232,7 +231,7 @@ function render() {
           </div>
           <span class="curse-count" title="Active curse count">${effects.length}</span>
         </div>
-        <div class="curse-stack">${sortedEffects.map(curseEntryMarkup).join('')}</div>
+        <div class="curse-stack" style="--curse-columns:${Math.min(3, effects.length)}">${sortedEffects.map(curseEntryMarkup).join('')}</div>
       </article>`;
   }).join('');
 }
@@ -364,9 +363,6 @@ async function init() {
     if (!activeGameweek) throw new Error('No current Gameweek was found for this private league.');
     state.activeGameweek = activeGameweek;
     gameweekLabel.textContent = `GW${activeGameweek.gameweek_number}`;
-    if (!isGameweekStarted(activeGameweek)) {
-      boardCaption.textContent = `Showing Curses already assigned for upcoming Gameweek ${activeGameweek.gameweek_number}.`;
-    }
     await loadLiveCurses();
     subscribe();
   } catch (error) {
