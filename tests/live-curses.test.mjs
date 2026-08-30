@@ -59,7 +59,7 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(predictionsJs, /sameId\(state\.selectedUserId, state\.user\.id\) \|\| forcedCurseVisible/);
   assert.match(predictionsJs, /all-predictions-curses-/);
   assert.match(predictionsJs, /table: 'curse_gambler_rolls'/);
-  assert.match(worker, /prem-predics-pwa-v49/);
+  assert.match(worker, /prem-predics-pwa-v50/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
