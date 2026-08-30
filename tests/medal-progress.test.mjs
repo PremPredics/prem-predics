@@ -28,6 +28,8 @@ test('league hub renders two compact medal bars between deadlines and live curse
   const curses = leagueHtml.indexOf('data-live-curse-alert');
   assert.ok(deadlines < progress && progress < curses);
   assert.match(leagueHtml, /medal-progress-grid/);
+  assert.match(leagueHtml, /live-curse-alert-copy/);
+  assert.match(leagueHtml, /live-curse-alert-action/);
   assert.match(leagueJs, /sync_my_card_draw_tokens/);
   assert.match(leagueJs, /ultimate_champion_points, star_man_goals/);
   assert.match(liveCursesHtml, /-webkit-touch-callout: none/);

@@ -51,6 +51,8 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageJs, /curse_gambler_rolls/);
   assert.match(pageJs, /Live Effect/);
   assert.match(pageJs, /Dice-locked predictions/);
+  assert.match(pageJs, /Forced 8-2 prediction/);
+  assert.match(pageJs, /effect\.fixture_id, home_goals: 8, away_goals: 2/);
   assert.match(pageJs, /Prediction removed from scoring/);
   assert.match(pageJs, /starManLiveEffectByKey/);
   assert.match(pageJs, /profileFor\(effect\.target_user_id\)\.display_name/);
@@ -62,13 +64,15 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageHtml, /width: min\(100%,86px\)/);
   assert.match(pageHtml, /curse-card-segment/);
   assert.match(pageHtml, /curse-effects-segment/);
+  assert.match(pageHtml, /\.curse-effects-grid \{ display: grid; grid-template-columns: minmax\(0,1fr\)/);
+  assert.doesNotMatch(pageJs, /--effect-columns/);
   assert.match(pageJs, /sortedEffects\.map\(curseCardMarkup\)/);
   assert.match(pageJs, /sortedEffects\.map\(curseEffectMarkup\)/);
   assert.match(predictionsJs, /const forcedCurseVisible = Boolean\(override\)/);
   assert.match(predictionsJs, /sameId\(state\.selectedUserId, state\.user\.id\) \|\| forcedCurseVisible/);
   assert.match(predictionsJs, /all-predictions-curses-/);
   assert.match(predictionsJs, /table: 'curse_gambler_rolls'/);
-  assert.match(worker, /prem-predics-pwa-v54/);
+  assert.match(worker, /prem-predics-pwa-v55/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);

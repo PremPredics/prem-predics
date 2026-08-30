@@ -566,7 +566,7 @@ main {
 .live-curse-alert {
   display: none;
   width: 100%;
-  margin: -4px 0 20px;
+  margin: -7px 0 20px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -578,43 +578,40 @@ main {
 }
 
 .live-curse-alert a {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: center;
-  gap: 9px;
-  max-width: 100%;
-  padding: 10px 16px;
-  border: 1px solid rgba(254, 202, 202, 0.76);
-  border-radius: 999px;
-  background: rgba(69, 10, 10, 0.78);
-  color: #ff6b6b;
-  font-weight: 950;
-  line-height: 1.25;
+  gap: 11px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(248, 113, 113, 0.46);
+  border-radius: 12px;
+  background: linear-gradient(110deg, rgba(88, 18, 30, .82), rgba(46, 16, 102, .78));
+  color: #fff;
+  line-height: 1.2;
   text-decoration: none;
-  text-shadow: 0 0 10px rgba(248, 113, 113, 0.72);
-  box-shadow: 0 0 18px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255,255,255,0.12);
-  animation: liveCurseAlertPulse 2.8s ease-in-out infinite;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 8px 20px rgba(0,0,0,.18);
 }
+.live-curse-alert-icon { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid rgba(254,202,202,.35); border-radius: 9px; background: rgba(127,29,29,.58); font-size: 1.15rem; }
+.live-curse-alert-copy { min-width: 0; text-align: left; }
+.live-curse-alert-copy strong { display: block; color: #fecaca; font-size: .76rem; font-weight: 1000; letter-spacing: .06em; text-transform: uppercase; }
+.live-curse-alert-copy small { display: block; margin-top: 3px; overflow: hidden; color: #fff; font-size: .78rem; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.live-curse-alert-action { color: #fecaca; font-size: .72rem; font-weight: 950; white-space: nowrap; }
 
-@keyframes liveCurseAlertPulse {
-  0%, 100% { box-shadow: 0 0 14px rgba(239, 68, 68, 0.26), inset 0 1px 0 rgba(255,255,255,0.12); }
-  50% { box-shadow: 0 0 25px rgba(248, 113, 113, 0.52), inset 0 1px 0 rgba(255,255,255,0.16); }
-}
-
-.medal-progress-panel { margin: -7px 0 18px; padding: 11px 12px 12px; border: 1px solid rgba(250,204,21,.44); border-radius: 12px; background: radial-gradient(circle at 50% 0,rgba(250,204,21,.12),transparent 58%),rgba(17,7,38,.42); box-shadow: inset 0 1px 0 rgba(255,255,255,.08),0 10px 24px rgba(0,0,0,.18); }
+.medal-progress-panel { margin: -7px 0 18px; padding: 12px; border: 1px solid rgba(167,139,250,.36); border-radius: 12px; background: linear-gradient(145deg,rgba(46,16,102,.64),rgba(17,7,38,.58)); box-shadow: inset 0 1px 0 rgba(255,255,255,.08),0 10px 24px rgba(0,0,0,.18); }
 .medal-progress-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
-.medal-progress-heading strong { color: #fff7c2; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; text-shadow: 0 0 10px rgba(250,204,21,.4); }
-.medal-progress-heading a { color: #fde68a; font-size: .68rem; font-weight: 900; text-decoration: none; }
+.medal-progress-heading strong { color: #f5f3ff; font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; }
+.medal-progress-heading a { padding: 4px 7px; border: 1px solid rgba(250,204,21,.28); border-radius: 6px; background: rgba(17,7,38,.38); color: #fde68a; font-size: .68rem; font-weight: 900; text-decoration: none; }
 .medal-progress-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
-.medal-progress-card { --medal-color:#facc15; min-width: 0; padding: 9px 10px; border: 1px solid color-mix(in srgb,var(--medal-color) 40%,rgba(216,180,254,.22)); border-radius: 9px; background: rgba(17,7,38,.54); }
+.medal-progress-card { --medal-color:#facc15; min-width: 0; padding: 10px; border: 1px solid color-mix(in srgb,var(--medal-color) 34%,rgba(216,180,254,.2)); border-radius: 9px; background: rgba(17,7,38,.52); }
 .medal-progress-card.goal-progress { --medal-color:#4ade80; }
 .medal-progress-top,.medal-progress-copy { display: flex; align-items: center; justify-content: space-between; gap: 7px; min-width: 0; }
-.medal-progress-top span { min-width: 0; overflow: hidden; color: var(--medal-color); font-size: .7rem; font-weight: 950; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.medal-progress-top span { min-width: 0; overflow: hidden; color: var(--medal-color); font-size: .72rem; font-weight: 950; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
 .medal-progress-top i { margin-right: 5px; font-style: normal; }
-.medal-progress-top strong { color: #fff; font-size: .78rem; }
+.medal-progress-top strong { color: #fff; font-size: .82rem; }
 .medal-progress-copy { margin: 5px 0 6px; }
-.medal-progress-copy b { color: #fff; font-size: .82rem; white-space: nowrap; }
-.medal-progress-copy span { overflow: hidden; color: #ddd6fe; font-size: .63rem; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.medal-progress-copy b { color: #fff; font-size: .88rem; white-space: nowrap; }
+.medal-progress-copy span { overflow: hidden; color: #ddd6fe; font-size: .67rem; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
 .medal-progress-track { height: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; background: rgba(3,1,10,.72); box-shadow: inset 0 2px 4px rgba(0,0,0,.55); }
 .medal-progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,color-mix(in srgb,var(--medal-color) 68%,#7c3aed),var(--medal-color)); box-shadow: 0 0 10px var(--medal-color); transition: width .55s ease; }
 .medal-progress-card.complete .medal-progress-track span { background: linear-gradient(90deg,#f59e0b,#fff2a8,#facc15); }
@@ -824,17 +821,23 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  .medal-progress-panel { margin-top: -8px; padding: 8px; }
-  .medal-progress-heading { margin-bottom: 6px; }
-  .medal-progress-heading strong { font-size: .68rem; }
-  .medal-progress-grid { gap: 6px; }
-  .medal-progress-card { padding: 7px 6px; }
-  .medal-progress-top span { font-size: .56rem; }
-  .medal-progress-top strong { font-size: .65rem; }
-  .medal-progress-copy { align-items: flex-end; flex-direction: column; gap: 1px; margin: 4px 0 5px; }
-  .medal-progress-copy b { align-self: flex-start; font-size: .68rem; }
-  .medal-progress-copy span { width: 100%; font-size: .52rem; text-align: left; }
+  .medal-progress-panel { margin-top: -8px; padding: 9px; }
+  .medal-progress-heading { margin-bottom: 7px; }
+  .medal-progress-heading strong { font-size: .7rem; }
+  .medal-progress-grid { gap: 7px; }
+  .medal-progress-card { padding: 8px 7px; }
+  .medal-progress-top span { font-size: .62rem; }
+  .medal-progress-top strong { font-size: .72rem; }
+  .medal-progress-copy { align-items: flex-start; flex-direction: column; gap: 2px; margin: 5px 0 6px; }
+  .medal-progress-copy b { font-size: .76rem; }
+  .medal-progress-copy span { width: 100%; font-size: .6rem; text-align: left; }
   .medal-progress-track { height: 7px; }
+
+  .live-curse-alert a { grid-template-columns: 34px minmax(0,1fr) auto; gap: 9px; padding: 9px 10px; }
+  .live-curse-alert-icon { width: 34px; height: 34px; font-size: 1rem; }
+  .live-curse-alert-copy strong { font-size: .65rem; }
+  .live-curse-alert-copy small { font-size: .7rem; }
+  .live-curse-alert-action { font-size: .66rem; }
 
   .play-card.live-curses-card {
     grid-column: 1;
@@ -919,7 +922,7 @@ footer {
 <footer>2026 Prem Predics | Private League</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260830-medal-progress"></script>
+<script type="module" src="assets/js/league.js?v=20260830-hub-progress-polish"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

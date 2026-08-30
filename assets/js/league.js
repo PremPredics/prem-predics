@@ -165,7 +165,14 @@ async function renderOwnLiveCurseAlert(league, user, activeGameweek) {
     const count = await loadOwnLiveCurseCount(league, user, activeGameweek);
     liveCurseAlert.classList.toggle('show', count > 0);
     liveCurseAlert.innerHTML = count > 0
-      ? `<a href="${leagueUrl('live-curses.html', league.id)}"><span aria-hidden="true">&#128293;</span><span>You have ${count} Live Curse${count === 1 ? '' : 's'} affecting you</span><span aria-hidden="true">&#8594;</span></a>`
+      ? `<a href="${leagueUrl('live-curses.html', league.id)}">
+          <span class="live-curse-alert-icon" aria-hidden="true">&#128293;</span>
+          <span class="live-curse-alert-copy">
+            <strong>Live Curse Alert</strong>
+            <small>You have ${count} Live Curse${count === 1 ? '' : 's'} affecting you</small>
+          </span>
+          <span class="live-curse-alert-action">View <span aria-hidden="true">&#8594;</span></span>
+        </a>`
       : '';
   } catch (error) {
     console.warn('Could not load live curse alert', error);

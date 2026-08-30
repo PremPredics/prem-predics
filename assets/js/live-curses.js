@@ -101,16 +101,21 @@ function forcedOutcomeRows(effect) {
 function effectOutcomeMarkup(effect) {
   const key = effectKey(effect);
   const rows = forcedOutcomeRows(effect);
+  const displayRows = rows.length
+    ? rows
+    : (key === 'curse_hated' && effect.fixture_id
+      ? [{ fixture_id: effect.fixture_id, home_goals: 8, away_goals: 2 }]
+      : []);
   const targetName = profileFor(effect.target_user_id).display_name || 'League Player';
 
-  if ((key === 'curse_gambler' || key === 'curse_hated') && rows.length) {
-    const heading = key === 'curse_gambler' ? 'Dice-locked predictions' : 'Locked prediction';
+  if ((key === 'curse_gambler' || key === 'curse_hated') && displayRows.length) {
+    const heading = key === 'curse_gambler' ? 'Dice-locked predictions' : 'Forced 8-2 prediction';
     return `
       <section class="curse-impact is-locked">
         <span class="impact-kicker">Live Effect</span>
         <strong>${escapeHtml(heading)}</strong>
         <div class="forced-score-list">
-          ${rows.map((row) => `
+          ${displayRows.map((row) => `
             <div class="forced-score-row">
               <span>${escapeHtml(fixtureName(row.fixture_id))}</span>
               <b>${escapeHtml(`${row.home_goals}-${row.away_goals}`)}</b>
@@ -238,7 +243,7 @@ function render() {
           <div class="curse-stack">${sortedEffects.map(curseCardMarkup).join('')}</div>
         </div>
         <div class="curse-effects-segment">
-          <div class="curse-effects-grid" style="--effect-columns:${Math.min(3, effects.length)}">${sortedEffects.map(curseEffectMarkup).join('')}</div>
+          <div class="curse-effects-grid">${sortedEffects.map(curseEffectMarkup).join('')}</div>
         </div>
       </article>`;
   }).join('');

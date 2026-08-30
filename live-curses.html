@@ -117,9 +117,9 @@ main { width: min(1240px, 100%); margin: 0 auto; padding: 32px 18px 48px; }
 .curse-card-segment { min-height: 132px; padding: 10px 12px; background: rgba(17,7,38,.34); }
 .curse-stack { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); align-items: start; gap: 10px; }
 .curse-card-slot { display: grid; place-items: start center; min-width: 0; min-height: 112px; padding: 8px; border: 1px solid rgba(248,113,113,.2); border-radius: 10px; background: rgba(17,7,38,.42); }
-.curse-effects-segment { padding: 10px 12px 12px; border-top: 1px solid rgba(216,180,254,.18); background: rgba(46,16,102,.34); }
-.curse-effects-grid { display: grid; grid-template-columns: repeat(var(--effect-columns,1),minmax(0,1fr)); align-items: start; gap: 9px; }
-.curse-effect-entry { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.curse-effects-segment { padding: 12px; border-top: 1px solid rgba(216,180,254,.18); background: linear-gradient(180deg,rgba(46,16,102,.28),rgba(17,7,38,.4)); }
+.curse-effects-grid { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; }
+.curse-effect-entry { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 10px; border: 1px solid rgba(216,180,254,.17); border-radius: 11px; background: rgba(17,7,38,.42); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
 .live-curse-card {
   position: relative;
   isolation: isolate;
@@ -141,17 +141,17 @@ main { width: min(1240px, 100%); margin: 0 auto; padding: 32px 18px 48px; }
   box-shadow: 0 0 18px rgba(251,113,133,.58), 0 4px 12px rgba(0,0,0,.4), inset 0 0 12px rgba(255,255,255,.14);
 }
 .live-card-name { max-width: 100%; color: #fff; font-size: clamp(.78rem, 1.55vw, 1rem); line-height: 1.05; font-weight: 1000; text-align: center; text-shadow: -1px -1px 0 rgba(0,0,0,.92), 1px -1px 0 rgba(0,0,0,.92), -1px 1px 0 rgba(0,0,0,.92), 1px 1px 0 rgba(0,0,0,.92), 0 0 10px rgba(254,202,202,.6); overflow-wrap: normal; word-break: normal; hyphens: none; }
-.curse-impact { padding: 10px 12px; border: 1px solid rgba(216,180,254,.23); border-radius: 9px; background: rgba(46,16,102,.78); color: #ede9fe; }
-.curse-impact.is-locked { border-color: rgba(248,113,113,.48); background: linear-gradient(135deg,rgba(69,10,10,.78),rgba(46,16,102,.78)); }
-.impact-kicker { display: block; margin-bottom: 4px; color: #fca5a5; font-size: .62rem; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
-.curse-impact > strong { display: block; margin-bottom: 7px; color: #fff; font-size: .88rem; }
-.curse-impact > p { margin: 0; font-size: .78rem; line-height: 1.42; }
-.curse-impact > small { display: block; margin-top: 8px; color: #ddd6fe; font-size: .68rem; line-height: 1.35; }
+.curse-impact { padding: 13px 14px; border: 1px solid rgba(216,180,254,.26); border-radius: 9px; background: linear-gradient(135deg,rgba(76,29,149,.64),rgba(46,16,102,.76)); color: #f5f3ff; }
+.curse-impact.is-locked { border-color: rgba(248,113,113,.46); background: linear-gradient(135deg,rgba(88,18,30,.78),rgba(46,16,102,.82)); }
+.impact-kicker { display: block; margin-bottom: 5px; color: #fca5a5; font-size: .7rem; font-weight: 1000; letter-spacing: .13em; text-transform: uppercase; }
+.curse-impact > strong { display: block; margin-bottom: 8px; color: #fff; font-size: 1rem; line-height: 1.25; }
+.curse-impact > p { margin: 0; font-size: .9rem; line-height: 1.48; }
+.curse-impact > small { display: block; margin-top: 9px; color: #e9d5ff; font-size: .78rem; line-height: 1.42; }
 .forced-score-list { display: grid; gap: 5px; }
-.forced-score-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 9px; align-items: center; padding: 6px 8px; border-radius: 7px; background: rgba(17,7,38,.5); }
-.forced-score-row span { overflow: hidden; font-size: .76rem; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
-.forced-score-row b { min-width: 43px; color: #fecaca; font-size: .94rem; text-align: center; }
-.curse-meta { display: flex; align-items: center; gap: 8px; min-width: 0; color: #c4b5fd; font-size: .75rem; font-weight: 750; }
+.forced-score-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 9px 11px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; background: rgba(17,7,38,.58); }
+.forced-score-row span { overflow: hidden; font-size: .88rem; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
+.forced-score-row b { min-width: 50px; padding: 3px 7px; border-radius: 6px; background: rgba(127,29,29,.54); color: #fecaca; font-size: 1.05rem; text-align: center; }
+.curse-meta { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 0 3px; color: #c4b5fd; font-size: .76rem; font-weight: 750; }
 .curse-meta > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mini-avatar { width: 26px; height: 26px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.42); border-radius: 50%; background: #6d28d9; color: #fff; font-weight: 950; }
 .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -190,18 +190,20 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
   .curse-card-segment { min-height: 112px; padding: 7px; }
   .curse-stack { gap: 6px; }
   .curse-card-slot { min-height: 98px; padding: 5px 3px; }
-  .curse-effects-segment { padding: 8px 7px 9px; }
-  .curse-effects-grid { gap: 6px; }
+  .curse-effects-segment { padding: 8px; }
+  .curse-effects-grid { gap: 8px; }
+  .curse-effect-entry { gap: 7px; padding: 8px; }
   .live-curse-card { width: min(100%,72px); padding: 8px 5px; border-radius: 8px; }
   .live-card-name { font-size: clamp(.5rem,2.55vw,.7rem); line-height: 1; }
-  .curse-impact { padding: 7px 6px; }
-  .impact-kicker { font-size: .52rem; letter-spacing: .08em; }
-  .curse-impact > strong { font-size: .68rem; line-height: 1.15; }
-  .curse-impact > p, .curse-impact > small { font-size: .62rem; overflow-wrap: anywhere; }
-  .forced-score-row { grid-template-columns: 1fr; gap: 3px; padding: 5px; text-align: center; }
-  .forced-score-row span { font-size: .61rem; text-overflow: clip; white-space: normal; }
-  .forced-score-row b { min-width: 0; font-size: .74rem; }
-  .curse-meta { align-items: flex-start; font-size: .58rem; }
+  .curse-impact { padding: 10px; }
+  .impact-kicker { font-size: .62rem; letter-spacing: .1em; }
+  .curse-impact > strong { font-size: .86rem; line-height: 1.2; }
+  .curse-impact > p { font-size: .78rem; overflow-wrap: anywhere; }
+  .curse-impact > small { font-size: .72rem; overflow-wrap: anywhere; }
+  .forced-score-row { gap: 8px; padding: 8px; }
+  .forced-score-row span { font-size: .74rem; text-overflow: clip; white-space: normal; }
+  .forced-score-row b { min-width: 45px; font-size: .9rem; }
+  .curse-meta { align-items: flex-start; font-size: .66rem; line-height: 1.35; }
   .curse-meta > span:last-child { white-space: normal; overflow-wrap: anywhere; }
   .mini-avatar { width: 20px; height: 20px; flex: 0 0 20px; font-size: .64rem; }
 }
@@ -239,7 +241,7 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
 </main>
 <footer>2026 Prem Predics | Live Curses</footer>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/live-curses.js?v=20260830-separated-effects-touch"></script>
+<script type="module" src="assets/js/live-curses.js?v=20260830-effect-polish"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
