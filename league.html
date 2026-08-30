@@ -559,6 +559,67 @@ main {
   z-index: 1;
 }
 
+.play-card.live-curses-card {
+  grid-column: 3;
+  border-color: rgba(248, 113, 113, 0.82);
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255, 214, 102, 0.26), transparent 24%),
+    linear-gradient(145deg, rgba(127, 29, 29, 0.94), rgba(69, 10, 10, 0.96));
+  box-shadow: 0 12px 26px rgba(69, 10, 10, 0.46), 0 0 22px rgba(239, 68, 68, 0.34);
+}
+
+.play-card.live-curses-card::after {
+  content: '\1F525';
+  width: auto;
+  height: auto;
+  right: 16px;
+  top: 10px;
+  border: 0;
+  transform: none;
+  color: #fb923c;
+  font-size: 36px;
+  opacity: 0.55;
+  filter: drop-shadow(0 0 9px rgba(251, 146, 60, 0.9));
+}
+
+.live-curse-alert {
+  display: none;
+  width: 100%;
+  margin: -4px 0 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+}
+
+.live-curse-alert.show {
+  display: block;
+}
+
+.live-curse-alert a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  max-width: 100%;
+  padding: 10px 16px;
+  border: 1px solid rgba(254, 202, 202, 0.76);
+  border-radius: 999px;
+  background: rgba(69, 10, 10, 0.78);
+  color: #ff6b6b;
+  font-weight: 950;
+  line-height: 1.25;
+  text-decoration: none;
+  text-shadow: 0 0 10px rgba(248, 113, 113, 0.72);
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255,255,255,0.12);
+  animation: liveCurseAlertPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes liveCurseAlertPulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(239, 68, 68, 0.26), inset 0 1px 0 rgba(255,255,255,0.12); }
+  50% { box-shadow: 0 0 25px rgba(248, 113, 113, 0.52), inset 0 1px 0 rgba(255,255,255,0.16); }
+}
+
 .state-text {
   margin: 0;
   color: #ddd6fe;
@@ -763,6 +824,10 @@ footer {
     grid-template-columns: 1fr;
   }
 
+  .play-card.live-curses-card {
+    grid-column: 1;
+  }
+
   .play-card {
     min-height: 96px;
     padding: 16px 14px;
@@ -829,6 +894,8 @@ footer {
 
     <div class="deadline-strip" data-deadline-strip></div>
 
+    <div class="live-curse-alert" data-live-curse-alert aria-live="polite"></div>
+
     <nav class="play-grid" data-play-grid aria-label="Private league pages"></nav>
   </section>
 </main>
@@ -836,7 +903,7 @@ footer {
 <footer>2026 Prem Predics | Private League</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260825-lock-progress-align"></script>
+<script type="module" src="assets/js/league.js?v=20260830-live-curses"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

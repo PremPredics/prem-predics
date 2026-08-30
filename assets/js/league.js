@@ -4,6 +4,7 @@ import {
   loadLeagueContext,
 } from './league-context.js';
 import { isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
+import { currentLiveCurseEffects } from './live-curses-model.js';
 import { supabase } from './supabase-client.js';
 
 const leagueName = document.querySelector('[data-league-name]');
@@ -17,7 +18,10 @@ const deadlineStrip = document.querySelector('[data-deadline-strip]');
 const playGrid = document.querySelector('[data-play-grid]');
 const profileLink = document.querySelector('[data-profile-link]');
 const profileAvatar = document.querySelector('[data-profile-avatar]');
+const liveCurseAlert = document.querySelector('[data-live-curse-alert]');
 let deadlineTimer = null;
+let liveCurseChannel = null;
+let liveCursePollTimer = null;
 
 function renderError(error) {
   leagueName.textContent = 'Private league unavailable';
@@ -73,6 +77,62 @@ function earliestTime(values) {
 
 function isoFromMs(value) {
   return value ? new Date(value).toISOString() : null;
+}
+
+async function loadOwnLiveCurseCount(league, user, activeGameweek) {
+  if (!activeGameweek || !user?.id) return 0;
+  const [{ data: effects, error: effectError }, { data: gameweeks, error: gameweekError }] = await Promise.all([
+    supabase
+      .from('active_card_effects')
+      .select('gameweek_id, start_gameweek_id, end_gameweek_id, target_user_id, status, card_definitions!inner(category)')
+      .eq('competition_id', league.id)
+      .eq('season_id', league.season_id)
+      .eq('target_user_id', user.id)
+      .eq('status', 'active')
+      .eq('card_definitions.category', 'curse'),
+    supabase
+      .from('gameweek_deadlines')
+      .select('gameweek_id, gameweek_number')
+      .eq('season_id', league.season_id),
+  ]);
+  if (effectError || gameweekError) throw effectError || gameweekError;
+  const gameweekNumbers = new Map((gameweeks || []).map((gameweek) => [
+    String(gameweek.gameweek_id),
+    Number(gameweek.gameweek_number),
+  ]));
+  return currentLiveCurseEffects(effects, activeGameweek, gameweekNumbers).length;
+}
+
+async function renderOwnLiveCurseAlert(league, user, activeGameweek) {
+  if (!liveCurseAlert) return;
+  try {
+    const count = await loadOwnLiveCurseCount(league, user, activeGameweek);
+    liveCurseAlert.classList.toggle('show', count > 0);
+    liveCurseAlert.innerHTML = count > 0
+      ? `<a href="${leagueUrl('live-curses.html', league.id)}"><span aria-hidden="true">&#128293;</span><span>You have ${count} Live Curse${count === 1 ? '' : 's'} affecting you</span><span aria-hidden="true">&#8594;</span></a>`
+      : '';
+  } catch (error) {
+    console.warn('Could not load live curse alert', error);
+    liveCurseAlert.classList.remove('show');
+    liveCurseAlert.innerHTML = '';
+  }
+}
+
+function subscribeToOwnLiveCurses(league, user, activeGameweek) {
+  if (liveCurseChannel) supabase.removeChannel(liveCurseChannel);
+  window.clearInterval(liveCursePollTimer);
+  liveCurseChannel = supabase
+    .channel(`league-live-curses-${league.id}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'active_card_effects',
+      filter: `competition_id=eq.${league.id}`,
+    }, () => renderOwnLiveCurseAlert(league, user, activeGameweek))
+    .subscribe();
+  liveCursePollTimer = window.setInterval(() => {
+    if (!document.hidden) renderOwnLiveCurseAlert(league, user, activeGameweek);
+  }, 30000);
 }
 
 function fixturePredictionLockTime(fixture) {
@@ -668,6 +728,14 @@ async function renderLeague(league, user) {
       accent: '#f472b6',
       tier: 'reference',
     },
+    {
+      page: 'live-curses.html',
+      title: 'Live Curses',
+      detail: `See every Curse affecting the league in Gameweek ${gameweekNumber}.`,
+      accent: '#ef4444',
+      tier: 'reference',
+      className: 'live-curses-card',
+    },
   ];
 
   leagueName.textContent = league.name;
@@ -701,6 +769,8 @@ async function renderLeague(league, user) {
       gameweekCard?.classList.remove('is-active');
       startCountdown(gameweekCountdown, activeGameweek);
     }
+    renderOwnLiveCurseAlert(league, user, activeGameweek);
+    subscribeToOwnLiveCurses(league, user, activeGameweek);
   } else {
     gameweekCountdown.classList.remove('active-gameweek');
     gameweekCard?.classList.remove('is-active', 'is-countdown');
@@ -709,13 +779,17 @@ async function renderLeague(league, user) {
     if (deadlineStrip) {
       deadlineStrip.innerHTML = '';
     }
+    if (liveCurseAlert) {
+      liveCurseAlert.classList.remove('show');
+      liveCurseAlert.innerHTML = '';
+    }
   }
 
   const groupedPages = ['primary', 'game', 'reference'].map((tier) => pages.filter((item) => item.tier === tier));
   playGrid.innerHTML = groupedPages.map((group) => `
     <div class="play-group ${escapeHtml(group[0]?.tier || '')}">
       ${group.map((item) => `
-        <a class="play-card" href="${leagueUrl(item.page, league.id)}" style="--accent: ${item.accent}">
+        <a class="play-card ${escapeHtml(item.className || '')}" href="${leagueUrl(item.page, league.id)}" style="--accent: ${item.accent}">
           <strong>${escapeHtml(item.title)}</strong>
           <span>${escapeHtml(item.detail)}</span>
         </a>
@@ -736,3 +810,7 @@ if (context.error) {
 }
 
 copyJoinCodeButton?.addEventListener('click', copyJoinCode);
+window.addEventListener('beforeunload', () => {
+  if (liveCurseChannel) supabase.removeChannel(liveCurseChannel);
+  window.clearInterval(liveCursePollTimer);
+});

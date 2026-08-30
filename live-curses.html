@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Predics - Live Curses</title>
+<script src="assets/js/capacitor-app.js"></script>
+<style>
+* { box-sizing: border-box; }
+:root { color-scheme: dark; --ember: #ff4d3d; --flame: #ff9f1c; --coal: #120609; --ash: #f9d7d3; }
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #fff7f5;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(239, 68, 68, .35), transparent 34rem),
+    radial-gradient(circle at 8% 48%, rgba(249, 115, 22, .14), transparent 27rem),
+    linear-gradient(155deg, #090407, #20080d 46%, #0c0508);
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .22;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, #000, transparent 85%);
+}
+header {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 16px;
+  text-align: center;
+  background: linear-gradient(90deg, #34070b, #8b1517 50%, #34070b);
+  border-bottom: 1px solid rgba(255, 121, 89, .5);
+  box-shadow: 0 8px 30px rgba(0,0,0,.55), 0 0 32px rgba(239,68,68,.24);
+}
+header::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #ffb020, #ff4136, #ffb020, transparent);
+  box-shadow: 0 0 18px #ff5a36;
+}
+header h1 {
+  margin: 0;
+  font-size: clamp(1.55rem, 5vw, 2.8rem);
+  font-weight: 1000;
+  letter-spacing: .02em;
+  text-shadow: 0 2px 0 #260002, 0 0 20px rgba(255,164,80,.66);
+}
+main { position: relative; width: min(1180px, 100%); margin: 0 auto; padding: 24px 14px 48px; }
+.toolbar { display: flex; justify-content: center; gap: 10px; margin-bottom: 18px; }
+.toolbar a {
+  padding: 10px 15px;
+  border: 1px solid rgba(254,202,202,.38);
+  border-radius: 999px;
+  background: rgba(31, 8, 12, .82);
+  color: #ffe8e4;
+  font-weight: 900;
+  text-decoration: none;
+}
+.curse-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+  gap: 20px;
+  align-items: center;
+  padding: clamp(20px, 4vw, 36px);
+  border: 1px solid rgba(255,120,89,.56);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(255,177,56,.2), transparent 28%),
+    linear-gradient(135deg, rgba(109,16,20,.82), rgba(25,7,11,.94));
+  box-shadow: 0 22px 55px rgba(0,0,0,.43), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.curse-hero::after {
+  content: '\1F525';
+  position: absolute;
+  right: 3%;
+  bottom: -54px;
+  font-size: 190px;
+  opacity: .08;
+  filter: saturate(1.4);
+}
+.eyebrow { margin: 0 0 7px; color: #ffb86b; font-size: .78rem; font-weight: 1000; letter-spacing: .2em; text-transform: uppercase; }
+.curse-hero h2 { margin: 0; font-size: clamp(2rem, 7vw, 4.8rem); line-height: .95; font-weight: 1000; text-transform: uppercase; }
+.curse-hero h2 span { color: #ff765f; text-shadow: 0 0 22px rgba(255,74,59,.64); }
+.hero-copy { max-width: 680px; margin: 14px 0 0; color: #f4c9c4; line-height: 1.55; font-weight: 650; }
+.live-indicator { display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; color: #ffb4aa; font-size: .8rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.live-dot { width: 9px; height: 9px; border-radius: 50%; background: #ff453a; box-shadow: 0 0 0 5px rgba(255,69,58,.13), 0 0 16px #ff453a; animation: livePulse 1.8s ease-in-out infinite; }
+.hero-stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.hero-stat { min-height: 96px; display: grid; place-content: center; padding: 12px; border: 1px solid rgba(255,160,122,.25); border-radius: 16px; background: rgba(10,3,6,.52); text-align: center; }
+.hero-stat:first-child { grid-column: 1 / -1; }
+.hero-stat strong { color: #fff; font-size: clamp(1.65rem, 5vw, 2.8rem); line-height: 1; text-shadow: 0 0 16px rgba(255,91,69,.56); }
+.hero-stat span { margin-top: 6px; color: #dfaaa4; font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.own-curse-alert {
+  display: none;
+  margin: 18px 0 0;
+  padding: 14px 18px;
+  border: 1px solid rgba(255,117,96,.72);
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(111,16,20,.9), rgba(62,9,13,.82));
+  color: #ff7466;
+  text-align: center;
+  font-weight: 1000;
+  box-shadow: 0 0 22px rgba(239,68,68,.25);
+}
+.own-curse-alert.show { display: block; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin: 28px 2px 14px; }
+.section-heading h2 { margin: 0; font-size: clamp(1.3rem, 4vw, 2rem); }
+.section-heading p { margin: 0; color: #d7aaa5; font-size: .88rem; text-align: right; }
+.victim-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.victim-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,111,86,.4);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(57,12,17,.94), rgba(16,6,9,.96));
+  box-shadow: 0 16px 34px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.victim-card.is-you { border-color: #ff5e4d; box-shadow: 0 16px 34px rgba(0,0,0,.35), 0 0 24px rgba(239,68,68,.25); }
+.victim-head { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid rgba(255,130,103,.17); background: rgba(123,20,23,.18); }
+.avatar { flex: 0 0 auto; width: 54px; height: 54px; display: grid; place-items: center; overflow: hidden; border: 3px solid #ff604f; border-radius: 50%; background: #2b090d; color: #fff; font-size: 1.2rem; font-weight: 1000; box-shadow: 0 0 16px rgba(255,79,61,.42); }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.victim-title { min-width: 0; flex: 1; }
+.victim-title strong { display: block; overflow: hidden; color: #fff; font-size: 1.08rem; text-overflow: ellipsis; white-space: nowrap; }
+.victim-title span { color: #dba8a2; font-size: .8rem; font-weight: 800; }
+.curse-count { flex: 0 0 auto; display: grid; place-items: center; min-width: 46px; height: 46px; border: 1px solid rgba(255,178,111,.52); border-radius: 14px; background: rgba(109,15,20,.78); color: #ffb16b; font-size: 1.25rem; font-weight: 1000; }
+.curse-stack { display: grid; gap: 10px; padding: 12px; }
+.curse-entry { position: relative; padding: 14px; border: 1px solid rgba(255,135,104,.24); border-radius: 14px; background: rgba(10,4,6,.58); }
+.curse-entry::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 4px; border-radius: 14px 0 0 14px; background: linear-gradient(#ffb020, #f02d2d); box-shadow: 0 0 11px #ff4d35; }
+.curse-name { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.curse-name strong { color: #ff7767; font-size: 1rem; }
+.gw-chip { flex: 0 0 auto; padding: 4px 7px; border: 1px solid rgba(255,170,125,.3); border-radius: 999px; color: #ffbb83; font-size: .68rem; font-weight: 950; }
+.curse-description { margin: 7px 0 10px; color: #e9c7c3; font-size: .84rem; line-height: 1.42; }
+.curse-meta { display: flex; align-items: center; gap: 8px; color: #bc8e89; font-size: .75rem; font-weight: 750; }
+.mini-avatar { width: 26px; height: 26px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; background: #4a1116; color: #fff; font-weight: 950; }
+.mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.empty-state, .loading-state, .error-state { grid-column: 1 / -1; padding: 42px 20px; border: 1px dashed rgba(255,130,105,.35); border-radius: 20px; background: rgba(31,8,12,.7); text-align: center; }
+.empty-icon { display: block; margin-bottom: 10px; font-size: 3rem; filter: grayscale(.4); }
+.empty-state h3, .error-state h3 { margin: 0 0 7px; font-size: 1.35rem; }
+.empty-state p, .loading-state p, .error-state p { margin: 0; color: #cda6a1; line-height: 1.5; }
+.retry-btn { margin-top: 14px; padding: 9px 15px; border: 1px solid #ff796a; border-radius: 999px; background: #6b1117; color: #fff; font: inherit; font-weight: 900; cursor: pointer; }
+footer { padding: 20px; color: #c69b96; text-align: center; font-size: 13px; }
+@keyframes livePulse { 50% { opacity: .52; transform: scale(.78); } }
+@media (max-width: 760px) {
+  .curse-hero { grid-template-columns: 1fr; border-radius: 18px; }
+  .hero-stats { grid-template-columns: repeat(3, 1fr); }
+  .hero-stat:first-child { grid-column: auto; }
+  .victim-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  header { padding: max(16px, calc(env(safe-area-inset-top, 0px) + 12px)) 10px 15px; }
+  header h1 { font-size: 1.3rem; white-space: nowrap; }
+  main { padding: 18px 10px 38px; }
+  .curse-hero { padding: 19px 15px; }
+  .hero-stats { gap: 6px; }
+  .hero-stat { min-height: 78px; padding: 8px 4px; }
+  .hero-stat strong { font-size: 1.5rem; }
+  .hero-stat span { font-size: .58rem; }
+  .section-heading { align-items: start; flex-direction: column; }
+  .section-heading p { text-align: left; }
+  .victim-head { padding: 13px 11px; }
+  .avatar { width: 46px; height: 46px; }
+  .curse-stack { padding: 9px; }
+  .curse-entry { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; } }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#7f1117">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Prem Predics">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
+</head>
+<body data-require-auth="true" data-require-league="true">
+<header><h1>Prem Predics - Live Curses</h1></header>
+<main>
+  <div class="toolbar"><a data-league-link href="league.html">Back To League Hub</a></div>
+  <section class="curse-hero">
+    <div>
+      <p class="eyebrow">Private League Curse Monitor</p>
+      <h2><span data-gameweek-label>GW--</span> Inferno</h2>
+      <p class="hero-copy">Every Curse currently affecting a league member, grouped by target and updated live as cards are played, vetoed or expire.</p>
+      <span class="live-indicator"><span class="live-dot"></span>Live feed connected</span>
+    </div>
+    <div class="hero-stats" aria-label="Live curse summary">
+      <div class="hero-stat"><strong data-live-count>--</strong><span>Live Curses</span></div>
+      <div class="hero-stat"><strong data-target-count>--</strong><span>Players Cursed</span></div>
+      <div class="hero-stat"><strong data-safe-count>--</strong><span>Players Safe</span></div>
+    </div>
+  </section>
+  <div class="own-curse-alert" data-own-curse-alert aria-live="polite"></div>
+  <div class="section-heading"><h2>The Curse Board</h2><p data-board-caption>Loading the current Gameweek...</p></div>
+  <section class="victim-grid" data-curse-board aria-live="polite">
+    <div class="loading-state"><p>Reading the embers...</p></div>
+  </section>
+</main>
+<footer>2026 Prem Predics | Live Curses</footer>
+<script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
+<script type="module" src="assets/js/live-curses.js?v=20260830-1"></script>
+<script src="assets/js/pwa.js" defer></script>
+<script src="assets/js/legal-footer.js" defer></script>
+</body>
+</html>

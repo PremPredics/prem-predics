@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v44';
+const CACHE_VERSION = 'prem-predics-pwa-v45';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -13,6 +13,7 @@ const APP_SHELL = [
   './predictions.html',
   './all-predictions.html',
   './correct-scores.html',
+  './live-curses.html',
   './star-man-hub.html',
   './star-man.html',
   './all-star-men.html',
@@ -57,7 +58,9 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260825-lock-progress-align',
+  './assets/js/league.js?v=20260830-live-curses',
+  './assets/js/live-curses.js?v=20260830-1',
+  './assets/js/live-curses-model.js',
   './assets/js/leagues.js',
   './assets/js/legal-footer.js',
   './assets/js/login.js?v=20260820-username-28',
