@@ -58,13 +58,14 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.doesNotMatch(pageJs, /<p class="curse-description"/);
   assert.doesNotMatch(pageJs, /<span class="card-type">/);
   assert.doesNotMatch(pageHtml, /data-board-caption/);
-  assert.match(pageHtml, /repeat\(var\(--curse-columns,1\),minmax\(0,1fr\)\)/);
-  assert.match(pageJs, /--curse-columns:\$\{Math\.min\(3, effects\.length\)\}/);
+  assert.match(pageHtml, /grid-template-columns: repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(pageHtml, /width: min\(100%,86px\)/);
+  assert.doesNotMatch(pageJs, /--curse-columns/);
   assert.match(predictionsJs, /const forcedCurseVisible = Boolean\(override\)/);
   assert.match(predictionsJs, /sameId\(state\.selectedUserId, state\.user\.id\) \|\| forcedCurseVisible/);
   assert.match(predictionsJs, /all-predictions-curses-/);
   assert.match(predictionsJs, /table: 'curse_gambler_rolls'/);
-  assert.match(worker, /prem-predics-pwa-v51/);
+  assert.match(worker, /prem-predics-pwa-v52/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);

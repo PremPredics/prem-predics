@@ -111,13 +111,13 @@ main { width: min(1240px, 100%); margin: 0 auto; padding: 32px 18px 48px; }
 .victim-title strong { display: block; overflow: hidden; color: #fff; font-size: 1.08rem; text-overflow: ellipsis; white-space: nowrap; }
 .victim-title span { color: #ddd6fe; font-size: .8rem; font-weight: 800; }
 .curse-count { flex: 0 0 auto; display: grid; place-items: center; min-width: 46px; height: 46px; border: 1px solid rgba(254,202,202,.52); border-radius: 8px; background: rgba(127,29,29,.7); color: #fecaca; font-size: 1.25rem; font-weight: 950; }
-.curse-stack { display: grid; grid-template-columns: repeat(var(--curse-columns,1),minmax(0,1fr)); align-items: start; gap: 10px; padding: 12px; }
+.curse-stack { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); align-items: start; gap: 10px; padding: 12px; }
 .curse-entry { display: flex; flex-direction: column; align-self: stretch; gap: 9px; min-width: 0; height: 100%; padding: 10px; border: 1px solid rgba(248,113,113,.24); border-radius: 12px; background: rgba(17,7,38,.5); }
 .live-curse-card {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  width: min(100%,142px);
+  width: min(100%,86px);
   aspect-ratio: 72 / 94;
   display: grid;
   place-items: center;
@@ -184,7 +184,7 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
   .curse-stack { padding: 9px; }
   .curse-stack { gap: 6px; }
   .curse-entry { padding: 6px; border-radius: 9px; }
-  .live-curse-card { width: 100%; padding: 8px 5px; border-radius: 8px; }
+  .live-curse-card { width: min(100%,72px); padding: 8px 5px; border-radius: 8px; }
   .live-card-name { font-size: clamp(.5rem,2.55vw,.7rem); line-height: 1; }
   .curse-impact { padding: 7px 6px; }
   .impact-kicker { font-size: .52rem; letter-spacing: .08em; }
@@ -231,7 +231,7 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
 </main>
 <footer>2026 Prem Predics | Live Curses</footer>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/live-curses.js?v=20260830-target-grid"></script>
+<script type="module" src="assets/js/live-curses.js?v=20260830-fixed-three-slots"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
 </body>

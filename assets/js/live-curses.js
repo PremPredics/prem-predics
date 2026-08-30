@@ -231,7 +231,7 @@ function render() {
           </div>
           <span class="curse-count" title="Active curse count">${effects.length}</span>
         </div>
-        <div class="curse-stack" style="--curse-columns:${Math.min(3, effects.length)}">${sortedEffects.map(curseEntryMarkup).join('')}</div>
+        <div class="curse-stack">${sortedEffects.map(curseEntryMarkup).join('')}</div>
       </article>`;
   }).join('');
 }
