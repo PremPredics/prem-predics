@@ -17,6 +17,77 @@ body {
   color: #f3f4f6;
 }
 
+body.league-page-loading { overflow: hidden; }
+
+.league-page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: linear-gradient(135deg, #6946c4 0%, #9879e4 54%, #c4b2f8 100%);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .3s ease, visibility .3s ease;
+}
+
+.league-page-loader.is-complete { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.league-page-loader-card {
+  width: min(360px,100%);
+  padding: 19px;
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: 13px;
+  background: linear-gradient(145deg,rgba(46,16,102,.93),rgba(17,7,38,.9));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14),0 18px 42px rgba(17,7,38,.36);
+  text-align: center;
+}
+
+.league-page-loader-title {
+  display: block;
+  margin-bottom: 14px;
+  color: #fff;
+  font-size: clamp(1rem,4vw,1.28rem);
+  font-weight: 950;
+}
+
+.league-page-loader-track {
+  height: 11px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.42);
+  border-radius: 999px;
+  background: rgba(8,3,20,.58);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.35);
+}
+
+.league-page-loader-fill {
+  display: block;
+  width: 4%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg,#22d3ee,#a78bfa 62%,#facc15);
+  box-shadow: 0 0 13px rgba(167,139,250,.72);
+  transition: width .18s ease;
+}
+
+.league-page-loader-percent {
+  display: block;
+  margin-top: 9px;
+  color: #ddd6fe;
+  font-size: .78rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .league-page-loader { padding: 16px; }
+  .league-page-loader-card { width: min(330px,100%); padding: 16px; border-radius: 12px; }
+  .league-page-loader-title { margin-bottom: 11px; font-size: .95rem; }
+  .league-page-loader-track { height: 10px; }
+  .league-page-loader-percent { margin-top: 7px; font-size: .72rem; }
+}
+
 header {
   padding: 25px 20px;
   background: linear-gradient(90deg, #7354ca 0%, #9677e2 54%, #bda9f5 100%);
@@ -71,19 +142,19 @@ main {
   background:
     linear-gradient(110deg,rgba(167,139,250,.09),transparent 52%),
     linear-gradient(145deg,rgba(46,16,102,.72),rgba(17,7,38,.66));
-  border: 1px solid rgba(216, 180, 254, 0.28);
+  border: 1px solid rgba(255,255,255,.78);
   border-radius: 10px;
   padding: 8px 10px;
   font-family: inherit;
   font-size: .8rem;
   line-height: 1.12;
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07),0 6px 15px rgba(17,7,38,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14),0 0 0 1px rgba(17,7,38,.18),0 6px 15px rgba(17,7,38,.2);
   -webkit-tap-highlight-color: transparent;
   transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease;
 }
 .toolbar a:hover,
-.toolbar button:hover { transform: translateY(-1px); border-color: rgba(216,180,254,.52); box-shadow: inset 0 1px 0 rgba(255,255,255,.09),0 8px 18px rgba(17,7,38,.24); }
+.toolbar button:hover { transform: translateY(-1px); border-color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.18),0 0 0 1px rgba(17,7,38,.2),0 8px 18px rgba(17,7,38,.24); }
 
 .toolbar a.profile-edit-link {
   align-items: center;
@@ -99,7 +170,7 @@ main {
   background:
     linear-gradient(110deg,rgba(167,139,250,.09),transparent 52%),
     linear-gradient(145deg,rgba(46,16,102,.72),rgba(17,7,38,.66));
-  border-color: rgba(216, 180, 254, 0.28);
+  border-color: rgba(255,255,255,.78);
   color: #f3e8ff;
   font-weight: 800;
   text-shadow: inherit;
@@ -114,7 +185,7 @@ main {
   background:
     radial-gradient(circle at 24% 16%, rgba(255,255,255,0.78), transparent 20%),
     linear-gradient(135deg, #ef4444, #b91c1c 62%, #7f1d1d);
-  border: 1px solid rgba(254, 202, 202, 0.68);
+  border: 1px solid rgba(255,255,255,.78);
   color: #fff;
   box-shadow:
     0 0 12px rgba(248, 113, 113, 0.34),
@@ -1037,7 +1108,16 @@ footer {
 <link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
 </head>
-<body data-require-auth="true" data-require-league="true">
+<body class="league-page-loading" data-require-auth="true" data-require-league="true">
+<div class="league-page-loader" data-league-page-loader role="status" aria-live="polite">
+  <div class="league-page-loader-card">
+    <strong class="league-page-loader-title">Loading League Hub Page...</strong>
+    <div class="league-page-loader-track" role="progressbar" aria-label="League Hub page loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="4" data-league-page-progress>
+      <span class="league-page-loader-fill" data-league-page-loader-fill></span>
+    </div>
+    <span class="league-page-loader-percent" data-league-page-loader-percent>4%</span>
+  </div>
+</div>
 <header>
   <h1>Prem Predics - League Hub</h1>
 </header>
@@ -1097,7 +1177,7 @@ footer {
 <footer>2026 Prem Predics | Private League</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260831-choice-panels-v4"></script>
+<script type="module" src="assets/js/league.js?v=20260831-page-loader-v1"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

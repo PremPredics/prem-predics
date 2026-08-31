@@ -6,6 +6,12 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 const leagueHtml = read('../league.html');
 const leagueJs = read('../assets/js/league.js');
 const serviceWorker = read('../service-worker.js');
+const predictionsHtml = read('../predictions.html');
+const starManHtml = read('../star-man.html');
+const allPredictionsHtml = read('../all-predictions.html');
+const allPredictionsJs = read('../assets/js/all-predictions.js');
+const allStarMenHtml = read('../all-star-men.html');
+const allStarMenJs = read('../assets/js/all-star-men.js');
 
 test('League Hub opens Predictions and Star Man choices in an accessible blurred panel', () => {
   assert.match(leagueHtml, /data-hub-choice-overlay[^]*aria-hidden="true"/);
@@ -50,10 +56,37 @@ test('League Hub reference accents and destination navigation are streamlined', 
   for (const script of ['predictions.js', 'all-predictions.js', 'star-man.js', 'all-star-men.js']) {
     assert.doesNotMatch(read(`../assets/js/${script}`), /(?:prediction-hub|star-man-hub)\.html/);
   }
-  assert.match(leagueHtml, /league\.js\?v=20260831-choice-panels-v4/);
+  assert.match(leagueHtml, /league\.js\?v=20260831-page-loader-v1/);
   assert.match(leagueHtml, /\.toolbar \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\) minmax\(0, 1\.18fr\) minmax\(92px, \.72fr\);/s);
   assert.match(leagueHtml, /@media \(max-width: 650px\)[^]*\.toolbar \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/s);
   assert.match(leagueHtml, /\.toolbar a\[data-profile-link\] \{[^}]*grid-column: 1 \/ 3;[^}]*grid-row: 2;/s);
-  assert.match(serviceWorker, /prem-predics-pwa-v64/);
-  assert.match(serviceWorker, /league\.js\?v=20260831-choice-panels-v4/);
+  assert.match(leagueHtml, /\.toolbar a,\s*\.toolbar button \{[^}]*border: 1px solid rgba\(255,255,255,\.78\);/s);
+  assert.match(leagueHtml, /\.toolbar a\.how-to-play-link \{[^}]*border-color: rgba\(255,255,255,\.78\);/s);
+  assert.match(leagueHtml, /\.toolbar button\.sign-out-btn \{[^}]*border: 1px solid rgba\(255,255,255,\.78\);/s);
+  assert.match(serviceWorker, /prem-predics-pwa-v66/);
+  assert.match(serviceWorker, /league\.js\?v=20260831-page-loader-v1/);
+});
+
+test('League Hub masks first load and refresh with a progressive full-page loader', () => {
+  assert.match(leagueHtml, /body class="league-page-loading"/);
+  assert.match(leagueHtml, /Loading League Hub Page\.\.\./);
+  assert.match(leagueHtml, /aria-valuenow="4"[^>]*data-league-page-progress/);
+  assert.match(leagueJs, /function startLeaguePageLoading\(\)/);
+  assert.match(leagueJs, /setLeaguePageLoadProgress\(38\)/);
+  assert.match(leagueJs, /setLeaguePageLoadProgress\(96\)/);
+  assert.match(leagueJs, /finally \{\s*finishLeaguePageLoading\(\);/s);
+});
+
+test('direct League Hub navigation cannot reuse stale history-page modules', () => {
+  assert.match(allPredictionsHtml, /all-predictions\.js\?v=20260831-direct-hub-v2/);
+  assert.match(allStarMenHtml, /all-star-men\.js\?v=20260831-direct-hub-v2/);
+  assert.match(serviceWorker, /all-predictions\.js\?v=20260831-direct-hub-v2/);
+  assert.match(serviceWorker, /all-star-men\.js\?v=20260831-direct-hub-v2/);
+  assert.doesNotMatch(allPredictionsJs, /predictionsBackLink/);
+  assert.doesNotMatch(allStarMenJs, /starBackLink/);
+});
+
+test('Make Predictions and Star Man return buttons stay centred on mobile', () => {
+  assert.match(predictionsHtml, /@media \(max-width: 720px\)[^]*\.toolbar \{[^}]*grid-template-columns: minmax\(0, 230px\);/s);
+  assert.match(starManHtml, /@media \(max-width: 720px\)[^]*\.toolbar \{[^}]*grid-template-columns: minmax\(0, 230px\);/s);
 });

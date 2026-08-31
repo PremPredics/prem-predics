@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v64';
+const CACHE_VERSION = 'prem-predics-pwa-v66';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -39,8 +39,8 @@ const APP_SHELL = [
   './assets/css/legal-pages.css',
   './assets/css/pwa-install.css',
   './assets/css/password-reset.css',
-  './assets/js/all-predictions.js?v=20260830-forced-curses-live',
-  './assets/js/all-star-men.js?v=20260820-1',
+  './assets/js/all-predictions.js?v=20260831-direct-hub-v2',
+  './assets/js/all-star-men.js?v=20260831-direct-hub-v2',
   './assets/js/capacitor-app.js',
   './assets/js/correct-scores.js?v=20260830-centered-effects',
   './assets/js/countries.js',
@@ -58,7 +58,7 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260825-alpha-ties',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260831-choice-panels-v4',
+  './assets/js/league.js?v=20260831-page-loader-v1',
   './assets/js/live-curses.js?v=20260831-cache-hotfix',
   './assets/js/live-curses-model.js?v=20260831-cache-hotfix',
   './assets/js/medal-progress.js',

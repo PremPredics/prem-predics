@@ -30,11 +30,46 @@ const choiceDialog = document.querySelector('[data-hub-choice-dialog]');
 const choiceTitle = document.querySelector('[data-hub-choice-title]');
 const choiceCopy = document.querySelector('[data-hub-choice-copy]');
 const choiceOptions = document.querySelector('[data-hub-choice-options]');
+const leaguePageLoader = document.querySelector('[data-league-page-loader]');
+const leaguePageLoaderFill = document.querySelector('[data-league-page-loader-fill]');
+const leaguePageLoaderPercent = document.querySelector('[data-league-page-loader-percent]');
+const leaguePageProgress = document.querySelector('[data-league-page-progress]');
 let deadlineTimer = null;
 let liveCurseChannel = null;
 let liveCursePollTimer = null;
 let choiceMenus = new Map();
 let lastChoiceTrigger = null;
+let leaguePageLoadValue = 4;
+let leaguePageLoadTimer = null;
+
+function setLeaguePageLoadProgress(value) {
+  const nextValue = Math.max(leaguePageLoadValue, Math.min(100, Math.round(Number(value) || 0)));
+  leaguePageLoadValue = nextValue;
+  if (leaguePageLoaderFill) leaguePageLoaderFill.style.width = `${nextValue}%`;
+  if (leaguePageLoaderPercent) leaguePageLoaderPercent.textContent = `${nextValue}%`;
+  if (leaguePageProgress) leaguePageProgress.setAttribute('aria-valuenow', String(nextValue));
+  if (leaguePageLoader) leaguePageLoader.setAttribute('aria-label', `Loading League Hub Page, ${nextValue}%`);
+}
+
+function startLeaguePageLoading() {
+  setLeaguePageLoadProgress(8);
+  window.clearInterval(leaguePageLoadTimer);
+  leaguePageLoadTimer = window.setInterval(() => {
+    if (leaguePageLoadValue < 88) setLeaguePageLoadProgress(leaguePageLoadValue + 1);
+  }, 180);
+}
+
+function finishLeaguePageLoading() {
+  window.clearInterval(leaguePageLoadTimer);
+  setLeaguePageLoadProgress(100);
+  window.setTimeout(() => {
+    document.body.classList.remove('league-page-loading');
+    leaguePageLoader?.classList.add('is-complete');
+  }, 220);
+  window.setTimeout(() => {
+    if (leaguePageLoader) leaguePageLoader.hidden = true;
+  }, 560);
+}
 
 function renderError(error) {
   leagueName.textContent = 'Private league unavailable';
@@ -776,6 +811,7 @@ function openHubChoicePanel(menuKey, trigger) {
 
 async function renderLeague(league, user) {
   const { activeGameweek, fixturesByGameweek } = await loadActiveGameweek(league);
+  setLeaguePageLoadProgress(38);
   const gameweekNumber = activeGameweek?.gameweek_number || 'X';
   const pages = [
     {
@@ -866,23 +902,24 @@ async function renderLeague(league, user) {
 
   leagueName.textContent = league.name;
   joinCode.textContent = league.join_code;
-  if (memberCount) {
-    const { count, error } = await supabase
-      .from('competition_members')
-      .select('user_id', { count: 'exact', head: true })
-      .eq('competition_id', league.id);
-
-    memberCount.textContent = error ? '' : `(${count || 0} Active Players)`;
-  }
   if (profileLink) {
     profileLink.href = leagueUrl('profile.html', league.id);
   }
-  await loadOwnProfile(user);
+  const memberCountTask = memberCount ? supabase
+    .from('competition_members')
+    .select('user_id', { count: 'exact', head: true })
+    .eq('competition_id', league.id)
+    .then(({ count, error }) => {
+      memberCount.textContent = error ? '' : `(${count || 0} Active Players)`;
+    }) : Promise.resolve();
+  await Promise.all([memberCountTask, loadOwnProfile(user)]);
+  setLeaguePageLoadProgress(58);
   void renderMedalProgress(league, user);
 
   if (activeGameweek) {
     const activeFixtures = fixturesByGameweek.get(String(activeGameweek.gameweek_id)) || [];
     await renderDeadlineStrip(activeGameweek, activeFixtures.filter((fixture) => fixture.status !== 'postponed'), league, user);
+    setLeaguePageLoadProgress(82);
     gameweekCountdown.classList.remove('active-gameweek');
     if (isGameweekStarted(activeGameweek)) {
       gameweekLabel.textContent = 'Current Gameweek:';
@@ -923,18 +960,27 @@ async function renderLeague(league, user) {
       <span>${escapeHtml(item.detail)}</span>
     </a>
   `).join('');
+  setLeaguePageLoadProgress(96);
 }
 
-const context = await loadLeagueContext();
-if (context.error) {
-  renderError(context.error);
-} else {
+async function initializeLeaguePage() {
+  startLeaguePageLoading();
   try {
+    const context = await loadLeagueContext();
+    setLeaguePageLoadProgress(22);
+    if (context.error) {
+      renderError(context.error);
+      return;
+    }
     await renderLeague(context.league, context.user);
   } catch (error) {
     renderError(error.message || 'Could not load this private league.');
+  } finally {
+    finishLeaguePageLoading();
   }
 }
+
+initializeLeaguePage();
 
 copyJoinCodeButton?.addEventListener('click', copyJoinCode);
 playGrid?.addEventListener('click', (event) => {
