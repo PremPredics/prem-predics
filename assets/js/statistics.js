@@ -84,12 +84,16 @@ function render(rows, profilesById, medalsByUser, spentByUser, gameCardsWonByUse
   grid.innerHTML = sortRows(rows, currentUserId).map((row) => {
     const displayName = row.display_name || 'Player';
     const profile = profilesById.get(row.user_id);
+    const isCurrentUser = row.user_id === currentUserId;
 
     return `
-      <article class="stats-card">
+      <article class="stats-card${isCurrentUser ? ' is-current-user' : ''}">
         <div class="player-head">
           ${avatar(profile, displayName)}
-          <h2 style="color: ${safeProfileColor(profile?.favorite_color)}">${escapeHtml(displayName)}</h2>
+          <span class="player-identity">
+            <small class="player-kicker">${isCurrentUser ? 'Your Statistics' : 'League Player'}</small>
+            <h2 style="color: ${safeProfileColor(profile?.favorite_color)}">${escapeHtml(displayName)}</h2>
+          </span>
         </div>
         <div class="stat-list">
           ${stat('uc', 'UC PTS', row.ultimate_champion_points)}

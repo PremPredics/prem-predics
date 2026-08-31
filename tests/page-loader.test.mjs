@@ -8,24 +8,24 @@ const loaderCss = read('../assets/css/page-loader.css');
 const worker = read('../service-worker.js');
 
 const pages = [
-  ['all-predictions.html', 'all-predictions.js'],
-  ['all-star-men.html', 'all-star-men.js'],
-  ['leaderboard.html', 'leaderboard.js'],
-  ['medals.html', 'medals.js'],
-  ['game-card.html', 'game-card.js'],
-  ['correct-scores.html', 'correct-scores.js'],
-  ['live-curses.html', 'live-curses.js'],
-  ['star-man.html', 'star-man.js'],
-  ['predictions.html', 'predictions.js'],
-  ['league.html', 'league.js'],
-  ['statistics.html', 'statistics.js'],
+  ['all-predictions.html', 'all-predictions.js', '20260831-football-loader-v1'],
+  ['all-star-men.html', 'all-star-men.js', '20260831-football-loader-v1'],
+  ['leaderboard.html', 'leaderboard.js', '20260831-football-loader-v1'],
+  ['medals.html', 'medals.js', '20260831-football-loader-v1'],
+  ['game-card.html', 'game-card.js', '20260831-football-loader-v1'],
+  ['correct-scores.html', 'correct-scores.js', '20260831-football-loader-v1'],
+  ['live-curses.html', 'live-curses.js', '20260831-football-loader-v1'],
+  ['star-man.html', 'star-man.js', '20260831-slick-v1'],
+  ['predictions.html', 'predictions.js', '20260831-football-loader-v1'],
+  ['league.html', 'league.js', '20260831-football-loader-v1'],
+  ['statistics.html', 'statistics.js', '20260831-slick-v1'],
 ];
 
 test('requested league pages use the shared football-to-goal loading experience', () => {
   for (const [htmlFile, scriptFile] of pages) {
     const html = read(`../${htmlFile}`);
     const script = read(`../assets/js/${scriptFile}`);
-    assert.match(html, /body class="pp-page-loading" data-page-loader-title="Loading [^"]+ Page\.\.\."/);
+    assert.match(html, /body class="[^"]*pp-page-loading[^"]*" data-page-loader-title="Loading [^"]+ Page\.\.\."/);
     assert.match(html, /page-loader\.css\?v=20260831-football-v2/);
     assert.match(html, /page-loader\.js\?v=20260831-football-v1/);
     assert.match(script, /finishPageLoader/);
@@ -57,11 +57,11 @@ test('loader rolls a football into a revealed goal and always has a safety compl
 });
 
 test('PWA cache includes the complete shared loader release', () => {
-  assert.match(worker, /prem-predics-pwa-v68/);
+  assert.match(worker, /prem-predics-pwa-v69/);
   assert.match(worker, /page-loader\.css\?v=20260831-football-v2/);
   assert.match(worker, /page-loader\.js\?v=20260831-football-v1/);
-  for (const [, scriptFile] of pages) {
-    assert.match(worker, new RegExp(`${scriptFile.replace('.', '\\.')}\\?v=20260831-football-loader-v1`));
+  for (const [, scriptFile, version] of pages) {
+    assert.match(worker, new RegExp(`${scriptFile.replace('.', '\\.')}\\?v=${version}`));
   }
   assert.match(worker, /\.\/power-cards\.html/);
 });

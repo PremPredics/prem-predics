@@ -574,7 +574,6 @@ async function loadHomeActions(generation) {
 function boot() {
   if (!panel || !list) return Promise.resolve();
   if (homeRefresh) return homeRefresh;
-  injectHomeActionStyles();
   homeLastRefresh = Date.now();
   const generation = homeGeneration;
   let request;
