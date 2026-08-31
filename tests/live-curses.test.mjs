@@ -110,7 +110,7 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageHtml, /\.hero-stat:nth-child\(3\) \{ --stat-color: #4ade80; \}/);
   assert.match(pageHtml, /\.hero-stat \{[^}]*min-height: 62px;/s);
   assert.match(pageHtml, /@media \(max-width: 480px\)[^]*\.hero-stat \{ min-height: 54px;/);
-  assert.match(worker, /prem-predics-pwa-v60/);
+  assert.match(worker, /prem-predics-pwa-v61/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
