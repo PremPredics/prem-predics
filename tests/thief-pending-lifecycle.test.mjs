@@ -213,5 +213,8 @@ test('Power Cards UI uses the pending Thief RPCs and forces a fresh PWA cache', 
   assert.doesNotMatch(powerCards, /rpc\('steal_regular_card_from_opponent'/);
   assert.match(powerCards, /opponentCardIsStealable/);
   assert.match(powerCards, /revealOpponentCard/);
-  assert.match(serviceWorker, /prem-predics-pwa-v57/);
+  assert.match(powerCards, /classList\.toggle\('is-empty', handIsEmpty\)/);
+  assert.match(powerCards, /\.hand\.is-empty \{[^}]*height: 114px/s);
+  assert.match(powerCards, /height: clamp\(66px, 20\.5vw, 80px\)/);
+  assert.match(serviceWorker, /prem-predics-pwa-v58/);
 });

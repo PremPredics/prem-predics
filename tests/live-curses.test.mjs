@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { currentLiveCurseEffects, effectAppliesToGameweek } from '../assets/js/live-curses-model.js';
+import {
+  currentActiveCurseEffects,
+  currentLiveCurseEffects,
+  effectAppliesToGameweek,
+  isCompletedThief,
+} from '../assets/js/live-curses-model.js';
 
 const leagueHtml = readFileSync(new URL('../league.html', import.meta.url), 'utf8');
 const leagueJs = readFileSync(new URL('../assets/js/league.js', import.meta.url), 'utf8');
@@ -32,13 +37,15 @@ test('current Gameweek includes direct and spanning live curses only', () => {
     effect({ status: 'resolved', payload: { effect_key: 'curse_hated' } }),
   ];
   assert.equal(currentLiveCurseEffects(rows, current, gameweeks).length, 3);
+  assert.equal(currentActiveCurseEffects(rows, current, gameweeks).length, 2);
+  assert.equal(isCompletedThief(rows[7]), true);
   assert.equal(effectAppliesToGameweek(rows[1], current, gameweeks), true);
   assert.equal(effectAppliesToGameweek(rows[2], current, gameweeks), false);
 });
 
 test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(leagueHtml, /data-live-curse-alert/);
-  assert.match(leagueHtml, /live-curses-card/);
+  assert.match(leagueJs, /className: 'live-curses-card'/);
   assert.match(pageHtml, /data-curse-board/);
   assert.match(pageHtml, /data-own-curse-alert/);
   assert.match(pageHtml, /#7b61d8/);
@@ -70,12 +77,13 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageHtml, /curse-card-segment/);
   assert.match(pageHtml, /curse-effects-segment/);
   assert.match(pageHtml, /segment-label/);
-  assert.match(pageJs, /Active Curse Cards/);
+  assert.match(pageJs, /Gameweek Curse Cards/);
   assert.match(pageJs, /curse-meta-copy/);
   assert.doesNotMatch(pageHtml, /curse-hero::after/);
   assert.doesNotMatch(pageHtml, /\\1F525|🔥/);
   assert.match(leagueJs, /live-curse-alert-icon[^]*&#9760;/);
   assert.match(leagueJs, /loadOwnLiveCurseCount[^]*\.in\('status', \['active', 'resolved'\]\)/);
+  assert.match(leagueJs, /currentActiveCurseEffects/);
   assert.match(pageHtml, /\.curse-effects-grid \{ display: grid; grid-template-columns: minmax\(0,1fr\)/);
   assert.doesNotMatch(pageJs, /--effect-columns/);
   assert.match(pageJs, /sortedEffects\.map\(curseCardMarkup\)/);
@@ -88,8 +96,13 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageJs, /stolen_card_id/);
   assert.match(pageJs, /was stolen from/);
   assert.match(pageHtml, /stolen-card-preview\.power-card/);
-  assert.match(pageHtml, /background: linear-gradient\(110deg,rgba\(88,18,30,.5\)/);
-  assert.match(worker, /prem-predics-pwa-v57/);
+  assert.match(pageJs, /effectDisplaySort/);
+  assert.match(pageJs, /Number\(isCompletedThief\(a\)\) - Number\(isCompletedThief\(b\)\)/);
+  assert.match(pageJs, /Completed Steal/);
+  assert.match(pageJs, /activeEffects = state\.effects\.filter/);
+  assert.match(pageHtml, /\.curse-impact \{[^}]*background: linear-gradient\(110deg,rgba\(127,29,29,.55\),rgba\(76,5,25,.34\)\)/s);
+  assert.match(pageHtml, /\.curse-impact\.is-locked \{[^}]*background: linear-gradient\(110deg,rgba\(127,29,29,.55\),rgba\(76,5,25,.34\)\)/s);
+  assert.match(worker, /prem-predics-pwa-v58/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
@@ -106,5 +119,7 @@ test('Medals page uses a compact responsive two-column mobile layout', () => {
   assert.match(medalsHtml, /grid-template-columns: repeat\(auto-fit,minmax\(175px,1fr\)\)/);
   assert.match(medalsHtml, /grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(medalsHtml, /min-height: 68px/);
-  assert.match(medalsHtml, /medals\.js\?v=20260831-slick-medals/);
+  assert.match(medalsHtml, /data-medal-progress/);
+  assert.ok(medalsHtml.indexOf('data-medal-progress') < medalsHtml.indexOf('data-earned-count'));
+  assert.match(medalsHtml, /medals\.js\?v=20260831-progress-v2/);
 });

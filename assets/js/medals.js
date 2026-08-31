@@ -4,11 +4,17 @@ import {
   leagueUrl,
   loadLeagueContext,
 } from './league-context.js';
+import {
+  nextMedalProgress,
+  STAR_MAN_GOAL_MEDAL_THRESHOLDS,
+  UC_POINT_MEDAL_THRESHOLDS,
+} from './medal-progress.js';
 
 const earnedCount = document.querySelector('[data-earned-count]');
 const medalList = document.querySelector('[data-medal-list]');
 const leagueLink = document.querySelector('[data-league-link]');
 const superPenCount = document.querySelector('[data-super-pen-count]');
+const medalProgressPanel = document.querySelector('[data-medal-progress]');
 
 const possibleMedals = [
   ...[20, 40, 60, 80, 100, 125, 150, 175, 200, 225, 250, 275, 300].map((value) => ({
@@ -36,6 +42,51 @@ const possibleMedals = [
     type: 'Super',
   })),
 ];
+
+function medalProgressCardMarkup({ label, icon, unit, progress, className }) {
+  const currentText = Number(progress.current).toLocaleString('en-GB');
+  if (progress.complete) {
+    return `
+      <article class="medal-progress-card ${className} complete">
+        <div class="medal-progress-top"><span><i aria-hidden="true">${icon}</i>${escapeHtml(label)}</span><strong>100%</strong></div>
+        <div class="medal-progress-copy"><b>${currentText}</b><span>All milestone medals earned</span></div>
+        <div class="medal-progress-track"><span style="width:100%"></span></div>
+      </article>`;
+  }
+
+  return `
+    <article class="medal-progress-card ${className}">
+      <div class="medal-progress-top"><span><i aria-hidden="true">${icon}</i>${escapeHtml(label)}</span><strong>${progress.percentage}%</strong></div>
+      <div class="medal-progress-copy"><b>${currentText}/${progress.nextThreshold}</b><span>Next medal at ${progress.nextThreshold} ${escapeHtml(unit)}</span></div>
+      <div class="medal-progress-track" role="progressbar" aria-label="${escapeHtml(label)} medal progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress.percentage}"><span style="width:${progress.percentage}%"></span></div>
+    </article>`;
+}
+
+function renderMedalProgress(ranking, tokens) {
+  if (!medalProgressPanel) return;
+  const sourceKeys = (tokens || [])
+    .filter((token) => token.status !== 'void' && token.source_type === 'accolade')
+    .map((token) => token.source_key)
+    .filter(Boolean);
+  const ucProgress = nextMedalProgress(
+    ranking?.ultimate_champion_points,
+    UC_POINT_MEDAL_THRESHOLDS,
+    sourceKeys,
+    'uc_points_',
+  );
+  const goalsProgress = nextMedalProgress(
+    ranking?.star_man_goals,
+    STAR_MAN_GOAL_MEDAL_THRESHOLDS,
+    sourceKeys,
+    'star_man_goals_',
+  );
+  medalProgressPanel.innerHTML = `
+    <div class="medal-progress-heading"><strong>Next Medal Progress</strong></div>
+    <div class="medal-progress-grid">
+      ${medalProgressCardMarkup({ label: 'UC Points', icon: '&#9733;', unit: 'UC pts', progress: ucProgress, className: 'uc-progress' })}
+      ${medalProgressCardMarkup({ label: 'Star Man Goals', icon: '&#9917;', unit: 'goals', progress: goalsProgress, className: 'goal-progress' })}
+    </div>`;
+}
 
 function renderTokens(tokens, wonGameCardNames = new Set()) {
   const earnedKeys = new Set(tokens.map((token) => token.source_key).filter(Boolean));
@@ -65,6 +116,7 @@ async function loadMedals() {
   const context = await loadLeagueContext();
   if (context.error) {
     medalList.innerHTML = `<p class="empty">${escapeHtml(context.error)}</p>`;
+    if (medalProgressPanel) medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Medal progress is unavailable.</span>';
     return;
   }
 
@@ -76,6 +128,7 @@ async function loadMedals() {
 
   if (syncError) {
     medalList.innerHTML = `<p class="empty">${escapeHtml(syncError.message)}</p>`;
+    if (medalProgressPanel) medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Medal progress is temporarily unavailable.</span>';
     return;
   }
 
@@ -85,22 +138,40 @@ async function loadMedals() {
 
   if (superPenSyncError && !isMissingRpcFunction(superPenSyncError)) {
     medalList.innerHTML = `<p class="empty">${escapeHtml(superPenSyncError.message)}</p>`;
+    if (medalProgressPanel) medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Medal progress is temporarily unavailable.</span>';
     return;
   }
 
-  const { data: tokens, error: tokenError } = await supabase
-    .from('card_draw_tokens')
-    .select('id, token_type, source_type, source_key, source_game_card_round_id, status, created_at, redeemed_at')
-    .eq('competition_id', context.league.id)
-    .eq('user_id', context.user.id)
-    .order('created_at', { ascending: false });
+  const [
+    { data: tokens, error: tokenError },
+    { data: ranking, error: rankingError },
+  ] = await Promise.all([
+    supabase
+      .from('card_draw_tokens')
+      .select('id, token_type, source_type, source_key, source_game_card_round_id, status, created_at, redeemed_at')
+      .eq('competition_id', context.league.id)
+      .eq('user_id', context.user.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('leaderboard')
+      .select('ultimate_champion_points, star_man_goals')
+      .eq('competition_id', context.league.id)
+      .eq('user_id', context.user.id)
+      .maybeSingle(),
+  ]);
 
   if (tokenError) {
     medalList.innerHTML = `<p class="empty">${escapeHtml(tokenError.message)}</p>`;
+    if (medalProgressPanel) medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Medal progress is temporarily unavailable.</span>';
     return;
   }
 
   const earnedTokens = (tokens || []).filter((token) => token.status !== 'void');
+  if (rankingError) {
+    medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Medal progress is temporarily unavailable.</span>';
+  } else {
+    renderMedalProgress(ranking || {}, earnedTokens);
+  }
   earnedCount.textContent = earnedTokens.length;
   if (superPenCount) {
     superPenCount.textContent = earnedTokens

@@ -4,7 +4,7 @@ import {
   loadLeagueContext,
 } from './league-context.js';
 import { isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
-import { currentLiveCurseEffects } from './live-curses-model.js';
+import { currentActiveCurseEffects } from './live-curses-model.js';
 import {
   nextMedalProgress,
   STAR_MAN_GOAL_MEDAL_THRESHOLDS,
@@ -156,7 +156,7 @@ async function loadOwnLiveCurseCount(league, user, activeGameweek) {
     String(gameweek.gameweek_id),
     Number(gameweek.gameweek_number),
   ]));
-  return currentLiveCurseEffects(effects, activeGameweek, gameweekNumbers).length;
+  return currentActiveCurseEffects(effects, activeGameweek, gameweekNumbers).length;
 }
 
 async function renderOwnLiveCurseAlert(league, user, activeGameweek) {
@@ -849,16 +849,11 @@ async function renderLeague(league, user) {
     }
   }
 
-  const groupedPages = ['primary', 'game', 'reference'].map((tier) => pages.filter((item) => item.tier === tier));
-  playGrid.innerHTML = groupedPages.map((group) => `
-    <div class="play-group ${escapeHtml(group[0]?.tier || '')}">
-      ${group.map((item) => `
-        <a class="play-card ${escapeHtml(item.className || '')}" href="${leagueUrl(item.page, league.id)}" style="--accent: ${item.accent}">
-          <strong>${escapeHtml(item.title)}</strong>
-          <span>${escapeHtml(item.detail)}</span>
-        </a>
-      `).join('')}
-    </div>
+  playGrid.innerHTML = pages.map((item) => `
+    <a class="play-card ${escapeHtml(item.className || '')}" href="${leagueUrl(item.page, league.id)}" style="--accent: ${item.accent}">
+      <strong>${escapeHtml(item.title)}</strong>
+      <span>${escapeHtml(item.detail)}</span>
+    </a>
   `).join('');
 }
 

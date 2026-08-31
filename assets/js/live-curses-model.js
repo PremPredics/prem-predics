@@ -27,3 +27,17 @@ export function currentLiveCurseEffects(effects, activeGameweek, gameweekNumbers
       && effectAppliesToGameweek(effect, activeGameweek, gameweekNumbers);
   });
 }
+
+export function isCompletedThief(effect) {
+  const definition = Array.isArray(effect?.card_definitions)
+    ? effect.card_definitions[0]
+    : effect?.card_definitions;
+  const effectKey = effect?.payload?.effect_key || definition?.effect_key || '';
+  return String(effect?.status || '').toLowerCase() === 'resolved'
+    && effectKey === 'curse_thief';
+}
+
+export function currentActiveCurseEffects(effects, activeGameweek, gameweekNumbers) {
+  return currentLiveCurseEffects(effects, activeGameweek, gameweekNumbers)
+    .filter((effect) => !isCompletedThief(effect));
+}

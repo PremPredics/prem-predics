@@ -1,7 +1,7 @@
 import { supabase } from './supabase-client.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 import { escapeHtml, leagueUrl, loadLeagueContext, normaliseNested } from './league-context.js';
-import { currentLiveCurseEffects } from './live-curses-model.js';
+import { currentLiveCurseEffects, isCompletedThief } from './live-curses-model.js';
 
 const board = document.querySelector('[data-curse-board]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -176,7 +176,7 @@ function effectOutcomeMarkup(effect) {
     const stolenCard = stolenCardDefinition(effect);
     return `
       <section class="curse-impact is-thief">
-        <span class="impact-kicker">Live Effect</span>
+        <span class="impact-kicker">Completed Steal</span>
         <div class="thief-effect">
           ${stolenCardMarkup(effect)}
           <p><strong>${escapeHtml(stolenCard.name || 'A Regular Card')}</strong> was stolen from ${escapeHtml(targetName)}.</p>
@@ -249,6 +249,21 @@ function curseEffectMarkup(effect) {
     </article>`;
 }
 
+function effectDisplaySort(a, b) {
+  const thiefOrder = Number(isCompletedThief(a)) - Number(isCompletedThief(b));
+  if (thiefOrder) return thiefOrder;
+  return new Date(b.played_at || 0) - new Date(a.played_at || 0);
+}
+
+function targetCurseSummary(effects) {
+  const liveCountForTarget = effects.filter((effect) => !isCompletedThief(effect)).length;
+  const thiefCount = effects.length - liveCountForTarget;
+  const liveText = liveCountForTarget === 1 ? '1 live Curse' : `${liveCountForTarget} live Curses`;
+  if (!thiefCount) return liveText;
+  const thiefText = thiefCount === 1 ? '1 completed Thief' : `${thiefCount} completed Thieves`;
+  return `${liveText} • ${thiefText}`;
+}
+
 function render() {
   const grouped = new Map();
   state.effects.forEach((effect) => {
@@ -259,9 +274,11 @@ function render() {
   });
 
   const total = state.effects.length;
-  const targeted = grouped.size;
-  const ownCount = (grouped.get(String(state.user?.id)) || []).length;
-  liveCount.textContent = String(total);
+  const activeEffects = state.effects.filter((effect) => !isCompletedThief(effect));
+  const liveTargets = new Set(activeEffects.map((effect) => String(effect.target_user_id)));
+  const targeted = liveTargets.size;
+  const ownCount = activeEffects.filter((effect) => sameId(effect.target_user_id, state.user?.id)).length;
+  liveCount.textContent = String(activeEffects.length);
   targetCount.textContent = String(targeted);
   safeCount.textContent = String(Math.max(0, state.members.length - targeted));
   gameweekLabel.textContent = `GW${state.activeGameweek?.gameweek_number || '--'}`;
@@ -289,19 +306,20 @@ function render() {
   board.innerHTML = groups.map(([targetUserId, effects]) => {
     const target = profileFor(targetUserId);
     const isYou = sameId(targetUserId, state.user?.id);
-    const sortedEffects = [...effects].sort((a, b) => new Date(b.played_at || 0) - new Date(a.played_at || 0));
+    const sortedEffects = [...effects].sort(effectDisplaySort);
+    const liveCountForTarget = effects.filter((effect) => !isCompletedThief(effect)).length;
     return `
       <article class="victim-card${isYou ? ' is-you' : ''}">
         <div class="victim-head">
           ${avatarMarkup(target)}
           <div class="victim-title">
             <strong>${escapeHtml(isYou ? `${target.display_name} (You)` : target.display_name)}</strong>
-            <span>${effects.length === 1 ? 'Under one live Curse' : `Under ${effects.length} live Curses`}</span>
+            <span>${escapeHtml(targetCurseSummary(effects))}</span>
           </div>
-          <span class="curse-count" title="Active curse count"><b>${effects.length}</b><small>Live</small></span>
+          <span class="curse-count" title="Live curse count"><b>${liveCountForTarget}</b><small>Live</small></span>
         </div>
         <div class="curse-card-segment">
-          <span class="segment-label">Active Curse Cards</span>
+          <span class="segment-label">Gameweek Curse Cards</span>
           <div class="curse-stack">${sortedEffects.map(curseCardMarkup).join('')}</div>
         </div>
         <div class="curse-effects-segment">
