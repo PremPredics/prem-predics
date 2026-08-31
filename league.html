@@ -492,6 +492,7 @@ main {
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.07);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .play-card::before {
@@ -557,8 +558,15 @@ main {
 
 button.play-card {
   width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
   font: inherit;
   cursor: pointer;
+}
+button.play-card:focus:not(:focus-visible) { outline: none; }
+button.play-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 body.choice-panel-open { overflow: hidden; }
@@ -635,6 +643,7 @@ body.choice-panel-open { overflow: hidden; }
   text-align: left;
   text-decoration: none;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06),0 8px 18px rgba(0,0,0,.2);
+  -webkit-tap-highlight-color: transparent;
 }
 .hub-choice-option::before {
   content: '';
@@ -1064,7 +1073,7 @@ footer {
 <footer>2026 Prem Predics | Private League</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260831-choice-panels-v2"></script>
+<script type="module" src="assets/js/league.js?v=20260831-choice-panels-v3"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

@@ -781,7 +781,7 @@ async function renderLeague(league, user) {
     {
       menu: 'predictions',
       title: 'Predictions',
-      detail: `Submit your Score Predictions for Gameweek ${gameweekNumber}.`,
+      detail: `Submit Predictions for GW${gameweekNumber}`,
       accent: '#00e5ff',
       tier: 'primary',
       copy: `Gameweek ${gameweekNumber} predictions`,

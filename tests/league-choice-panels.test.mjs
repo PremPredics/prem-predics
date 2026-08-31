@@ -16,7 +16,11 @@ test('League Hub opens Predictions and Star Man choices in an accessible blurred
   assert.match(leagueHtml, /\.hub-choice-dialog \{ width: min\(355px,100%\); padding: 10px;/);
   assert.match(leagueHtml, /\.hub-choice-back \{ position: absolute; top: 0; right: 0;/);
   assert.match(leagueHtml, /grid-template-rows: repeat\(2,70px\)/);
+  assert.match(leagueHtml, /button\.play-card \{[^}]*-webkit-appearance: none;[^}]*appearance: none;/s);
+  assert.match(leagueHtml, /\.play-card \{[^}]*-webkit-tap-highlight-color: transparent;/s);
+  assert.match(leagueHtml, /button\.play-card:focus-visible/);
   assert.match(leagueJs, /menu: 'predictions'/);
+  assert.match(leagueJs, /detail: `Submit Predictions for GW\$\{gameweekNumber\}`/);
   assert.match(leagueJs, /menu: 'star-man'/);
   assert.match(leagueJs, /data-choice-menu=/);
   assert.match(leagueJs, /openHubChoicePanel/);
@@ -41,7 +45,7 @@ test('League Hub reference accents and destination navigation are streamlined', 
   for (const script of ['predictions.js', 'all-predictions.js', 'star-man.js', 'all-star-men.js']) {
     assert.doesNotMatch(read(`../assets/js/${script}`), /(?:prediction-hub|star-man-hub)\.html/);
   }
-  assert.match(leagueHtml, /league\.js\?v=20260831-choice-panels-v2/);
-  assert.match(serviceWorker, /prem-predics-pwa-v61/);
-  assert.match(serviceWorker, /league\.js\?v=20260831-choice-panels-v2/);
+  assert.match(leagueHtml, /league\.js\?v=20260831-choice-panels-v3/);
+  assert.match(serviceWorker, /prem-predics-pwa-v62/);
+  assert.match(serviceWorker, /league\.js\?v=20260831-choice-panels-v3/);
 });
