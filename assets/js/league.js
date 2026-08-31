@@ -25,9 +25,16 @@ const profileLink = document.querySelector('[data-profile-link]');
 const profileAvatar = document.querySelector('[data-profile-avatar]');
 const liveCurseAlert = document.querySelector('[data-live-curse-alert]');
 const medalProgressPanel = document.querySelector('[data-medal-progress]');
+const choiceOverlay = document.querySelector('[data-hub-choice-overlay]');
+const choiceDialog = document.querySelector('[data-hub-choice-dialog]');
+const choiceTitle = document.querySelector('[data-hub-choice-title]');
+const choiceCopy = document.querySelector('[data-hub-choice-copy]');
+const choiceOptions = document.querySelector('[data-hub-choice-options]');
 let deadlineTimer = null;
 let liveCurseChannel = null;
 let liveCursePollTimer = null;
+let choiceMenus = new Map();
+let lastChoiceTrigger = null;
 
 function renderError(error) {
   leagueName.textContent = 'Private league unavailable';
@@ -739,23 +746,61 @@ async function copyJoinCode() {
   }
 }
 
+function closeHubChoicePanel() {
+  if (!choiceOverlay || choiceOverlay.hidden) return;
+  choiceOverlay.hidden = true;
+  choiceOverlay.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('choice-panel-open');
+  lastChoiceTrigger?.focus();
+  lastChoiceTrigger = null;
+}
+
+function openHubChoicePanel(menuKey, trigger) {
+  const menu = choiceMenus.get(menuKey);
+  if (!menu || !choiceOverlay || !choiceDialog || !choiceTitle || !choiceCopy || !choiceOptions) return;
+  lastChoiceTrigger = trigger || document.activeElement;
+  choiceTitle.textContent = menu.title;
+  choiceCopy.textContent = menu.copy;
+  choiceDialog.style.setProperty('--choice-accent', menu.accent);
+  choiceOptions.innerHTML = menu.options.map((option) => `
+    <a class="hub-choice-option" href="${leagueUrl(option.page, menu.leagueId)}" style="--option-accent: ${option.accent}">
+      <strong>${escapeHtml(option.title)}</strong>
+      <span>${escapeHtml(option.detail)}</span>
+    </a>
+  `).join('');
+  choiceOverlay.hidden = false;
+  choiceOverlay.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('choice-panel-open');
+  choiceDialog.focus();
+}
+
 async function renderLeague(league, user) {
   const { activeGameweek, fixturesByGameweek } = await loadActiveGameweek(league);
   const gameweekNumber = activeGameweek?.gameweek_number || 'X';
   const pages = [
     {
-      page: 'prediction-hub.html',
+      menu: 'predictions',
       title: 'Predictions',
       detail: `Submit your Score Predictions for Gameweek ${gameweekNumber}.`,
       accent: '#00e5ff',
       tier: 'primary',
+      copy: `Gameweek ${gameweekNumber} predictions`,
+      options: [
+        { page: 'predictions.html', title: 'Make Predictions', detail: 'Submit or edit your current Gameweek score predictions.', accent: '#22d3ee' },
+        { page: 'all-predictions.html', title: 'View All Player Predictions', detail: 'View history of all user predictions for all Gameweeks.', accent: '#facc15' },
+      ],
     },
     {
-      page: 'star-man-hub.html',
+      menu: 'star-man',
       title: 'Star Man',
       detail: `Submit your Star Man for Gameweek ${gameweekNumber}.`,
       accent: '#facc15',
       tier: 'primary',
+      copy: `Gameweek ${gameweekNumber} Star Man`,
+      options: [
+        { page: 'star-man.html', title: 'Pick Star Man', detail: 'Submit or edit your current Gameweek Star Man pick.', accent: '#facc15' },
+        { page: 'all-star-men.html', title: 'View All Player Star Men', detail: 'View history of all user Star Man picks for all Gameweeks.', accent: '#c4b5fd' },
+      ],
     },
     {
       page: 'power-cards.html',
@@ -782,14 +827,14 @@ async function renderLeague(league, user) {
       page: 'leaderboard.html',
       title: 'Leaderboard',
       detail: 'View Leaderboard.',
-      accent: '#a78bfa',
+      accent: '#ffffff',
       tier: 'reference',
     },
     {
       page: 'statistics.html',
       title: 'Statistics',
       detail: 'View Statistics.',
-      accent: '#22d3ee',
+      accent: '#c4b5fd',
       tier: 'reference',
     },
     {
@@ -808,6 +853,16 @@ async function renderLeague(league, user) {
       className: 'live-curses-card',
     },
   ];
+
+  choiceMenus = new Map(pages
+    .filter((item) => item.menu)
+    .map((item) => [item.menu, {
+      title: item.title,
+      copy: item.copy,
+      accent: item.accent,
+      options: item.options,
+      leagueId: league.id,
+    }]));
 
   leagueName.textContent = league.name;
   joinCode.textContent = league.join_code;
@@ -857,7 +912,12 @@ async function renderLeague(league, user) {
     }
   }
 
-  playGrid.innerHTML = pages.map((item) => `
+  playGrid.innerHTML = pages.map((item) => item.menu ? `
+    <button class="play-card ${escapeHtml(item.className || '')}" type="button" data-choice-menu="${escapeHtml(item.menu)}" aria-haspopup="dialog" style="--accent: ${item.accent}">
+      <strong>${escapeHtml(item.title)}</strong>
+      <span>${escapeHtml(item.detail)}</span>
+    </button>
+  ` : `
     <a class="play-card ${escapeHtml(item.className || '')}" href="${leagueUrl(item.page, league.id)}" style="--accent: ${item.accent}">
       <strong>${escapeHtml(item.title)}</strong>
       <span>${escapeHtml(item.detail)}</span>
@@ -877,6 +937,16 @@ if (context.error) {
 }
 
 copyJoinCodeButton?.addEventListener('click', copyJoinCode);
+playGrid?.addEventListener('click', (event) => {
+  const trigger = event.target.closest('[data-choice-menu]');
+  if (trigger) openHubChoicePanel(trigger.dataset.choiceMenu, trigger);
+});
+choiceOverlay?.addEventListener('click', (event) => {
+  if (event.target.closest('[data-hub-choice-dismiss]')) closeHubChoicePanel();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !choiceOverlay?.hidden) closeHubChoicePanel();
+});
 window.addEventListener('beforeunload', () => {
   if (liveCurseChannel) supabase.removeChannel(liveCurseChannel);
   window.clearInterval(liveCursePollTimer);

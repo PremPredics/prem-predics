@@ -555,6 +555,115 @@ main {
   z-index: 1;
 }
 
+button.play-card {
+  width: 100%;
+  font: inherit;
+  cursor: pointer;
+}
+
+body.choice-panel-open { overflow: hidden; }
+.hub-choice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+.hub-choice-overlay[hidden] { display: none; }
+.hub-choice-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(8,3,20,.64);
+  -webkit-backdrop-filter: blur(10px) saturate(.86);
+  backdrop-filter: blur(10px) saturate(.86);
+  cursor: default;
+}
+.hub-choice-dialog {
+  --choice-accent: #22d3ee;
+  position: relative;
+  width: min(650px,100%);
+  overflow: hidden;
+  padding: 15px;
+  border: 1px solid color-mix(in srgb,var(--choice-accent) 38%,rgba(216,180,254,.3));
+  border-radius: 14px;
+  background:
+    linear-gradient(110deg,color-mix(in srgb,var(--choice-accent) 9%,transparent),transparent 46%),
+    linear-gradient(145deg,rgba(46,16,102,.97),rgba(17,7,38,.97));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1),0 24px 58px rgba(0,0,0,.5),0 0 24px color-mix(in srgb,var(--choice-accent) 14%,transparent);
+}
+.hub-choice-topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.hub-choice-back {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(216,180,254,.28);
+  border-radius: 8px;
+  background: rgba(17,7,38,.58);
+  color: #f3e8ff;
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+.hub-choice-heading { min-width: 0; }
+.hub-choice-kicker { display: block; color: var(--choice-accent); font-size: .6rem; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
+.hub-choice-heading h2 { margin: 2px 0 0; color: #fff; font-size: clamp(1.25rem,3vw,1.7rem); line-height: 1.05; }
+.hub-choice-heading p { margin: 4px 0 0; color: #ddd6fe; font-size: .72rem; font-weight: 700; line-height: 1.3; }
+.hub-choice-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+.hub-choice-option {
+  --option-accent: var(--choice-accent);
+  position: relative;
+  min-width: 0;
+  min-height: 96px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  overflow: hidden;
+  padding: 13px 37px 13px 14px;
+  border: 1px solid color-mix(in srgb,var(--option-accent) 38%,rgba(216,180,254,.2));
+  border-radius: 10px;
+  background:
+    linear-gradient(110deg,color-mix(in srgb,var(--option-accent) 9%,transparent),transparent 54%),
+    rgba(17,7,38,.54);
+  color: #fff;
+  text-align: left;
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06),0 8px 18px rgba(0,0,0,.2);
+}
+.hub-choice-option::before {
+  content: '';
+  position: absolute;
+  inset: 9px auto 9px 0;
+  width: 4px;
+  border-radius: 0 999px 999px 0;
+  background: var(--option-accent);
+  box-shadow: 0 0 12px color-mix(in srgb,var(--option-accent) 70%,transparent);
+}
+.hub-choice-option::after {
+  content: '›';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb,var(--option-accent) 38%,rgba(255,255,255,.14));
+  border-radius: 7px;
+  background: color-mix(in srgb,var(--option-accent) 11%,rgba(17,7,38,.7));
+  color: var(--option-accent);
+  font-size: 1.2rem;
+  font-weight: 950;
+  transform: translateY(-50%);
+}
+.hub-choice-option strong { overflow: hidden; font-size: .92rem; line-height: 1.12; text-overflow: ellipsis; white-space: nowrap; }
+.hub-choice-option span { display: -webkit-box; overflow: hidden; color: #ddd6fe; font-size: .67rem; font-weight: 700; line-height: 1.32; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.hub-choice-option:hover { border-color: var(--option-accent); box-shadow: inset 0 1px 0 rgba(255,255,255,.08),0 10px 22px rgba(0,0,0,.25),0 0 14px color-mix(in srgb,var(--option-accent) 18%,transparent); }
+
 .live-curse-alert {
   display: none;
   width: 100%;
@@ -850,6 +959,19 @@ footer {
   .play-card::after { right: 7px; width: 21px; height: 21px; border-radius: 6px; font-size: 1.12rem; }
   .play-card strong { font-size: .83rem; }
   .play-card span { font-size: .62rem; line-height: 1.25; }
+
+  .hub-choice-overlay { align-items: end; padding: 10px; }
+  .hub-choice-dialog { width: 100%; padding: 11px; border-radius: 13px; }
+  .hub-choice-topbar { gap: 9px; margin-bottom: 9px; }
+  .hub-choice-back { padding: 6px 8px; font-size: .68rem; }
+  .hub-choice-kicker { font-size: .52rem; }
+  .hub-choice-heading h2 { font-size: 1.12rem; }
+  .hub-choice-heading p { margin-top: 3px; font-size: .62rem; }
+  .hub-choice-options { grid-template-columns: 1fr; gap: 7px; }
+  .hub-choice-option { min-height: 76px; padding: 10px 33px 10px 12px; border-radius: 9px; }
+  .hub-choice-option strong { font-size: .82rem; }
+  .hub-choice-option span { font-size: .61rem; }
+  .hub-choice-option::after { right: 8px; width: 21px; height: 21px; }
 }
 
 /* mobile-title-one-line */
@@ -922,10 +1044,25 @@ footer {
   </section>
 </main>
 
+<div class="hub-choice-overlay" data-hub-choice-overlay hidden aria-hidden="true">
+  <button class="hub-choice-backdrop" type="button" data-hub-choice-dismiss tabindex="-1" aria-label="Close menu"></button>
+  <section class="hub-choice-dialog" data-hub-choice-dialog role="dialog" aria-modal="true" aria-labelledby="hub-choice-title" tabindex="-1">
+    <div class="hub-choice-topbar">
+      <button class="hub-choice-back" type="button" data-hub-choice-dismiss>&larr; Back</button>
+      <div class="hub-choice-heading">
+        <span class="hub-choice-kicker">Choose an action</span>
+        <h2 id="hub-choice-title" data-hub-choice-title></h2>
+        <p data-hub-choice-copy></p>
+      </div>
+    </div>
+    <nav class="hub-choice-options" data-hub-choice-options aria-label="Available actions"></nav>
+  </section>
+</div>
+
 <footer>2026 Prem Predics | Private League</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260831-cache-hotfix"></script>
+<script type="module" src="assets/js/league.js?v=20260831-choice-panels"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

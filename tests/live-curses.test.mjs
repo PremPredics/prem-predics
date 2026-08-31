@@ -105,7 +105,12 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageJs, /activeEffects = state\.effects\.filter/);
   assert.match(pageHtml, /\.curse-impact \{[^}]*background: linear-gradient\(110deg,rgba\(127,29,29,.55\),rgba\(76,5,25,.34\)\)/s);
   assert.match(pageHtml, /\.curse-impact\.is-locked \{[^}]*background: linear-gradient\(110deg,rgba\(127,29,29,.55\),rgba\(76,5,25,.34\)\)/s);
-  assert.match(worker, /prem-predics-pwa-v59/);
+  assert.match(pageHtml, /\.curse-hero \{[^}]*padding: 14px;[^}]*border-radius: 12px;/s);
+  assert.match(pageHtml, /\.hero-stat:nth-child\(2\) \{ --stat-color: #fbbf24; \}/);
+  assert.match(pageHtml, /\.hero-stat:nth-child\(3\) \{ --stat-color: #4ade80; \}/);
+  assert.match(pageHtml, /\.hero-stat \{[^}]*min-height: 62px;/s);
+  assert.match(pageHtml, /@media \(max-width: 480px\)[^]*\.hero-stat \{ min-height: 54px;/);
+  assert.match(worker, /prem-predics-pwa-v60/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);

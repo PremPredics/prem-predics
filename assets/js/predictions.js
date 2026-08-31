@@ -15,7 +15,6 @@ const saveAllButton = document.querySelector('[data-save-all]');
 const editButton = document.querySelector('[data-edit-predictions]');
 const predictionMessage = document.querySelector('[data-prediction-message]');
 const leagueBackLink = document.querySelector('[data-league-back]');
-const predictionsBackLink = document.querySelector('[data-predictions-back]');
 const curseModal = document.querySelector('[data-curse-modal]');
 const curseModalBody = document.querySelector('[data-curse-modal-body]');
 const closeCurseButton = document.querySelector('[data-close-curse]');
@@ -1421,9 +1420,6 @@ async function boot() {
   state.user = context.user;
   state.league = context.league;
   leagueBackLink.href = leagueUrl('league.html', state.league.id);
-  if (predictionsBackLink) {
-    predictionsBackLink.href = leagueUrl('prediction-hub.html', state.league.id);
-  }
   leagueTitle.textContent = 'Loading predictions...';
 
   try {
