@@ -64,64 +64,65 @@ main {
 }
 
 .panel {
-  background: rgba(46, 16, 102, 0.68);
-  border: 2px solid rgba(196, 132, 252, 0.32);
-  border-radius: 12px;
-  padding: 18px;
-  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+  background: linear-gradient(145deg,rgba(46,16,102,.66),rgba(17,7,38,.56));
+  border: 1px solid rgba(216,180,254,.3);
+  border-radius: 13px;
+  padding: 14px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.06);
 }
 
 .summary-strip {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .summary-pill {
-  min-width: min(100%, 300px);
+  width: min(100%, 460px);
   display: inline-flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  text-align: center;
-  border-radius: 999px;
-  padding: 12px 18px;
-  background: rgba(17, 7, 38, 0.5);
-  border: 1px solid rgba(216, 180, 254, 0.26);
+  gap: 14px;
+  border-radius: 9px;
+  padding: 9px 12px;
+  background: rgba(17,7,38,.5);
+  border: 1px solid rgba(216,180,254,.2);
 }
 
 .summary-pill span {
   color: #ddd6fe;
+  font-size: .8rem;
   font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
 }
 
 .summary-pill strong {
   color: #fde68a;
-  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  font-size: 1.55rem;
   line-height: 1;
 }
 
 .medal-board {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 240px));
-  justify-content: center;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit,minmax(175px,1fr));
+  gap: 8px;
 }
 
 .medal-accolade {
-  min-height: 86px;
+  min-height: 68px;
   display: grid;
   align-content: center;
-  gap: 5px;
-  padding: 13px;
+  gap: 4px;
+  padding: 10px;
   border-radius: 8px;
   background: rgba(12, 6, 26, 0.66);
   border: 1px solid rgba(216, 180, 254, 0.16);
   color: #c4b5fd;
   filter: grayscale(0.8);
   opacity: 0.48;
-  text-align: center;
+  text-align: left;
   transition: opacity 0.2s, filter 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
@@ -134,7 +135,7 @@ main {
 
 .medal-accolade strong {
   color: #fff;
-  font-size: 1rem;
+  font-size: .85rem;
   font-weight: 900;
 }
 
@@ -148,12 +149,12 @@ main {
 }
 
 .medal-accolade span {
-  justify-self: center;
+  justify-self: start;
   border-radius: 999px;
-  padding: 5px 9px;
+  padding: 3px 7px;
   background: rgba(255,255,255,0.1);
   color: #ddd6fe;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -172,16 +173,16 @@ main {
 }
 
 .super-pen-medals {
-  margin-top: 16px;
+  margin-top: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   background:
     radial-gradient(circle at 14% 18%, rgba(255,255,255,0.28), transparent 22%),
     linear-gradient(135deg, rgba(96, 40, 136, 0.82), rgba(182, 126, 20, 0.78), rgba(46, 16, 102, 0.86));
   border-color: rgba(255, 240, 163, 0.58);
-  box-shadow: 0 0 24px rgba(250, 204, 21, 0.28), 0 14px 34px rgba(0,0,0,0.28);
+  box-shadow: 0 0 18px rgba(250,204,21,.2),0 10px 24px rgba(0,0,0,.24);
 }
 
 .super-pen-medals-copy {
@@ -191,7 +192,7 @@ main {
 
 .super-pen-medals-copy strong {
   color: #fde68a;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 950;
   text-shadow:
     -1px -1px 0 rgba(0,0,0,0.86),
@@ -202,13 +203,14 @@ main {
 
 .super-pen-medals-copy span {
   color: #fff7ed;
-  font-weight: 800;
+  font-size: .8rem;
+  font-weight: 750;
   line-height: 1.35;
 }
 
 .super-pen-medals-count {
-  min-width: 74px;
-  min-height: 74px;
+  min-width: 48px;
+  min-height: 48px;
   display: grid;
   place-items: center;
   border-radius: 999px;
@@ -217,7 +219,7 @@ main {
     linear-gradient(135deg, #facc15, #f59e0b);
   border: 2px solid rgba(255, 255, 255, 0.75);
   color: #111827;
-  font-size: 2rem;
+  font-size: 1.3rem;
   font-weight: 950;
   box-shadow: 0 0 24px rgba(250, 204, 21, 0.48), inset 0 -10px 18px rgba(146, 64, 14, 0.25);
   text-shadow: 0 1px 0 rgba(255,255,255,0.42);
@@ -231,22 +233,25 @@ footer {
 }
 
 @media (max-width: 620px) {
-  main { padding: 22px 10px 34px; }
-  .panel { padding: 14px; }
-  .summary-pill {
-    width: 100%;
-    border-radius: 10px;
-  }
-  .medal-board { grid-template-columns: 1fr; }
+  main { padding: 20px 9px 32px; }
+  .panel { padding: 10px; }
+  .summary-pill { width: 100%; padding: 8px 10px; }
+  .summary-pill span { font-size: .68rem; }
+  .summary-pill strong { font-size: 1.3rem; }
+  .medal-board { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+  .medal-accolade { min-height: 62px; padding: 8px; }
+  .medal-accolade strong { font-size: .72rem; line-height: 1.18; }
+  .medal-accolade span { padding: 3px 5px; font-size: 8px; }
   .toolbar a { flex: 1; text-align: center; }
   .super-pen-medals {
-    align-items: stretch;
-    flex-direction: column;
-    text-align: center;
+    align-items: center;
+    flex-direction: row;
+    padding: 10px 12px;
+    text-align: left;
   }
-  .super-pen-medals-count {
-    align-self: center;
-  }
+  .super-pen-medals-copy strong { font-size: .9rem; }
+  .super-pen-medals-copy span { font-size: .68rem; }
+  .super-pen-medals-count { min-width: 44px; min-height: 44px; font-size: 1.15rem; }
 }
 @media (max-width: 650px) {
   header h1,
@@ -324,7 +329,7 @@ footer {
 <footer>2026 Prem Predics | Medals</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/medals.js"></script>
+<script type="module" src="assets/js/medals.js?v=20260831-slick-medals"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

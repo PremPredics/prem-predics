@@ -5,6 +5,7 @@ import { testDependency } from './support/dependencies.mjs';
 
 const { PGlite } = testDependency('@electric-sql/pglite');
 const migration = readFileSync(new URL('../supabase/curse-thief-pending-play-and-ldpetrov-repair-2026-08-29.sql', import.meta.url), 'utf8');
+const targetCapMigration = readFileSync(new URL('../supabase/curse-thief-target-cap-and-live-history-2026-08-31.sql', import.meta.url), 'utf8');
 const powerCards = readFileSync(new URL('../power-cards.html', import.meta.url), 'utf8');
 const serviceWorker = readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
 const id = (n) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -119,6 +120,7 @@ test('pending Thief repair and lifecycle are atomic, target-safe and deadline-sa
   const db = await fixtureDatabase();
   try {
     await db.exec(migration);
+    await db.exec(targetCapMigration);
     const repaired = (await db.query(`select status, payload from active_card_effects where id='${id(50)}'`)).rows[0];
     assert.equal(repaired.status, 'cancelled');
     assert.equal(repaired.payload.repair_key, 'ldpetrov_thief_pending_20260829');
@@ -162,7 +164,42 @@ test('pending Thief repair and lifecycle are atomic, target-safe and deadline-sa
     assert.equal((await db.query('select status from active_card_effects where id=$1', [second.id])).rows[0].status, 'cancelled');
     assert.equal((await db.query(`select zone from league_cards where id='${id(42)}'`)).rows[0].zone, 'hand');
 
+    // A successful Thief is resolved, but still occupies one of the victim's
+    // three Curse slots for the Gameweek. Two more Curses fill the cap; a
+    // fourth is rejected. Use a two-player membership here so this assertion
+    // isolates the cap from the separate consecutive-target rule.
+    await db.exec(`
+      delete from competition_members
+      where competition_id='${id(20)}' and user_id='${id(3)}';
+      select set_config('request.jwt.claim.sub','',false);
+      insert into active_card_effects(
+        id,competition_id,card_id,season_id,gameweek_id,start_gameweek_id,end_gameweek_id,
+        played_by_user_id,target_user_id,status,payload
+      ) values
+        ('${id(60)}','${id(20)}','curse_thief','${id(10)}',200,200,200,'${id(90)}','${id(2)}','active','{"effect_key":"curse_thief"}'),
+        ('${id(61)}','${id(20)}','curse_thief','${id(10)}',200,200,200,'${id(91)}','${id(2)}','active','{"effect_key":"curse_thief"}');
+    `);
+    assert.equal((await db.query(`
+      select count(*)::int as count
+      from active_card_effects ace
+      where ace.target_user_id='${id(2)}'
+        and (ace.status='active' or (ace.status='resolved' and ace.card_id='curse_thief'))
+    `)).rows[0].count, 3);
+    await assert.rejects(
+      db.exec(`
+        insert into active_card_effects(
+          id,competition_id,card_id,season_id,gameweek_id,start_gameweek_id,end_gameweek_id,
+          played_by_user_id,target_user_id,status,payload
+        ) values (
+          '${id(62)}','${id(20)}','curse_thief','${id(10)}',200,200,200,
+          '${id(92)}','${id(2)}','active','{"effect_key":"curse_thief"}'
+        );
+      `),
+      /maximum of 3 Curse Cards for this Gameweek/
+    );
+
     await db.exec(migration);
+    await db.exec(targetCapMigration);
     assert.equal((await db.query(`select count(*)::int as count from active_card_effects where payload->>'repair_key'='ldpetrov_thief_pending_20260829'`)).rows[0].count, 1);
   } finally {
     await db.close();
@@ -176,5 +213,5 @@ test('Power Cards UI uses the pending Thief RPCs and forces a fresh PWA cache', 
   assert.doesNotMatch(powerCards, /rpc\('steal_regular_card_from_opponent'/);
   assert.match(powerCards, /opponentCardIsStealable/);
   assert.match(powerCards, /revealOpponentCard/);
-  assert.match(serviceWorker, /prem-predics-pwa-v56/);
+  assert.match(serviceWorker, /prem-predics-pwa-v57/);
 });

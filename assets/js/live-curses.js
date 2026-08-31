@@ -21,6 +21,13 @@ const starManLiveEffectByKey = {
   curse_furious: (name) => `${name}'s Star Man scoring is affected by the Furious rule.`,
 };
 
+const canonicalCurseNames = {
+  curse_hated: 'Curse of the Hated',
+  curse_gambler: 'Curse of the Random',
+  curse_furious: 'Curse of the Furious',
+  curse_thief: 'Curse of the Thief',
+};
+
 const state = {
   user: null,
   league: null,
@@ -31,6 +38,9 @@ const state = {
   fixtures: new Map(),
   teams: new Map(),
   forcedOutcomes: new Map(),
+  hatedEffectIds: new Set(),
+  randomEffectIds: new Set(),
+  cardDefinitions: new Map(),
   effects: [],
   channel: null,
   refreshTimer: null,
@@ -47,12 +57,18 @@ function effectDefinition(effect) {
 }
 
 function effectKey(effect) {
-  return effectDefinition(effect).effect_key || effect.payload?.effect_key || '';
+  const id = String(effect?.id || '');
+  if (state.hatedEffectIds.has(id)) return 'curse_hated';
+  if (state.randomEffectIds.has(id)) return 'curse_gambler';
+  return effect?.payload?.effect_key || effectDefinition(effect).effect_key || '';
 }
 
 function effectName(effect) {
-  if (effectKey(effect) === 'curse_gambler') return 'Curse of the Random';
-  return effectDefinition(effect).name || effectKey(effect).replaceAll('_', ' ') || 'Curse Card';
+  const key = effectKey(effect);
+  return canonicalCurseNames[key]
+    || effectDefinition(effect).name
+    || key.replaceAll('_', ' ')
+    || 'Curse Card';
 }
 
 function profileFor(userId) {
@@ -98,6 +114,25 @@ function forcedOutcomeRows(effect) {
   return state.forcedOutcomes.get(String(effect.id || '')) || [];
 }
 
+function stolenCardDefinition(effect) {
+  const cardId = String(effect?.payload?.stolen_card_id || '');
+  return state.cardDefinitions.get(cardId) || {
+    id: cardId,
+    name: 'Stolen Regular Card',
+    category: 'regular',
+  };
+}
+
+function stolenCardMarkup(effect) {
+  const card = stolenCardDefinition(effect);
+  const category = ['power', 'curse'].includes(card.category) ? card.category : 'regular';
+  return `
+    <div class="stolen-card-preview ${escapeHtml(category)}-card">
+      <small>Stolen Card</small>
+      <strong>${escapeHtml(card.name || 'Stolen Regular Card')}</strong>
+    </div>`;
+}
+
 function effectOutcomeMarkup(effect) {
   const key = effectKey(effect);
   const rows = forcedOutcomeRows(effect);
@@ -108,12 +143,10 @@ function effectOutcomeMarkup(effect) {
       : []);
   const targetName = profileFor(effect.target_user_id).display_name || 'League Player';
 
-  if ((key === 'curse_gambler' || key === 'curse_hated') && displayRows.length) {
-    const heading = key === 'curse_gambler' ? 'Dice-locked predictions' : 'Forced 8-2 prediction';
+  if (key === 'curse_hated' && displayRows.length) {
     return `
       <section class="curse-impact is-locked">
         <span class="impact-kicker">Live Effect</span>
-        <strong>${escapeHtml(heading)}</strong>
         <div class="forced-score-list">
           ${displayRows.map((row) => `
             <div class="forced-score-row">
@@ -121,7 +154,33 @@ function effectOutcomeMarkup(effect) {
               <b>${escapeHtml(`${row.home_goals}-${row.away_goals}`)}</b>
             </div>`).join('')}
         </div>
-        <small>These scores are visible immediately in View All Player Predictions because ${escapeHtml(targetName)} cannot change them.</small>
+      </section>`;
+  }
+
+  if (key === 'curse_gambler' && displayRows.length) {
+    return `
+      <section class="curse-impact is-locked">
+        <span class="impact-kicker">Live Effect</span>
+        <strong>Dice-locked predictions</strong>
+        <div class="forced-score-list">
+          ${displayRows.map((row) => `
+            <div class="forced-score-row">
+              <span>${escapeHtml(fixtureName(row.fixture_id))}</span>
+              <b>${escapeHtml(`${row.home_goals}-${row.away_goals}`)}</b>
+            </div>`).join('')}
+        </div>
+      </section>`;
+  }
+
+  if (key === 'curse_thief' && effect.status === 'resolved') {
+    const stolenCard = stolenCardDefinition(effect);
+    return `
+      <section class="curse-impact is-thief">
+        <span class="impact-kicker">Live Effect</span>
+        <div class="thief-effect">
+          ${stolenCardMarkup(effect)}
+          <p><strong>${escapeHtml(stolenCard.name || 'A Regular Card')}</strong> was stolen from ${escapeHtml(targetName)}.</p>
+        </div>
       </section>`;
   }
 
@@ -275,13 +334,14 @@ async function loadLiveCurses() {
       { data: teams, error: teamError },
       { data: hatedRows, error: hatedError },
       { data: randomRows, error: randomError },
+      { data: cardDefinitions, error: definitionError },
     ] = await Promise.all([
       supabase
         .from('active_card_effects')
         .select('id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_at, played_by_user_id, target_user_id, status, payload, card_definitions!inner(effect_key, name, description, category)')
         .eq('competition_id', state.league.id)
         .eq('season_id', state.league.season_id)
-        .eq('status', 'active')
+        .in('status', ['active', 'resolved'])
         .not('target_user_id', 'is', null)
         .eq('card_definitions.category', 'curse'),
       supabase
@@ -314,8 +374,11 @@ async function loadLiveCurses() {
         .eq('season_id', state.league.season_id)
         .eq('gameweek_id', state.activeGameweek.gameweek_id)
         .order('roll_number', { ascending: true }),
+      supabase
+        .from('card_definitions')
+        .select('id, name, category, deck_type'),
     ]);
-    const firstError = effectError || memberError || gameweekError || fixtureError || teamError || hatedError || randomError;
+    const firstError = effectError || memberError || gameweekError || fixtureError || teamError || hatedError || randomError || definitionError;
     if (firstError) throw firstError;
     state.members = (members || []).map((member) => {
       const profile = normaliseNested(member.profiles) || {};
@@ -325,7 +388,10 @@ async function loadLiveCurses() {
     state.gameweekNumbers = new Map((gameweeks || []).map((gameweek) => [String(gameweek.gameweek_id), Number(gameweek.gameweek_number)]));
     state.fixtures = new Map((fixtures || []).map((fixture) => [String(fixture.id), fixture]));
     state.teams = new Map((teams || []).map((team) => [String(team.id), team.name]));
+    state.cardDefinitions = new Map((cardDefinitions || []).map((card) => [String(card.id), card]));
     state.forcedOutcomes = new Map();
+    state.hatedEffectIds = new Set((hatedRows || []).map((row) => String(row.card_effect_id || '')));
+    state.randomEffectIds = new Set((randomRows || []).map((row) => String(row.card_effect_id || '')));
     [...(hatedRows || []), ...(randomRows || [])].forEach((row) => {
       const key = String(row.card_effect_id || '');
       const current = state.forcedOutcomes.get(key) || [];

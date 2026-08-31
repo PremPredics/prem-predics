@@ -140,11 +140,11 @@ async function loadOwnLiveCurseCount(league, user, activeGameweek) {
   const [{ data: effects, error: effectError }, { data: gameweeks, error: gameweekError }] = await Promise.all([
     supabase
       .from('active_card_effects')
-      .select('gameweek_id, start_gameweek_id, end_gameweek_id, target_user_id, status, card_definitions!inner(category)')
+      .select('gameweek_id, start_gameweek_id, end_gameweek_id, target_user_id, status, payload, card_definitions!inner(category, effect_key)')
       .eq('competition_id', league.id)
       .eq('season_id', league.season_id)
       .eq('target_user_id', user.id)
-      .eq('status', 'active')
+      .in('status', ['active', 'resolved'])
       .eq('card_definitions.category', 'curse'),
     supabase
       .from('gameweek_deadlines')

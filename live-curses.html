@@ -133,16 +133,48 @@ main { width: min(1240px, 100%); margin: 0 auto; padding: 32px 18px 48px; }
   box-shadow: 0 0 18px rgba(251,113,133,.58), 0 4px 12px rgba(0,0,0,.4), inset 0 0 12px rgba(255,255,255,.14);
 }
 .live-card-name { max-width: 100%; color: #fff; font-size: clamp(.78rem, 1.55vw, 1rem); line-height: 1.05; font-weight: 1000; text-align: center; text-shadow: -1px -1px 0 rgba(0,0,0,.92), 1px -1px 0 rgba(0,0,0,.92), -1px 1px 0 rgba(0,0,0,.92), 1px 1px 0 rgba(0,0,0,.92), 0 0 10px rgba(254,202,202,.6); overflow-wrap: normal; word-break: normal; hyphens: none; }
-.curse-impact { padding: 11px 12px; border: 0; border-left: 3px solid rgba(167,139,250,.78); border-radius: 0 8px 8px 0; background: rgba(76,29,149,.26); color: #f5f3ff; }
-.curse-impact.is-locked { border-left-color: #f87171; background: rgba(88,18,30,.34); }
+.curse-impact {
+  padding: 11px 12px;
+  border: 1px solid rgba(248,113,113,.2);
+  border-left: 3px solid #fb7185;
+  border-radius: 0 8px 8px 0;
+  background: linear-gradient(110deg,rgba(88,18,30,.5),rgba(76,5,25,.27));
+  color: #fff1f2;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.curse-impact.is-locked { border-left-color: #fda4af; background: linear-gradient(110deg,rgba(127,29,29,.55),rgba(76,5,25,.34)); }
 .impact-kicker { display: block; margin-bottom: 5px; color: #fca5a5; font-size: .7rem; font-weight: 1000; letter-spacing: .13em; text-transform: uppercase; }
 .curse-impact > strong { display: block; margin-bottom: 8px; color: #fff; font-size: 1rem; line-height: 1.25; }
 .curse-impact > p { margin: 0; font-size: .9rem; line-height: 1.48; }
-.curse-impact > small { display: block; margin-top: 9px; color: #e9d5ff; font-size: .78rem; line-height: 1.42; }
+.curse-impact > small { display: block; margin-top: 9px; color: #fecdd3; font-size: .78rem; line-height: 1.42; }
 .forced-score-list { display: grid; gap: 5px; }
 .forced-score-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 9px 11px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; background: rgba(17,7,38,.58); }
 .forced-score-row span { overflow: hidden; font-size: .88rem; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
 .forced-score-row b { min-width: 50px; padding: 3px 7px; border-radius: 6px; background: rgba(127,29,29,.54); color: #fecaca; font-size: 1.05rem; text-align: center; }
+.thief-effect { display: grid; grid-template-columns: 76px minmax(0,1fr); gap: 12px; align-items: center; }
+.thief-effect > p { margin: 0; color: #fff1f2; font-size: .9rem; line-height: 1.45; }
+.thief-effect > p strong { color: #fff; }
+.stolen-card-preview {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 76px;
+  aspect-ratio: 72 / 94;
+  display: grid;
+  place-content: center;
+  gap: 5px;
+  padding: 8px 6px;
+  border: 2px solid rgba(255,255,255,.68);
+  border-radius: 9px;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.38),inset 0 0 10px rgba(255,255,255,.15);
+}
+.stolen-card-preview.power-card { background: linear-gradient(135deg,#082f49,#0369a1 40%,#38bdf8 70%,#dbeafe); border-color: #7dd3fc; }
+.stolen-card-preview.curse-card { background: linear-gradient(135deg,#4c0519,#991b1b 40%,#ef4444 70%,#fecaca); border-color: #fb7185; }
+.stolen-card-preview.regular-card { background: linear-gradient(135deg,#2e1065,#6d28d9 44%,#a78bfa 74%,#ede9fe); border-color: #c4b5fd; }
+.stolen-card-preview small { color: rgba(255,255,255,.82); font-size: .48rem; font-weight: 950; letter-spacing: .07em; text-transform: uppercase; }
+.stolen-card-preview strong { font-size: .65rem; line-height: 1.04; text-shadow: -1px -1px 0 rgba(0,0,0,.8),1px 1px 0 rgba(0,0,0,.8); overflow-wrap: anywhere; }
 .curse-meta { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 0 2px; color: #c4b5fd; }
 .curse-meta-copy { min-width: 0; }
 .curse-meta-copy strong { display: block; overflow: hidden; color: #fff; font-size: .8rem; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
@@ -196,6 +228,10 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
   .forced-score-row { gap: 8px; padding: 8px; }
   .forced-score-row span { font-size: .74rem; text-overflow: clip; white-space: normal; }
   .forced-score-row b { min-width: 45px; font-size: .9rem; }
+  .thief-effect { grid-template-columns: 64px minmax(0,1fr); gap: 9px; }
+  .thief-effect > p { font-size: .78rem; }
+  .stolen-card-preview { width: 64px; padding: 6px 4px; }
+  .stolen-card-preview strong { font-size: .56rem; }
   .curse-meta { align-items: center; }
   .curse-meta-copy strong { font-size: .72rem; }
   .curse-meta-copy small { font-size: .62rem; white-space: normal; overflow-wrap: anywhere; }
@@ -235,7 +271,7 @@ footer { padding: 20px; color: #4c1d95; text-align: center; font-size: 13px; fon
 </main>
 <footer>2026 Prem Predics | Live Curses</footer>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/live-curses.js?v=20260830-slick-polish"></script>
+<script type="module" src="assets/js/live-curses.js?v=20260831-thief-hated-polish"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
 </body>

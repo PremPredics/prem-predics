@@ -8,6 +8,8 @@ const leagueJs = readFileSync(new URL('../assets/js/league.js', import.meta.url)
 const pageHtml = readFileSync(new URL('../live-curses.html', import.meta.url), 'utf8');
 const pageJs = readFileSync(new URL('../assets/js/live-curses.js', import.meta.url), 'utf8');
 const worker = readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
+const medalsHtml = readFileSync(new URL('../medals.html', import.meta.url), 'utf8');
+const thiefCapMigration = readFileSync(new URL('../supabase/curse-thief-target-cap-and-live-history-2026-08-31.sql', import.meta.url), 'utf8');
 const realtimeMigration = readFileSync(new URL('../supabase/live-curses-realtime-2026-08-30.sql', import.meta.url), 'utf8');
 const outcomeRealtimeMigration = readFileSync(new URL('../supabase/live-curse-outcomes-realtime-2026-08-30.sql', import.meta.url), 'utf8');
 const predictionsJs = readFileSync(new URL('../assets/js/all-predictions.js', import.meta.url), 'utf8');
@@ -26,8 +28,10 @@ test('current Gameweek includes direct and spanning live curses only', () => {
     effect({ status: 'vetoed' }),
     effect({ status: 'cancelled' }),
     effect({ target_user_id: null }),
+    effect({ status: 'resolved', payload: { effect_key: 'curse_thief' } }),
+    effect({ status: 'resolved', payload: { effect_key: 'curse_hated' } }),
   ];
-  assert.equal(currentLiveCurseEffects(rows, current, gameweeks).length, 2);
+  assert.equal(currentLiveCurseEffects(rows, current, gameweeks).length, 3);
   assert.equal(effectAppliesToGameweek(rows[1], current, gameweeks), true);
   assert.equal(effectAppliesToGameweek(rows[2], current, gameweeks), false);
 });
@@ -52,7 +56,7 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageJs, /curse_gambler_rolls/);
   assert.match(pageJs, /Live Effect/);
   assert.match(pageJs, /Dice-locked predictions/);
-  assert.match(pageJs, /Forced 8-2 prediction/);
+  assert.match(pageJs, /key === 'curse_hated'/);
   assert.match(pageJs, /effect\.fixture_id, home_goals: 8, away_goals: 2/);
   assert.match(pageJs, /Prediction removed from scoring/);
   assert.match(pageJs, /starManLiveEffectByKey/);
@@ -71,6 +75,7 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.doesNotMatch(pageHtml, /curse-hero::after/);
   assert.doesNotMatch(pageHtml, /\\1F525|🔥/);
   assert.match(leagueJs, /live-curse-alert-icon[^]*&#9760;/);
+  assert.match(leagueJs, /loadOwnLiveCurseCount[^]*\.in\('status', \['active', 'resolved'\]\)/);
   assert.match(pageHtml, /\.curse-effects-grid \{ display: grid; grid-template-columns: minmax\(0,1fr\)/);
   assert.doesNotMatch(pageJs, /--effect-columns/);
   assert.match(pageJs, /sortedEffects\.map\(curseCardMarkup\)/);
@@ -79,7 +84,12 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(predictionsJs, /sameId\(state\.selectedUserId, state\.user\.id\) \|\| forcedCurseVisible/);
   assert.match(predictionsJs, /all-predictions-curses-/);
   assert.match(predictionsJs, /table: 'curse_gambler_rolls'/);
-  assert.match(worker, /prem-predics-pwa-v56/);
+  assert.match(pageJs, /status', \['active', 'resolved'\]/);
+  assert.match(pageJs, /stolen_card_id/);
+  assert.match(pageJs, /was stolen from/);
+  assert.match(pageHtml, /stolen-card-preview\.power-card/);
+  assert.match(pageHtml, /background: linear-gradient\(110deg,rgba\(88,18,30,.5\)/);
+  assert.match(worker, /prem-predics-pwa-v57/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
@@ -88,4 +98,13 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(outcomeRealtimeMigration, /curse_gambler_rolls/);
   assert.match(outcomeRealtimeMigration, /pg_publication_tables/);
   assert.doesNotMatch(outcomeRealtimeMigration, /\b(?:delete|truncate)\s+from\b/i);
+  assert.match(thiefCapMigration, /ace\.status = 'resolved' and cd\.effect_key = 'curse_thief'/);
+  assert.doesNotMatch(thiefCapMigration, /\b(?:delete|truncate)\s+from\b/i);
+});
+
+test('Medals page uses a compact responsive two-column mobile layout', () => {
+  assert.match(medalsHtml, /grid-template-columns: repeat\(auto-fit,minmax\(175px,1fr\)\)/);
+  assert.match(medalsHtml, /grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(medalsHtml, /min-height: 68px/);
+  assert.match(medalsHtml, /medals\.js\?v=20260831-slick-medals/);
 });

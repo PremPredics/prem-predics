@@ -11361,8 +11361,13 @@ async function syncMedals() {
     function applyCurseTargetLimits(opponents, effects, currentUserId, memberCount) {
       const activeCurseCounts = new Map();
       (effects || []).forEach((effect) => {
+        const definition = getNestedRecord(effect.card_definitions);
+        const effectKey = effect.payload?.effect_key || definition?.effect_key || '';
+        const status = String(effect.status || '').toLowerCase();
+        const countsForGameweekCap = status === 'active'
+          || (status === 'resolved' && effectKey === 'curse_thief');
         if (
-          String(effect.status || '').toLowerCase() !== 'active'
+          !countsForGameweekCap
           || !effect.target_user_id
           || sameOpponentUser(effect.target_user_id, effect.played_by_user_id)
         ) {
@@ -11387,7 +11392,7 @@ async function syncMedals() {
         const activeCount = activeCurseCounts.get(String(member.user_id)) || 0;
 
         if (activeCount >= 3) {
-          disabledReasons.push('Maximum of 3 active Curses reached');
+          disabledReasons.push('Maximum of 3 Curses reached for this Gameweek');
         }
         if (previousCurse && sameOpponentUser(previousCurse.target_user_id, member.user_id)) {
           disabledReasons.push('Your previous Curse this Gameweek targeted this player');
@@ -11404,7 +11409,7 @@ async function syncMedals() {
     async function curseTargetOptionsForGameweek(opponents, activeGameweek, memberCount) {
       const { data, error } = await supabase
         .from('active_card_effects')
-        .select('id, target_user_id, played_by_user_id, status, played_at, card_definitions!inner(category)')
+        .select('id, target_user_id, played_by_user_id, status, played_at, payload, card_definitions!inner(category, effect_key)')
         .eq('competition_id', context.league.id)
         .eq('season_id', context.league.season_id)
         .eq('gameweek_id', activeGameweek.gameweek_id)

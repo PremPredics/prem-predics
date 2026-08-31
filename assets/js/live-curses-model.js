@@ -13,9 +13,17 @@ export function effectAppliesToGameweek(effect, activeGameweek, gameweekNumbers)
 }
 
 export function currentLiveCurseEffects(effects, activeGameweek, gameweekNumbers) {
-  return (effects || []).filter((effect) => (
-    effect?.status === 'active'
-    && Boolean(effect?.target_user_id)
-    && effectAppliesToGameweek(effect, activeGameweek, gameweekNumbers)
-  ));
+  return (effects || []).filter((effect) => {
+    const definition = Array.isArray(effect?.card_definitions)
+      ? effect.card_definitions[0]
+      : effect?.card_definitions;
+    const effectKey = effect?.payload?.effect_key || definition?.effect_key || '';
+    const status = String(effect?.status || '').toLowerCase();
+    const visibleStatus = status === 'active'
+      || (status === 'resolved' && effectKey === 'curse_thief');
+
+    return visibleStatus
+      && Boolean(effect?.target_user_id)
+      && effectAppliesToGameweek(effect, activeGameweek, gameweekNumbers);
+  });
 }

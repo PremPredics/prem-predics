@@ -1963,11 +1963,14 @@ begin
     and ace.season_id = new.season_id
     and ace.target_user_id = new.target_user_id
     and ace.target_user_id is distinct from ace.played_by_user_id
-    and ace.status = 'active'
+    and (
+      ace.status = 'active'
+      or (ace.status = 'resolved' and cd.effect_key = 'curse_thief')
+    )
     and target_gameweek_number between start_gw.number and end_gw.number;
 
   if active_curse_count >= 3 then
-    raise exception 'This player already has the maximum of 3 active Curse Cards.';
+    raise exception 'This player already has the maximum of 3 Curse Cards for this Gameweek.';
   end if;
 
   select count(*)::integer
