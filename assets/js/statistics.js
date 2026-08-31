@@ -4,6 +4,7 @@ import {
   leagueUrl,
   loadLeagueContext,
 } from './league-context.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 
 const grid = document.querySelector('[data-stats-grid]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -117,6 +118,7 @@ function isMissingRpcFunction(error) {
 
 async function loadStatistics() {
   const context = await loadLeagueContext();
+  setPageLoaderProgress(30);
   if (context.error) {
     grid.innerHTML = `<p class="empty">${escapeHtml(context.error)}</p>`;
     return;
@@ -136,6 +138,7 @@ async function loadStatistics() {
     grid.innerHTML = `<p class="empty">${escapeHtml(superPenSyncError.message)}</p>`;
     return;
   }
+  setPageLoaderProgress(48);
 
   const [{ data: rows, error }, { data: tokens }, { data: gameCardWins }] = await Promise.all([
     supabase
@@ -153,6 +156,7 @@ async function loadStatistics() {
       .eq('earns_super_medal', true)
       .gte('completed_gameweeks', 5),
   ]);
+  setPageLoaderProgress(72);
 
   if (error) {
     grid.innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
@@ -172,6 +176,7 @@ async function loadStatistics() {
       profilesById.set(profile.id, profile);
     });
   }
+  setPageLoaderProgress(86);
 
   const medalsByUser = new Map();
   const spentByUser = new Map();
@@ -190,6 +195,11 @@ async function loadStatistics() {
   });
 
   render(rows || [], profilesById, medalsByUser, spentByUser, gameCardsWonByUser, context.user.id);
+  setPageLoaderProgress(96);
 }
 
-loadStatistics();
+loadStatistics()
+  .catch((error) => {
+    grid.innerHTML = `<p class="empty">${escapeHtml(error.message || 'Could not load statistics.')}</p>`;
+  })
+  .finally(finishPageLoader);

@@ -17,6 +17,8 @@ const pages = [
   ['live-curses.html', 'live-curses.js'],
   ['star-man.html', 'star-man.js'],
   ['predictions.html', 'predictions.js'],
+  ['league.html', 'league.js'],
+  ['statistics.html', 'statistics.js'],
 ];
 
 test('requested league pages use the shared football-to-goal loading experience', () => {
@@ -24,11 +26,20 @@ test('requested league pages use the shared football-to-goal loading experience'
     const html = read(`../${htmlFile}`);
     const script = read(`../assets/js/${scriptFile}`);
     assert.match(html, /body class="pp-page-loading" data-page-loader-title="Loading [^"]+ Page\.\.\."/);
-    assert.match(html, /page-loader\.css\?v=20260831-football-v1/);
+    assert.match(html, /page-loader\.css\?v=20260831-football-v2/);
     assert.match(html, /page-loader\.js\?v=20260831-football-v1/);
     assert.match(script, /finishPageLoader/);
     assert.match(script, /setPageLoaderProgress/);
   }
+});
+
+test('Power Cards uses the same shared football loader', () => {
+  const html = read('../power-cards.html');
+  assert.match(html, /body class="pp-page-loading" data-page-loader-title="Loading Power Cards Page\.\.\."/);
+  assert.match(html, /page-loader\.css\?v=20260831-football-v2/);
+  assert.match(html, /import\('\.\/assets\/js\/page-loader\.js\?v=20260831-football-v1'\)/);
+  assert.match(html, /powerPageLoaderApi\?\.setPageLoaderProgress/);
+  assert.match(html, /powerPageLoaderApi\?\.finishPageLoader/);
 });
 
 test('loader rolls a football into a revealed goal and always has a safety completion', () => {
@@ -37,16 +48,20 @@ test('loader rolls a football into a revealed goal and always has a safety compl
   assert.match(loaderJs, /is-near-goal', 'is-scored'/);
   assert.match(loaderJs, /window\.setTimeout\(\(\) => finishPageLoader\(\), 25000\)/);
   assert.match(loaderCss, /\.pp-page-loader-goal \{/);
+  assert.match(loaderCss, /opacity: 1;/);
   assert.match(loaderCss, /\.pp-page-loader\.is-scored \.pp-page-loader-ball/);
+  assert.match(loaderCss, /\.pp-page-loader\.is-scored \.pp-page-loader-goal::after/);
+  assert.match(loaderCss, /@keyframes pp-page-loader-goal-ripple/);
   assert.match(loaderCss, /@media \(max-width: 480px\)/);
   assert.match(loaderCss, /@media \(prefers-reduced-motion: reduce\)/);
 });
 
 test('PWA cache includes the complete shared loader release', () => {
-  assert.match(worker, /prem-predics-pwa-v67/);
-  assert.match(worker, /page-loader\.css\?v=20260831-football-v1/);
+  assert.match(worker, /prem-predics-pwa-v68/);
+  assert.match(worker, /page-loader\.css\?v=20260831-football-v2/);
   assert.match(worker, /page-loader\.js\?v=20260831-football-v1/);
   for (const [, scriptFile] of pages) {
     assert.match(worker, new RegExp(`${scriptFile.replace('.', '\\.')}\\?v=20260831-football-loader-v1`));
   }
+  assert.match(worker, /\.\/power-cards\.html/);
 });

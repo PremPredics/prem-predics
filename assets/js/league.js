@@ -10,6 +10,7 @@ import {
   STAR_MAN_GOAL_MEDAL_THRESHOLDS,
   UC_POINT_MEDAL_THRESHOLDS,
 } from './medal-progress.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 import { supabase } from './supabase-client.js';
 
 const leagueName = document.querySelector('[data-league-name]');
@@ -30,45 +31,21 @@ const choiceDialog = document.querySelector('[data-hub-choice-dialog]');
 const choiceTitle = document.querySelector('[data-hub-choice-title]');
 const choiceCopy = document.querySelector('[data-hub-choice-copy]');
 const choiceOptions = document.querySelector('[data-hub-choice-options]');
-const leaguePageLoader = document.querySelector('[data-league-page-loader]');
-const leaguePageLoaderFill = document.querySelector('[data-league-page-loader-fill]');
-const leaguePageLoaderPercent = document.querySelector('[data-league-page-loader-percent]');
-const leaguePageProgress = document.querySelector('[data-league-page-progress]');
 let deadlineTimer = null;
 let liveCurseChannel = null;
 let liveCursePollTimer = null;
 let choiceMenus = new Map();
 let lastChoiceTrigger = null;
-let leaguePageLoadValue = 4;
-let leaguePageLoadTimer = null;
-
 function setLeaguePageLoadProgress(value) {
-  const nextValue = Math.max(leaguePageLoadValue, Math.min(100, Math.round(Number(value) || 0)));
-  leaguePageLoadValue = nextValue;
-  if (leaguePageLoaderFill) leaguePageLoaderFill.style.width = `${nextValue}%`;
-  if (leaguePageLoaderPercent) leaguePageLoaderPercent.textContent = `${nextValue}%`;
-  if (leaguePageProgress) leaguePageProgress.setAttribute('aria-valuenow', String(nextValue));
-  if (leaguePageLoader) leaguePageLoader.setAttribute('aria-label', `Loading League Hub Page, ${nextValue}%`);
+  setPageLoaderProgress(value);
 }
 
 function startLeaguePageLoading() {
   setLeaguePageLoadProgress(8);
-  window.clearInterval(leaguePageLoadTimer);
-  leaguePageLoadTimer = window.setInterval(() => {
-    if (leaguePageLoadValue < 88) setLeaguePageLoadProgress(leaguePageLoadValue + 1);
-  }, 180);
 }
 
 function finishLeaguePageLoading() {
-  window.clearInterval(leaguePageLoadTimer);
-  setLeaguePageLoadProgress(100);
-  window.setTimeout(() => {
-    document.body.classList.remove('league-page-loading');
-    leaguePageLoader?.classList.add('is-complete');
-  }, 220);
-  window.setTimeout(() => {
-    if (leaguePageLoader) leaguePageLoader.hidden = true;
-  }, 560);
+  finishPageLoader();
 }
 
 function renderError(error) {

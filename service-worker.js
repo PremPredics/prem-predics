@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v67';
+const CACHE_VERSION = 'prem-predics-pwa-v68';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -39,7 +39,7 @@ const APP_SHELL = [
   './assets/css/legal-pages.css',
   './assets/css/pwa-install.css',
   './assets/css/password-reset.css',
-  './assets/css/page-loader.css?v=20260831-football-v1',
+  './assets/css/page-loader.css?v=20260831-football-v2',
   './assets/js/all-predictions.js?v=20260831-football-loader-v1',
   './assets/js/all-star-men.js?v=20260831-football-loader-v1',
   './assets/js/capacitor-app.js',
@@ -59,7 +59,7 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260831-football-loader-v1',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260831-page-loader-v1',
+  './assets/js/league.js?v=20260831-football-loader-v1',
   './assets/js/live-curses.js?v=20260831-football-loader-v1',
   './assets/js/live-curses-model.js?v=20260831-cache-hotfix',
   './assets/js/medal-progress.js',
@@ -76,7 +76,7 @@ const APP_SHELL = [
   './assets/js/site-auth.js?v=20260828-startup-reliability',
   './assets/js/star-man-hub.js',
   './assets/js/star-man.js?v=20260831-football-loader-v1',
-  './assets/js/statistics.js',
+  './assets/js/statistics.js?v=20260831-football-loader-v1',
   './assets/js/supabase-client.js',
   './assets/js/ui-polish.js',
   './assets/js/wider-polish.js',

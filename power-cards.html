@@ -34,59 +34,7 @@ body.card-preview-open {
   overflow: hidden;
 }
 
-body.power-page-loading { overflow: hidden; }
-.power-page-loader {
-  position: fixed;
-  inset: 0;
-  z-index: 50000;
-  display: grid;
-  place-items: center;
-  padding: 22px;
-  background:
-    radial-gradient(circle at 50% 42%,rgba(124,58,237,.3),transparent 34%),
-    linear-gradient(145deg,#16082f,#2e1065 52%,#17072f);
-  opacity: 1;
-  visibility: visible;
-  transition: opacity .28s ease,visibility .28s ease;
-}
-.power-page-loader.is-complete { opacity: 0; visibility: hidden; pointer-events: none; }
-.power-page-loader-card {
-  width: min(410px,100%);
-  padding: 20px;
-  border: 1px solid rgba(196,181,253,.36);
-  border-radius: 14px;
-  background: linear-gradient(145deg,rgba(46,16,102,.82),rgba(17,7,38,.78));
-  text-align: center;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.09),0 22px 48px rgba(0,0,0,.36);
-}
-.power-page-loader-title { display: block; margin-bottom: 14px; color: #fff; font-size: clamp(1rem,4vw,1.3rem); font-weight: 950; }
-.power-page-loader-track {
-  height: 12px;
-  overflow: hidden;
-  border: 1px solid rgba(216,180,254,.32);
-  border-radius: 999px;
-  background: rgba(3,1,10,.72);
-  box-shadow: inset 0 2px 5px rgba(0,0,0,.62);
-}
-.power-page-loader-fill {
-  display: block;
-  width: 4%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg,#6d28d9,#a78bfa 58%,#facc15);
-  box-shadow: 0 0 13px rgba(196,181,253,.78);
-  transition: width .3s ease;
-}
-.power-page-loader-percent { display: block; margin-top: 9px; color: #ddd6fe; font-size: .78rem; font-weight: 950; font-variant-numeric: tabular-nums; }
-@media (max-width: 480px) {
-  .power-page-loader { padding: 16px; }
-  .power-page-loader-card { width: min(330px,100%); padding: 16px; border-radius: 12px; }
-  .power-page-loader-title { margin-bottom: 11px; font-size: .95rem; }
-  .power-page-loader-track { height: 10px; }
-  .power-page-loader-percent { margin-top: 7px; font-size: .72rem; }
-}
-
-h1 { 
+h1 {
   text-align: center; 
   color: #fff;
   -webkit-text-stroke: 1.5px #05010c;
@@ -6417,18 +6365,9 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
+<link rel="stylesheet" href="assets/css/page-loader.css?v=20260831-football-v2">
 </head>
-<body class="power-page-loading" data-require-auth="true" data-require-league="true">
-
-<div class="power-page-loader" data-power-page-loader role="status" aria-live="polite">
-  <div class="power-page-loader-card">
-    <strong class="power-page-loader-title">Loading Power Cards Page...</strong>
-    <div class="power-page-loader-track" role="progressbar" aria-label="Power Cards page loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="4" data-power-page-progress>
-      <span class="power-page-loader-fill" data-power-page-loader-fill></span>
-    </div>
-    <span class="power-page-loader-percent" data-power-page-loader-percent>4%</span>
-  </div>
-</div>
+<body class="pp-page-loading" data-page-loader-title="Loading Power Cards Page..." data-require-auth="true" data-require-league="true">
 
 <button class="back-home-btn" onclick="window.location.href='league.html' + window.location.search">Back To League Hub</button>
 
@@ -10653,45 +10592,23 @@ function getNestedRecord(value) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-let powerPageLoadValue = 4;
-let powerPageLoadTimer = null;
+let powerPageLoaderApi = null;
 
 function setPowerPageLoadProgress(value) {
-  const nextValue = Math.max(powerPageLoadValue, Math.min(100, Math.round(Number(value) || 0)));
-  powerPageLoadValue = nextValue;
-  const loader = document.querySelector('[data-power-page-loader]');
-  const fill = document.querySelector('[data-power-page-loader-fill]');
-  const percent = document.querySelector('[data-power-page-loader-percent]');
-  const progress = document.querySelector('[data-power-page-progress]');
-  if (fill) fill.style.width = `${nextValue}%`;
-  if (percent) percent.textContent = `${nextValue}%`;
-  if (progress) progress.setAttribute('aria-valuenow', String(nextValue));
-  if (loader) loader.setAttribute('aria-label', `Loading Power Cards Page, ${nextValue}%`);
+  powerPageLoaderApi?.setPageLoaderProgress(value);
 }
 
-function startPowerPageLoading() {
+async function startPowerPageLoading() {
+  powerPageLoaderApi = await import('./assets/js/page-loader.js?v=20260831-football-v1');
   setPowerPageLoadProgress(8);
-  window.clearInterval(powerPageLoadTimer);
-  powerPageLoadTimer = window.setInterval(() => {
-    if (powerPageLoadValue < 88) setPowerPageLoadProgress(powerPageLoadValue + 1);
-  }, 180);
 }
 
 function finishPowerPageLoading() {
-  window.clearInterval(powerPageLoadTimer);
-  setPowerPageLoadProgress(100);
-  const loader = document.querySelector('[data-power-page-loader]');
-  window.setTimeout(() => {
-    document.body.classList.remove('power-page-loading');
-    loader?.classList.add('is-complete');
-  }, 220);
-  window.setTimeout(() => {
-    if (loader) loader.hidden = true;
-  }, 560);
+  powerPageLoaderApi?.finishPageLoader();
 }
 
 async function initializeCardPage() {
-  startPowerPageLoading();
+  await startPowerPageLoading();
   try {
     load();
   } catch (error) {
