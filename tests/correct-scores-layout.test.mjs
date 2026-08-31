@@ -14,6 +14,6 @@ test('Correct Scores keeps fixtures centred when card markers are present', () =
   assert.match(pageHtml, /\.correct-effects\s*\{[^}]*grid-column:\s*3/s);
   assert.match(pageJs, /correct-score-row\$\{effectButtons \? ' has-effects' : ''\}/);
   assert.match(pageJs, /effect-marker \$\{category\}-marker/);
-  assert.match(pageHtml, /assets\/js\/correct-scores\.js\?v=20260830-centered-effects/);
-  assert.match(worker, /assets\/js\/correct-scores\.js\?v=20260830-centered-effects/);
+  assert.match(pageHtml, /assets\/js\/correct-scores\.js\?v=20260831-football-loader-v1/);
+  assert.match(worker, /assets\/js\/correct-scores\.js\?v=20260831-football-loader-v1/);
 });

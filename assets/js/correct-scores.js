@@ -6,6 +6,7 @@ import {
   normaliseNested,
   shortTeamName,
 } from './league-context.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 
 const container = document.querySelector('[data-correct-scores]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -330,6 +331,7 @@ function render() {
 
 async function loadCorrectScores() {
   const context = await loadLeagueContext();
+  setPageLoaderProgress(32);
   if (context.error) {
     container.innerHTML = `<p class="empty">${escapeHtml(context.error)}</p>`;
     return;
@@ -379,6 +381,7 @@ async function loadCorrectScores() {
     return;
   }
 
+  setPageLoaderProgress(76);
   state.members = (members || [])
     .map((member) => {
       const profile = normaliseNested(member.profiles);
@@ -435,9 +438,10 @@ async function loadCorrectScores() {
 
   state.selectedUserId = context.user.id;
   render();
+  setPageLoaderProgress(94);
 }
 
-loadCorrectScores();
+loadCorrectScores().finally(finishPageLoader);
 
 document.querySelector('[data-close-card-effect]')?.addEventListener('click', closeEffectModal);
 document.querySelector('[data-card-effect-modal]')?.addEventListener('click', (event) => {

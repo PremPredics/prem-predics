@@ -6,6 +6,7 @@ import {
   shortTeamName,
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 import { supabase } from './supabase-client.js';
 
 const title = document.querySelector('[data-view-title]');
@@ -894,28 +895,38 @@ curseModal?.addEventListener('click', (event) => {
   }
 });
 
-const context = await loadLeagueContext();
-if (context.error) {
-  title.textContent = 'Predictions unavailable';
-  subtitle.textContent = context.error;
-  predictionList.innerHTML = '';
-} else {
-  state.user = context.user;
-  state.league = context.league;
-  leagueBackLink.href = leagueUrl('league.html', state.league.id);
-  leagueBackLink.removeAttribute('aria-disabled');
-
+async function initializeAllPredictions() {
   try {
+    const context = await loadLeagueContext();
+    setPageLoaderProgress(32);
+    if (context.error) {
+      title.textContent = 'Predictions unavailable';
+      subtitle.textContent = context.error;
+      predictionList.innerHTML = '';
+      return;
+    }
+
+    state.user = context.user;
+    state.league = context.league;
+    leagueBackLink.href = leagueUrl('league.html', state.league.id);
+    leagueBackLink.removeAttribute('aria-disabled');
     const { activeGameweek } = await loadActiveGameweek(state.league);
+    setPageLoaderProgress(52);
     await loadData(activeGameweek);
+    setPageLoaderProgress(78);
     await render();
+    setPageLoaderProgress(94);
     subscribeToForcedCurseOutcomes();
   } catch (error) {
     title.textContent = 'Predictions unavailable';
     subtitle.textContent = error.message || 'Could not load predictions.';
     predictionList.innerHTML = '';
+  } finally {
+    finishPageLoader();
   }
 }
+
+initializeAllPredictions();
 
 window.addEventListener('beforeunload', () => {
   window.clearTimeout(state.curseRefreshTimer);

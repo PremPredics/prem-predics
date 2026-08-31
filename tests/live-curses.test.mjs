@@ -110,7 +110,7 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageHtml, /\.hero-stat:nth-child\(3\) \{ --stat-color: #4ade80; \}/);
   assert.match(pageHtml, /\.hero-stat \{[^}]*min-height: 62px;/s);
   assert.match(pageHtml, /@media \(max-width: 480px\)[^]*\.hero-stat \{ min-height: 54px;/);
-  assert.match(worker, /prem-predics-pwa-v66/);
+  assert.match(worker, /prem-predics-pwa-v67/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
@@ -129,5 +129,5 @@ test('Medals page uses a compact responsive two-column mobile layout', () => {
   assert.match(medalsHtml, /min-height: 68px/);
   assert.match(medalsHtml, /data-medal-progress/);
   assert.ok(medalsHtml.indexOf('data-medal-progress') < medalsHtml.indexOf('data-earned-count'));
-  assert.match(medalsHtml, /medals\.js\?v=20260831-progress-v2/);
+  assert.match(medalsHtml, /medals\.js\?v=20260831-football-loader-v1/);
 });

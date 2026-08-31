@@ -1,0 +1,161 @@
+body.pp-page-loading {
+  overflow: hidden;
+}
+
+body.pp-page-loading::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 6998;
+  background: linear-gradient(135deg, #6946c4 0%, #9879e4 54%, #c4b2f8 100%);
+}
+
+.pp-page-loader {
+  --pp-progress: 4%;
+  position: fixed;
+  inset: 0;
+  z-index: 6999;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255,255,255,.11), transparent 30%),
+    linear-gradient(135deg, #6946c4 0%, #9879e4 54%, #c4b2f8 100%);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .28s ease, visibility .28s ease;
+}
+
+.pp-page-loader.is-complete {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pp-page-loader-card {
+  width: min(390px, 100%);
+  padding: 19px;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(255,255,255,.1), transparent 34%),
+    linear-gradient(145deg,rgba(46,16,102,.95),rgba(17,7,38,.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.15),
+    0 0 0 1px rgba(17,7,38,.2),
+    0 18px 42px rgba(17,7,38,.38);
+  text-align: center;
+}
+
+.pp-page-loader-title {
+  display: block;
+  margin-bottom: 15px;
+  color: #fff;
+  font-size: clamp(.98rem, 4vw, 1.24rem);
+  font-weight: 950;
+  line-height: 1.16;
+  text-shadow: 0 0 12px rgba(216,180,254,.58);
+}
+
+.pp-page-loader-course {
+  position: relative;
+  height: 28px;
+  margin: 0 2px;
+  padding: 8px 31px 8px 0;
+}
+
+.pp-page-loader-track {
+  position: relative;
+  height: 11px;
+  overflow: visible;
+  border: 1px solid rgba(255,255,255,.48);
+  border-radius: 999px;
+  background: rgba(8,3,20,.68);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.4);
+}
+
+.pp-page-loader-fill {
+  display: block;
+  width: var(--pp-progress);
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(90deg,#22d3ee,#a78bfa 58%,#facc15);
+  box-shadow: 0 0 11px rgba(167,139,250,.72);
+  transition: width .24s ease;
+}
+
+.pp-page-loader-ball {
+  position: absolute;
+  z-index: 3;
+  left: var(--pp-progress);
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%,-50%) rotate(var(--pp-ball-rotation, 16deg));
+  border-radius: 50%;
+  font-size: 19px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.42));
+  transition: left .24s ease, transform .48s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
+}
+
+.pp-page-loader-goal {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  width: 31px;
+  height: 25px;
+  opacity: .16;
+  transform: translateX(4px) scale(.86);
+  transform-origin: right bottom;
+  border: 3px solid rgba(255,255,255,.96);
+  border-bottom-width: 2px;
+  border-radius: 3px 3px 1px 1px;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 5px,rgba(255,255,255,.32) 5px 6px),
+    repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,255,255,.32) 5px 6px);
+  box-shadow: 0 0 10px rgba(255,255,255,.28);
+  transition: opacity .3s ease, transform .3s ease;
+}
+
+.pp-page-loader.is-near-goal .pp-page-loader-goal {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.pp-page-loader.is-scored .pp-page-loader-ball {
+  transform: translate(7px,-50%) rotate(420deg) scale(.72);
+  opacity: .82;
+}
+
+.pp-page-loader-percent {
+  display: block;
+  margin-top: 7px;
+  color: #ddd6fe;
+  font-size: .78rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .pp-page-loader { padding: 14px; }
+  .pp-page-loader-card { width: min(345px,100%); padding: 16px; border-radius: 12px; }
+  .pp-page-loader-title { margin-bottom: 11px; font-size: .94rem; }
+  .pp-page-loader-course { height: 27px; padding-right: 29px; }
+  .pp-page-loader-track { height: 10px; }
+  .pp-page-loader-goal { width: 29px; height: 23px; }
+  .pp-page-loader-ball { width: 21px; height: 21px; font-size: 18px; }
+  .pp-page-loader-percent { margin-top: 6px; font-size: .72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-page-loader,
+  .pp-page-loader-fill,
+  .pp-page-loader-ball,
+  .pp-page-loader-goal {
+    transition-duration: .01ms !important;
+  }
+}

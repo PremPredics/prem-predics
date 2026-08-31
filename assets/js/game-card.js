@@ -7,6 +7,7 @@ import {
   shortTeamName,
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 
 const leagueLink = document.querySelector('[data-league-link]');
 const content = document.querySelector('[data-game-card-content]');
@@ -1198,6 +1199,7 @@ async function clearPrediction(row, roundId, gameweekId) {
 
 async function boot() {
   const context = await loadLeagueContext();
+  setPageLoaderProgress(30);
   if (context.error) {
     content.innerHTML = `<p class="state-text">${escapeHtml(context.error)}</p>`;
     return;
@@ -1214,6 +1216,7 @@ async function boot() {
     ]);
 
     state.activeGameweek = activeGameweek;
+    setPageLoaderProgress(52);
 
     if (!state.activeGameweek) {
       renderNoRounds();
@@ -1221,6 +1224,7 @@ async function boot() {
     }
 
     await loadRounds();
+    setPageLoaderProgress(70);
     await Promise.all([
       loadPredictionsAndResults(),
       loadHistoryData(),
@@ -1228,13 +1232,14 @@ async function boot() {
     ]);
     bootComplete = true;
     renderRounds();
+    setPageLoaderProgress(94);
   } catch (error) {
     bootComplete = false;
     content.innerHTML = `<p class="state-text">${escapeHtml(error.message || 'Could not load Game Card page.')}</p>`;
   }
 }
 
-boot();
+boot().finally(finishPageLoader);
 
 closeCardButton?.addEventListener('click', closeCardModal);
 cardModal?.addEventListener('click', (event) => {

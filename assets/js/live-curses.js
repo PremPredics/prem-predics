@@ -2,6 +2,7 @@ import { supabase } from './supabase-client.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 import { escapeHtml, leagueUrl, loadLeagueContext, normaliseNested } from './league-context.js';
 import { currentLiveCurseEffects } from './live-curses-model.js?v=20260831-cache-hotfix';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 
 const board = document.querySelector('[data-curse-board]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -457,6 +458,7 @@ function subscribe() {
 
 async function init() {
   const context = await loadLeagueContext();
+  setPageLoaderProgress(30);
   if (context.error) {
     renderError(context.error);
     return;
@@ -469,7 +471,9 @@ async function init() {
     if (!activeGameweek) throw new Error('No current Gameweek was found for this private league.');
     state.activeGameweek = activeGameweek;
     gameweekLabel.textContent = `GW${activeGameweek.gameweek_number}`;
+    setPageLoaderProgress(54);
     await loadLiveCurses();
+    setPageLoaderProgress(94);
     subscribe();
   } catch (error) {
     renderError(error.message || 'Live Curses could not be loaded.');
@@ -482,4 +486,4 @@ window.addEventListener('beforeunload', () => {
   if (state.channel) supabase.removeChannel(state.channel);
 });
 
-init();
+init().finally(finishPageLoader);

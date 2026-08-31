@@ -63,7 +63,7 @@ test('League Hub reference accents and destination navigation are streamlined', 
   assert.match(leagueHtml, /\.toolbar a,\s*\.toolbar button \{[^}]*border: 1px solid rgba\(255,255,255,\.78\);/s);
   assert.match(leagueHtml, /\.toolbar a\.how-to-play-link \{[^}]*border-color: rgba\(255,255,255,\.78\);/s);
   assert.match(leagueHtml, /\.toolbar button\.sign-out-btn \{[^}]*border: 1px solid rgba\(255,255,255,\.78\);/s);
-  assert.match(serviceWorker, /prem-predics-pwa-v66/);
+  assert.match(serviceWorker, /prem-predics-pwa-v67/);
   assert.match(serviceWorker, /league\.js\?v=20260831-page-loader-v1/);
 });
 
@@ -78,10 +78,10 @@ test('League Hub masks first load and refresh with a progressive full-page loade
 });
 
 test('direct League Hub navigation cannot reuse stale history-page modules', () => {
-  assert.match(allPredictionsHtml, /all-predictions\.js\?v=20260831-direct-hub-v2/);
-  assert.match(allStarMenHtml, /all-star-men\.js\?v=20260831-direct-hub-v2/);
-  assert.match(serviceWorker, /all-predictions\.js\?v=20260831-direct-hub-v2/);
-  assert.match(serviceWorker, /all-star-men\.js\?v=20260831-direct-hub-v2/);
+  assert.match(allPredictionsHtml, /all-predictions\.js\?v=20260831-football-loader-v1/);
+  assert.match(allStarMenHtml, /all-star-men\.js\?v=20260831-football-loader-v1/);
+  assert.match(serviceWorker, /all-predictions\.js\?v=20260831-football-loader-v1/);
+  assert.match(serviceWorker, /all-star-men\.js\?v=20260831-football-loader-v1/);
   assert.doesNotMatch(allPredictionsJs, /predictionsBackLink/);
   assert.doesNotMatch(allStarMenJs, /starBackLink/);
 });
@@ -89,4 +89,9 @@ test('direct League Hub navigation cannot reuse stale history-page modules', () 
 test('Make Predictions and Star Man return buttons stay centred on mobile', () => {
   assert.match(predictionsHtml, /@media \(max-width: 720px\)[^]*\.toolbar \{[^}]*grid-template-columns: minmax\(0, 230px\);/s);
   assert.match(starManHtml, /@media \(max-width: 720px\)[^]*\.toolbar \{[^}]*grid-template-columns: minmax\(0, 230px\);/s);
+});
+
+test('history page return buttons use one centred mobile column', () => {
+  assert.match(allPredictionsHtml, /@media \(max-width: 650px\)[^]*\.toolbar \{[^}]*grid-template-columns: minmax\(0, 230px\);/s);
+  assert.match(allStarMenHtml, /@media \(max-width: 650px\)[^]*\.toolbar \{[^}]*grid-template-columns: minmax\(0, 230px\);/s);
 });

@@ -1,4 +1,5 @@
 import { supabase } from './supabase-client.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 import {
   escapeHtml,
   formatDateTime,
@@ -1408,6 +1409,7 @@ curseModal?.addEventListener('click', (event) => {
 
 async function boot() {
   const context = await loadLeagueContext();
+  setPageLoaderProgress(30);
   if (context.error) {
     leagueTitle.textContent = 'Predictions unavailable';
     gameweekSummary.textContent = context.error;
@@ -1425,6 +1427,7 @@ async function boot() {
   try {
     const { activeGameweek } = await loadActiveGameweek(state.league);
     state.activeGameweek = activeGameweek;
+    setPageLoaderProgress(50);
 
     if (!state.activeGameweek) {
       gameweekSummary.textContent = 'No active gameweek found for this league.';
@@ -1435,12 +1438,14 @@ async function boot() {
     }
 
     await Promise.all([loadTeams(), loadFixtures(), loadActivePredictionEffects()]);
+    setPageLoaderProgress(72);
     await loadExistingPredictions();
     await loadCurseOverridePredictions();
     await clearDeletedMatchPrimaryPredictions();
     leagueTitle.textContent = `Gameweek ${state.activeGameweek.gameweek_number} Predictions`;
     gameweekSummary.textContent = 'predictions lock 90 mins before kick-off.';
     render();
+    setPageLoaderProgress(94);
   } catch (error) {
     leagueTitle.textContent = 'Predictions unavailable';
     gameweekSummary.textContent = error.message || 'Could not load predictions.';
@@ -1450,4 +1455,4 @@ async function boot() {
   }
 }
 
-boot();
+boot().finally(finishPageLoader);

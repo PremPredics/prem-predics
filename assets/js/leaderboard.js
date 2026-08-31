@@ -4,6 +4,7 @@ import {
   leagueUrl,
   loadLeagueContext,
 } from './league-context.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 
 const body = document.querySelector('[data-leaderboard-body]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -128,6 +129,7 @@ function render(rows, profilesById) {
 
 async function loadLeaderboard() {
   const context = await loadLeagueContext();
+  setPageLoaderProgress(36);
   if (context.error) {
     body.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(context.error)}</td></tr>`;
     return;
@@ -146,6 +148,7 @@ async function loadLeaderboard() {
     body.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(error.message)}</td></tr>`;
     return;
   }
+  setPageLoaderProgress(72);
 
   const userIds = (rows || []).map((row) => row.user_id);
   const profilesById = new Map();
@@ -163,6 +166,7 @@ async function loadLeaderboard() {
 
   currentProfilesById = profilesById;
   render(rows || [], profilesById);
+  setPageLoaderProgress(94);
 }
 
 function refreshLeaderboard() {
@@ -177,7 +181,7 @@ function refreshLeaderboard() {
   return leaderboardLoadPromise;
 }
 
-refreshLeaderboard();
+refreshLeaderboard().finally(finishPageLoader);
 
 window.addEventListener('focus', () => {
   refreshLeaderboard();

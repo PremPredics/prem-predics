@@ -9,6 +9,7 @@ import {
   STAR_MAN_GOAL_MEDAL_THRESHOLDS,
   UC_POINT_MEDAL_THRESHOLDS,
 } from './medal-progress.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 
 const earnedCount = document.querySelector('[data-earned-count]');
 const medalList = document.querySelector('[data-medal-list]');
@@ -114,6 +115,7 @@ function isMissingRpcFunction(error) {
 
 async function loadMedals() {
   const context = await loadLeagueContext();
+  setPageLoaderProgress(30);
   if (context.error) {
     medalList.innerHTML = `<p class="empty">${escapeHtml(context.error)}</p>`;
     if (medalProgressPanel) medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Medal progress is unavailable.</span>';
@@ -142,6 +144,7 @@ async function loadMedals() {
     return;
   }
 
+  setPageLoaderProgress(56);
   const [
     { data: tokens, error: tokenError },
     { data: ranking, error: rankingError },
@@ -166,6 +169,7 @@ async function loadMedals() {
     return;
   }
 
+  setPageLoaderProgress(78);
   const earnedTokens = (tokens || []).filter((token) => token.status !== 'void');
   if (rankingError) {
     medalProgressPanel.innerHTML = '<span class="medal-progress-loading">Medal progress is temporarily unavailable.</span>';
@@ -202,6 +206,7 @@ async function loadMedals() {
   }
 
   renderTokens(tokens || [], wonGameCardNames);
+  setPageLoaderProgress(94);
 }
 
-loadMedals();
+loadMedals().finally(finishPageLoader);

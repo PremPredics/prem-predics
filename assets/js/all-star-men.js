@@ -4,6 +4,7 @@
   loadLeagueContext,
   normaliseNested,
 } from './league-context.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 import { supabase } from './supabase-client.js';
 
 const title = document.querySelector('[data-view-title]');
@@ -561,23 +562,32 @@ starCurseModal?.addEventListener('click', (event) => {
   }
 });
 
-const context = await loadLeagueContext();
-if (context.error) {
-  title.textContent = 'Star Men unavailable';
-  subtitle.textContent = context.error;
-  starMenList.innerHTML = '';
-} else {
-  state.user = context.user;
-  state.league = context.league;
-  leagueBackLink.href = leagueUrl('league.html', state.league.id);
-
+async function initializeAllStarMen() {
   try {
+    const context = await loadLeagueContext();
+    setPageLoaderProgress(36);
+    if (context.error) {
+      title.textContent = 'Star Men unavailable';
+      subtitle.textContent = context.error;
+      starMenList.innerHTML = '';
+      return;
+    }
+
+    state.user = context.user;
+    state.league = context.league;
+    leagueBackLink.href = leagueUrl('league.html', state.league.id);
     await loadData();
+    setPageLoaderProgress(74);
     await render();
+    setPageLoaderProgress(94);
   } catch (error) {
     title.textContent = 'Star Men unavailable';
     subtitle.textContent = error.message || 'Could not load Star Men.';
     starMenList.innerHTML = '';
+  } finally {
+    finishPageLoader();
   }
 }
+
+initializeAllStarMen();
 

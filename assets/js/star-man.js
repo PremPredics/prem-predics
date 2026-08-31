@@ -1,4 +1,5 @@
 import { supabase } from './supabase-client.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 import {
   escapeHtml,
   formatDateTime,
@@ -1690,6 +1691,7 @@ async function boot() {
   wirePlayerPreviewModal();
 
   const context = await loadLeagueContext();
+  setPageLoaderProgress(30);
   if (context.error) {
     leagueTitle.textContent = 'Star Man unavailable';
     gameweekSummary.textContent = context.error;
@@ -1705,6 +1707,7 @@ async function boot() {
   try {
     const { activeGameweek } = await loadActiveGameweek(state.league);
     state.activeGameweek = activeGameweek;
+    setPageLoaderProgress(48);
 
     if (!state.activeGameweek) {
       gameweekSummary.textContent = 'No active gameweek found for this league.';
@@ -1713,6 +1716,7 @@ async function boot() {
     }
 
     await Promise.all([loadTeams(), loadPlayers(), loadFixtures(), loadPicks(), loadEffects()]);
+    setPageLoaderProgress(72);
     await loadRestrictionData();
     await autoReplaceInvalidPrimaryPick();
     await cancelStarManPickDependentPowersIfNoPrimaryPick();
@@ -1728,6 +1732,7 @@ async function boot() {
     renderStarManHistory();
     renderSearch('primary');
     renderSearch('super_duo');
+    setPageLoaderProgress(94);
 
     state.deadlineRefreshTimer = window.setInterval(() => {
       applySlotSearchState('primary');
@@ -1752,4 +1757,4 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-boot();
+boot().finally(finishPageLoader);
