@@ -4,7 +4,7 @@ import {
   loadLeagueContext,
 } from './league-context.js';
 import { isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
-import { currentActiveCurseEffects } from './live-curses-model.js';
+import { currentLiveCurseEffects } from './live-curses-model.js?v=20260831-cache-hotfix';
 import {
   nextMedalProgress,
   STAR_MAN_GOAL_MEDAL_THRESHOLDS,
@@ -156,7 +156,15 @@ async function loadOwnLiveCurseCount(league, user, activeGameweek) {
     String(gameweek.gameweek_id),
     Number(gameweek.gameweek_number),
   ]));
-  return currentActiveCurseEffects(effects, activeGameweek, gameweekNumbers).length;
+  return currentLiveCurseEffects(effects, activeGameweek, gameweekNumbers)
+    .filter((effect) => {
+      const definition = Array.isArray(effect?.card_definitions)
+        ? effect.card_definitions[0]
+        : effect?.card_definitions;
+      const effectKey = effect?.payload?.effect_key || definition?.effect_key || '';
+      return !(String(effect?.status || '').toLowerCase() === 'resolved' && effectKey === 'curse_thief');
+    })
+    .length;
 }
 
 async function renderOwnLiveCurseAlert(league, user, activeGameweek) {

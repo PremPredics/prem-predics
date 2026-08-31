@@ -1,7 +1,7 @@
 import { supabase } from './supabase-client.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 import { escapeHtml, leagueUrl, loadLeagueContext, normaliseNested } from './league-context.js';
-import { currentLiveCurseEffects, isCompletedThief } from './live-curses-model.js';
+import { currentLiveCurseEffects } from './live-curses-model.js?v=20260831-cache-hotfix';
 
 const board = document.querySelector('[data-curse-board]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -54,6 +54,11 @@ function sameId(a, b) {
 
 function effectDefinition(effect) {
   return normaliseNested(effect?.card_definitions) || {};
+}
+
+function isCompletedThief(effect) {
+  const key = effect?.payload?.effect_key || effectDefinition(effect).effect_key || '';
+  return String(effect?.status || '').toLowerCase() === 'resolved' && key === 'curse_thief';
 }
 
 function effectKey(effect) {

@@ -83,7 +83,10 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.doesNotMatch(pageHtml, /\\1F525|🔥/);
   assert.match(leagueJs, /live-curse-alert-icon[^]*&#9760;/);
   assert.match(leagueJs, /loadOwnLiveCurseCount[^]*\.in\('status', \['active', 'resolved'\]\)/);
-  assert.match(leagueJs, /currentActiveCurseEffects/);
+  assert.match(leagueJs, /currentLiveCurseEffects/);
+  assert.doesNotMatch(leagueJs, /currentActiveCurseEffects/);
+  assert.match(leagueJs, /live-curses-model\.js\?v=20260831-cache-hotfix/);
+  assert.match(pageJs, /live-curses-model\.js\?v=20260831-cache-hotfix/);
   assert.match(pageHtml, /\.curse-effects-grid \{ display: grid; grid-template-columns: minmax\(0,1fr\)/);
   assert.doesNotMatch(pageJs, /--effect-columns/);
   assert.match(pageJs, /sortedEffects\.map\(curseCardMarkup\)/);
@@ -102,7 +105,7 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageJs, /activeEffects = state\.effects\.filter/);
   assert.match(pageHtml, /\.curse-impact \{[^}]*background: linear-gradient\(110deg,rgba\(127,29,29,.55\),rgba\(76,5,25,.34\)\)/s);
   assert.match(pageHtml, /\.curse-impact\.is-locked \{[^}]*background: linear-gradient\(110deg,rgba\(127,29,29,.55\),rgba\(76,5,25,.34\)\)/s);
-  assert.match(worker, /prem-predics-pwa-v58/);
+  assert.match(worker, /prem-predics-pwa-v59/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);
