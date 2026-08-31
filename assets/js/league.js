@@ -786,7 +786,7 @@ async function renderLeague(league, user) {
       tier: 'primary',
       copy: `Gameweek ${gameweekNumber} predictions`,
       options: [
-        { page: 'predictions.html', title: 'Make Predictions', detail: 'Submit or edit your current Gameweek score predictions.', accent: '#22d3ee' },
+        { page: 'predictions.html', title: 'Make Predictions', detail: `Submit or Edit your GW${gameweekNumber} Predictions`, accent: '#22d3ee' },
         { page: 'all-predictions.html', title: 'View All Player Predictions', detail: 'View history of all user predictions for all Gameweeks.', accent: '#facc15' },
       ],
     },
@@ -798,8 +798,8 @@ async function renderLeague(league, user) {
       tier: 'primary',
       copy: `Gameweek ${gameweekNumber} Star Man`,
       options: [
-        { page: 'star-man.html', title: 'Pick Star Man', detail: 'Submit or edit your current Gameweek Star Man pick.', accent: '#facc15' },
-        { page: 'all-star-men.html', title: 'View All Player Star Men', detail: 'View history of all user Star Man picks for all Gameweeks.', accent: '#c4b5fd' },
+        { page: 'star-man.html', title: 'Pick Star Man', detail: `Submit or Edit your GW${gameweekNumber} Star Man`, accent: '#22d3ee' },
+        { page: 'all-star-men.html', title: 'View All Player Star Men', detail: 'View history of all user Star Man picks for all Gameweeks.', accent: '#facc15' },
       ],
     },
     {

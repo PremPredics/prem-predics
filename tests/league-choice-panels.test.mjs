@@ -14,13 +14,18 @@ test('League Hub opens Predictions and Star Man choices in an accessible blurred
   assert.match(leagueHtml, /backdrop-filter: blur\(10px\)/);
   assert.match(leagueHtml, /\.hub-choice-overlay \{ place-items: center; padding: 14px; \}/);
   assert.match(leagueHtml, /\.hub-choice-dialog \{ width: min\(355px,100%\); padding: 10px;/);
-  assert.match(leagueHtml, /\.hub-choice-back \{ position: absolute; top: 0; right: 0;/);
+  assert.match(leagueHtml, /\.hub-choice-back \{[^}]*min-width: 88px;[^}]*margin: 11px auto 0;[^}]*font-size: \.8rem;/s);
   assert.match(leagueHtml, /grid-template-rows: repeat\(2,70px\)/);
+  assert.doesNotMatch(leagueHtml, /Choose an action/);
+  assert.ok(leagueHtml.indexOf('data-hub-choice-options') < leagueHtml.lastIndexOf('class="hub-choice-back"'));
   assert.match(leagueHtml, /button\.play-card \{[^}]*-webkit-appearance: none;[^}]*appearance: none;/s);
   assert.match(leagueHtml, /\.play-card \{[^}]*-webkit-tap-highlight-color: transparent;/s);
   assert.match(leagueHtml, /button\.play-card:focus-visible/);
   assert.match(leagueJs, /menu: 'predictions'/);
   assert.match(leagueJs, /detail: `Submit Predictions for GW\$\{gameweekNumber\}`/);
+  assert.match(leagueJs, /detail: `Submit or Edit your GW\$\{gameweekNumber\} Predictions`, accent: '#22d3ee'/);
+  assert.match(leagueJs, /detail: `Submit or Edit your GW\$\{gameweekNumber\} Star Man`, accent: '#22d3ee'/);
+  assert.match(leagueJs, /title: 'View All Player Star Men'[^]*?accent: '#facc15'/);
   assert.match(leagueJs, /menu: 'star-man'/);
   assert.match(leagueJs, /data-choice-menu=/);
   assert.match(leagueJs, /openHubChoicePanel/);
@@ -45,7 +50,10 @@ test('League Hub reference accents and destination navigation are streamlined', 
   for (const script of ['predictions.js', 'all-predictions.js', 'star-man.js', 'all-star-men.js']) {
     assert.doesNotMatch(read(`../assets/js/${script}`), /(?:prediction-hub|star-man-hub)\.html/);
   }
-  assert.match(leagueHtml, /league\.js\?v=20260831-choice-panels-v3/);
-  assert.match(serviceWorker, /prem-predics-pwa-v62/);
-  assert.match(serviceWorker, /league\.js\?v=20260831-choice-panels-v3/);
+  assert.match(leagueHtml, /league\.js\?v=20260831-choice-panels-v4/);
+  assert.match(leagueHtml, /\.toolbar \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\) minmax\(0, 1\.18fr\) minmax\(92px, \.72fr\);/s);
+  assert.match(leagueHtml, /@media \(max-width: 650px\)[^]*\.toolbar \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/s);
+  assert.match(leagueHtml, /\.toolbar a\[data-profile-link\] \{[^}]*grid-column: 1 \/ 3;[^}]*grid-row: 2;/s);
+  assert.match(serviceWorker, /prem-predics-pwa-v64/);
+  assert.match(serviceWorker, /league\.js\?v=20260831-choice-panels-v4/);
 });
