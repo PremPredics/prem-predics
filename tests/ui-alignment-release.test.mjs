@@ -55,7 +55,7 @@ test('Correct Scores uses neutral lilac badges and compact centred fixture rows'
 test('Game Card help and PWA cache match the released rules and assets', () => {
   assert.match(howToPlay, /fewest missed submissions, most exact predictions, lowest total absolute distance, most weekly wins, lowest total of the shared weekly ranks/);
   assert.match(howToPlay, /In 7-10 player leagues, 1st earns 2 and 2nd earns 1/);
-  assert.match(worker, /prem-predics-pwa-v75/);
+  assert.match(worker, /prem-predics-pwa-v76/);
   assert.match(worker, /leagues-slick\.css\?v=20260901-v1/);
   assert.match(worker, /correct-scores-slick\.css\?v=20260901-v1/);
   assert.match(worker, /index-actions\.js\?v=20260901-home-loader-v1/);

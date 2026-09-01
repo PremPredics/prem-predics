@@ -235,6 +235,6 @@ test('compact UI exposes award places, one-line medal label and revised card cop
   assert.match(gameCardJs, /<span>Rank<\/span>/);
   assert.match(gameCardCss, /\.history-result-row\.super-medal-place/);
   assert.match(starManJs, /playerVisualMarkup\(player, \{ showCountry: mode !== 'search' \}\)/);
-  assert.match(worker, /prem-predics-pwa-v75/);
+  assert.match(worker, /prem-predics-pwa-v76/);
   assert.match(worker, /game-card-awards\.js\?v=20260901-v3/);
 });

@@ -112,14 +112,23 @@ test('Power of the Veto leaves the visible hand immediately and vetoed curses oc
   assert.match(powerCards, /countsForGameweekCap = status === 'active'\s*\|\| status === 'vetoed'/s);
 });
 
-test('Game Card page uses the slick layout and publishes transparent ranking rules', () => {
+test('current Game Card leaderboard omits the ranking strip while completed history keeps it', () => {
   assert.match(gameCardHtml, /class="pp-page-loading slick-game-card"/);
   assert.match(gameCardHtml, /game-card-slick\.css\?v=20260901-v3/);
-  assert.match(gameCardHtml, /game-card\.js\?v=20260901-awards-v3/);
+  assert.match(gameCardHtml, /game-card\.js\?v=20260901-awards-v4/);
   assert.match(gameCardJs, /Fewest missed picks/);
   assert.match(gameCardJs, /Lowest weekly-rank total/);
   assert.match(gameCardJs, /Most exact picks/);
   assert.match(gameCardJs, /Stored draw if still level/);
+  const functionSource = (name) => {
+    const start = gameCardJs.indexOf(`function ${name}(`);
+    const end = gameCardJs.indexOf('\nfunction ', start + 1);
+    return start >= 0 ? gameCardJs.slice(start, end >= 0 ? end : undefined) : '';
+  };
+  const activeLeaderboard = functionSource('renderActiveLeaderboardDetail');
+  const historicalLeaderboard = functionSource('renderHistoryDetail');
+  assert.doesNotMatch(activeLeaderboard, /rankingRulesMarkup\(\)/);
+  assert.match(historicalLeaderboard, /rankingRulesMarkup\(\)/);
   assert.match(gameCardCss, /body\.slick-game-card \.game-card-ranking-rules/);
   assert.match(gameCardCss, /body\.slick-game-card \.gameweek-row\.current-gameweek/);
 });
@@ -135,7 +144,7 @@ test('requested League Hub return buttons share one fixed crisp control', () => 
   assert.match(returnCss, /width: min\(220px, 100%\)/);
   assert.match(returnCss, /border: 1px solid rgba\(255,255,255,\.86\) !important/);
   assert.match(powerCards, /\.back-home-btn \{[^]*border: 1px solid rgba\(255, 255, 255, 0\.86\);/s);
-  assert.match(worker, /prem-predics-pwa-v75/);
+  assert.match(worker, /prem-predics-pwa-v76/);
   assert.match(worker, /hub-return-button\.css\?v=20260901-v1/);
   assert.match(worker, /game-card-slick\.css\?v=20260901-v3/);
 });

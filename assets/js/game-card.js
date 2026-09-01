@@ -880,7 +880,6 @@ function renderActiveLeaderboardDetail(round) {
       <h3 class="history-detail-title">Current ${escapeHtml(cardName)} Leaderboard</h3>
       <p class="history-detail-description">Your picks show now. Rivals reveal after each GW locks.</p>
       ${awardSummaryMarkup()}
-      ${rankingRulesMarkup()}
       <div class="history-result-row history-result-head">
         <span>Player</span>
         <span>Rank</span>

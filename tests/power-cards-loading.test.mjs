@@ -18,6 +18,6 @@ test('Power Cards stays covered by a progressive loading screen until its data i
   assert.match(page, /trackedPowerPageLoad\(refreshHands\(\{ force: true \}\)\)/);
   assert.match(page, /trackedPowerPageLoad\(loadActiveGameCard\(\)\)/);
   assert.match(page, /applyCardPageVisibility\(\);\s*finishPowerPageLoading\(\);/);
-  assert.match(worker, /prem-predics-pwa-v75/);
+  assert.match(worker, /prem-predics-pwa-v76/);
   assert.match(worker, /\.\/power-cards\.html/);
 });
