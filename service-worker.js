@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v71';
+const CACHE_VERSION = 'prem-predics-pwa-v72';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -40,9 +40,11 @@ const APP_SHELL = [
   './assets/css/pwa-install.css',
   './assets/css/password-reset.css',
   './assets/css/page-loader.css?v=20260831-football-v2',
-  './assets/css/slick-pages.css?v=20260901-slick-v2',
+  './assets/css/slick-pages.css?v=20260901-slick-v3',
   './assets/css/hub-return-button.css?v=20260901-v1',
   './assets/css/game-card-slick.css?v=20260901-v1',
+  './assets/css/leagues-slick.css?v=20260901-v1',
+  './assets/css/correct-scores-slick.css?v=20260901-v1',
   './assets/js/all-predictions.js?v=20260831-football-loader-v1',
   './assets/js/all-star-men.js?v=20260831-football-loader-v1',
   './assets/js/capacitor-app.js',
@@ -54,7 +56,7 @@ const APP_SHELL = [
   './assets/js/game-card.js?v=20260901-ranking-v1',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js?v=20260828-player-pool',
-  './assets/js/index-actions.js?v=20260831-slick-v1',
+  './assets/js/index-actions.js?v=20260901-home-loader-v1',
   './assets/js/index-admin.js?v=20260828-startup-reliability',
   './assets/js/async-read.js',
   './assets/js/load-all-rows.js',
@@ -62,7 +64,7 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260831-football-loader-v1',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260901-vetoed-v1',
+  './assets/js/league.js?v=20260901-full-capacity-v1',
   './assets/js/live-curses.js?v=20260901-vetoed-v1',
   './assets/js/live-curses-model.js?v=20260901-vetoed-v1',
   './assets/js/medal-progress.js',

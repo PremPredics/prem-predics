@@ -8,6 +8,7 @@ const loaderCss = read('../assets/css/page-loader.css');
 const worker = read('../service-worker.js');
 
 const pages = [
+  ['index.html', 'index-actions.js', '20260901-home-loader-v1'],
   ['all-predictions.html', 'all-predictions.js', '20260831-football-loader-v1'],
   ['all-star-men.html', 'all-star-men.js', '20260831-football-loader-v1'],
   ['leaderboard.html', 'leaderboard.js', '20260831-football-loader-v1'],
@@ -17,7 +18,7 @@ const pages = [
   ['live-curses.html', 'live-curses.js', '20260901-vetoed-v1'],
   ['star-man.html', 'star-man.js', '20260901-slick-v2'],
   ['predictions.html', 'predictions.js', '20260831-football-loader-v1'],
-  ['league.html', 'league.js', '20260901-vetoed-v1'],
+  ['league.html', 'league.js', '20260901-full-capacity-v1'],
   ['statistics.html', 'statistics.js', '20260831-slick-v1'],
 ];
 
@@ -57,7 +58,7 @@ test('loader rolls a football into a revealed goal and always has a safety compl
 });
 
 test('PWA cache includes the complete shared loader release', () => {
-  assert.match(worker, /prem-predics-pwa-v71/);
+  assert.match(worker, /prem-predics-pwa-v72/);
   assert.match(worker, /page-loader\.css\?v=20260831-football-v2/);
   assert.match(worker, /page-loader\.js\?v=20260831-football-v1/);
   for (const [, scriptFile, version] of pages) {

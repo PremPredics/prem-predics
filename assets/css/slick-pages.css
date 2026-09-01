@@ -192,6 +192,21 @@ body.slick-home .menu button::after { inset: auto 14px 8px; height: 2px; }
 body.slick-home .menu svg { width: 24px; height: 24px; }
 body.slick-home .menu .icon-container:last-of-type { display: none; }
 body.slick-home .menu button.admin-access { min-height: 70px; grid-column: 1 / -1; }
+body.slick-home .menu button.admin-access {
+  background:
+    radial-gradient(circle at 16% 0%,rgba(255,255,255,.32),transparent 26%),
+    linear-gradient(135deg,#fff1a8 0%,#facc15 43%,#d97706 100%);
+  border-color: rgba(255,248,198,.94);
+  color: #2b1800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.62),0 0 18px rgba(250,204,21,.48),0 8px 18px rgba(120,53,15,.24);
+  text-shadow: 0 1px 0 rgba(255,255,255,.45);
+}
+body.slick-home .menu button.admin-access svg { fill: #3f2400; filter: drop-shadow(0 1px 0 rgba(255,255,255,.45)); }
+body.slick-home .menu button.admin-access:hover {
+  background:
+    radial-gradient(circle at 16% 0%,rgba(255,255,255,.42),transparent 26%),
+    linear-gradient(135deg,#fff8ce 0%,#fde047 43%,#ea9d08 100%);
+}
 
 /* Star Man */
 body.slick-star-man header,

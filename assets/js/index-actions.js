@@ -3,6 +3,7 @@ import { loadActiveGameweek } from './gameweek-context.js';
 import { supabase } from './supabase-client.js';
 import { getSessionUser, onSessionUserChange } from './session-user.js';
 import { boundedRead, readData } from './async-read.js';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 
 const panel = document.querySelector('[data-home-action-panel]');
 const list = document.querySelector('[data-home-action-list]');
@@ -17,6 +18,7 @@ let homeLastRefresh = 0;
 let homeRetryTimer = null;
 let homeRetryAttempts = 0;
 let homeRows = new Map();
+let initialHomeLoad = true;
 const HOME_LEAGUE_CACHE_PREFIX = 'premPredicsHomeLeagues:v1:';
 
 function injectHomeActionStyles() {
@@ -478,6 +480,7 @@ function reportHomeError(error) {
 }
 
 async function loadHomeActions(generation) {
+  setPageLoaderProgress(18);
   const user = await getSessionUser();
   if (generation !== homeGeneration) return;
   if (!user) {
@@ -487,6 +490,7 @@ async function loadHomeActions(generation) {
     panel.hidden = true;
     return;
   }
+  setPageLoaderProgress(30);
   if (homeUserId !== user.id) {
     homeUserId = user.id;
     homeRows = new Map(cachedHomeLeagues(user.id).map((league) => [league.id, pendingRow(league)]));
@@ -500,6 +504,7 @@ async function loadHomeActions(generation) {
     .select('competitions(id, name, season_id, starts_gameweek_id)')
     .eq('user_id', user.id).order('joined_at'));
   if (!current()) return;
+  setPageLoaderProgress(52);
   const leagues = (memberships || []).map((row) => normaliseNested(row.competitions)).filter(Boolean);
   cacheHomeLeagues(user.id, leagues);
   homeRows = new Map(leagues.map((league) => [league.id, pendingRow(league)]));
@@ -509,6 +514,7 @@ async function loadHomeActions(generation) {
     return;
   }
   renderHomeRows(); // League links appear before any deadlines/picks/rounds finish.
+  setPageLoaderProgress(64);
   const contexts = new Map();
   const gameweeksBySeason = new Map();
   let hadError = false;
@@ -564,6 +570,7 @@ async function loadHomeActions(generation) {
     }
   });
   await Promise.allSettled([counts, ...tasks]);
+  if (current()) setPageLoaderProgress(92);
   if (current() && !hadError) {
     homeRetryAttempts = 0;
     window.clearTimeout(homeRetryTimer);
@@ -576,10 +583,18 @@ function boot() {
   if (homeRefresh) return homeRefresh;
   homeLastRefresh = Date.now();
   const generation = homeGeneration;
+  const finishingInitialLoad = initialHomeLoad;
   let request;
   request = loadHomeActions(generation).catch((error) => {
     if (generation === homeGeneration) reportHomeError(error);
-  }).finally(() => { if (homeRefresh === request) homeRefresh = null; });
+  }).finally(() => {
+    if (homeRefresh === request) homeRefresh = null;
+    if (finishingInitialLoad) {
+      initialHomeLoad = false;
+      setPageLoaderProgress(96);
+      void finishPageLoader();
+    }
+  });
   homeRefresh = request;
   return request;
 }

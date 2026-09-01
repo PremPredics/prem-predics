@@ -380,6 +380,7 @@ main {
   font-size: 9.5px;
   line-height: 1.08;
 }
+.join-code[hidden] { display: none !important; }
 
 .deadline-card.prediction-lock-progress .deadline-action {
   justify-self: start;
@@ -749,8 +750,9 @@ body.choice-panel-open { overflow: hidden; }
 .medal-progress-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
 .medal-progress-card { --medal-color:#facc15; min-width: 0; padding: 10px; border: 1px solid color-mix(in srgb,var(--medal-color) 34%,rgba(216,180,254,.2)); border-radius: 9px; background: rgba(17,7,38,.52); }
 .medal-progress-card.goal-progress { --medal-color:#4ade80; }
-.medal-progress-top,.medal-progress-copy { display: flex; align-items: center; justify-content: space-between; gap: 7px; min-width: 0; }
-.medal-progress-top span { min-width: 0; overflow: hidden; color: var(--medal-color); font-size: .72rem; font-weight: 950; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.medal-progress-top { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 7px; min-height: 1.75em; min-width: 0; }
+.medal-progress-copy { display: flex; align-items: center; justify-content: space-between; gap: 7px; min-width: 0; }
+.medal-progress-top span { min-width: 0; display: flex; align-items: center; overflow: visible; color: var(--medal-color); font-size: .72rem; font-weight: 950; line-height: 1.05; text-overflow: clip; text-transform: uppercase; white-space: normal; }
 .medal-progress-top i { margin-right: 5px; font-style: normal; }
 .medal-progress-top strong { color: #fff; font-size: .82rem; }
 .medal-progress-copy { margin: 5px 0 6px; }
@@ -1062,7 +1064,7 @@ footer {
         <span data-gameweek-label>Checking gameweek...</span>
         <strong data-gameweek-countdown>--d --h --m --s</strong>
       </div>
-      <div class="join-code">
+      <div class="join-code" data-join-code-panel>
         <span>Join Code:</span>
         <strong data-join-code>...</strong>
         <button class="copy-code-btn" type="button" data-copy-join-code>Copy</button>
@@ -1099,7 +1101,7 @@ footer {
 
 <script type="module" src="assets/js/page-loader.js?v=20260831-football-v1"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260901-vetoed-v1"></script>
+<script type="module" src="assets/js/league.js?v=20260901-full-capacity-v1"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

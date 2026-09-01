@@ -1,0 +1,141 @@
+/* Correct Scores aligned with the compact League Hub visual language. */
+body.slick-correct-scores {
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.2),transparent 25%),
+    radial-gradient(circle at 90% 34%,rgba(76,29,149,.2),transparent 30%),
+    linear-gradient(135deg,#7358cf 0%,#a78aeb 54%,#d1c2fb 100%);
+}
+
+body.slick-correct-scores header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.38);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,255,255,.16),transparent 50%),
+    linear-gradient(90deg,#6d4bc4,#9271dc 54%,#b59fec);
+  box-shadow: 0 8px 20px rgba(17,7,38,.22);
+}
+body.slick-correct-scores header h1 { font-size: clamp(1.7rem,4vw,2.35rem); -webkit-text-stroke: 1px #05010c; }
+body.slick-correct-scores main { width: min(980px,100%); padding: 12px 12px 32px; }
+body.slick-correct-scores .toolbar { margin-bottom: 9px; }
+
+body.slick-correct-scores .correct-panel {
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.56);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(255,255,255,.08),transparent 30%),
+    linear-gradient(145deg,rgba(46,16,102,.78),rgba(17,7,38,.65));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1),0 11px 25px rgba(17,7,38,.2);
+}
+
+body.slick-correct-scores .player-pills {
+  width: 100%;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 40px;
+  justify-content: start;
+  gap: 6px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding: 7px;
+  border: 1px solid rgba(216,180,254,.2);
+  border-radius: 9px;
+  background: rgba(17,7,38,.3);
+  scrollbar-width: thin;
+}
+body.slick-correct-scores .player-pill {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255,255,255,.56);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+}
+body.slick-correct-scores .player-pill.active {
+  border-color: #c4b5fd;
+  box-shadow: 0 0 0 2px rgba(196,181,253,.24),0 0 12px rgba(167,139,250,.44);
+}
+
+body.slick-correct-scores .correct-score-title {
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 8px;
+  background: linear-gradient(135deg,rgba(76,29,149,.6),rgba(46,16,102,.48));
+  color: #f5f3ff;
+  font-size: clamp(.98rem,2.5vw,1.25rem);
+  letter-spacing: .015em;
+  text-shadow: 0 0 10px rgba(216,180,254,.34);
+}
+body.slick-correct-scores .correct-score-list { gap: 6px; }
+body.slick-correct-scores .correct-score-row,
+body.slick-correct-scores .correct-score-row.has-effects {
+  min-height: 40px;
+  grid-template-columns: 62px minmax(0,1fr) 62px;
+  gap: 5px;
+  padding: 5px 6px;
+  border: 1px solid rgba(216,180,254,.17);
+  border-radius: 8px;
+  background: rgba(17,7,38,.43);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+body.slick-correct-scores .correct-gw-pill {
+  min-width: 44px;
+  padding: 4px 6px;
+  border: 1px solid rgba(196,181,253,.44);
+  border-radius: 6px;
+  background: linear-gradient(135deg,rgba(91,33,182,.7),rgba(46,16,102,.72));
+  color: #ede9fe;
+  font-size: .64rem;
+  letter-spacing: .035em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+body.slick-correct-scores .correct-fixture {
+  grid-template-columns: minmax(0,1fr) 48px minmax(0,1fr);
+  gap: 6px;
+  color: #f5f3ff;
+  font-size: .74rem;
+  text-shadow: none;
+}
+body.slick-correct-scores .correct-team { color: #ede9fe; }
+body.slick-correct-scores .correct-scoreline {
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.48);
+  border-radius: 7px;
+  background: rgba(76,29,149,.64);
+  color: #fff;
+  font-size: .78rem;
+  text-shadow: 0 0 8px rgba(216,180,254,.46);
+}
+body.slick-correct-scores .correct-effects { gap: 2px; }
+body.slick-correct-scores .effect-marker { width: 25px; height: 25px; border-width: 1px; font-size: 13px; }
+body.slick-correct-scores .empty { padding: 12px; font-size: .78rem; }
+
+@media (max-width: 640px) {
+  body.slick-correct-scores header { padding: 11px 10px; }
+  body.slick-correct-scores header h1 { font-size: 1.3rem !important; }
+  body.slick-correct-scores main { padding: 9px 8px 28px; }
+  body.slick-correct-scores .correct-panel { padding: 8px; gap: 7px; }
+  body.slick-correct-scores .player-pills { grid-auto-columns: 36px; padding: 6px; }
+  body.slick-correct-scores .player-pill { width: 36px; height: 36px; }
+  body.slick-correct-scores .correct-score-row,
+  body.slick-correct-scores .correct-score-row.has-effects {
+    grid-template-columns: 50px minmax(0,1fr) 50px;
+    min-height: 38px;
+    padding: 4px;
+  }
+  body.slick-correct-scores .correct-fixture { grid-template-columns: minmax(0,1fr) 40px minmax(0,1fr); gap: 4px; font-size: .65rem; }
+  body.slick-correct-scores .correct-scoreline { min-height: 25px; font-size: .68rem; }
+  body.slick-correct-scores .correct-gw-pill { min-width: 40px; padding: 3px 4px; font-size: .58rem; }
+  body.slick-correct-scores .effect-marker { width: 22px; height: 22px; font-size: 12px; }
+}
+
+@media (max-width: 360px) {
+  body.slick-correct-scores .correct-score-row,
+  body.slick-correct-scores .correct-score-row.has-effects { grid-template-columns: 43px minmax(0,1fr) 43px; }
+  body.slick-correct-scores .correct-fixture { grid-template-columns: minmax(0,1fr) 36px minmax(0,1fr); font-size: .59rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.slick-correct-scores * { transition: none !important; }
+}

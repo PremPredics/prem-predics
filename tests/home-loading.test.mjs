@@ -26,6 +26,7 @@ function homeFixture({ handler, cached = false, contextFailure = false } = {}) {
     supabase: client, escapeHtml, normaliseNested: (r) => r, leagueUrl: (page, id) => `${page}?competition_id=${id}`,
     getSessionUser: async () => user, onSessionUserChange: (callback) => { authCallback = callback; },
     boundedRead: (fn) => boundedRead(fn, 30), readData: (fn) => readData(fn, { attempts: 1, timeoutMs: 30 }),
+    setPageLoaderProgress: () => {}, finishPageLoader: async () => {},
     loadActiveGameweek: async () => {
       contextLoads += 1;
       if (contextFailure) throw new Error('Context unavailable');

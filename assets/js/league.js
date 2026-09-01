@@ -16,6 +16,7 @@ import { supabase } from './supabase-client.js';
 const leagueName = document.querySelector('[data-league-name]');
 const memberCount = document.querySelector('[data-member-count]');
 const joinCode = document.querySelector('[data-join-code]');
+const joinCodePanel = document.querySelector('[data-join-code-panel]');
 const copyJoinCodeButton = document.querySelector('[data-copy-join-code]');
 const gameweekLabel = document.querySelector('[data-gameweek-label]');
 const gameweekCountdown = document.querySelector('[data-gameweek-countdown]');
@@ -887,7 +888,9 @@ async function renderLeague(league, user) {
     .select('user_id', { count: 'exact', head: true })
     .eq('competition_id', league.id)
     .then(({ count, error }) => {
-      memberCount.textContent = error ? '' : `(${count || 0} Active Players)`;
+      const total = Number(count || 0);
+      memberCount.textContent = error ? '' : `(${total} Active Players)`;
+      if (joinCodePanel) joinCodePanel.hidden = !error && total >= 10;
     }) : Promise.resolve();
   await Promise.all([memberCountTask, loadOwnProfile(user)]);
   setLeaguePageLoadProgress(58);
