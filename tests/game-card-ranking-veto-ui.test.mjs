@@ -114,8 +114,8 @@ test('Power of the Veto leaves the visible hand immediately and vetoed curses oc
 
 test('Game Card page uses the slick layout and publishes transparent ranking rules', () => {
   assert.match(gameCardHtml, /class="pp-page-loading slick-game-card"/);
-  assert.match(gameCardHtml, /game-card-slick\.css\?v=20260901-v2/);
-  assert.match(gameCardHtml, /game-card\.js\?v=20260901-awards-v2/);
+  assert.match(gameCardHtml, /game-card-slick\.css\?v=20260901-v3/);
+  assert.match(gameCardHtml, /game-card\.js\?v=20260901-awards-v3/);
   assert.match(gameCardJs, /Fewest missed picks/);
   assert.match(gameCardJs, /Lowest weekly-rank total/);
   assert.match(gameCardJs, /Most exact picks/);
@@ -135,7 +135,7 @@ test('requested League Hub return buttons share one fixed crisp control', () => 
   assert.match(returnCss, /width: min\(220px, 100%\)/);
   assert.match(returnCss, /border: 1px solid rgba\(255,255,255,\.86\) !important/);
   assert.match(powerCards, /\.back-home-btn \{[^]*border: 1px solid rgba\(255, 255, 255, 0\.86\);/s);
-  assert.match(worker, /prem-predics-pwa-v74/);
+  assert.match(worker, /prem-predics-pwa-v75/);
   assert.match(worker, /hub-return-button\.css\?v=20260901-v1/);
-  assert.match(worker, /game-card-slick\.css\?v=20260901-v2/);
+  assert.match(worker, /game-card-slick\.css\?v=20260901-v3/);
 });

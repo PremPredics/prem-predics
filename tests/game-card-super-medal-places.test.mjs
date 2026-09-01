@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { testDependency } from './support/dependencies.mjs';
 import {
+  gameCardLiveOrderedStandings,
+  gameCardMainLeaguePositions,
   gameCardSuperMedalAwardCount,
   gameCardSuperMedalAwardCounts,
   gameCardSuperMedalAwardSummary,
@@ -65,6 +67,49 @@ test('three-way performance tie still uses the unique final order without multip
 
   assert.deepEqual(awards, { a: 2 });
   assert.equal(Object.values(awards).reduce((total, count) => total + count, 0), 2);
+});
+
+test('live Game Card ordering uses shared main-league positions before the stored draw', () => {
+  const positions = gameCardMainLeaguePositions([
+    { user_id: 'a', ultimate_champion_points: 30, prediction_points: 20 },
+    { user_id: 'b', ultimate_champion_points: 28, prediction_points: 22 },
+    { user_id: 'c', ultimate_champion_points: 28, prediction_points: 22 },
+  ]);
+  assert.deepEqual(positions, { a: 1, b: 2, c: 2 });
+
+  const performance = {
+    missed_gameweeks: 0,
+    exact_predictions: 2,
+    total_difference: 3,
+    weekly_wins: 2,
+    rank_points: 8,
+  };
+  const ordered = gameCardLiveOrderedStandings(3, [
+    { ...performance, user_id: 'a', random_tiebreak_rank: 2 },
+    { ...performance, user_id: 'b', random_tiebreak_rank: 1 },
+    { ...performance, user_id: 'c', total_difference: 4, random_tiebreak_rank: 3 },
+  ], positions);
+
+  assert.deepEqual(ordered.map((row) => row.user_id), ['a', 'b', 'c']);
+  assert.deepEqual(ordered.map((row) => row.round_rank), [1, 2, 3]);
+});
+
+test('a permitted four-to-six-player shared medal pair bypasses league position', () => {
+  const performance = {
+    missed_gameweeks: 0,
+    exact_predictions: 2,
+    total_difference: 3,
+    weekly_wins: 2,
+    rank_points: 8,
+  };
+  const ordered = gameCardLiveOrderedStandings(6, [
+    { ...performance, user_id: 'a', random_tiebreak_rank: 2 },
+    { ...performance, user_id: 'b', random_tiebreak_rank: 1 },
+    { ...performance, user_id: 'c', total_difference: 4, random_tiebreak_rank: 3 },
+  ], { a: 1, b: 2, c: 3 });
+
+  assert.deepEqual(ordered.map((row) => row.user_id), ['b', 'a', 'c']);
+  assert.deepEqual(gameCardSuperMedalAwardCounts(6, ordered), { b: 1, a: 1 });
 });
 
 test('migration compiles twice, awards the correct tokens and avoids held Super Card types', async () => {
@@ -190,6 +235,6 @@ test('compact UI exposes award places, one-line medal label and revised card cop
   assert.match(gameCardJs, /<span>Rank<\/span>/);
   assert.match(gameCardCss, /\.history-result-row\.super-medal-place/);
   assert.match(starManJs, /playerVisualMarkup\(player, \{ showCountry: mode !== 'search' \}\)/);
-  assert.match(worker, /prem-predics-pwa-v74/);
-  assert.match(worker, /game-card-awards\.js\?v=20260901-v2/);
+  assert.match(worker, /prem-predics-pwa-v75/);
+  assert.match(worker, /game-card-awards\.js\?v=20260901-v3/);
 });

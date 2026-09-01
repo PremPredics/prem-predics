@@ -179,7 +179,7 @@ body.slick-game-card .game-card-award-summary > span { font-size: .82rem; }
 
 body.slick-game-card .game-card-ranking-rules {
   display: grid;
-  grid-template-columns: auto repeat(6,minmax(0,1fr));
+  grid-template-columns: auto repeat(7,minmax(0,1fr));
   gap: 4px;
   align-items: stretch;
   margin: 1px 0 4px;

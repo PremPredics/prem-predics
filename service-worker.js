@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v74';
+const CACHE_VERSION = 'prem-predics-pwa-v75';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -42,7 +42,7 @@ const APP_SHELL = [
   './assets/css/page-loader.css?v=20260831-football-v2',
   './assets/css/slick-pages.css?v=20260901-slick-v3',
   './assets/css/hub-return-button.css?v=20260901-v1',
-  './assets/css/game-card-slick.css?v=20260901-v2',
+  './assets/css/game-card-slick.css?v=20260901-v3',
   './assets/css/leagues-slick.css?v=20260901-v1',
   './assets/css/correct-scores-slick.css?v=20260901-v1',
   './assets/js/all-predictions.js?v=20260831-football-loader-v1',
@@ -53,8 +53,8 @@ const APP_SHELL = [
   './assets/js/desktop-polish.js',
   './assets/js/desktop-prediction-final-polish.js',
   './assets/js/desktop-summary-polish.js',
-  './assets/js/game-card.js?v=20260901-awards-v2',
-  './assets/js/game-card-awards.js?v=20260901-v2',
+  './assets/js/game-card.js?v=20260901-awards-v3',
+  './assets/js/game-card-awards.js?v=20260901-v3',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js?v=20260828-player-pool',
   './assets/js/index-actions.js?v=20260901-home-loader-v1',

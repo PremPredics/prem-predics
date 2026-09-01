@@ -2674,6 +2674,7 @@ create table public.game_card_round_tiebreaks (
   round_id uuid not null references public.game_card_rounds(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,
   uc_points_at_tiebreak integer not null default 0,
+  league_position_at_tiebreak integer,
   random_tiebreak_rank integer not null,
   created_at timestamptz not null default now(),
   primary key (round_id, user_id),
@@ -3236,7 +3237,8 @@ standings as (
       + greatest(
           participants.expected_gameweeks - count(distinct scores.gameweek_id)::bigint,
           0::bigint
-        ) * (participants.member_count + 1) as rank_points
+        ) * (participants.member_count + 1) as rank_points,
+    participants.member_count
   from participants
   left join public.game_card_week_scores scores
     on scores.round_id = participants.round_id
@@ -3251,22 +3253,11 @@ standings as (
     participants.expected_gameweeks,
     participants.member_count
 ),
-ranked as (
+performance_ranked as (
   select
-    standings.round_id,
-    standings.competition_id,
-    standings.season_id,
-    standings.card_id,
-    standings.round_number,
-    standings.user_id,
-    standings.completed_gameweeks,
-    standings.weekly_wins,
-    standings.total_difference,
-    standings.expected_gameweeks,
-    standings.missed_gameweeks,
-    standings.exact_predictions,
-    standings.rank_points,
+    standings.*,
     coalesce(gcrt.uc_points_at_tiebreak, 0) as uc_points_at_tiebreak,
+    gcrt.league_position_at_tiebreak,
     coalesce(gcrt.random_tiebreak_rank, 999999) as random_tiebreak_rank,
     rank() over (
       partition by standings.round_id
@@ -3285,22 +3276,34 @@ ranked as (
         standings.total_difference,
         standings.weekly_wins,
         standings.rank_points
-    )::bigint as performance_tie_size,
-    row_number() over (
-      partition by standings.round_id
-      order by
-        standings.missed_gameweeks asc,
-        standings.exact_predictions desc,
-        standings.total_difference asc,
-        standings.weekly_wins desc,
-        standings.rank_points asc,
-        coalesce(gcrt.random_tiebreak_rank, 999999) asc,
-        standings.user_id asc
-    ) as round_rank
+    )::bigint as performance_tie_size
   from standings
   left join public.game_card_round_tiebreaks gcrt
     on gcrt.round_id = standings.round_id
-    and gcrt.user_id = standings.user_id
+   and gcrt.user_id = standings.user_id
+),
+ranked as (
+  select
+    performance_ranked.*,
+    row_number() over (
+      partition by performance_ranked.round_id
+      order by
+        performance_ranked.missed_gameweeks asc,
+        performance_ranked.exact_predictions desc,
+        performance_ranked.total_difference asc,
+        performance_ranked.weekly_wins desc,
+        performance_ranked.rank_points asc,
+        case
+          when performance_ranked.member_count between 4 and 6
+            and performance_ranked.performance_rank = 1
+            and performance_ranked.performance_tie_size = 2
+            then 2147483647
+          else coalesce(performance_ranked.league_position_at_tiebreak, 2147483647)
+        end asc,
+        performance_ranked.random_tiebreak_rank asc,
+        performance_ranked.user_id asc
+    ) as round_rank
+  from performance_ranked
 )
 select
   ranked.round_id,
@@ -3321,7 +3324,8 @@ select
   ranked.exact_predictions,
   ranked.rank_points,
   ranked.performance_rank,
-  ranked.performance_tie_size
+  ranked.performance_tie_size,
+  ranked.league_position_at_tiebreak
 from ranked;
 
 create or replace view public.game_card_bonus_totals

@@ -1,4 +1,5 @@
--- Unique Game Card final rankings and tie-safe Super Medal awards.
+-- Unique Game Card final rankings, main-league tiebreak snapshots and
+-- tie-safe Super Medal awards.
 --
 -- Final ranking order:
 --   1. fewest missed submissions;
@@ -6,20 +7,187 @@
 --   3. lowest total absolute distance;
 --   4. most weekly wins;
 --   5. lowest total of the shared weekly ranks;
---   6. a stored random draw (user id is a temporary stable fallback before a
---      completed round receives its stored draw).
+--   6. main-league position (live while active, frozen when complete);
+--   7. a stored random draw.
 --
 -- Weekly equal distances still share a weekly position. Final positions never
 -- tie. In a 4-6 player league only, exactly two players tied on every sporting
--- criterion for the best performance split the two-medal pool (one each).
--- Otherwise the configured pools remain 1, 2 or 3 medals and cannot multiply
--- because several users previously shared a final rank.
+-- criterion for the best performance split the two-medal pool (one each), so
+-- league position does not take either shared medal away. Otherwise live/frozen
+-- main-league position is used before the stored draw wherever the available
+-- medals cannot be shared under the configured award rules.
 --
 -- Safe and idempotent: no leagues, predictions, results, cards, statistics,
 -- histories or redeemed medals are deleted. Surplus unredeemed Game Card medal
 -- tokens created by an old shared-final-rank calculation are marked void.
 
 begin;
+
+alter table public.game_card_round_tiebreaks
+  add column if not exists league_position_at_tiebreak integer;
+
+create or replace function public.ensure_game_card_tiebreaks_internal(target_competition_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  completed_round record;
+begin
+  -- Give every active or historical round one stored random order. The value is
+  -- only consulted after the Game Card and permitted league-position rules.
+  with missing_members as (
+    select
+      gcr.id as round_id,
+      cm.user_id,
+      coalesce(existing_max.maximum_rank, 0)::integer as existing_maximum_rank
+    from public.game_card_rounds gcr
+    join public.competition_members cm on cm.competition_id = gcr.competition_id
+    left join public.game_card_round_tiebreaks existing
+      on existing.round_id = gcr.id
+     and existing.user_id = cm.user_id
+    left join lateral (
+      select max(saved.random_tiebreak_rank) as maximum_rank
+      from public.game_card_round_tiebreaks saved
+      where saved.round_id = gcr.id
+    ) existing_max on true
+    where gcr.competition_id = target_competition_id
+      and existing.user_id is null
+  ),
+  numbered as (
+    select
+      missing.round_id,
+      missing.user_id,
+      missing.existing_maximum_rank
+        + row_number() over (
+            partition by missing.round_id
+            order by random(), missing.user_id
+          )::integer as random_tiebreak_rank
+    from missing_members missing
+  )
+  insert into public.game_card_round_tiebreaks (
+    round_id,
+    user_id,
+    uc_points_at_tiebreak,
+    random_tiebreak_rank
+  )
+  select
+    numbered.round_id,
+    numbered.user_id,
+    0,
+    numbered.random_tiebreak_rank
+  from numbered
+  on conflict (round_id, user_id) do nothing;
+
+  -- Process completed rounds in chronological order. This lets each later
+  -- snapshot include only bonuses won in earlier Game Card rounds.
+  for completed_round in
+    select
+      gcr.id as round_id,
+      gcr.competition_id,
+      gcr.season_id,
+      gcr.round_number,
+      end_gw.number as end_gameweek_number
+    from public.game_card_rounds gcr
+    join public.gameweeks start_gw on start_gw.id = gcr.start_gameweek_id
+    join public.gameweeks end_gw on end_gw.id = gcr.end_gameweek_id
+    where gcr.competition_id = target_competition_id
+      and (
+        select count(distinct actuals.gameweek_id)
+        from (
+          select gcrs.gameweek_id
+          from public.game_card_results gcrs
+          where gcrs.round_id = gcr.id
+          union
+          select gcar.gameweek_id
+          from public.game_card_actual_results gcar
+          join public.gameweeks actual_gw
+            on actual_gw.id = gcar.gameweek_id
+           and actual_gw.season_id = gcr.season_id
+          where gcar.season_id = gcr.season_id
+            and gcar.card_id = gcr.card_id
+            and actual_gw.number between start_gw.number and end_gw.number
+        ) actuals
+      ) >= (end_gw.number - start_gw.number + 1)
+    order by end_gw.number, gcr.round_number
+  loop
+    with gameweek_totals as (
+      select
+        cm.user_id,
+        coalesce(sum(ugs.prediction_points), 0)::integer as prediction_points,
+        coalesce(sum(ugs.correct_scores), 0)::integer as correct_scores,
+        coalesce(sum(ugs.correct_results), 0)::integer as correct_results,
+        coalesce(sum(ugs.star_man_points), 0)::integer as star_man_points,
+        coalesce(sum(ugs.star_man_goals), 0)::integer as star_man_goals,
+        coalesce(sum(ugs.star_man_assists), 0)::integer as star_man_assists,
+        coalesce(sum(ugs.star_man_yellows), 0)::integer as star_man_yellows,
+        coalesce(sum(ugs.star_man_reds), 0)::integer as star_man_reds,
+        coalesce(sum(ugs.super_score_points), 0)::integer as super_score_points
+      from public.competition_members cm
+      left join public.user_gameweek_stats ugs
+        on ugs.competition_id = cm.competition_id
+       and ugs.user_id = cm.user_id
+       and ugs.season_id = completed_round.season_id
+       and ugs.gameweek_number <= completed_round.end_gameweek_number
+      where cm.competition_id = completed_round.competition_id
+      group by cm.user_id
+    ),
+    prior_game_card_bonuses as (
+      select
+        prior_standing.user_id,
+        count(*)::integer as game_card_bonus_points
+      from public.game_card_round_standings prior_standing
+      join public.game_card_rounds prior_round on prior_round.id = prior_standing.round_id
+      where prior_round.competition_id = completed_round.competition_id
+        and prior_round.round_number < completed_round.round_number
+        and prior_standing.completed_gameweeks >= 5
+        and prior_standing.round_rank = 1
+      group by prior_standing.user_id
+    ),
+    main_totals as (
+      select
+        totals.*,
+        coalesce(prior.game_card_bonus_points, 0)::integer as game_card_bonus_points,
+        (
+          totals.prediction_points
+          + totals.star_man_points
+          + totals.super_score_points
+          + coalesce(prior.game_card_bonus_points, 0)
+        )::integer as ultimate_champion_points
+      from gameweek_totals totals
+      left join prior_game_card_bonuses prior on prior.user_id = totals.user_id
+    ),
+    main_ranked as (
+      select
+        main_totals.*,
+        rank() over (
+          order by
+            main_totals.ultimate_champion_points desc,
+            main_totals.prediction_points desc,
+            main_totals.correct_scores desc,
+            main_totals.correct_results desc,
+            main_totals.star_man_points desc,
+            main_totals.star_man_goals desc,
+            main_totals.star_man_assists desc,
+            main_totals.star_man_yellows asc,
+            main_totals.star_man_reds asc
+        )::integer as league_position
+      from main_totals
+    )
+    update public.game_card_round_tiebreaks saved
+    set
+      uc_points_at_tiebreak = ranked.ultimate_champion_points,
+      league_position_at_tiebreak = ranked.league_position
+    from main_ranked ranked
+    where saved.round_id = completed_round.round_id
+      and saved.user_id = ranked.user_id
+      and saved.league_position_at_tiebreak is null;
+  end loop;
+end;
+$$;
+
+revoke all on function public.ensure_game_card_tiebreaks_internal(uuid) from public;
 
 create or replace function public.ensure_game_card_tiebreaks(target_competition_id uuid)
 returns void
@@ -43,82 +211,12 @@ begin
     raise exception 'You are not a member of this private league.';
   end if;
 
-  with completed_rounds as (
-    select gcr.id as round_id
-    from public.game_card_rounds gcr
-    join public.gameweeks start_gw on start_gw.id = gcr.start_gameweek_id
-    join public.gameweeks end_gw on end_gw.id = gcr.end_gameweek_id
-    where gcr.competition_id = target_competition_id
-      and (
-        select count(distinct actuals.gameweek_id)
-        from (
-          select gcrs.gameweek_id
-          from public.game_card_results gcrs
-          where gcrs.round_id = gcr.id
-          union
-          select gcar.gameweek_id
-          from public.game_card_actual_results gcar
-          join public.gameweeks actual_gw
-            on actual_gw.id = gcar.gameweek_id
-           and actual_gw.season_id = gcr.season_id
-          where gcar.season_id = gcr.season_id
-            and gcar.card_id = gcr.card_id
-            and actual_gw.number between start_gw.number and end_gw.number
-        ) actuals
-      ) >= (end_gw.number - start_gw.number + 1)
-  ),
-  missing_members as (
-    select
-      completed.round_id,
-      cm.user_id,
-      coalesce(lb.ultimate_champion_points, 0)::integer as uc_points_at_tiebreak,
-      coalesce(existing_max.maximum_rank, 0)::integer as existing_maximum_rank
-    from completed_rounds completed
-    join public.game_card_rounds gcr on gcr.id = completed.round_id
-    join public.competition_members cm on cm.competition_id = gcr.competition_id
-    left join public.leaderboard lb
-      on lb.competition_id = gcr.competition_id
-     and lb.user_id = cm.user_id
-    left join public.game_card_round_tiebreaks existing
-      on existing.round_id = completed.round_id
-     and existing.user_id = cm.user_id
-    left join lateral (
-      select max(saved.random_tiebreak_rank) as maximum_rank
-      from public.game_card_round_tiebreaks saved
-      where saved.round_id = completed.round_id
-    ) existing_max on true
-    where existing.user_id is null
-  ),
-  numbered as (
-    select
-      missing.round_id,
-      missing.user_id,
-      missing.uc_points_at_tiebreak,
-      missing.existing_maximum_rank
-        + row_number() over (
-            partition by missing.round_id
-            order by random(), missing.user_id
-          )::integer as random_tiebreak_rank
-    from missing_members missing
-  )
-  insert into public.game_card_round_tiebreaks (
-    round_id,
-    user_id,
-    uc_points_at_tiebreak,
-    random_tiebreak_rank
-  )
-  select
-    numbered.round_id,
-    numbered.user_id,
-    numbered.uc_points_at_tiebreak,
-    numbered.random_tiebreak_rank
-  from numbered
-  on conflict (round_id, user_id) do nothing;
+  perform public.ensure_game_card_tiebreaks_internal(target_competition_id);
 end;
 $$;
 
--- Preserve the existing column order and data types, then append the two
--- performance-tie audit columns. This avoids PostgreSQL view type errors.
+-- Preserve the existing column order and data types, then append audit columns.
+-- This avoids PostgreSQL view type errors when the migration is rerun.
 create or replace view public.game_card_round_standings
 with (security_invoker = true)
 as
@@ -193,7 +291,8 @@ standings as (
       + greatest(
           participants.expected_gameweeks - count(distinct scores.gameweek_id)::bigint,
           0::bigint
-        ) * (participants.member_count + 1) as rank_points
+        ) * (participants.member_count + 1) as rank_points,
+    participants.member_count
   from participants
   left join public.game_card_week_scores scores
     on scores.round_id = participants.round_id
@@ -208,10 +307,11 @@ standings as (
     participants.expected_gameweeks,
     participants.member_count
 ),
-ranked as (
+performance_ranked as (
   select
     standings.*,
     coalesce(gcrt.uc_points_at_tiebreak, 0) as uc_points_at_tiebreak,
+    gcrt.league_position_at_tiebreak,
     coalesce(gcrt.random_tiebreak_rank, 999999) as random_tiebreak_rank,
     rank() over (
       partition by standings.round_id
@@ -230,22 +330,34 @@ ranked as (
         standings.total_difference,
         standings.weekly_wins,
         standings.rank_points
-    )::bigint as performance_tie_size,
-    row_number() over (
-      partition by standings.round_id
-      order by
-        standings.missed_gameweeks asc,
-        standings.exact_predictions desc,
-        standings.total_difference asc,
-        standings.weekly_wins desc,
-        standings.rank_points asc,
-        coalesce(gcrt.random_tiebreak_rank, 999999) asc,
-        standings.user_id asc
-    ) as round_rank
+    )::bigint as performance_tie_size
   from standings
   left join public.game_card_round_tiebreaks gcrt
     on gcrt.round_id = standings.round_id
    and gcrt.user_id = standings.user_id
+),
+ranked as (
+  select
+    performance_ranked.*,
+    row_number() over (
+      partition by performance_ranked.round_id
+      order by
+        performance_ranked.missed_gameweeks asc,
+        performance_ranked.exact_predictions desc,
+        performance_ranked.total_difference asc,
+        performance_ranked.weekly_wins desc,
+        performance_ranked.rank_points asc,
+        case
+          when performance_ranked.member_count between 4 and 6
+            and performance_ranked.performance_rank = 1
+            and performance_ranked.performance_tie_size = 2
+            then 2147483647
+          else coalesce(performance_ranked.league_position_at_tiebreak, 2147483647)
+        end asc,
+        performance_ranked.random_tiebreak_rank asc,
+        performance_ranked.user_id asc
+    ) as round_rank
+  from performance_ranked
 )
 select
   ranked.round_id,
@@ -266,7 +378,8 @@ select
   ranked.exact_predictions,
   ranked.rank_points,
   ranked.performance_rank,
-  ranked.performance_tie_size
+  ranked.performance_tie_size,
+  ranked.league_position_at_tiebreak
 from ranked;
 
 grant select on public.game_card_round_standings to authenticated;
@@ -425,83 +538,14 @@ $$;
 
 revoke all on function public.reconcile_game_card_super_medals(uuid, uuid) from public;
 
--- Populate missing stored draws for every already-completed round before
--- recalculating historical entitlements. Existing stored draws are preserved.
-with completed_rounds as (
-  select gcr.id as round_id, gcr.competition_id
-  from public.game_card_rounds gcr
-  join public.gameweeks start_gw on start_gw.id = gcr.start_gameweek_id
-  join public.gameweeks end_gw on end_gw.id = gcr.end_gameweek_id
-  where (
-    select count(distinct actuals.gameweek_id)
-    from (
-      select gcrs.gameweek_id
-      from public.game_card_results gcrs
-      where gcrs.round_id = gcr.id
-      union
-      select gcar.gameweek_id
-      from public.game_card_actual_results gcar
-      join public.gameweeks actual_gw
-        on actual_gw.id = gcar.gameweek_id
-       and actual_gw.season_id = gcr.season_id
-      where gcar.season_id = gcr.season_id
-        and gcar.card_id = gcr.card_id
-        and actual_gw.number between start_gw.number and end_gw.number
-    ) actuals
-  ) >= (end_gw.number - start_gw.number + 1)
-),
-missing_members as (
-  select
-    completed.round_id,
-    cm.user_id,
-    coalesce(lb.ultimate_champion_points, 0)::integer as uc_points_at_tiebreak,
-    coalesce(existing_max.maximum_rank, 0)::integer as existing_maximum_rank
-  from completed_rounds completed
-  join public.competition_members cm on cm.competition_id = completed.competition_id
-  left join public.leaderboard lb
-    on lb.competition_id = completed.competition_id
-   and lb.user_id = cm.user_id
-  left join public.game_card_round_tiebreaks existing
-    on existing.round_id = completed.round_id
-   and existing.user_id = cm.user_id
-  left join lateral (
-    select max(saved.random_tiebreak_rank) as maximum_rank
-    from public.game_card_round_tiebreaks saved
-    where saved.round_id = completed.round_id
-  ) existing_max on true
-  where existing.user_id is null
-),
-numbered as (
-  select
-    missing.round_id,
-    missing.user_id,
-    missing.uc_points_at_tiebreak,
-    missing.existing_maximum_rank
-      + row_number() over (
-          partition by missing.round_id
-          order by random(), missing.user_id
-        )::integer as random_tiebreak_rank
-  from missing_members missing
-)
-insert into public.game_card_round_tiebreaks (
-  round_id,
-  user_id,
-  uc_points_at_tiebreak,
-  random_tiebreak_rank
-)
-select
-  numbered.round_id,
-  numbered.user_id,
-  numbered.uc_points_at_tiebreak,
-  numbered.random_tiebreak_rank
-from numbered
-on conflict (round_id, user_id) do nothing;
-
+-- Populate stored draws, freeze any completed-round league positions and then
+-- reconcile historical medal entitlements. Existing snapshots are preserved.
 do $$
 declare
   competition_row record;
 begin
   for competition_row in select id from public.competitions loop
+    perform public.ensure_game_card_tiebreaks_internal(competition_row.id);
     perform public.reconcile_game_card_super_medals(competition_row.id, null);
   end loop;
 end;
@@ -647,6 +691,8 @@ select
   gcs.round_rank,
   gcs.performance_rank,
   gcs.performance_tie_size,
+  gcs.league_position_at_tiebreak,
+  gcs.random_tiebreak_rank,
   p.display_name,
   entitlement.medal_count
 from public.game_card_round_standings gcs

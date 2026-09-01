@@ -9,9 +9,11 @@ import {
 import { loadActiveGameweek } from './gameweek-context.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 import {
+  gameCardLiveOrderedStandings,
+  gameCardMainLeaguePositions,
   gameCardSuperMedalAwardCounts,
   gameCardSuperMedalAwardSummary,
-} from './game-card-awards.js?v=20260901-v2';
+} from './game-card-awards.js?v=20260901-v3';
 
 const leagueLink = document.querySelector('[data-league-link]');
 const content = document.querySelector('[data-game-card-content]');
@@ -30,6 +32,7 @@ const state = {
   visiblePredictions: new Map(),
   results: new Map(),
   members: new Map(),
+  mainLeaguePositions: new Map(),
   roundStandings: new Map(),
   weekScores: new Map(),
   underdogFixtures: [],
@@ -407,6 +410,7 @@ async function loadPredictionsAndResults() {
 async function loadHistoryData() {
   const leaderboardRounds = visibleRoundsForPage();
   state.members = new Map();
+  state.mainLeaguePositions = new Map();
   state.roundStandings = new Map();
   state.weekScores = new Map();
 
@@ -443,10 +447,21 @@ async function loadHistoryData() {
 
   const roundIds = leaderboardRounds.map((round) => round.id);
 
-  const [{ data: standings, error: standingsError }, { data: scores, error: scoresError }] = await Promise.all([
+  const { error: tiebreakError } = await supabase.rpc('ensure_game_card_tiebreaks', {
+    target_competition_id: state.league.id,
+  });
+  if (tiebreakError) {
+    console.warn('Could not refresh Game Card tiebreak snapshots:', tiebreakError.message || tiebreakError);
+  }
+
+  const [
+    { data: standings, error: standingsError },
+    { data: scores, error: scoresError },
+    { data: leagueRows, error: leagueRowsError },
+  ] = await Promise.all([
     supabase
       .from('game_card_round_standings')
-      .select('round_id, user_id, round_rank, weekly_wins, total_difference, completed_gameweeks, earns_super_medal, expected_gameweeks, missed_gameweeks, exact_predictions, rank_points')
+      .select('round_id, user_id, round_rank, random_tiebreak_rank, weekly_wins, total_difference, completed_gameweeks, earns_super_medal, expected_gameweeks, missed_gameweeks, exact_predictions, rank_points')
       .eq('competition_id', state.league.id)
       .in('round_id', roundIds),
     supabase
@@ -454,6 +469,10 @@ async function loadHistoryData() {
       .select('round_id, gameweek_id, gameweek_number, user_id, predicted_value, actual_value, difference, is_weekly_winner, weekly_rank')
       .eq('competition_id', state.league.id)
       .in('round_id', roundIds),
+    supabase
+      .from('leaderboard')
+      .select('user_id, ultimate_champion_points, prediction_points, correct_scores, correct_results, star_man_points, star_man_goals, star_man_assists, star_man_yellows, star_man_reds')
+      .eq('competition_id', state.league.id),
   ]);
 
   if (standingsError) {
@@ -461,6 +480,11 @@ async function loadHistoryData() {
   }
   if (scoresError) {
     throw scoresError;
+  }
+  if (leagueRowsError) {
+    console.warn('Could not load live main-league positions:', leagueRowsError.message || leagueRowsError);
+  } else {
+    state.mainLeaguePositions = new Map(Object.entries(gameCardMainLeaguePositions(leagueRows || [])));
   }
 
   (standings || []).forEach((row) => {
@@ -793,12 +817,18 @@ function rankingRulesMarkup() {
       <span>Lowest total distance</span>
       <span>Most weekly wins</span>
       <span>Lowest weekly-rank total</span>
+      <span>Live/frozen league position</span>
       <span>Stored draw if still level</span>
     </div>`;
 }
 
 function activeLeaderboardMembers(round) {
-  const standings = activeStandingLookup(round);
+  const liveOrdered = gameCardLiveOrderedStandings(
+    awardMemberCount(),
+    [...activeStandingLookup(round).values()],
+    Object.fromEntries(state.mainLeaguePositions),
+  );
+  const standings = new Map(liveOrdered.map((standing) => [String(standing.user_id), standing]));
   return [...state.members.entries()]
     .map(([userId, profile]) => ({
       userId,

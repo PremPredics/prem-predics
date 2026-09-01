@@ -26,6 +26,19 @@ async function createDatabase() {
       ultimate_champion_points integer not null default 0,
       star_man_goals integer not null default 0
     );
+    create table user_gameweek_stats(
+      competition_id uuid not null, season_id uuid not null,
+      gameweek_number integer not null, user_id uuid not null,
+      prediction_points integer not null default 0,
+      correct_scores integer not null default 0,
+      correct_results integer not null default 0,
+      star_man_points integer not null default 0,
+      star_man_goals integer not null default 0,
+      star_man_assists integer not null default 0,
+      star_man_yellows integer not null default 0,
+      star_man_reds integer not null default 0,
+      super_score_points integer not null default 0
+    );
     create table gameweeks(id bigint primary key, season_id uuid not null, number integer not null);
     create table card_definitions(id text primary key, category text not null, effect_key text);
     create table game_card_rounds(
@@ -116,15 +129,30 @@ test('migration is idempotent, final ranks are unique and a two-way best tie spl
       ${[1, 2, 3, 4, 5].map((gw) => `insert into gameweeks values (${gw},'${season}',${gw}); insert into game_card_actual_results values ('${season}',${gw},'game_goals',3);`).join('\n')}
       insert into game_card_rounds values ('${round}','${competition}','${season}','game_goals',1,1,5);
       ${[1, 2, 3, 4, 5].map((gw) => `insert into game_card_predictions values ('${round}',${gw},'${users[0]}',3),('${round}',${gw},'${users[1]}',3),('${round}',${gw},'${users[2]}',4);`).join('\n')}
+      insert into user_gameweek_stats(competition_id,season_id,gameweek_number,user_id,prediction_points) values
+        ('${competition}','${season}',1,'${users[0]}',10),
+        ('${competition}','${season}',1,'${users[1]}',5),
+        ('${competition}','${season}',1,'${users[2]}',2),
+        ('${competition}','${season}',1,'${users[3]}',0);
+      insert into game_card_round_tiebreaks(round_id,user_id,uc_points_at_tiebreak,random_tiebreak_rank) values
+        ('${round}','${users[0]}',0,2),
+        ('${round}','${users[1]}',0,1),
+        ('${round}','${users[2]}',0,3),
+        ('${round}','${users[3]}',0,4);
       select set_config('request.jwt.claim.sub','${users[0]}',false);
       select ensure_game_card_tiebreaks('${competition}');
       select reconcile_game_card_super_medals('${competition}',null);
     `);
 
-    const ranks = await db.query(`select user_id::text, round_rank::int, performance_rank::int, performance_tie_size::int from game_card_round_standings where round_id='${round}' order by round_rank`);
+    const ranks = await db.query(`select user_id::text, round_rank::int, performance_rank::int, performance_tie_size::int, league_position_at_tiebreak::int from game_card_round_standings where round_id='${round}' order by round_rank`);
     assert.deepEqual(ranks.rows.map((row) => row.round_rank), [1, 2, 3, 4]);
+    assert.deepEqual(ranks.rows.slice(0, 2).map((row) => row.user_id), [users[1], users[0]]);
     assert.deepEqual(ranks.rows.slice(0, 2).map((row) => row.performance_rank), [1, 1]);
     assert.deepEqual(ranks.rows.slice(0, 2).map((row) => row.performance_tie_size), [2, 2]);
+    assert.deepEqual(
+      Object.fromEntries(ranks.rows.slice(0, 2).map((row) => [row.user_id, row.league_position_at_tiebreak])),
+      { [users[0]]: 1, [users[1]]: 2 },
+    );
 
     const entitlements = await db.query(`select user_id::text, medal_count from game_card_super_medal_entitlements('${competition}',null) where medal_count > 0 order by user_id`);
     assert.deepEqual(entitlements.rows.map((row) => row.medal_count), [1, 1]);
@@ -144,9 +172,59 @@ test('migration is idempotent, final ranks are unique and a two-way best tie spl
   }
 });
 
+test('a non-shareable Game Card tie uses frozen main-league position before random', async () => {
+  const db = await createDatabase();
+  try {
+    await db.exec(migration);
+    await db.exec(migration);
+
+    const competition = id(101);
+    const season = id(102);
+    const round = id(103);
+    const users = [id(111), id(112), id(113)];
+    await db.exec(`
+      insert into competitions values ('${competition}','${season}','Three Player League',3);
+      insert into card_definitions values ('game_goals','game','game_goals');
+      ${users.map((user, index) => `insert into profiles values ('${user}','Player ${index + 1}'); insert into competition_members values ('${competition}','${user}'); insert into leaderboard values ('${competition}','${user}',0,0);`).join('\n')}
+      ${[101, 102, 103, 104, 105].map((gw, index) => `insert into gameweeks values (${gw},'${season}',${index + 1}); insert into game_card_actual_results values ('${season}',${gw},'game_goals',3);`).join('\n')}
+      insert into game_card_rounds values ('${round}','${competition}','${season}','game_goals',1,101,105);
+      ${[101, 102, 103, 104, 105].map((gw) => `insert into game_card_predictions values ('${round}',${gw},'${users[0]}',3),('${round}',${gw},'${users[1]}',3),('${round}',${gw},'${users[2]}',4);`).join('\n')}
+      insert into user_gameweek_stats(competition_id,season_id,gameweek_number,user_id,prediction_points) values
+        ('${competition}','${season}',1,'${users[0]}',10),
+        ('${competition}','${season}',1,'${users[1]}',5),
+        ('${competition}','${season}',1,'${users[2]}',0);
+      insert into game_card_round_tiebreaks(round_id,user_id,uc_points_at_tiebreak,random_tiebreak_rank) values
+        ('${round}','${users[0]}',0,2),
+        ('${round}','${users[1]}',0,1),
+        ('${round}','${users[2]}',0,3);
+      select set_config('request.jwt.claim.sub','${users[0]}',false);
+      select ensure_game_card_tiebreaks('${competition}');
+      select reconcile_game_card_super_medals('${competition}',null);
+    `);
+
+    const ranks = await db.query(`
+      select user_id::text, round_rank::int, league_position_at_tiebreak::int
+      from game_card_round_standings
+      where round_id='${round}'
+      order by round_rank
+    `);
+    assert.deepEqual(ranks.rows.map((row) => row.user_id), users);
+    assert.deepEqual(ranks.rows.map((row) => row.league_position_at_tiebreak), [1, 2, 3]);
+
+    const entitlements = await db.query(`
+      select user_id::text, medal_count
+      from game_card_super_medal_entitlements('${competition}',null)
+      where medal_count > 0
+    `);
+    assert.deepEqual(entitlements.rows, [{ user_id: users[0], medal_count: 1 }]);
+  } finally {
+    await db.close();
+  }
+});
+
 test('UI uses compact non-overlapping SM badges and the deck viewer omits the Game deck', () => {
   assert.match(gameCardJs, /gameCardSuperMedalAwardCounts/);
-  assert.match(gameCardJs, /Fewest missed picks[^]*Most exact picks[^]*Lowest total distance[^]*Most weekly wins[^]*Lowest weekly-rank total[^]*Stored draw if still level/s);
+  assert.match(gameCardJs, /Fewest missed picks[^]*Most exact picks[^]*Lowest total distance[^]*Most weekly wins[^]*Lowest weekly-rank total[^]*Live\/frozen league position[^]*Stored draw if still level/s);
   assert.match(gameCardCss, /\.super-medal-award \{[^}]*width: 31px;[^}]*max-width: 100%;/s);
   assert.match(gameCardCss, /grid-template-columns: minmax\(78px,1fr\) 40px/);
   const deckDisplay = powerCards.match(/function updateDecksDisplay\(\) \{([^]*?)\n\}/)?.[1] || '';
