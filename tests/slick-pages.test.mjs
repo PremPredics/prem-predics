@@ -52,8 +52,8 @@ test('Statistics renders compact player rows and responsive metric grids', () =>
   assert.match(css, /body\.slick-statistics \.stat\.game-won-stat \{ grid-column: span 2; width: auto; \}/);
 });
 
-test('PWA v70 caches the corrected premium stylesheet and revised page scripts', () => {
-  assert.match(worker, /prem-predics-pwa-v70/);
+test('PWA v71 caches the corrected premium stylesheet and revised page scripts', () => {
+  assert.match(worker, /prem-predics-pwa-v71/);
   assert.match(worker, /slick-pages\.css\?v=20260901-slick-v2/);
   assert.match(worker, /index-actions\.js\?v=20260831-slick-v1/);
   assert.match(worker, /star-man\.js\?v=20260901-slick-v2/);

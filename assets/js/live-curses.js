@@ -1,7 +1,7 @@
 import { supabase } from './supabase-client.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 import { escapeHtml, leagueUrl, loadLeagueContext, normaliseNested } from './league-context.js';
-import { currentLiveCurseEffects } from './live-curses-model.js?v=20260831-cache-hotfix';
+import { currentLiveCurseEffects, isVetoedCurse } from './live-curses-model.js?v=20260901-vetoed-v1';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 
 const board = document.querySelector('[data-curse-board]');
@@ -17,9 +17,9 @@ const starManLiveEffectByKey = {
   curse_alphabet_20: (name) => `${name}'s Star Man choice is restricted by the 20+ alphabet rule.`,
   curse_scoring_drought_3: (name) => `${name}'s Star Man pool is restricted by the three-match scoring-drought rule.`,
   curse_scoring_drought_5: (name) => `${name}'s Star Man pool is restricted by the five-match scoring-drought rule.`,
-  curse_random_roulette: (name) => `${name}'s Star Man pool is restricted to the selected microstate nationality.`,
-  curse_tiny_club: (name) => `${name}'s Star Man pool is restricted by the Tiny Club rule.`,
-  curse_furious: (name) => `${name}'s Star Man scoring is affected by the Furious rule.`,
+  curse_random_roulette: (name) => `${name}'s Star Man's nationality must be from a country with a population of under 10 million.`,
+  curse_tiny_club: (name) => `${name}'s Star Man cannot be from a current Top 10 Club.`,
+  curse_furious: (name) => `${name}'s Star Man scores double negative pts for Yellow and Red cards.`,
 };
 
 const canonicalCurseNames = {
@@ -149,6 +149,15 @@ function effectOutcomeMarkup(effect) {
       : []);
   const targetName = profileFor(effect.target_user_id).display_name || 'League Player';
 
+  if (isVetoedCurse(effect)) {
+    return `
+      <section class="curse-impact is-vetoed">
+        <span class="impact-kicker">Vetoed</span>
+        <strong>No Live Effect</strong>
+        <p>Power of the Veto blocked this Curse. It still occupies one of ${escapeHtml(targetName)}'s three Curse slots for this Gameweek.</p>
+      </section>`;
+  }
+
   if (key === 'curse_hated' && displayRows.length) {
     return `
       <section class="curse-impact is-locked">
@@ -231,10 +240,12 @@ function effectOutcomeMarkup(effect) {
 }
 
 function curseCardMarkup(effect) {
+  const vetoed = isVetoedCurse(effect);
   return `
-    <article class="curse-card-slot">
-      <div class="live-curse-card">
+    <article class="curse-card-slot${vetoed ? ' is-vetoed' : ''}">
+      <div class="live-curse-card${vetoed ? ' is-vetoed' : ''}">
         <strong class="live-card-name">${escapeHtml(effectName(effect))}</strong>
+        ${vetoed ? '<span class="vetoed-stamp">Vetoed</span>' : ''}
       </div>
     </article>`;
 }
@@ -243,7 +254,7 @@ function curseEffectMarkup(effect) {
   const source = profileFor(effect.played_by_user_id);
   const sourceName = sameId(effect.played_by_user_id, state.user?.id) ? 'You' : source.display_name;
   return `
-    <article class="curse-effect-entry">
+    <article class="curse-effect-entry${isVetoedCurse(effect) ? ' is-vetoed' : ''}">
       <div class="curse-meta">
         ${avatarMarkup(source, 'mini-avatar')}
         <span class="curse-meta-copy">
@@ -256,18 +267,23 @@ function curseEffectMarkup(effect) {
 }
 
 function effectDisplaySort(a, b) {
-  const thiefOrder = Number(isCompletedThief(a)) - Number(isCompletedThief(b));
-  if (thiefOrder) return thiefOrder;
+  const typeOrder = (effect) => (isCompletedThief(effect) ? 2 : isVetoedCurse(effect) ? 1 : 0);
+  const statusOrder = typeOrder(a) - typeOrder(b);
+  if (statusOrder) return statusOrder;
   return new Date(b.played_at || 0) - new Date(a.played_at || 0);
 }
 
 function targetCurseSummary(effects) {
-  const liveCountForTarget = effects.filter((effect) => !isCompletedThief(effect)).length;
-  const thiefCount = effects.length - liveCountForTarget;
+  const liveCountForTarget = effects.filter((effect) => !isCompletedThief(effect) && !isVetoedCurse(effect)).length;
+  const vetoedCount = effects.filter(isVetoedCurse).length;
+  const thiefCount = effects.filter(isCompletedThief).length;
   const liveText = liveCountForTarget === 1 ? '1 live Curse' : `${liveCountForTarget} live Curses`;
-  if (!thiefCount) return liveText;
+  const parts = [liveText];
+  if (vetoedCount) parts.push(vetoedCount === 1 ? '1 vetoed Curse' : `${vetoedCount} vetoed Curses`);
+  if (!thiefCount) return parts.join(' • ');
   const thiefText = thiefCount === 1 ? '1 completed Thief' : `${thiefCount} completed Thieves`;
-  return `${liveText} • ${thiefText}`;
+  parts.push(thiefText);
+  return parts.join(' • ');
 }
 
 function render() {
@@ -280,7 +296,7 @@ function render() {
   });
 
   const total = state.effects.length;
-  const activeEffects = state.effects.filter((effect) => !isCompletedThief(effect));
+  const activeEffects = state.effects.filter((effect) => !isCompletedThief(effect) && !isVetoedCurse(effect));
   const liveTargets = new Set(activeEffects.map((effect) => String(effect.target_user_id)));
   const targeted = liveTargets.size;
   const ownCount = activeEffects.filter((effect) => sameId(effect.target_user_id, state.user?.id)).length;
@@ -313,7 +329,7 @@ function render() {
     const target = profileFor(targetUserId);
     const isYou = sameId(targetUserId, state.user?.id);
     const sortedEffects = [...effects].sort(effectDisplaySort);
-    const liveCountForTarget = effects.filter((effect) => !isCompletedThief(effect)).length;
+    const liveCountForTarget = effects.filter((effect) => !isCompletedThief(effect) && !isVetoedCurse(effect)).length;
     return `
       <article class="victim-card${isYou ? ' is-you' : ''}">
         <div class="victim-head">
@@ -365,7 +381,7 @@ async function loadLiveCurses() {
         .select('id, gameweek_id, start_gameweek_id, end_gameweek_id, fixture_id, played_at, played_by_user_id, target_user_id, status, payload, card_definitions!inner(effect_key, name, description, category)')
         .eq('competition_id', state.league.id)
         .eq('season_id', state.league.season_id)
-        .in('status', ['active', 'resolved'])
+        .in('status', ['active', 'resolved', 'vetoed'])
         .not('target_user_id', 'is', null)
         .eq('card_definitions.category', 'curse'),
       supabase

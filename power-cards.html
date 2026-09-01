@@ -99,13 +99,13 @@ button:disabled {
   border-radius: 8px;
   background: rgba(17, 7, 38, 0.72);
   color: #fff;
-  border: 1px solid rgba(216, 180, 254, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.86);
   cursor: pointer;
   transition: 0.3s;
   z-index: 1200;
   transform: translate3d(0, 0, 0);
   will-change: transform;
-  box-shadow: 0 4px 15px rgba(17, 7, 38, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 5px 15px rgba(17, 7, 38, 0.28);
 }
 
 .back-home-btn:hover {
@@ -10894,7 +10894,7 @@ async function syncMedals() {
           const keepUsedCardInHandBeforeKickoff = usedMeta
             && !usedMeta.hasGameweekStarted
             && !usedIsVetoed
-            && !['power_swap', 'super_sub', 'super_draw', 'super_star_man', 'super_score', 'super_duo', 'super_golden_gameweek', 'super_pen'].includes(usedMeta.effectKey);
+            && !['power_swap', 'power_veto', 'super_sub', 'super_draw', 'super_star_man', 'super_score', 'super_duo', 'super_golden_gameweek', 'super_pen'].includes(usedMeta.effectKey);
           if (keepUsedCardInHandBeforeKickoff) {
             const playerKey = userIdToPlayerKey.get(row.owner_user_id);
             if (playerKey && gameState.players[playerKey]) {
@@ -11468,6 +11468,7 @@ async function syncMedals() {
         const effectKey = effect.payload?.effect_key || definition?.effect_key || '';
         const status = String(effect.status || '').toLowerCase();
         const countsForGameweekCap = status === 'active'
+          || status === 'vetoed'
           || (status === 'resolved' && effectKey === 'curse_thief');
         if (
           !countsForGameweekCap

@@ -1,0 +1,236 @@
+body.slick-game-card {
+  background:
+    radial-gradient(circle at 10% 0%,rgba(255,255,255,.2),transparent 25%),
+    radial-gradient(circle at 92% 38%,rgba(76,29,149,.2),transparent 30%),
+    linear-gradient(135deg,#7358cf 0%,#a78aeb 54%,#d1c2fb 100%);
+}
+
+body.slick-game-card header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.4);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,255,255,.16),transparent 52%),
+    linear-gradient(90deg,#6d4bc4,#9271dc 54%,#b59fec);
+  box-shadow: 0 8px 20px rgba(17,7,38,.22);
+}
+
+body.slick-game-card header h1 {
+  font-size: clamp(1.7rem,4vw,2.35rem);
+  -webkit-text-stroke: 1px #05010c;
+}
+
+body.slick-game-card main {
+  width: min(1180px,100%);
+  padding: 12px 12px 34px;
+}
+
+body.slick-game-card .toolbar { margin-bottom: 10px; }
+
+body.slick-game-card .panel {
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.54);
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(255,255,255,.1),transparent 28%),
+    linear-gradient(145deg,rgba(46,16,102,.79),rgba(17,7,38,.66));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.11),0 12px 28px rgba(17,7,38,.22);
+}
+
+body.slick-game-card .round-list { gap: 10px; }
+
+body.slick-game-card .round-panel {
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.38);
+  border-radius: 11px;
+  background:
+    radial-gradient(circle at 0 0,rgba(52,211,153,.08),transparent 24%),
+    linear-gradient(145deg,rgba(17,7,38,.48),rgba(46,16,102,.28));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07),0 8px 18px rgba(17,7,38,.18);
+}
+
+body.slick-game-card .round-label {
+  padding: 4px 9px;
+  border: 1px solid rgba(253,224,71,.45);
+  background: rgba(17,7,38,.64);
+  color: #fde68a;
+  font-size: .66rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+body.slick-game-card .active-card-layout {
+  grid-template-columns: 126px minmax(0,1fr);
+  gap: 12px;
+  margin-bottom: 0;
+  padding: 9px;
+  border: 1px solid rgba(216,180,254,.2);
+  border-radius: 10px;
+  background: rgba(17,7,38,.3);
+}
+
+body.slick-game-card .game-card-visual {
+  width: 112px;
+  border-width: 2px;
+  border-radius: 10px;
+  font-size: .78rem;
+  box-shadow: 0 0 15px rgba(110,231,183,.46),0 8px 18px rgba(0,0,0,.3),inset 0 0 12px rgba(255,255,255,.12);
+}
+
+body.slick-game-card .card-copy {
+  padding: 10px 12px;
+  border: 0;
+  border-left: 1px solid rgba(216,180,254,.22);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+}
+
+body.slick-game-card .card-copy h2 { margin-bottom: 4px; font-size: clamp(1.25rem,3vw,1.75rem); }
+body.slick-game-card .card-copy p { margin-bottom: 5px; color: #e9d5ff; font-size: .78rem; line-height: 1.35; }
+body.slick-game-card .range-pill { margin: 4px 0 6px; padding: 4px 8px; font-size: .66rem; }
+
+body.slick-game-card .gameweek-list { gap: 6px; }
+
+body.slick-game-card .gameweek-row {
+  grid-template-columns: 58px minmax(112px,1fr) 112px 92px 23px 78px;
+  gap: 7px;
+  min-height: 54px;
+  padding: 8px;
+  border: 1px solid rgba(216,180,254,.2);
+  border-radius: 8px;
+  background: rgba(17,7,38,.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+body.slick-game-card .gameweek-row.current-gameweek {
+  border: 1px solid rgba(253,224,71,.76);
+  box-shadow: inset 3px 0 0 #facc15,inset 0 1px 0 rgba(255,255,255,.06),0 5px 14px rgba(17,7,38,.2);
+}
+
+body.slick-game-card .gameweek-badge { padding: 4px 6px; font-size: 10px; }
+body.slick-game-card .deadline,
+body.slick-game-card .result-value { font-size: 10px; line-height: 1.12; }
+body.slick-game-card .prediction-input { min-height: 32px; padding: 5px 7px; border-radius: 7px; font-size: 13px; }
+body.slick-game-card .save-light { width: 14px; height: 14px; box-shadow: 0 0 9px rgba(255,56,92,.8),inset 0 -2px 4px rgba(0,0,0,.4); }
+body.slick-game-card .save-light.saved { box-shadow: 0 0 9px rgba(61,255,140,.8),inset 0 -2px 4px rgba(0,0,0,.4); }
+body.slick-game-card .gameweek-row button { min-height: 31px; padding: 5px 7px; border: 1px solid rgba(255,255,255,.6); border-radius: 7px; font-size: 10px; }
+
+body.slick-game-card .underdog-match-browser { gap: 8px; }
+body.slick-game-card .underdog-matches-toggle,
+body.slick-game-card .history-toggle-btn {
+  min-height: 38px;
+  border-width: 1px;
+  border-radius: 8px;
+  font-size: .76rem;
+}
+
+body.slick-game-card .game-history-launch,
+body.slick-game-card .game-history-panel {
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.32);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(74,222,128,.08),transparent 40%),
+    rgba(17,7,38,.32);
+}
+
+body.slick-game-card .history-toggle-btn.active-leaderboard-toggle {
+  min-height: 39px;
+  border-width: 1px;
+  border-radius: 8px;
+  font-size: .78rem;
+  box-shadow: 0 0 14px rgba(250,204,21,.5),0 6px 14px rgba(46,16,0,.25),inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+body.slick-game-card .game-history-detail {
+  gap: 5px;
+  padding: 8px;
+  border: 1px solid rgba(216,180,254,.23);
+  border-radius: 9px;
+  background: rgba(17,7,38,.32);
+}
+
+body.slick-game-card .history-detail-title { font-size: 1.05rem; text-shadow: 0 0 12px rgba(250,204,21,.52); }
+body.slick-game-card .history-detail-description { margin-bottom: 2px; font-size: .7rem; }
+
+body.slick-game-card .game-card-ranking-rules {
+  display: grid;
+  grid-template-columns: auto repeat(5,minmax(0,1fr));
+  gap: 4px;
+  align-items: stretch;
+  margin: 1px 0 4px;
+  padding: 5px;
+  border: 1px solid rgba(196,181,253,.22);
+  border-radius: 7px;
+  background: rgba(46,16,102,.34);
+}
+
+body.slick-game-card .game-card-ranking-rules strong,
+body.slick-game-card .game-card-ranking-rules span {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 4px 5px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: .58rem;
+  line-height: 1.1;
+}
+
+body.slick-game-card .game-card-ranking-rules strong { color: #fde68a; text-transform: uppercase; letter-spacing: .06em; }
+body.slick-game-card .game-card-ranking-rules span { background: rgba(17,7,38,.48); color: #e9d5ff; font-weight: 800; }
+
+body.slick-game-card .history-result-row {
+  grid-template-columns: minmax(155px,1fr) 56px repeat(var(--history-week-count),minmax(38px,50px));
+  gap: 5px;
+  min-height: 44px;
+  padding: 6px;
+  border: 1px solid rgba(216,180,254,.1);
+  border-radius: 7px;
+}
+
+body.slick-game-card .history-result-head { min-height: 34px; font-size: 10px; }
+body.slick-game-card .history-avatar { width: 29px; height: 29px; border-width: 1px; }
+body.slick-game-card .history-player-cell strong,
+body.slick-game-card .history-final-rank,
+body.slick-game-card .history-week-rank { font-size: 11px; }
+
+body.slick-game-card .game-history-card-grid { grid-template-columns: repeat(auto-fit,minmax(104px,1fr)); gap: 8px; }
+body.slick-game-card .game-history-card { width: min(112px,100%); border-width: 2px; border-radius: 9px; font-size: .68rem; }
+body.slick-game-card .history-range-badge { padding: 3px 5px; font-size: 8px; }
+body.slick-game-card .message { margin-top: 7px; font-size: .75rem; }
+
+@media (max-width: 760px) {
+  body.slick-game-card main { padding: 9px 8px 26px; }
+  body.slick-game-card .panel { padding: 8px; border-radius: 11px; }
+  body.slick-game-card .round-panel { padding: 8px; }
+  body.slick-game-card .active-card-layout { grid-template-columns: 82px minmax(0,1fr); gap: 8px; padding: 7px; }
+  body.slick-game-card .game-card-visual { width: 74px; font-size: .58rem; }
+  body.slick-game-card .card-copy { padding: 6px 8px; text-align: left; }
+  body.slick-game-card .card-copy h2 { font-size: 1rem; }
+  body.slick-game-card .card-copy p { font-size: .64rem; line-height: 1.25; }
+  body.slick-game-card .range-pill { padding: 3px 6px; font-size: .55rem; }
+  body.slick-game-card .gameweek-row { grid-template-columns: 38px minmax(50px,.8fr) minmax(62px,1fr) 48px 14px 42px; gap: 3px; min-height: 46px; padding: 6px 4px; }
+  body.slick-game-card .deadline,
+  body.slick-game-card .result-value { font-size: 8.5px; }
+  body.slick-game-card .gameweek-badge { padding: 3px 4px; font-size: 9px; }
+  body.slick-game-card .prediction-input { min-height: 28px; padding: 4px; font-size: 12px; }
+  body.slick-game-card .gameweek-row button { min-height: 28px; padding: 4px 2px; font-size: 9px; }
+  body.slick-game-card .game-card-ranking-rules { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  body.slick-game-card .game-card-ranking-rules strong { grid-column: 1 / -1; }
+  body.slick-game-card .game-card-ranking-rules span:last-child { grid-column: 1 / -1; }
+  body.slick-game-card .history-result-row { grid-template-columns: minmax(82px,1fr) minmax(32px,.45fr) repeat(var(--history-week-count),minmax(27px,.5fr)); gap: 3px; padding: 5px 3px; }
+}
+
+@media (max-width: 380px) {
+  body.slick-game-card .active-card-layout { grid-template-columns: 72px minmax(0,1fr); }
+  body.slick-game-card .game-card-visual { width: 66px; }
+  body.slick-game-card .gameweek-row { grid-template-columns: 34px minmax(42px,.8fr) minmax(54px,1fr) 43px 13px 39px; gap: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.slick-game-card * { transition: none !important; }
+}

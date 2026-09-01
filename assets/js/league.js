@@ -4,7 +4,7 @@ import {
   loadLeagueContext,
 } from './league-context.js';
 import { isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
-import { currentLiveCurseEffects } from './live-curses-model.js?v=20260831-cache-hotfix';
+import { currentLiveCurseEffects } from './live-curses-model.js?v=20260901-vetoed-v1';
 import {
   nextMedalProgress,
   STAR_MAN_GOAL_MEDAL_THRESHOLDS,

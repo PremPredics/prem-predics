@@ -758,6 +758,18 @@ function compareDisplayNames(a, b) {
   );
 }
 
+function rankingRulesMarkup() {
+  return `
+    <div class="game-card-ranking-rules" aria-label="Game Card leaderboard ranking rules">
+      <strong>Ranking order</strong>
+      <span>Fewest missed picks</span>
+      <span>Lowest weekly-rank total</span>
+      <span>Most exact picks</span>
+      <span>Lowest total distance</span>
+      <span>Random draw only if still tied</span>
+    </div>`;
+}
+
 function activeLeaderboardMembers(round) {
   const standings = activeStandingLookup(round);
   return [...state.members.entries()]
@@ -806,6 +818,7 @@ function renderActiveLeaderboardDetail(round) {
     <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
       <h3 class="history-detail-title">Current ${escapeHtml(cardName)} Leaderboard</h3>
       <p class="history-detail-description">Your picks show now. Rivals reveal after each GW locks.</p>
+      ${rankingRulesMarkup()}
       <div class="history-result-row history-result-head">
         <span>Player</span>
         <span>Current</span>
@@ -904,6 +917,7 @@ function renderHistoryDetail(round) {
     <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
       <h3 class="history-detail-title">${escapeHtml(cardName)}</h3>
       <p class="history-detail-description">${escapeHtml(historyCardInstruction(cardName))}</p>
+      ${rankingRulesMarkup()}
       <div class="history-result-row history-result-head">
         <span>Player</span>
         <span>Final</span>

@@ -20,6 +20,7 @@ export function currentLiveCurseEffects(effects, activeGameweek, gameweekNumbers
     const effectKey = effect?.payload?.effect_key || definition?.effect_key || '';
     const status = String(effect?.status || '').toLowerCase();
     const visibleStatus = status === 'active'
+      || status === 'vetoed'
       || (status === 'resolved' && effectKey === 'curse_thief');
 
     return visibleStatus
@@ -37,7 +38,11 @@ export function isCompletedThief(effect) {
     && effectKey === 'curse_thief';
 }
 
+export function isVetoedCurse(effect) {
+  return String(effect?.status || '').toLowerCase() === 'vetoed';
+}
+
 export function currentActiveCurseEffects(effects, activeGameweek, gameweekNumbers) {
   return currentLiveCurseEffects(effects, activeGameweek, gameweekNumbers)
-    .filter((effect) => !isCompletedThief(effect));
+    .filter((effect) => !isCompletedThief(effect) && !isVetoedCurse(effect));
 }

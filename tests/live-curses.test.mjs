@@ -6,6 +6,7 @@ import {
   currentLiveCurseEffects,
   effectAppliesToGameweek,
   isCompletedThief,
+  isVetoedCurse,
 } from '../assets/js/live-curses-model.js';
 
 const leagueHtml = readFileSync(new URL('../league.html', import.meta.url), 'utf8');
@@ -36,9 +37,10 @@ test('current Gameweek includes direct and spanning live curses only', () => {
     effect({ status: 'resolved', payload: { effect_key: 'curse_thief' } }),
     effect({ status: 'resolved', payload: { effect_key: 'curse_hated' } }),
   ];
-  assert.equal(currentLiveCurseEffects(rows, current, gameweeks).length, 3);
+  assert.equal(currentLiveCurseEffects(rows, current, gameweeks).length, 4);
   assert.equal(currentActiveCurseEffects(rows, current, gameweeks).length, 2);
   assert.equal(isCompletedThief(rows[7]), true);
+  assert.equal(isVetoedCurse(rows[4]), true);
   assert.equal(effectAppliesToGameweek(rows[1], current, gameweeks), true);
   assert.equal(effectAppliesToGameweek(rows[2], current, gameweeks), false);
 });
@@ -85,8 +87,8 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(leagueJs, /loadOwnLiveCurseCount[^]*\.in\('status', \['active', 'resolved'\]\)/);
   assert.match(leagueJs, /currentLiveCurseEffects/);
   assert.doesNotMatch(leagueJs, /currentActiveCurseEffects/);
-  assert.match(leagueJs, /live-curses-model\.js\?v=20260831-cache-hotfix/);
-  assert.match(pageJs, /live-curses-model\.js\?v=20260831-cache-hotfix/);
+  assert.match(leagueJs, /live-curses-model\.js\?v=20260901-vetoed-v1/);
+  assert.match(pageJs, /live-curses-model\.js\?v=20260901-vetoed-v1/);
   assert.match(pageHtml, /\.curse-effects-grid \{ display: grid; grid-template-columns: minmax\(0,1fr\)/);
   assert.doesNotMatch(pageJs, /--effect-columns/);
   assert.match(pageJs, /sortedEffects\.map\(curseCardMarkup\)/);
@@ -95,14 +97,20 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(predictionsJs, /sameId\(state\.selectedUserId, state\.user\.id\) \|\| forcedCurseVisible/);
   assert.match(predictionsJs, /all-predictions-curses-/);
   assert.match(predictionsJs, /table: 'curse_gambler_rolls'/);
-  assert.match(pageJs, /status', \['active', 'resolved'\]/);
+  assert.match(pageJs, /status', \['active', 'resolved', 'vetoed'\]/);
   assert.match(pageJs, /stolen_card_id/);
   assert.match(pageJs, /was stolen from/);
   assert.match(pageHtml, /stolen-card-preview\.power-card/);
   assert.match(pageJs, /effectDisplaySort/);
-  assert.match(pageJs, /Number\(isCompletedThief\(a\)\) - Number\(isCompletedThief\(b\)\)/);
+  assert.match(pageJs, /isVetoedCurse\(effect\) \? 1 : 0/);
   assert.match(pageJs, /Completed Steal/);
   assert.match(pageJs, /activeEffects = state\.effects\.filter/);
+  assert.match(pageJs, /Star Man cannot be from a current Top 10 Club/);
+  assert.match(pageJs, /nationality must be from a country with a population of under 10 million/);
+  assert.match(pageJs, /scores double negative pts for Yellow and Red cards/);
+  assert.match(pageJs, /Power of the Veto blocked this Curse/);
+  assert.match(pageHtml, /\.live-curse-card\.is-vetoed/);
+  assert.match(pageHtml, /\.vetoed-stamp/);
   assert.match(pageHtml, /\.curse-impact \{[^}]*background: linear-gradient\(110deg,rgba\(127,29,29,.55\),rgba\(76,5,25,.34\)\)/s);
   assert.match(pageHtml, /\.curse-impact\.is-locked \{[^}]*background: linear-gradient\(110deg,rgba\(127,29,29,.55\),rgba\(76,5,25,.34\)\)/s);
   assert.match(pageHtml, /\.curse-hero \{[^}]*padding: 14px;[^}]*border-radius: 12px;/s);
@@ -110,7 +118,7 @@ test('Live Curses UI is linked, realtime, personalised and PWA-cached', () => {
   assert.match(pageHtml, /\.hero-stat:nth-child\(3\) \{ --stat-color: #4ade80; \}/);
   assert.match(pageHtml, /\.hero-stat \{[^}]*min-height: 62px;/s);
   assert.match(pageHtml, /@media \(max-width: 480px\)[^]*\.hero-stat \{ min-height: 54px;/);
-  assert.match(worker, /prem-predics-pwa-v70/);
+  assert.match(worker, /prem-predics-pwa-v71/);
   assert.match(worker, /\.\/live-curses\.html/);
   assert.match(realtimeMigration, /pg_publication_tables/);
   assert.match(realtimeMigration, /alter publication supabase_realtime add table public\.active_card_effects/);

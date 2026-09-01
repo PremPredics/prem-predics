@@ -1964,7 +1964,7 @@ begin
     and ace.target_user_id = new.target_user_id
     and ace.target_user_id is distinct from ace.played_by_user_id
     and (
-      ace.status = 'active'
+      ace.status in ('active', 'vetoed')
       or (ace.status = 'resolved' and cd.effect_key = 'curse_thief')
     )
     and target_gameweek_number between start_gw.number and end_gw.number;
@@ -3163,20 +3163,93 @@ from ranked;
 create or replace view public.game_card_round_standings
 with (security_invoker = true)
 as
-with standings as (
+with round_scope as (
   select
-    round_id,
-    competition_id,
-    season_id,
-    card_id,
-    round_number,
-    user_id,
-    count(distinct gameweek_id) as completed_gameweeks,
-    count(*) filter (where is_weekly_winner) as weekly_wins,
-    sum(difference) as total_difference,
-    sum(weekly_rank) as rank_points
-  from public.game_card_week_scores
-  group by round_id, competition_id, season_id, card_id, round_number, user_id
+    gcr.id as round_id,
+    gcr.competition_id,
+    gcr.season_id,
+    gcr.card_id,
+    gcr.round_number,
+    start_gw.number as start_gameweek_number,
+    end_gw.number as end_gameweek_number
+  from public.game_card_rounds gcr
+  join public.gameweeks start_gw on start_gw.id = gcr.start_gameweek_id
+  join public.gameweeks end_gw on end_gw.id = gcr.end_gameweek_id
+),
+result_weeks as (
+  select
+    scope.round_id,
+    gw.id as gameweek_id
+  from round_scope scope
+  join public.gameweeks gw
+    on gw.season_id = scope.season_id
+   and gw.number between scope.start_gameweek_number and scope.end_gameweek_number
+  left join public.game_card_results gcrs
+    on gcrs.round_id = scope.round_id
+   and gcrs.gameweek_id = gw.id
+  left join public.game_card_actual_results gcar
+    on gcar.season_id = scope.season_id
+   and gcar.gameweek_id = gw.id
+   and gcar.card_id = scope.card_id
+  where coalesce(gcrs.actual_value, gcar.actual_value) is not null
+),
+round_totals as (
+  select
+    scope.round_id,
+    scope.competition_id,
+    scope.season_id,
+    scope.card_id,
+    scope.round_number,
+    count(result_weeks.gameweek_id)::bigint as expected_gameweeks
+  from round_scope scope
+  left join result_weeks on result_weeks.round_id = scope.round_id
+  group by scope.round_id, scope.competition_id, scope.season_id, scope.card_id, scope.round_number
+),
+participants as (
+  select
+    totals.*,
+    members.user_id,
+    count(*) over (partition by totals.round_id)::bigint as member_count
+  from round_totals totals
+  join public.competition_members members
+    on members.competition_id = totals.competition_id
+  where totals.expected_gameweeks > 0
+),
+standings as (
+  select
+    participants.round_id,
+    participants.competition_id,
+    participants.season_id,
+    participants.card_id,
+    participants.round_number,
+    participants.user_id,
+    count(distinct scores.gameweek_id)::bigint as completed_gameweeks,
+    count(*) filter (where scores.is_weekly_winner)::bigint as weekly_wins,
+    coalesce(sum(scores.difference), 0::bigint)::bigint as total_difference,
+    participants.expected_gameweeks,
+    greatest(
+      participants.expected_gameweeks - count(distinct scores.gameweek_id)::bigint,
+      0::bigint
+    ) as missed_gameweeks,
+    count(*) filter (where scores.difference = 0)::bigint as exact_predictions,
+    coalesce(sum(scores.weekly_rank), 0::numeric)
+      + greatest(
+          participants.expected_gameweeks - count(distinct scores.gameweek_id)::bigint,
+          0::bigint
+        ) * (participants.member_count + 1) as rank_points
+  from participants
+  left join public.game_card_week_scores scores
+    on scores.round_id = participants.round_id
+   and scores.user_id = participants.user_id
+  group by
+    participants.round_id,
+    participants.competition_id,
+    participants.season_id,
+    participants.card_id,
+    participants.round_number,
+    participants.user_id,
+    participants.expected_gameweeks,
+    participants.member_count
 ),
 ranked as (
   select
@@ -3189,12 +3262,18 @@ ranked as (
     standings.completed_gameweeks,
     standings.weekly_wins,
     standings.total_difference,
+    standings.expected_gameweeks,
+    standings.missed_gameweeks,
+    standings.exact_predictions,
+    standings.rank_points,
     coalesce(gcrt.uc_points_at_tiebreak, 0) as uc_points_at_tiebreak,
     coalesce(gcrt.random_tiebreak_rank, 999999) as random_tiebreak_rank,
     rank() over (
       partition by standings.round_id
       order by
+        standings.missed_gameweeks asc,
         standings.rank_points asc,
+        standings.exact_predictions desc,
         standings.total_difference asc,
         coalesce(gcrt.random_tiebreak_rank, 999999) asc
     ) as round_rank
@@ -3204,8 +3283,23 @@ ranked as (
     and gcrt.user_id = standings.user_id
 )
 select
-  ranked.*,
-  ranked.round_rank = 1 as earns_super_medal
+  ranked.round_id,
+  ranked.competition_id,
+  ranked.season_id,
+  ranked.card_id,
+  ranked.round_number,
+  ranked.user_id,
+  ranked.completed_gameweeks,
+  ranked.weekly_wins,
+  ranked.total_difference,
+  ranked.uc_points_at_tiebreak,
+  ranked.random_tiebreak_rank,
+  ranked.round_rank,
+  ranked.round_rank = 1 as earns_super_medal,
+  ranked.expected_gameweeks,
+  ranked.missed_gameweeks,
+  ranked.exact_predictions,
+  ranked.rank_points
 from ranked;
 
 create or replace view public.game_card_bonus_totals
