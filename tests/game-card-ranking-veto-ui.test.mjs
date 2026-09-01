@@ -39,6 +39,23 @@ test('Game Card rankings put complete two-week entries above a one-week entry', 
         uc_points_at_tiebreak integer not null default 0,
         random_tiebreak_rank integer not null
       );
+
+      create view game_card_round_standings as
+      select
+        null::uuid as round_id,
+        null::uuid as competition_id,
+        null::uuid as season_id,
+        null::text as card_id,
+        null::integer as round_number,
+        null::uuid as user_id,
+        null::bigint as completed_gameweeks,
+        null::bigint as weekly_wins,
+        null::numeric as total_difference,
+        null::integer as uc_points_at_tiebreak,
+        null::integer as random_tiebreak_rank,
+        null::bigint as round_rank,
+        null::boolean as earns_super_medal
+      where false;
     `);
 
     const viewStart = migration.indexOf('create or replace view public.game_card_week_scores');

@@ -130,7 +130,7 @@ standings as (
     participants.user_id,
     count(distinct scores.gameweek_id)::bigint as completed_gameweeks,
     count(*) filter (where scores.is_weekly_winner)::bigint as weekly_wins,
-    coalesce(sum(scores.difference), 0::bigint)::bigint as total_difference,
+    coalesce(sum(scores.difference), 0::numeric) as total_difference,
     participants.expected_gameweeks,
     greatest(
       participants.expected_gameweeks - count(distinct scores.gameweek_id)::bigint,
