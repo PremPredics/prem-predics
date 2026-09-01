@@ -41,13 +41,13 @@ with cards (id, name, category, deck_type, effect_key, description) as (
     ('super_duo', 'Super Duo', 'super', 'premium', 'super_duo', 'Choose a 2nd Star Man for this Gameweek. The Duo player can be chosen or changed until that player''s team''s first match in the Gameweek kicks off. They cannot be the same player as your main Star Man. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
     ('super_pen', 'Super Pen', 'super', 'premium', 'super_pen', 'Gain 1 Medal any time a penalty is scored in the Gameweek. Valid for 1 Gameweek. Deck count: 1 card in 2-3 player leagues, 2 cards in 4-6 player leagues, and 3 cards in 7-10 player leagues.'),
 
-    ('game_goals', 'Game of Goals', 'game', 'game', 'game_goals', 'Best-of-5 minigame: predict total goals each gameweek. Winner earns +1 UC point and 1 Super Medal.'),
-    ('game_corners', 'Game of Corners', 'game', 'game', 'game_corners', 'Best-of-5 minigame: predict total corners each gameweek. Winner earns +1 UC point and 1 Super Medal.'),
-    ('game_underdog', 'Game of The Underdog', 'game', 'game', 'game_underdog', 'Best-of-5 minigame: predict teams beating a team above them. Winner earns +1 UC point and 1 Super Medal.'),
-    ('game_goalhanger', 'Game of The Goalhanger', 'game', 'game', 'game_goalhanger', 'Best-of-5 minigame: predict players scoring 2+ goals. Winner earns +1 UC point and 1 Super Medal.'),
-    ('game_war', 'Game of War', 'game', 'game', 'game_war', 'Best-of-5 minigame: predict total yellow cards. Winner earns +1 UC point and 1 Super Medal.'),
-    ('game_early_worm', 'Game of The Early Worm', 'game', 'game', 'game_early_worm', 'Best-of-5 minigame: predict earliest goal minute. Winner earns +1 UC point and 1 Super Medal.'),
-    ('game_time', 'Game of Time', 'game', 'game', 'game_time', 'Best-of-5 minigame: predict total 90+ minute goals. Winner earns +1 UC point and 1 Super Medal.')
+    ('game_goals', 'Game of Goals', 'game', 'game', 'game_goals', 'Best-of-5 minigame: predict total goals each Gameweek. The winner earns +1 UC point; Super Medals are awarded by league size and final place.'),
+    ('game_corners', 'Game of Corners', 'game', 'game', 'game_corners', 'Best-of-5 minigame: predict total corners each Gameweek. The winner earns +1 UC point; Super Medals are awarded by league size and final place.'),
+    ('game_underdog', 'Game of The Underdog', 'game', 'game', 'game_underdog', 'Best-of-5 minigame: predict teams beating a team above them. The winner earns +1 UC point; Super Medals are awarded by league size and final place.'),
+    ('game_goalhanger', 'Game of The Goalhanger', 'game', 'game', 'game_goalhanger', 'Best-of-5 minigame: predict players scoring 2+ goals. The winner earns +1 UC point; Super Medals are awarded by league size and final place.'),
+    ('game_war', 'Game of War', 'game', 'game', 'game_war', 'Best-of-5 minigame: predict total yellow cards. The winner earns +1 UC point; Super Medals are awarded by league size and final place.'),
+    ('game_early_worm', 'Game of The Early Worm', 'game', 'game', 'game_early_worm', 'Best-of-5 minigame: predict the earliest goal minute. The winner earns +1 UC point; Super Medals are awarded by league size and final place.'),
+    ('game_time', 'Game of Time', 'game', 'game', 'game_time', 'Best-of-5 minigame: predict total 90+ minute goals. The winner earns +1 UC point; Super Medals are awarded by league size and final place.')
 )
 insert into public.card_definitions (id, name, category, deck_type, effect_key, description)
 select id, name, category, deck_type, effect_key, description

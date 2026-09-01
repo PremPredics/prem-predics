@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v72';
+const CACHE_VERSION = 'prem-predics-pwa-v73';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -53,7 +53,8 @@ const APP_SHELL = [
   './assets/js/desktop-polish.js',
   './assets/js/desktop-prediction-final-polish.js',
   './assets/js/desktop-summary-polish.js',
-  './assets/js/game-card.js?v=20260901-ranking-v1',
+  './assets/js/game-card.js?v=20260901-awards-v1',
+  './assets/js/game-card-awards.js?v=20260901-v1',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js?v=20260828-player-pool',
   './assets/js/index-actions.js?v=20260901-home-loader-v1',
@@ -64,7 +65,7 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260831-football-loader-v1',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260901-full-capacity-v1',
+  './assets/js/league.js?v=20260901-live-curses-copy-v1',
   './assets/js/live-curses.js?v=20260901-vetoed-v1',
   './assets/js/live-curses-model.js?v=20260901-vetoed-v1',
   './assets/js/medal-progress.js',
@@ -80,7 +81,7 @@ const APP_SHELL = [
   './assets/js/reset-password.js',
   './assets/js/site-auth.js?v=20260828-startup-reliability',
   './assets/js/star-man-hub.js',
-  './assets/js/star-man.js?v=20260901-slick-v2',
+  './assets/js/star-man.js?v=20260901-search-card-v1',
   './assets/js/statistics.js?v=20260831-slick-v1',
   './assets/js/supabase-client.js',
   './assets/js/ui-polish.js',

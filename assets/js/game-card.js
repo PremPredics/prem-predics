@@ -8,6 +8,10 @@ import {
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import {
+  gameCardSuperMedalAwardCount,
+  gameCardSuperMedalAwardSummary,
+} from './game-card-awards.js?v=20260901-v1';
 
 const leagueLink = document.querySelector('[data-league-link]');
 const content = document.querySelector('[data-game-card-content]');
@@ -758,6 +762,30 @@ function compareDisplayNames(a, b) {
   );
 }
 
+function awardMemberCount() {
+  const lockedCount = Number(state.league?.locked_member_count);
+  return Number.isInteger(lockedCount) && lockedCount >= 2
+    ? lockedCount
+    : Math.max(2, state.members.size);
+}
+
+function superMedalAwardMarkup(roundRank) {
+  const count = gameCardSuperMedalAwardCount(awardMemberCount(), roundRank);
+  if (!count) return '';
+  const label = `${count} Super Medal${count === 1 ? '' : 's'}`;
+  return `<span class="super-medal-award" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><span aria-hidden="true">&#127941;</span>&times;${count}</span>`;
+}
+
+function awardRowClass(roundRank) {
+  const count = gameCardSuperMedalAwardCount(awardMemberCount(), roundRank);
+  if (!count) return '';
+  return Number(roundRank) === 1 ? 'super-medal-place award-first' : 'super-medal-place award-second';
+}
+
+function awardSummaryMarkup() {
+  return `<p class="game-card-award-summary"><span aria-hidden="true">&#127941;</span>${escapeHtml(gameCardSuperMedalAwardSummary(awardMemberCount()))}</p>`;
+}
+
 function rankingRulesMarkup() {
   return `
     <div class="game-card-ranking-rules" aria-label="Game Card leaderboard ranking rules">
@@ -818,10 +846,11 @@ function renderActiveLeaderboardDetail(round) {
     <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
       <h3 class="history-detail-title">Current ${escapeHtml(cardName)} Leaderboard</h3>
       <p class="history-detail-description">Your picks show now. Rivals reveal after each GW locks.</p>
+      ${awardSummaryMarkup()}
       ${rankingRulesMarkup()}
       <div class="history-result-row history-result-head">
         <span>Player</span>
-        <span>Current</span>
+        <span>Rank</span>
         ${gameweeks.map((gameweek) => `<span class="gameweek-badge history-week-heading">GW${escapeHtml(gameweek.gameweek_number)}</span>`).join('')}
       </div>
       <div class="history-result-row history-actual-row">
@@ -839,13 +868,14 @@ function renderActiveLeaderboardDetail(round) {
       ${members.map(({ userId, profile, standing }) => {
         const ownRow = String(userId) === String(state.user.id);
         const currentRank = standing?.completed_gameweeks ? ordinalRank(standing.round_rank) : '-';
+        const rank = standing?.completed_gameweeks ? Number(standing.round_rank) : 0;
         return `
-          <div class="history-result-row ${ownRow ? 'current-user' : ''}">
+          <div class="history-result-row ${ownRow ? 'current-user' : ''} ${awardRowClass(rank)}">
             <span class="history-player-cell">
               ${avatarMarkup(profile)}
               <strong>${escapeHtml(profile.display_name || 'Player')}${ownRow ? ' (You)' : ''}</strong>
             </span>
-            <span class="history-final-rank">${escapeHtml(currentRank)}</span>
+            <span class="history-final-rank">${escapeHtml(currentRank)}${superMedalAwardMarkup(rank)}</span>
             ${gameweeks.map((gameweek) => renderActivePredictionCell(round, gameweek, userId)).join('')}
           </div>
         `;
@@ -917,10 +947,11 @@ function renderHistoryDetail(round) {
     <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
       <h3 class="history-detail-title">${escapeHtml(cardName)}</h3>
       <p class="history-detail-description">${escapeHtml(historyCardInstruction(cardName))}</p>
+      ${awardSummaryMarkup()}
       ${rankingRulesMarkup()}
       <div class="history-result-row history-result-head">
         <span>Player</span>
-        <span>Final</span>
+        <span>Rank</span>
         ${gameweeks.map((gameweek) => `<span class="gameweek-badge history-week-heading">GW${escapeHtml(gameweek.gameweek_number)}</span>`).join('')}
       </div>
       <div class="history-result-row history-actual-row">
@@ -939,12 +970,12 @@ function renderHistoryDetail(round) {
         const profile = profileForUser(row.user_id);
         const rank = Number(row.round_rank || 0);
         return `
-          <div class="history-result-row">
+          <div class="history-result-row ${awardRowClass(rank)}">
             <span class="history-player-cell">
               ${avatarMarkup(profile)}
               <strong>${escapeHtml(profile.display_name || 'Player')}</strong>
             </span>
-            <span class="history-final-rank ${rank === 1 ? 'winner' : ''}">${escapeHtml(ordinalRank(rank))}</span>
+            <span class="history-final-rank ${rank === 1 ? 'winner' : ''}">${escapeHtml(ordinalRank(rank))}${superMedalAwardMarkup(rank)}</span>
             ${gameweeks.map((gameweek) => {
               const score = scoreLookup.get(`${gameweek.gameweek_id}:${row.user_id}`);
               const value = score?.predicted_value;

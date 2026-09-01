@@ -752,7 +752,7 @@ body.choice-panel-open { overflow: hidden; }
 .medal-progress-card.goal-progress { --medal-color:#4ade80; }
 .medal-progress-top { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 7px; min-height: 1.75em; min-width: 0; }
 .medal-progress-copy { display: flex; align-items: center; justify-content: space-between; gap: 7px; min-width: 0; }
-.medal-progress-top span { min-width: 0; display: flex; align-items: center; overflow: visible; color: var(--medal-color); font-size: .72rem; font-weight: 950; line-height: 1.05; text-overflow: clip; text-transform: uppercase; white-space: normal; }
+.medal-progress-top span { min-width: 0; display: flex; align-items: center; overflow: visible; color: var(--medal-color); font-size: .72rem; font-weight: 950; line-height: 1.05; text-overflow: clip; text-transform: uppercase; white-space: nowrap; }
 .medal-progress-top i { margin-right: 5px; font-style: normal; }
 .medal-progress-top strong { color: #fff; font-size: .82rem; }
 .medal-progress-copy { margin: 5px 0 6px; }
@@ -794,8 +794,10 @@ footer {
   }
 
   main {
-    padding: 22px 12px 36px;
+    padding: 22px 6px 36px;
   }
+
+  .league-panel { padding: 14px 10px; border-width: 1px; }
 
   .league-summary {
     grid-template-columns: 1fr;
@@ -976,10 +978,12 @@ footer {
   .medal-progress-panel { margin-top: -8px; padding: 9px; }
   .medal-progress-heading { margin-bottom: 7px; }
   .medal-progress-heading strong { font-size: .7rem; }
-  .medal-progress-grid { gap: 7px; }
-  .medal-progress-card { padding: 8px 7px; }
-  .medal-progress-top span { font-size: .62rem; }
-  .medal-progress-top strong { font-size: .72rem; }
+  .medal-progress-grid { gap: 6px; }
+  .medal-progress-card { padding: 8px 6px; }
+  .medal-progress-top { grid-template-columns: minmax(0,1fr) auto; gap: 4px; }
+  .medal-progress-top span { font-size: clamp(.54rem,2.65vw,.62rem); letter-spacing: -.012em; white-space: nowrap; }
+  .medal-progress-top i { margin-right: 3px; }
+  .medal-progress-top strong { font-size: .68rem; }
   .medal-progress-copy { align-items: flex-start; flex-direction: column; gap: 2px; margin: 5px 0 6px; }
   .medal-progress-copy b { font-size: .76rem; }
   .medal-progress-copy span { width: 100%; font-size: .6rem; text-align: left; }
@@ -1101,7 +1105,7 @@ footer {
 
 <script type="module" src="assets/js/page-loader.js?v=20260831-football-v1"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260901-full-capacity-v1"></script>
+<script type="module" src="assets/js/league.js?v=20260901-live-curses-copy-v1"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

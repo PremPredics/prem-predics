@@ -26,8 +26,8 @@ test('Home uses the football loader and restores the gold Global Admin control',
   assert.match(slickCss, /button\.admin-access svg \{ fill: #3f2400/);
 });
 
-test('League Hub medal headings wrap cleanly and full leagues hide their join code', () => {
-  assert.match(league, /\.medal-progress-top span \{[^}]*text-overflow: clip;[^}]*white-space: normal;/s);
+test('League Hub medal headings stay on one clean line and full leagues hide their join code', () => {
+  assert.match(league, /\.medal-progress-top span \{[^}]*text-overflow: clip;[^}]*white-space: nowrap;/s);
   assert.match(league, /data-join-code-panel/);
   assert.match(league, /\.join-code\[hidden\] \{ display: none !important; \}/);
   assert.match(leagueJs, /const joinCodePanel = document\.querySelector\('\[data-join-code-panel\]'\)/);
@@ -54,10 +54,10 @@ test('Correct Scores uses neutral lilac badges and compact centred fixture rows'
 
 test('Game Card help and PWA cache match the released rules and assets', () => {
   assert.match(howToPlay, /fewest missed submissions, lowest total of shared weekly ranks, most exact predictions, lowest total absolute distance/);
-  assert.match(howToPlay, /winner earns 1 Super Medal, regardless of league size/);
-  assert.match(worker, /prem-predics-pwa-v72/);
+  assert.match(howToPlay, /In 7-10 player leagues, 1st earns 2 and 2nd earns 1/);
+  assert.match(worker, /prem-predics-pwa-v73/);
   assert.match(worker, /leagues-slick\.css\?v=20260901-v1/);
   assert.match(worker, /correct-scores-slick\.css\?v=20260901-v1/);
   assert.match(worker, /index-actions\.js\?v=20260901-home-loader-v1/);
-  assert.match(worker, /league\.js\?v=20260901-full-capacity-v1/);
+  assert.match(worker, /league\.js\?v=20260901-live-curses-copy-v1/);
 });

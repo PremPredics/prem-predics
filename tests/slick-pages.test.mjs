@@ -28,7 +28,7 @@ test('Star Man uses a compact responsive selection workspace', () => {
   assert.match(starMan, /class="pp-page-loading slick-star-man"/);
   assert.match(starMan, /Current Gameweek Selection/);
   assert.match(starMan, /slick-pages\.css\?v=20260901-slick-v3/);
-  assert.match(starMan, /star-man\.js\?v=20260901-slick-v2/);
+  assert.match(starMan, /star-man\.js\?v=20260901-search-card-v1/);
   assert.match(starManJs, /playerVisualMarkup\(player, \{ showCountry: false \}\)/);
   assert.match(css, /body\.slick-star-man \.panel,[^]*border: 1px solid rgba\(255,255,255,\.52\);/s);
   assert.match(css, /body\.slick-star-man \.history-panel \{ min-height: 0; height: auto;/);
@@ -52,10 +52,10 @@ test('Statistics renders compact player rows and responsive metric grids', () =>
   assert.match(css, /body\.slick-statistics \.stat\.game-won-stat \{ grid-column: span 2; width: auto; \}/);
 });
 
-test('PWA v72 caches the corrected premium stylesheet and revised page scripts', () => {
-  assert.match(worker, /prem-predics-pwa-v72/);
+test('PWA v73 caches the corrected premium stylesheet and revised page scripts', () => {
+  assert.match(worker, /prem-predics-pwa-v73/);
   assert.match(worker, /slick-pages\.css\?v=20260901-slick-v3/);
   assert.match(worker, /index-actions\.js\?v=20260901-home-loader-v1/);
-  assert.match(worker, /star-man\.js\?v=20260901-slick-v2/);
+  assert.match(worker, /star-man\.js\?v=20260901-search-card-v1/);
   assert.match(worker, /statistics\.js\?v=20260831-slick-v1/);
 });

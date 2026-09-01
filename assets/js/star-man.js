@@ -523,7 +523,7 @@ function playerCardMarkup(player, options = {}) {
 
   return `
     <span class="player-card-name">${escapeHtml(player.display_name)}</span>
-    ${playerVisualMarkup(player)}
+    ${playerVisualMarkup(player, { showCountry: mode !== 'search' })}
     <span class="player-card-footer">
       <span class="player-card-team">${escapeHtml(teamName(player.team_id))}</span>
       ${mode === 'preview' || mode === 'selected' ? `<span class="player-card-meta">${escapeHtml(meta || 'Star Man Pick')}</span>` : `<span class="player-card-status">${escapeHtml(status)}</span>`}

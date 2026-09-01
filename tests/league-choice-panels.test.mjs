@@ -56,15 +56,15 @@ test('League Hub reference accents and destination navigation are streamlined', 
   for (const script of ['predictions.js', 'all-predictions.js', 'star-man.js', 'all-star-men.js']) {
     assert.doesNotMatch(read(`../assets/js/${script}`), /(?:prediction-hub|star-man-hub)\.html/);
   }
-  assert.match(leagueHtml, /league\.js\?v=20260901-full-capacity-v1/);
+  assert.match(leagueHtml, /league\.js\?v=20260901-live-curses-copy-v1/);
   assert.match(leagueHtml, /\.toolbar \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\) minmax\(0, 1\.18fr\) minmax\(92px, \.72fr\);/s);
   assert.match(leagueHtml, /@media \(max-width: 650px\)[^]*\.toolbar \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/s);
   assert.match(leagueHtml, /\.toolbar a\[data-profile-link\] \{[^}]*grid-column: 1 \/ 3;[^}]*grid-row: 2;/s);
   assert.match(leagueHtml, /\.toolbar a,\s*\.toolbar button \{[^}]*border: 1px solid rgba\(255,255,255,\.78\);/s);
   assert.match(leagueHtml, /\.toolbar a\.how-to-play-link \{[^}]*border-color: rgba\(255,255,255,\.78\);/s);
   assert.match(leagueHtml, /\.toolbar button\.sign-out-btn \{[^}]*border: 1px solid rgba\(255,255,255,\.78\);/s);
-  assert.match(serviceWorker, /prem-predics-pwa-v72/);
-  assert.match(serviceWorker, /league\.js\?v=20260901-full-capacity-v1/);
+  assert.match(serviceWorker, /prem-predics-pwa-v73/);
+  assert.match(serviceWorker, /league\.js\?v=20260901-live-curses-copy-v1/);
 });
 
 test('League Hub masks first load and refresh with a progressive full-page loader', () => {

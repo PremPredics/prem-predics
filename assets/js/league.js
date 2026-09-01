@@ -860,7 +860,7 @@ async function renderLeague(league, user) {
     },
     {
       page: 'live-curses.html',
-      title: 'Live Curses',
+      title: `View All Live Curses for GW${gameweekNumber}`,
       detail: `See every Curse affecting the league in Gameweek ${gameweekNumber}.`,
       accent: '#ef4444',
       tier: 'reference',
