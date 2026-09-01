@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v69';
+const CACHE_VERSION = 'prem-predics-pwa-v70';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -40,7 +40,7 @@ const APP_SHELL = [
   './assets/css/pwa-install.css',
   './assets/css/password-reset.css',
   './assets/css/page-loader.css?v=20260831-football-v2',
-  './assets/css/slick-pages.css?v=20260831-slick-v1',
+  './assets/css/slick-pages.css?v=20260901-slick-v2',
   './assets/js/all-predictions.js?v=20260831-football-loader-v1',
   './assets/js/all-star-men.js?v=20260831-football-loader-v1',
   './assets/js/capacitor-app.js',
@@ -76,7 +76,7 @@ const APP_SHELL = [
   './assets/js/reset-password.js',
   './assets/js/site-auth.js?v=20260828-startup-reliability',
   './assets/js/star-man-hub.js',
-  './assets/js/star-man.js?v=20260831-slick-v1',
+  './assets/js/star-man.js?v=20260901-slick-v2',
   './assets/js/statistics.js?v=20260831-slick-v1',
   './assets/js/supabase-client.js',
   './assets/js/ui-polish.js',

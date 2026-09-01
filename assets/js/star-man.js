@@ -498,16 +498,17 @@ function flagImageUrl(code) {
   return `https://flagcdn.com/w160/${String(code).toLowerCase()}.png`;
 }
 
-function playerVisualMarkup(player) {
+function playerVisualMarkup(player, options = {}) {
   const nationality = player.nationality || 'Nationality';
   const code = nationalityCode(nationality);
   const flagUrl = flagImageUrl(code);
+  const showCountry = options.showCountry !== false;
 
   return `
     <span class="player-card-photo-frame flag-card-visual${flagUrl ? '' : ' flag-missing'}" aria-label="${escapeHtml(nationality)}">
       ${flagUrl ? `<img class="player-card-flag-image" src="${escapeHtml(flagUrl)}" alt="" loading="lazy" onerror="this.remove(); this.closest('.flag-card-visual')?.classList.add('flag-missing');">` : ''}
       <span class="player-card-flag-fallback" aria-hidden="true">${escapeHtml(code === 'INT' ? playerInitials(player) : code)}</span>
-      <span class="player-card-country">${escapeHtml(nationality)}</span>
+      ${showCountry ? `<span class="player-card-country">${escapeHtml(nationality)}</span>` : ''}
     </span>
   `;
 }
@@ -1507,7 +1508,7 @@ function renderStarManHistory() {
         <article class="history-star-card">
           <strong class="history-gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</strong>
           <span class="history-star-name">${escapeHtml(player.display_name)}</span>
-          ${playerVisualMarkup(player)}
+          ${playerVisualMarkup(player, { showCountry: false })}
           <span class="history-star-team">${escapeHtml(teamName(player.team_id))}${pick.pick_slot === 'super_duo' ? ' - Super Duo' : ''}</span>
         </article>
       `).join('')}
