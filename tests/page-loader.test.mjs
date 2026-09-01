@@ -13,7 +13,7 @@ const pages = [
   ['all-star-men.html', 'all-star-men.js', '20260831-football-loader-v1'],
   ['leaderboard.html', 'leaderboard.js', '20260831-football-loader-v1'],
   ['medals.html', 'medals.js', '20260831-football-loader-v1'],
-  ['game-card.html', 'game-card.js', '20260901-awards-v1'],
+  ['game-card.html', 'game-card.js', '20260901-awards-v2'],
   ['correct-scores.html', 'correct-scores.js', '20260831-football-loader-v1'],
   ['live-curses.html', 'live-curses.js', '20260901-vetoed-v1'],
   ['star-man.html', 'star-man.js', '20260901-search-card-v1'],
@@ -58,7 +58,7 @@ test('loader rolls a football into a revealed goal and always has a safety compl
 });
 
 test('PWA cache includes the complete shared loader release', () => {
-  assert.match(worker, /prem-predics-pwa-v73/);
+  assert.match(worker, /prem-predics-pwa-v74/);
   assert.match(worker, /page-loader\.css\?v=20260831-football-v2/);
   assert.match(worker, /page-loader\.js\?v=20260831-football-v1/);
   for (const [, scriptFile, version] of pages) {

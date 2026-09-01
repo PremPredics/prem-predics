@@ -63,7 +63,7 @@ test('League Hub reference accents and destination navigation are streamlined', 
   assert.match(leagueHtml, /\.toolbar a,\s*\.toolbar button \{[^}]*border: 1px solid rgba\(255,255,255,\.78\);/s);
   assert.match(leagueHtml, /\.toolbar a\.how-to-play-link \{[^}]*border-color: rgba\(255,255,255,\.78\);/s);
   assert.match(leagueHtml, /\.toolbar button\.sign-out-btn \{[^}]*border: 1px solid rgba\(255,255,255,\.78\);/s);
-  assert.match(serviceWorker, /prem-predics-pwa-v73/);
+  assert.match(serviceWorker, /prem-predics-pwa-v74/);
   assert.match(serviceWorker, /league\.js\?v=20260901-live-curses-copy-v1/);
 });
 

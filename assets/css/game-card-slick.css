@@ -179,7 +179,7 @@ body.slick-game-card .game-card-award-summary > span { font-size: .82rem; }
 
 body.slick-game-card .game-card-ranking-rules {
   display: grid;
-  grid-template-columns: auto repeat(5,minmax(0,1fr));
+  grid-template-columns: auto repeat(6,minmax(0,1fr));
   gap: 4px;
   align-items: stretch;
   margin: 1px 0 4px;
@@ -235,27 +235,31 @@ body.slick-game-card .history-final-rank {
   align-items: center;
   justify-content: center;
   gap: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 body.slick-game-card .super-medal-award {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 1px;
-  min-width: 30px;
-  padding: 2px 4px;
+  gap: 2px;
+  width: 31px;
+  max-width: 100%;
+  padding: 2px;
   border: 1px solid rgba(255,248,198,.7);
   border-radius: 999px;
   background: linear-gradient(135deg,#fff1a8,#facc15 56%,#d97706);
   color: #3b2100;
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 1000;
   line-height: 1;
   text-shadow: 0 1px 0 rgba(255,255,255,.42);
   white-space: nowrap;
 }
 
-body.slick-game-card .super-medal-award > span { font-size: 10px; }
+body.slick-game-card .super-medal-award > span { font-size: 6px; letter-spacing: -.02em; }
+body.slick-game-card .super-medal-award > b { font-size: 8px; }
 
 body.slick-game-card .history-result-head { min-height: 34px; font-size: 10px; }
 body.slick-game-card .history-avatar { width: 29px; height: 29px; border-width: 1px; }
@@ -287,9 +291,9 @@ body.slick-game-card .message { margin-top: 7px; font-size: .75rem; }
   body.slick-game-card .game-card-ranking-rules { grid-template-columns: repeat(2,minmax(0,1fr)); }
   body.slick-game-card .game-card-ranking-rules strong { grid-column: 1 / -1; }
   body.slick-game-card .game-card-ranking-rules span:last-child { grid-column: 1 / -1; }
-  body.slick-game-card .history-result-row { grid-template-columns: minmax(82px,1fr) minmax(32px,.45fr) repeat(var(--history-week-count),minmax(27px,.5fr)); gap: 3px; padding: 5px 3px; }
+  body.slick-game-card .history-result-row { grid-template-columns: minmax(78px,1fr) 40px repeat(var(--history-week-count),minmax(27px,.5fr)); gap: 3px; padding: 5px 3px; }
   body.slick-game-card .game-card-award-summary { padding: 4px 6px; font-size: .55rem; }
-  body.slick-game-card .super-medal-award { min-width: 27px; padding: 2px 3px; font-size: 7px; }
+  body.slick-game-card .super-medal-award { width: 28px; padding: 2px 1px; }
 }
 
 @media (max-width: 380px) {

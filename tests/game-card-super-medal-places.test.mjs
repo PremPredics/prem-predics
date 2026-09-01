@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { testDependency } from './support/dependencies.mjs';
 import {
   gameCardSuperMedalAwardCount,
+  gameCardSuperMedalAwardCounts,
   gameCardSuperMedalAwardSummary,
 } from '../assets/js/game-card-awards.js';
 
@@ -26,7 +27,44 @@ test('award matrix matches every supported league-size tier', () => {
     gameCardSuperMedalAwardCount(size, 2),
     gameCardSuperMedalAwardCount(size, 3),
   ]), [[2, 1, 0], [2, 1, 0], [2, 1, 0], [2, 1, 0]]);
+  assert.equal(gameCardSuperMedalAwardSummary(6), '1st: 2 Super Medals · exact two-way tie: 1 each');
   assert.equal(gameCardSuperMedalAwardSummary(10), '1st: 2 Super Medals · 2nd: 1 Super Medal');
+});
+
+test('four-to-six player exact two-way best-performance tie splits the two-medal pool', () => {
+  const base = {
+    missed_gameweeks: 0,
+    exact_predictions: 2,
+    total_difference: 3,
+    weekly_wins: 2,
+    rank_points: 8,
+  };
+  const awards = gameCardSuperMedalAwardCounts(6, [
+    { ...base, user_id: 'a', round_rank: 1 },
+    { ...base, user_id: 'b', round_rank: 2 },
+    { ...base, user_id: 'c', round_rank: 3, total_difference: 4 },
+  ]);
+
+  assert.deepEqual(awards, { a: 1, b: 1 });
+  assert.equal(Object.values(awards).reduce((total, count) => total + count, 0), 2);
+});
+
+test('three-way performance tie still uses the unique final order without multiplying medals', () => {
+  const base = {
+    missed_gameweeks: 0,
+    exact_predictions: 1,
+    total_difference: 4,
+    weekly_wins: 1,
+    rank_points: 9,
+  };
+  const awards = gameCardSuperMedalAwardCounts(6, [
+    { ...base, user_id: 'a', round_rank: 1 },
+    { ...base, user_id: 'b', round_rank: 2 },
+    { ...base, user_id: 'c', round_rank: 3 },
+  ]);
+
+  assert.deepEqual(awards, { a: 2 });
+  assert.equal(Object.values(awards).reduce((total, count) => total + count, 0), 2);
 });
 
 test('migration compiles twice, awards the correct tokens and avoids held Super Card types', async () => {
@@ -148,10 +186,10 @@ test('compact UI exposes award places, one-line medal label and revised card cop
   assert.match(migration, /held\.zone = 'hand'[^]*held\.card_id = available\.card_id/s);
   assert.match(leagueHtml, /\.medal-progress-top span \{[^}]*white-space: nowrap;/s);
   assert.match(leagueJs, /View All Live Curses for GW\$\{gameweekNumber\}/);
-  assert.match(gameCardJs, /gameCardSuperMedalAwardCount/);
+  assert.match(gameCardJs, /gameCardSuperMedalAwardCounts/);
   assert.match(gameCardJs, /<span>Rank<\/span>/);
   assert.match(gameCardCss, /\.history-result-row\.super-medal-place/);
   assert.match(starManJs, /playerVisualMarkup\(player, \{ showCountry: mode !== 'search' \}\)/);
-  assert.match(worker, /prem-predics-pwa-v73/);
-  assert.match(worker, /game-card-awards\.js\?v=20260901-v1/);
+  assert.match(worker, /prem-predics-pwa-v74/);
+  assert.match(worker, /game-card-awards\.js\?v=20260901-v2/);
 });

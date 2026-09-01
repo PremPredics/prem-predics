@@ -3272,10 +3272,30 @@ ranked as (
       partition by standings.round_id
       order by
         standings.missed_gameweeks asc,
-        standings.rank_points asc,
         standings.exact_predictions desc,
         standings.total_difference asc,
-        coalesce(gcrt.random_tiebreak_rank, 999999) asc
+        standings.weekly_wins desc,
+        standings.rank_points asc
+    ) as performance_rank,
+    count(*) over (
+      partition by
+        standings.round_id,
+        standings.missed_gameweeks,
+        standings.exact_predictions,
+        standings.total_difference,
+        standings.weekly_wins,
+        standings.rank_points
+    )::bigint as performance_tie_size,
+    row_number() over (
+      partition by standings.round_id
+      order by
+        standings.missed_gameweeks asc,
+        standings.exact_predictions desc,
+        standings.total_difference asc,
+        standings.weekly_wins desc,
+        standings.rank_points asc,
+        coalesce(gcrt.random_tiebreak_rank, 999999) asc,
+        standings.user_id asc
     ) as round_rank
   from standings
   left join public.game_card_round_tiebreaks gcrt
@@ -3299,7 +3319,9 @@ select
   ranked.expected_gameweeks,
   ranked.missed_gameweeks,
   ranked.exact_predictions,
-  ranked.rank_points
+  ranked.rank_points,
+  ranked.performance_rank,
+  ranked.performance_tie_size
 from ranked;
 
 create or replace view public.game_card_bonus_totals

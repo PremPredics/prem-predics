@@ -9,9 +9,9 @@ import {
 import { loadActiveGameweek } from './gameweek-context.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
 import {
-  gameCardSuperMedalAwardCount,
+  gameCardSuperMedalAwardCounts,
   gameCardSuperMedalAwardSummary,
-} from './game-card-awards.js?v=20260901-v1';
+} from './game-card-awards.js?v=20260901-v2';
 
 const leagueLink = document.querySelector('[data-league-link]');
 const content = document.querySelector('[data-game-card-content]');
@@ -446,7 +446,7 @@ async function loadHistoryData() {
   const [{ data: standings, error: standingsError }, { data: scores, error: scoresError }] = await Promise.all([
     supabase
       .from('game_card_round_standings')
-      .select('round_id, user_id, round_rank, weekly_wins, total_difference, completed_gameweeks, earns_super_medal')
+      .select('round_id, user_id, round_rank, weekly_wins, total_difference, completed_gameweeks, earns_super_medal, expected_gameweeks, missed_gameweeks, exact_predictions, rank_points')
       .eq('competition_id', state.league.id)
       .in('round_id', roundIds),
     supabase
@@ -769,15 +769,13 @@ function awardMemberCount() {
     : Math.max(2, state.members.size);
 }
 
-function superMedalAwardMarkup(roundRank) {
-  const count = gameCardSuperMedalAwardCount(awardMemberCount(), roundRank);
+function superMedalAwardMarkup(count) {
   if (!count) return '';
   const label = `${count} Super Medal${count === 1 ? '' : 's'}`;
-  return `<span class="super-medal-award" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><span aria-hidden="true">&#127941;</span>&times;${count}</span>`;
+  return `<span class="super-medal-award" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><span aria-hidden="true">SM</span><b>&times;${count}</b></span>`;
 }
 
-function awardRowClass(roundRank) {
-  const count = gameCardSuperMedalAwardCount(awardMemberCount(), roundRank);
+function awardRowClass(roundRank, count) {
   if (!count) return '';
   return Number(roundRank) === 1 ? 'super-medal-place award-first' : 'super-medal-place award-second';
 }
@@ -791,10 +789,11 @@ function rankingRulesMarkup() {
     <div class="game-card-ranking-rules" aria-label="Game Card leaderboard ranking rules">
       <strong>Ranking order</strong>
       <span>Fewest missed picks</span>
-      <span>Lowest weekly-rank total</span>
       <span>Most exact picks</span>
       <span>Lowest total distance</span>
-      <span>Random draw only if still tied</span>
+      <span>Most weekly wins</span>
+      <span>Lowest weekly-rank total</span>
+      <span>Stored draw if still level</span>
     </div>`;
 }
 
@@ -841,6 +840,10 @@ function renderActiveLeaderboardDetail(round) {
   const cardName = definition?.name || 'Game Card';
   const gameweeks = roundGameweeks(round);
   const members = activeLeaderboardMembers(round);
+  const awardCounts = gameCardSuperMedalAwardCounts(
+    awardMemberCount(),
+    members.map(({ standing }) => standing).filter(Boolean),
+  );
 
   return `
     <div class="game-history-detail" style="--history-week-count: ${gameweeks.length};">
@@ -867,15 +870,17 @@ function renderActiveLeaderboardDetail(round) {
       </div>
       ${members.map(({ userId, profile, standing }) => {
         const ownRow = String(userId) === String(state.user.id);
-        const currentRank = standing?.completed_gameweeks ? ordinalRank(standing.round_rank) : '-';
-        const rank = standing?.completed_gameweeks ? Number(standing.round_rank) : 0;
+        const hasRanking = Number(standing?.expected_gameweeks || 0) > 0;
+        const currentRank = hasRanking ? ordinalRank(standing.round_rank) : '-';
+        const rank = hasRanking ? Number(standing.round_rank) : 0;
+        const awardCount = awardCounts[String(userId)] || 0;
         return `
-          <div class="history-result-row ${ownRow ? 'current-user' : ''} ${awardRowClass(rank)}">
+          <div class="history-result-row ${ownRow ? 'current-user' : ''} ${awardRowClass(rank, awardCount)}">
             <span class="history-player-cell">
               ${avatarMarkup(profile)}
               <strong>${escapeHtml(profile.display_name || 'Player')}${ownRow ? ' (You)' : ''}</strong>
             </span>
-            <span class="history-final-rank">${escapeHtml(currentRank)}${superMedalAwardMarkup(rank)}</span>
+            <span class="history-final-rank">${escapeHtml(currentRank)}${superMedalAwardMarkup(awardCount)}</span>
             ${gameweeks.map((gameweek) => renderActivePredictionCell(round, gameweek, userId)).join('')}
           </div>
         `;
@@ -932,6 +937,7 @@ function renderHistoryDetail(round) {
     ));
   const gameweeks = roundGameweeks(round);
   const scoreLookup = scoreLookupForRound(round);
+  const awardCounts = gameCardSuperMedalAwardCounts(awardMemberCount(), standings);
 
   if (!standings.length) {
     return `
@@ -969,13 +975,14 @@ function renderHistoryDetail(round) {
       ${standings.map((row) => {
         const profile = profileForUser(row.user_id);
         const rank = Number(row.round_rank || 0);
+        const awardCount = awardCounts[String(row.user_id)] || 0;
         return `
-          <div class="history-result-row ${awardRowClass(rank)}">
+          <div class="history-result-row ${awardRowClass(rank, awardCount)}">
             <span class="history-player-cell">
               ${avatarMarkup(profile)}
               <strong>${escapeHtml(profile.display_name || 'Player')}</strong>
             </span>
-            <span class="history-final-rank ${rank === 1 ? 'winner' : ''}">${escapeHtml(ordinalRank(rank))}${superMedalAwardMarkup(rank)}</span>
+            <span class="history-final-rank ${rank === 1 ? 'winner' : ''}">${escapeHtml(ordinalRank(rank))}${superMedalAwardMarkup(awardCount)}</span>
             ${gameweeks.map((gameweek) => {
               const score = scoreLookup.get(`${gameweek.gameweek_id}:${row.user_id}`);
               const value = score?.predicted_value;

@@ -5829,7 +5829,7 @@ html.capacitor-android .card-tile.used-card::after {
 
   .deck-overview-panel .decks-container {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 6px;
   }
 
@@ -6526,7 +6526,7 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
   <!-- Deck Overview Modal -->
   <div class="card-preview-modal deck-overview-modal" id="deckOverviewModal">
     <div class="deck-overview-wrapper">
-      <div class="deck-overview-title">All Decks</div>
+      <div class="deck-overview-title">Card Decks</div>
       <div class="deck-overview-panel">
         <div class="decks-container" id="decksContainer"></div>
       </div>
@@ -7688,13 +7688,6 @@ function updateDecksDisplay() {
       <div class="deck-info">
         <div class="deck-label">Premium</div>
         <div class="deck-count">${gameState.premiumDeck.length}</div>
-      </div>
-    </div>
-    <div class="deck-item">
-      <div class="deck-card-visual game">Game</div>
-      <div class="deck-info">
-        <div class="deck-label">Game</div>
-        <div class="deck-count">${gameState.gameCardDeck.length}</div>
       </div>
     </div>
   `;

@@ -53,7 +53,7 @@ test('Statistics renders compact player rows and responsive metric grids', () =>
 });
 
 test('PWA v73 caches the corrected premium stylesheet and revised page scripts', () => {
-  assert.match(worker, /prem-predics-pwa-v73/);
+  assert.match(worker, /prem-predics-pwa-v74/);
   assert.match(worker, /slick-pages\.css\?v=20260901-slick-v3/);
   assert.match(worker, /index-actions\.js\?v=20260901-home-loader-v1/);
   assert.match(worker, /star-man\.js\?v=20260901-search-card-v1/);
