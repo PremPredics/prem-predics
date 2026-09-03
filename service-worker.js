@@ -159,7 +159,10 @@ async function sensitiveDocument(request) {
 
 async function networkFirst(request) {
   try {
-    const response = await fetch(request);
+    // Local app assets can retain the same URL across a hotfix. Bypass the
+    // browser HTTP cache so the service worker always checks the deployed file
+    // before falling back to its offline cache.
+    const response = await fetch(request, { cache: 'no-store' });
     await putInCache(RUNTIME_CACHE, request, response.clone());
     return response;
   } catch {
