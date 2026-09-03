@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1008,7 +1008,7 @@
             <div class="goal-card">
                 <span class="goal-card-title">The Goal</span>
                 <p>The player with the most <span class="keyword text-uc">Ultimate Champion Points (UC pts)</span> becomes the Prem Predics Ultimate Champion. Earn UC pts through accurate score predictions, smart Star Man picks, card strategy, and Game Card wins.</p>
-                <p><strong>Main Leaderboard ties:</strong> Positions are decided by most UC pts, most Prediction points, most Correct Scores, most Correct Results, most Star Man points, most Star Man goals, most Star Man assists, fewest Star Man yellow cards, then fewest Star Man red cards. If all nine are equal, the players share the position and are displayed alphabetically; usernames never change the shared position.</p>
+                <p><strong>Main Leaderboard ties:</strong> Positions are decided by most UC pts, most Correct Scores, most Correct Results, most Prediction points, most Star Man points, most Star Man goals, most Star Man assists, fewest Star Man yellow cards, then fewest Star Man red cards. If all nine are equal, the players share the position and are displayed alphabetically; usernames never change the shared position.</p>
             </div>
 
             <p class="unofficial-disclaimer-card">Prem Predics is an independent private league prediction game and is not affiliated with, endorsed by, or connected to the Premier League, its clubs, or its players.</p>
@@ -1226,7 +1226,6 @@
             const cardsList = document.getElementById('cardsList');
             cardsList.innerHTML = '';
             
-            // Power Cards
             const powerTitle = document.createElement('div');
             powerTitle.className = 'card-category';
             powerTitle.textContent = 'Power Cards (14 Types)';
@@ -1239,7 +1238,6 @@
             });
             cardsList.appendChild(powerGrid);
             
-            // Curse Cards
             const curseTitle = document.createElement('div');
             curseTitle.className = 'card-category';
             curseTitle.textContent = 'Curse Cards (14 Types)';
@@ -1252,7 +1250,6 @@
             });
             cardsList.appendChild(curseGrid);
             
-            // Super Cards
             const superTitle = document.createElement('div');
             superTitle.className = 'card-category';
             superTitle.textContent = 'Super Cards (7 Types)';
@@ -1265,7 +1262,6 @@
             });
             cardsList.appendChild(superGrid);
             
-            // Game Cards
             const gameTitle = document.createElement('div');
             gameTitle.className = 'card-category';
             gameTitle.textContent = 'Game Cards (7 Types)';
@@ -1323,7 +1319,6 @@
             document.body.classList.remove('card-modal-open');
         }
         
-        // Initialize cards on page load
         populateCards();
 
         document.getElementById('cardViewBack').addEventListener('click', closeCardView);
@@ -1343,5 +1338,3 @@
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
 </html>
-
-

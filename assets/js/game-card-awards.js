@@ -17,9 +17,9 @@ function performanceValue(value, fallback = 0) {
 export function compareMainLeagueCriteria(a, b) {
   return (
     performanceValue(b?.ultimate_champion_points) - performanceValue(a?.ultimate_champion_points)
-    || performanceValue(b?.prediction_points) - performanceValue(a?.prediction_points)
     || performanceValue(b?.correct_scores) - performanceValue(a?.correct_scores)
     || performanceValue(b?.correct_results) - performanceValue(a?.correct_results)
+    || performanceValue(b?.prediction_points) - performanceValue(a?.prediction_points)
     || performanceValue(b?.star_man_points) - performanceValue(a?.star_man_points)
     || performanceValue(b?.star_man_goals) - performanceValue(a?.star_man_goals)
     || performanceValue(b?.star_man_assists) - performanceValue(a?.star_man_assists)

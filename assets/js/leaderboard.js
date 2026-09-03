@@ -58,9 +58,9 @@ function bindLeaderboardHeaderLinks() {
 function compareRankingCriteria(a, b) {
   return (
     numberValue(b.ultimate_champion_points) - numberValue(a.ultimate_champion_points)
-    || numberValue(b.prediction_points) - numberValue(a.prediction_points)
     || numberValue(b.correct_scores) - numberValue(a.correct_scores)
     || numberValue(b.correct_results) - numberValue(a.correct_results)
+    || numberValue(b.prediction_points) - numberValue(a.prediction_points)
     || numberValue(b.star_man_points) - numberValue(a.star_man_points)
     || numberValue(b.star_man_goals) - numberValue(a.star_man_goals)
     || numberValue(b.star_man_assists) - numberValue(a.star_man_assists)
