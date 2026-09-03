@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v76';
+const CACHE_VERSION = 'prem-predics-pwa-v77';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -63,7 +63,7 @@ const APP_SHELL = [
   './assets/js/load-all-rows.js',
   './assets/js/player-stats-pool.js',
   './assets/js/session-user.js',
-  './assets/js/leaderboard.js?v=20260831-football-loader-v1',
+  './assets/js/leaderboard.js?v=20260903-tiebreak-v2',
   './assets/js/league-context.js',
   './assets/js/league.js?v=20260901-live-curses-copy-v1',
   './assets/js/live-curses.js?v=20260901-vetoed-v1',
