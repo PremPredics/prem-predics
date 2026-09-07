@@ -312,8 +312,8 @@ function render() {
   if (!total) {
     board.innerHTML = `
       <div class="empty-state">
-        <h3>The league is curse-free... for now.</h3>
-        <p>No active Curse Cards are affecting anyone in this Gameweek. This board updates automatically when that changes.</p>
+        <h3>No Curses played</h3>
+        <p>No Curse Cards have been played yet this Gameweek. This board will update automatically when that changes.</p>
       </div>`;
     return;
   }

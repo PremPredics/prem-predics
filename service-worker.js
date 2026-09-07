@@ -1,8 +1,9 @@
-const CACHE_VERSION = 'prem-predics-pwa-v77';
+const CACHE_VERSION = 'prem-predics-pwa-v78';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
+  './assets/css/league-pages-polish.css?v=20260907-v1',
   './',
   './index.html',
   './login.html',
