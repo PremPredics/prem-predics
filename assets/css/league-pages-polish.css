@@ -1,4 +1,17 @@
 /* Shared presentation only: player identities, scoring and permissions remain in JS. */
+body.pp-refined .toolbar.league-toolbar {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr)) minmax(130px,1.2fr) minmax(85px,.8fr);
+  gap: 8px; width: 100%; margin-bottom: 14px;
+}
+body.pp-refined .league-toolbar :is(a,button) {
+  min-height: 42px; height: auto; padding: 8px 10px; white-space: normal;
+  overflow: visible; text-overflow: clip; line-height: 1.25; font-size: .78rem;
+  font-weight: 700; text-shadow: none; border-color: #ffffffd9;
+}
+body.pp-refined .league-toolbar .how-to-play-full { display: inline; }
+body.pp-refined .league-toolbar .how-to-play-short { display: none; }
+body.pp-refined .league-toolbar .profile-edit-link { justify-content: center; gap: 8px; }
+body.pp-refined .league-toolbar .profile-edit-avatar { order: -1; width: 25px; height: 25px; flex: 0 0 25px; box-shadow: none; }
 body.pp-refined main { box-sizing: border-box; }
 body.pp-refined .toolbar { display: flex; justify-content: center; }
 body.pp-refined .toolbar :is(a[data-league-link], a[data-league-back]),
@@ -105,6 +118,10 @@ body.pp-refined .empty-state {
 body.pp-refined .empty-state h3 { margin: 0 0 10px; color: #fff; font-size: 1.2rem; text-shadow: none; }
 body.pp-refined .empty-state p { max-width: 440px; margin: auto; color: #e9ddff; font-size: .88rem; line-height: 1.65; }
 @media (max-width:650px) {
+  body.pp-refined .toolbar.league-toolbar { grid-template-columns: repeat(6,minmax(0,1fr)); gap: 7px; }
+  body.pp-refined .league-toolbar > :nth-child(-n+3) { grid-column: span 2; }
+  body.pp-refined .league-toolbar > :nth-child(n+4) { grid-column: span 3; }
+  body.pp-refined .league-toolbar :is(a,button) { min-height: 42px; font-size: .73rem; padding: 7px 5px; }
   body.pp-refined header h1 { white-space: normal !important; font-size: clamp(1.05rem,4.3vw,1.5rem) !important; line-height: 1.3; }
   body.pp-refined main { padding-left: 10px; padding-right: 10px; }
   body.pp-refined :is(.panel,.correct-panel) { padding: 12px 9px; }
@@ -115,7 +132,39 @@ body.pp-refined .empty-state p { max-width: 440px; margin: auto; color: #e9ddff;
   body.pp-refined .curse-hero { padding: 12px; gap: 12px; }
   body.pp-refined .star-choice { font-size: 12px; }
 }
+/* History screens prioritise a full Gameweek in a compact viewport. */
+body.pp-history main { padding: 7px 8px 20px; }
+body.pp-history .toolbar { margin-bottom: 7px; }
+body.pp-history .toolbar a[data-league-link] { min-height: 34px; padding: 6px 12px; }
+body.pp-history :is(.panel,.correct-panel) { padding: 8px; gap: 5px; }
+body.pp-history .page-head { margin: 0; gap: 3px; }
+body.pp-history .page-head h2 { font-size: 1.05rem; margin: 0; }
+body.pp-history .page-head p { font-size: .72rem; margin: 3px 0; }
+body.pp-history .player-pills { width: min(100%,240px); gap: 5px 8px; padding: 6px; margin: 5px auto 7px; }
+body.pp-history .player-pill { width: 32px; height: 32px; font-size: 12px; }
+body.pp-history :is(.star-list,.fixtures,.correct-score-list) { gap: 3px; }
+body.pp-history :is(.star-row,.prediction-row,.correct-score-row,.correct-score-row.has-effects) { min-height: 29px; padding-top: 3px; padding-bottom: 3px; border-radius: 7px; }
+body.pp-history .prediction-row > span:nth-child(2), body.pp-history .prediction-row > span:nth-child(4) { white-space: nowrap; }
+body.pp-history :is(.gw-badge,.correct-gw-pill) { min-height: 20px; min-width: 33px; padding: 3px 5px; font-size: 10px; }
+body.pp-history .star-choice { font-size: 12px; }
+body.pp-history :is(.star-points-badge,.uc-point-badge) { width: 22px; height: 22px; font-size: 11px; }
+body.pp-history .correct-scoreline { min-height: 23px; }
+body.pp-history .gameweek-controls { margin: 4px 0; }
+body.pp-history .gameweek-controls button { min-height: 31px; padding: 5px 8px; }
+body.pp-history .prediction-key { padding: 6px; gap: 5px 8px; font-size: 10px; }
+body.pp-history .result-instruction { margin: 4px 0; font-size: .69rem; }
+/* Make Predictions: surface treatment only; preserve all existing row geometry. */
+body.pp-refined .prediction-row-frame { background: linear-gradient(120deg,#593783de,#382159de); border-color: #ffffff4d; box-shadow: inset 0 1px 0 #ffffff12; }
+body.pp-refined .prediction-hedge-row { background: linear-gradient(120deg,#165773b3,#382159de); border-color: #7dd3fc9e; }
+body.pp-refined :is(.prediction-team,.prediction-goal,.prediction-dash,.prediction-lock) { text-shadow: none; -webkit-text-stroke: 0; }
+body.pp-refined .prediction-gameweek { background: #110726b8; border-color: #d8b4fe4d; color: #fde68a; text-shadow: none; }
+body.pp-refined .prediction-score-input { background: #24143e; border-color: #ffffff80; box-shadow: inset 0 1px 3px #0000001a; text-shadow: none; }
+body.pp-refined .prediction-score-input:focus { border-color: #7dd3fc; box-shadow: 0 0 0 2px #7dd3fc40; }
+/* Card tiles: typography only, deliberately no size/spacing/font-metric changes. */
+body .hand .card-tile,
+body .hand .card-tile :is(.used-card-name,.used-card-label) { text-shadow: none !important; -webkit-text-stroke: 0 !important; }
+body.slick-home .menu button { border-color: #ffffffd9; box-shadow: inset 0 1px 0 #ffffff24,0 6px 16px #170a3326; }
 @media (max-width:360px) {
-  body.pp-refined .player-pill { width: 40px; height: 40px; }
-  body.pp-refined .player-pills { gap: 6px; }
+  body.pp-refined:not(.pp-history) .player-pill { width: 40px; height: 40px; }
+  body.pp-refined:not(.pp-history) .player-pills { gap: 6px; }
 }
