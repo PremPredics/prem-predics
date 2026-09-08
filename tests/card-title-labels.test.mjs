@@ -5,6 +5,11 @@ import vm from 'node:vm';
 
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const context = { window: {} };
+test('Card connectors use the same size as the card name', () => {
+  const css = read('assets/css/league-pages-polish.css');
+  assert.match(css, /\.pp-card-connector\s*\{\s*font-size: 1em;/);
+  assert.match(css, /\.pp-card-name\s*\{\s*font-size: 1em;/);
+});
 vm.runInNewContext(read('assets/js/card-title.js'), context);
 test('Card titles separate category and connector without losing long names', () => {
   const title = context.window.ppCardTitle('Power of the Small and Mighty');
