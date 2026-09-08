@@ -1,9 +1,10 @@
-const CACHE_VERSION = 'prem-predics-pwa-v81';
+const CACHE_VERSION = 'prem-predics-pwa-v82';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
-  './assets/css/league-pages-polish.css?v=20260908-v1',
+  './assets/js/card-title.js?v=20260908-v1',
+  './assets/css/league-pages-polish.css?v=20260908-v2',
   './',
   './index.html',
   './login.html',
@@ -46,10 +47,10 @@ const APP_SHELL = [
   './assets/css/game-card-slick.css?v=20260901-v3',
   './assets/css/leagues-slick.css?v=20260901-v1',
   './assets/css/correct-scores-slick.css?v=20260901-v1',
-  './assets/js/all-predictions.js?v=20260831-football-loader-v1',
-  './assets/js/all-star-men.js?v=20260831-football-loader-v1',
+  './assets/js/all-predictions.js?v=20260908-player-labels',
+  './assets/js/all-star-men.js?v=20260908-player-labels',
   './assets/js/capacitor-app.js',
-  './assets/js/correct-scores.js?v=20260831-football-loader-v1',
+  './assets/js/correct-scores.js?v=20260908-player-labels',
   './assets/js/countries.js',
   './assets/js/desktop-polish.js',
   './assets/js/desktop-prediction-final-polish.js',

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="assets/js/card-title.js?v=20260908-v1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prem Predics - How To Play</title>
@@ -986,6 +987,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
+<link rel="stylesheet" href="assets/css/league-pages-polish.css?v=20260908-v2">
 </head>
 <body>
     <!-- ===== HEADER ===== -->
@@ -1282,7 +1284,7 @@
             cardItem.setAttribute('tabindex', '0');
             cardItem.setAttribute('aria-label', `View ${card.name}`);
             cardItem.innerHTML = `
-                <div class="card-header">${card.name}</div>
+                <div class="card-header">${window.ppCardTitle(card.name)}</div>
                 <div class="card-content"><p>${card.description}</p></div>
             `;
             

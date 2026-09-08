@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="assets/js/card-title.js?v=20260908-v1"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prem Predics - Power Cards</title>
@@ -6366,7 +6367,7 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
 <link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
 <link rel="stylesheet" href="assets/css/page-loader.css?v=20260831-football-v2">
-<link rel="stylesheet" href="assets/css/league-pages-polish.css?v=20260908-v1">
+<link rel="stylesheet" href="assets/css/league-pages-polish.css?v=20260908-v2">
 </head>
 <body class="pp-page-loading" data-page-loader-title="Loading Power Cards Page..." data-require-auth="true" data-require-league="true">
 
@@ -9736,7 +9737,7 @@ function cardTileMarkup(cardName, extraClass = '') {
   const action = pileCardAction(cardName);
   const gameweekNumber = pileCardGameweek(cardName);
   const cardType = getCardType(displayName);
-  return `<div class="card-tile ${cardType} ${extraClass}" data-card-name="${escapeHtml(displayName)}" ${playedByUserId ? `data-played-by-user-id="${escapeHtml(playedByUserId)}"` : ''} ${action ? `data-card-action="${escapeHtml(action)}"` : ''} ${gameweekNumber ? `data-card-gameweek="${escapeHtml(gameweekNumber)}"` : ''}>${escapeHtml(displayName)}</div>`;
+return `<div class="card-tile ${cardType} ${extraClass}" data-card-name="${escapeHtml(displayName)}" ${playedByUserId ? `data-played-by-user-id="${escapeHtml(playedByUserId)}"` : ''} ${action ? `data-card-action="${escapeHtml(action)}"` : ''} ${gameweekNumber ? `data-card-gameweek="${escapeHtml(gameweekNumber)}"` : ''}>${window.ppCardTitle(displayName)}</div>`;
 }
 
 function gameweekHasStartedFromTime(kickoffAt) {
@@ -10297,7 +10298,7 @@ function fitTileText(tile) {
     fitUsedCardTile(tile);
     return;
   }
-  requestAnimationFrame(() => fitTextWithin(tile, 4.8));
+  requestAnimationFrame(() => fitTextWithin(tile, 6));
 }
 
 function render() {
@@ -10339,11 +10340,11 @@ function render() {
         }
         div.dataset.usedWeek = `GW${usedMeta.gameweekNumber || '?'}`;
         div.innerHTML = `
-          <span class="used-card-name">${escapeHtml(isOpponentHand && !revealOpponentCard ? getMaskedCardLabel(c) : c)}</span>
+          <span class="used-card-name">${window.ppCardTitle(isOpponentHand && !revealOpponentCard ? getMaskedCardLabel(c) : c)}</span>
           <span class="used-card-label">Used GW${escapeHtml(usedMeta.gameweekNumber || '?')}</span>
         `;
       } else {
-        div.innerText = isOpponentHand && !revealOpponentCard ? getMaskedCardLabel(c) : c;
+        div.innerHTML = window.ppCardTitle(isOpponentHand && !revealOpponentCard ? getMaskedCardLabel(c) : c);
       }
       div.dataset.player = p;
       div.dataset.index = i;

@@ -170,9 +170,11 @@ function mergeStats(primary, fallback) {
 }
 
 function renderPlayers() {
+  playerPills.style.setProperty('--player-columns', state.members.length <= 5 ? Math.max(1, state.members.length) : Math.ceil(state.members.length / 2));
   playerPills.innerHTML = state.members.map((member) => `
-    <button class="player-pill ${member.user_id === state.selectedUserId ? 'active' : ''}" type="button" data-user-id="${member.user_id}" title="${escapeHtml(member.display_name)}">
-      ${avatar(member)}
+    <button class="player-pill ${member.user_id === state.selectedUserId ? 'active' : ''}" type="button" data-user-id="${member.user_id}" aria-label="${escapeHtml(member.display_name)}" title="${escapeHtml(member.display_name)}">
+      <span class="player-pill-name">${escapeHtml(member.display_name)}</span>
+      <span class="player-pill-avatar">${avatar(member)}</span>
     </button>
   `).join('');
 
