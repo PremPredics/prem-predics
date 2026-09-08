@@ -192,7 +192,7 @@ body.slick-star-man .results.available-browser {
   max-height: min(480px,55dvh); overflow-y: auto; overscroll-behavior-y: contain;
   padding: 12px 8px; margin-top: 8px; border: 1px solid #ffffff66; border-radius: 12px;
   background: linear-gradient(145deg,#503078,#30204d); scrollbar-width: thin; scrollbar-color: #c4b5fd #30204d;
-  align-content: start;
+  align-content: start; align-items: start; grid-auto-rows: max-content;
 }
 body.slick-star-man .results.available-browser:empty { display: none; }
 body.slick-home .menu button { border-color: #ffffffd9; box-shadow: inset 0 1px 0 #ffffff24,0 6px 16px #170a3326; }
