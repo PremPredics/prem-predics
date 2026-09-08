@@ -58,7 +58,7 @@ const state = {
 };
 
 const HISTORY_PAGE_SIZE = 6;
-const AVAILABLE_PLAYER_REVEAL_LIMIT = 65;
+const AVAILABLE_PLAYER_REVEAL_LIMIT = 75;
 const LATE_SCOUT_SELECTED_MATCH_STARTED = "Power of the Late Scout can no longer change your Star Man because your selected Star Man's match has already kicked off.";
 const LATE_SCOUT_ALL_MATCHES_STARTED = 'Power of the Late Scout can no longer change your Star Man because every match in this Gameweek has kicked off.';
 
@@ -1328,6 +1328,7 @@ function renderPlayerResultCards(slot, matches) {
   }
 
   results.classList.add('player-card-results');
+  results.classList.remove('available-browser');
   results.innerHTML = matches.map(({ player, check }) => {
     const reason = check.allowed ? 'Available' : 'Unavailable';
     const title = check.allowed ? `Choose ${playerLabel(player)}` : check.reasons.join(', ');
@@ -1379,7 +1380,7 @@ function updateAvailablePlayerCounter() {
   availablePlayerCount.textContent = `${available.length}/${state.players.length} Players Available For Selection`;
 
   if (available.length > 0 && available.length <= AVAILABLE_PLAYER_REVEAL_LIMIT) {
-    availablePlayerAction.textContent = 'Click to show Available Players';
+    availablePlayerAction.textContent = 'Browse all available players';
     availablePlayerCounter.disabled = false;
     availablePlayerCounter.removeAttribute('aria-disabled');
     return;
@@ -1411,6 +1412,9 @@ function renderAvailablePlayers(slot = 'primary') {
   }
 
   renderPlayerResultCards(slot, matches);
+  results.classList.add('available-browser');
+  results.setAttribute('role', 'region');
+  results.setAttribute('aria-label', 'Available Star Man players');
 }
 
 function renderSearch(slot) {
@@ -1442,6 +1446,10 @@ function renderSearch(slot) {
   }
 
   if (query.length < 2) {
+    if (query === '' && availablePlayerMatches(slot).length <= AVAILABLE_PLAYER_REVEAL_LIMIT) {
+      renderAvailablePlayers(slot);
+      return;
+    }
     const blankExistingMessage = state.existingPicks.get(slot) && query === ''
       ? (slot === 'primary' && ownEffect('super_star_man')
         ? 'Type at least 2 letters.'
@@ -1657,9 +1665,6 @@ async function clearPick(slot) {
   if (slot === 'primary') {
     renderSearch('super_duo');
   }
-  if (results) {
-    setResultsMessage(results, 'Type at least 2 letters.');
-  }
   if (button) {
     button.disabled = true;
   }
@@ -1669,6 +1674,12 @@ async function clearPick(slot) {
 function wireSlots() {
   ['primary', 'super_duo'].forEach((slot) => {
     const { input, button } = slotElements(slot);
+    input.addEventListener('focus', () => {
+      if (!input.value.trim() && canSearchSlot(slot)
+        && availablePlayerMatches(slot).length <= AVAILABLE_PLAYER_REVEAL_LIMIT) {
+        renderAvailablePlayers(slot);
+      }
+    });
     input.addEventListener('input', () => {
       if (!canSearchSlot(slot)) {
         renderSearch(slot);

@@ -1,9 +1,9 @@
-const CACHE_VERSION = 'prem-predics-pwa-v79';
+const CACHE_VERSION = 'prem-predics-pwa-v80';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
-  './assets/css/league-pages-polish.css?v=20260907-v2',
+  './assets/css/league-pages-polish.css?v=20260908-v1',
   './',
   './index.html',
   './login.html',
@@ -82,7 +82,7 @@ const APP_SHELL = [
   './assets/js/reset-password.js',
   './assets/js/site-auth.js?v=20260828-startup-reliability',
   './assets/js/star-man-hub.js',
-  './assets/js/star-man.js?v=20260901-search-card-v1',
+  './assets/js/star-man.js?v=20260908-browse-75',
   './assets/js/statistics.js?v=20260831-slick-v1',
   './assets/js/supabase-client.js',
   './assets/js/ui-polish.js',
