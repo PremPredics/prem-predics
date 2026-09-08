@@ -29,6 +29,7 @@ for (const file of ['all-predictions.js', 'all-star-men.js', 'correct-scores.js'
       assert.equal(columns, count <= 5 ? count : Math.ceil(count / 2));
     }
     assert.match(source, /aria-label="\$\{escapeHtml\(member.display_name\)\}"/);
-    assert.match(source, /player-pill-name">\$\{escapeHtml\(member.display_name\)\}/);
+    assert.ok(source.includes('favorite_color: profile?.favorite_color'));
+    assert.ok(source.includes('<span>\$\{escapeHtml(member.display_name)\}</span>'));
   });
 }

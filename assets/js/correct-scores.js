@@ -283,7 +283,7 @@ function renderPlayerPills() {
   playerPills.style.setProperty('--player-columns', state.members.length <= 5 ? Math.max(1, state.members.length) : Math.ceil(state.members.length / 2));
   playerPills.innerHTML = state.members.map((member) => `
     <button class="player-pill ${member.user_id === state.selectedUserId ? 'active' : ''}" type="button" data-user-id="${member.user_id}" aria-label="${escapeHtml(member.display_name)}" title="${escapeHtml(member.display_name)}">
-      <span class="player-pill-name">${escapeHtml(member.display_name)}</span>
+      <span class="player-pill-name" style="color: ${/^#[0-9a-f]{6}$/i.test(member.favorite_color || '') ? member.favorite_color : '#ffffff'}"><span>${escapeHtml(member.display_name)}</span></span>
       <span class="player-pill-avatar">${avatarMarkup(member)}</span>
     </button>
   `).join('');
@@ -390,7 +390,8 @@ async function loadCorrectScores() {
       return {
         user_id: member.user_id,
         joined_at: member.joined_at,
-        display_name: profile?.display_name || 'Player',
+      display_name: profile?.display_name || 'Player',
+      favorite_color: profile?.favorite_color || '#ffffff',
         profile_image_url: profile?.profile_image_url || null,
       };
     })
