@@ -1,14 +1,14 @@
 /* Shared presentation only: player identities, scoring and permissions remain in JS. */
 body .pp-card-title { display: grid; grid-template-rows: 1.35em 1.3em 1fr; align-content: start; justify-items: center; gap: .15em; width: 100%; min-width: 0; line-height: 1.15; }
-body .pp-card-title > :is(.pp-card-category,.pp-card-connector,.pp-card-name) { display: block; max-width: 100%; color: #fff !important; text-shadow: none !important; -webkit-text-stroke: 1.2px #08040d !important; paint-order: stroke fill; font-weight: 800; }
-body .pp-card-category { font-size: 1.24em; letter-spacing: .025em; white-space: nowrap; }
+body .pp-card-title > :is(.pp-card-category,.pp-card-connector,.pp-card-name) { display: block; max-width: 100%; color: #fff !important; text-shadow: none !important; -webkit-text-stroke: 1px #08040d !important; paint-order: stroke fill; font-family: Arial,sans-serif; font-weight: 700; }
+body .pp-card-category { font-size: 1.18em; letter-spacing: .035em; white-space: nowrap; }
 body .pp-card-connector { font-size: 1em; }
-body .pp-card-name { font-size: 1em; white-space: normal; overflow-wrap: normal; word-break: normal; }
+body .pp-card-name { font-size: 1em; white-space: normal; overflow-wrap: normal; word-break: normal; text-wrap: balance; }
 body .card-tile:has(.pp-card-title) { font-size: 9px; }
 body .card-tile .used-card-name:has(.pp-card-title) { font-size: 8px; }
 body .card-item .card-header:has(.pp-card-title) { font-size: clamp(10px,1.2vw,13px); }
 body .pp-card-category { grid-row: 1; }
-body .pp-card-connector { grid-row: 2; font-weight: 650 !important; }
+body .pp-card-connector { grid-row: 2; font-weight: 600 !important; text-transform: lowercase; }
 body .pp-card-name { grid-row: 3; align-self: start; }
 body .card-tile { container-type: inline-size; }
 body .card-tile .pp-card-title { position: absolute; top: 13%; left: 5%; width: 90%; font-size: clamp(6px,18cqw,14px); }
