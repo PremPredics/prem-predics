@@ -7947,6 +7947,7 @@ function closeDeckOverview() {
 }
 
 function openDiscardPile() {
+  syncDiscardCardSize();
   document.body.classList.add('card-preview-open');
   document.getElementById('discardPileModal').classList.add('show');
 }
@@ -10294,6 +10295,7 @@ function fitUsedCardTile(tile) {
 }
 
 function fitTileText(tile) {
+  if (tile?.querySelector('.pp-card-title')) return;
   if (tile?.classList?.contains('used-card')) {
     fitUsedCardTile(tile);
     return;
@@ -10544,6 +10546,7 @@ function render() {
   document.getElementById("drawnCardSection").style.display = gameState.lastCard ? "block" : "none";
   document.getElementById("drawnCardAssignButtons").style.display = gameState.lastCard ? "flex" : "none";
   const discardPileEl = document.getElementById("discardPile");
+  requestAnimationFrame(syncDiscardCardSize);
   discardPileEl.innerHTML = gameState.discardPile.length
     ? gameState.discardPile.map(card => cardTileMarkup(card, 'discard-card')).join('')
     : "Empty";
