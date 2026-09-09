@@ -5,6 +5,10 @@ import vm from 'node:vm';
 
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const context = { window: {} };
+test('Discard cards cannot stretch beyond the hand-card dimensions', () => {
+  assert.match(read('power-cards.html'), /\.card-tile\.discard-card\s*\{\s*min-height: 0;/);
+  assert.match(read('assets/css/league-pages-polish.css'), /height: var\(--hand-card-height,94px\) !important/);
+});
 test('Card connectors use the same size as the card name', () => {
   const css = read('assets/css/league-pages-polish.css');
   assert.match(css, /\.pp-card-connector\s*\{\s*font-size: 1em;/);
