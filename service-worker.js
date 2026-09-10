@@ -1,9 +1,10 @@
-const CACHE_VERSION = 'prem-predics-pwa-v87';
+const CACHE_VERSION = 'prem-predics-pwa-v88';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
-  './assets/js/card-title.js?v=20260908-v1',
+  './assets/js/card-title.js?v=20260909-centered',
+  './assets/css/league-pages-polish.css?v=20260909-centered',
   './assets/css/league-pages-polish.css?v=20260908-v2',
   './',
   './index.html',

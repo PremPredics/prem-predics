@@ -1,18 +1,14 @@
 /* Shared presentation only: player identities, scoring and permissions remain in JS. */
-body .pp-card-title { display: grid; grid-template-rows: 1.35em 1.3em 1fr; align-content: start; justify-items: center; gap: .15em; width: 100%; min-width: 0; line-height: 1.15; }
+body .pp-card-title { display: flex; align-items: center; justify-content: center; width: 100%; min-width: 0; line-height: 1.18; text-align: center; }
 body .pp-card-title > :is(.pp-card-category,.pp-card-connector,.pp-card-name) { display: block; max-width: 100%; color: #fff !important; text-shadow: none !important; -webkit-text-stroke: 1px #08040d !important; paint-order: stroke fill; font-family: Arial,sans-serif; font-weight: 700; }
-body .pp-card-category { font-size: 1.18em; letter-spacing: .035em; white-space: nowrap; }
-body .pp-card-connector { font-size: 1em; }
 body .pp-card-name { font-size: 1em; white-space: normal; overflow-wrap: normal; word-break: normal; text-wrap: balance; }
 body .card-tile:has(.pp-card-title) { font-size: 9px; }
 body .card-tile .used-card-name:has(.pp-card-title) { font-size: 8px; }
 body .card-item .card-header:has(.pp-card-title) { font-size: clamp(10px,1.2vw,13px); }
-body .pp-card-category { grid-row: 1; }
-body .pp-card-connector { grid-row: 2; font-weight: 600 !important; text-transform: lowercase; }
-body .pp-card-name { grid-row: 3; align-self: start; }
 body .card-tile { container-type: inline-size; }
-body .card-tile .pp-card-title { position: absolute; top: 13%; left: 5%; width: 90%; font-size: clamp(6px,18cqw,14px); }
-body .card-item .card-header:has(.pp-card-title) { align-items: flex-start; padding-top: 16%; }
+body .card-tile .pp-card-title { position: absolute; inset: 10% 6%; width: auto; font-size: clamp(6px,18cqw,14px); }
+body .card-tile.used-card .pp-card-title { bottom: 26%; }
+body .card-item .card-header:has(.pp-card-title) { align-items: center; padding: 0; }
 body .discard-pile.has-cards { grid-template-columns: repeat(auto-fit,var(--hand-card-width,72px)) !important; gap: 8px; align-content: start; }
 html body #discardPile .card-tile { box-sizing: border-box; flex: none !important; width: var(--hand-card-width,72px) !important; max-width: var(--hand-card-width,72px) !important; height: var(--hand-card-height,94px) !important; aspect-ratio: auto !important; padding: var(--hand-card-padding,8px 6px); border-radius: var(--hand-card-radius,10px); border-width: var(--hand-card-border,2px); }
 body .sign-out-actions .sign-out-back { background: linear-gradient(135deg,#082f49,#075985 26%,#38bdf8 48%,#0ea5e9 66%,#e0f2fe); }
