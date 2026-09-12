@@ -5,6 +5,12 @@ import vm from 'node:vm';
 
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const context = { window: {} };
+test('Usernames retain natural letter proportions on one line', () => {
+  const css = read('assets/css/league-pages-polish.css');
+  assert.ok(!css.includes('scaleX(.8)'));
+  assert.ok(css.includes('grid-template-rows: 14px 32px'));
+  assert.ok(css.includes('transform: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;'));
+});
 test('Discard cards cannot stretch beyond the hand-card dimensions', () => {
   assert.match(read('power-cards.html'), /\.card-tile\.discard-card\s*\{\s*min-height: 0;/);
   assert.match(read('assets/css/league-pages-polish.css'), /height: var\(--hand-card-height,94px\) !important/);

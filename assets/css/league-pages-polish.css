@@ -166,8 +166,8 @@ body.pp-history .player-pill-name { width: 100%; min-width: 0; max-width: 100%; 
 body.pp-history .player-pill-avatar { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #ffffff9e; border-radius: 50%; overflow: hidden; background: #39215f; }
 body.pp-history .player-pill-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
 body.pp-history .player-pill.active .player-pill-avatar { border-color: #ffe58b; box-shadow: 0 0 0 2px #facc1533; }
-body.pp-history .player-pill-name { font-family: Arial,sans-serif; font-weight: 500; font-size: clamp(9px,2.55vw,11px); letter-spacing: -.2px; overflow: visible; }
-body.pp-history .player-pill-name > span { display: block; width: 125%; transform: scaleX(.8); transform-origin: left center; overflow: hidden; text-overflow: ellipsis; }
+body.pp-history .player-pill-name { display: block; height: 14px; font-family: Arial,sans-serif; font-weight: 600; font-size: 11px; line-height: 14px; letter-spacing: normal; white-space: nowrap; overflow: hidden; }
+body.pp-history .player-pill-name > span { display: block; width: 100%; transform: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center; }
 @media (max-width:360px) { body.pp-history .player-pills { padding-left: 2px; padding-right: 2px; column-gap: 2px; } }
 body.pp-history :is(.star-list,.fixtures,.correct-score-list) { gap: 3px; }
 body.pp-history :is(.star-row,.prediction-row,.correct-score-row,.correct-score-row.has-effects) { min-height: 28px; padding-top: 2px; padding-bottom: 2px; border-radius: 7px; }
