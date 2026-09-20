@@ -4,13 +4,16 @@ let progressTimer = null;
 let safetyTimer = null;
 let startedAt = 0;
 let finishPromise = null;
+let revealTimer = null;
+let finished = false;
+const revealDelayMs = 450;
 
 function labelText() {
   return document.body?.dataset.pageLoaderTitle || 'Loading Page...';
 }
 
 function ensureLoader() {
-  if (loader || !document.body?.classList.contains('pp-page-loading')) return loader;
+  if (loader || finished || performance.now() - startedAt < revealDelayMs || !document.body?.classList.contains('pp-page-loading')) return loader;
 
   loader = document.createElement('div');
   loader.className = 'pp-page-loader';
@@ -31,13 +34,14 @@ function ensureLoader() {
     </section>`;
   loader.querySelector('[data-page-loader-title]').textContent = labelText();
   document.body.prepend(loader);
+  document.body.classList.add('pp-loader-visible');
   return loader;
 }
 
 export function setPageLoaderProgress(value) {
+  progress = Math.max(progress, Math.min(100, Math.round(Number(value) || 0)));
   const element = ensureLoader();
   if (!element) return;
-  progress = Math.max(progress, Math.min(100, Math.round(Number(value) || 0)));
   element.style.setProperty('--pp-progress', `${progress}%`);
   element.style.setProperty('--pp-ball-rotation', `${progress * 4}deg`);
   element.classList.toggle('is-near-goal', progress >= 74);
@@ -48,8 +52,9 @@ export function setPageLoaderProgress(value) {
 }
 
 export function startPageLoader() {
-  if (!ensureLoader() || progressTimer) return;
+  if (finished || progressTimer || !document.body?.classList.contains('pp-page-loading')) return;
   startedAt = performance.now();
+  revealTimer = window.setTimeout(() => setPageLoaderProgress(progress), revealDelayMs);
   setPageLoaderProgress(8);
   progressTimer = window.setInterval(() => {
     if (progress < 44) setPageLoaderProgress(progress + 3);
@@ -61,26 +66,22 @@ export function startPageLoader() {
 
 export function finishPageLoader() {
   if (finishPromise) return finishPromise;
-  const element = ensureLoader();
+  finished = true;
+  window.clearTimeout(revealTimer);
+  window.clearInterval(progressTimer);
+  window.clearTimeout(safetyTimer);
+  const element = loader;
   if (!element) {
     document.body?.classList.remove('pp-page-loading');
     return Promise.resolve();
   }
 
   finishPromise = (async () => {
-    const minimumVisibleMs = 620;
-    const elapsed = performance.now() - startedAt;
-    if (elapsed < minimumVisibleMs) {
-      await new Promise((resolve) => window.setTimeout(resolve, minimumVisibleMs - elapsed));
-    }
-    window.clearInterval(progressTimer);
-    window.clearTimeout(safetyTimer);
     setPageLoaderProgress(100);
     element.classList.add('is-near-goal', 'is-scored');
-    await new Promise((resolve) => window.setTimeout(resolve, 480));
-    document.body?.classList.remove('pp-page-loading');
+    document.body?.classList.remove('pp-page-loading', 'pp-loader-visible');
     element.classList.add('is-complete');
-    await new Promise((resolve) => window.setTimeout(resolve, 320));
+    await new Promise((resolve) => window.setTimeout(resolve, 120));
     element.hidden = true;
   })();
 

@@ -6,7 +6,7 @@ import {
   normaliseNested,
   shortTeamName,
 } from './league-context.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 
 const container = document.querySelector('[data-correct-scores]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -354,7 +354,7 @@ async function loadCorrectScores() {
       .from('competition_members')
       .select('user_id, joined_at, profiles(id, display_name, profile_image_url, favorite_color)')
       .eq('competition_id', context.league.id)
-      .order('joined_at', { ascending: true }),
+      .order('joined_at', { ascending: true }).order('user_id', { ascending: true }),
     supabase
       .from('correct_scores')
       .select('competition_id, user_id, fixture_id, gameweek_id, gameweek_number, home_team, away_team, predicted_home_goals, predicted_away_goals, actual_home_goals, actual_away_goals')
@@ -394,11 +394,6 @@ async function loadCorrectScores() {
       favorite_color: profile?.favorite_color || '#ffffff',
         profile_image_url: profile?.profile_image_url || null,
       };
-    })
-    .sort((a, b) => {
-      if (a.user_id === context.user.id) return -1;
-      if (b.user_id === context.user.id) return 1;
-      return String(a.display_name).localeCompare(String(b.display_name), 'en-GB');
     });
 
   state.scoresByUser = new Map();

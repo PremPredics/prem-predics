@@ -4,7 +4,7 @@
   loadLeagueContext,
   normaliseNested,
 } from './league-context.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import { supabase } from './supabase-client.js';
 
 const title = document.querySelector('[data-view-title]');
@@ -530,7 +530,7 @@ async function loadData() {
       .from('competition_members')
       .select('user_id, joined_at, profiles(display_name, profile_image_url, favorite_color)')
       .eq('competition_id', state.league.id)
-      .order('joined_at', { ascending: true }),
+      .order('joined_at', { ascending: true }).order('user_id', { ascending: true }),
   ]);
 
   for (const response of [deadlinesResponse, membersResponse]) {
@@ -550,11 +550,7 @@ async function loadData() {
     };
   });
 
-  state.members = members.sort((a, b) => (
-    (a.user_id === state.user.id ? -1 : 0)
-    || (b.user_id === state.user.id ? 1 : 0)
-    || a.display_name.localeCompare(b.display_name)
-  ));
+  state.members = members;
   state.selectedUserId = state.user.id;
 }
 

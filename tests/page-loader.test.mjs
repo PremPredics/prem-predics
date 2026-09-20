@@ -27,8 +27,8 @@ test('requested league pages use the shared football-to-goal loading experience'
     const html = read(`../${htmlFile}`);
     const script = read(`../assets/js/${scriptFile}`);
     assert.match(html, /body class="[^"]*pp-page-loading[^"]*" data-page-loader-title="Loading [^"]+ Page\.\.\."/);
-    assert.match(html, /page-loader\.css\?v=20260831-football-v2/);
-    assert.match(html, /page-loader\.js\?v=20260831-football-v1/);
+    assert.match(html, /page-loader\.css\?v=20260920-adaptive/);
+    assert.match(html, /page-loader\.js\?v=20260920-adaptive/);
     assert.match(script, /finishPageLoader/);
     assert.match(script, /setPageLoaderProgress/);
   }
@@ -37,8 +37,8 @@ test('requested league pages use the shared football-to-goal loading experience'
 test('Power Cards uses the same shared football loader', () => {
   const html = read('../power-cards.html');
   assert.match(html, /body class="pp-page-loading" data-page-loader-title="Loading Power Cards Page\.\.\."/);
-  assert.match(html, /page-loader\.css\?v=20260831-football-v2/);
-  assert.match(html, /import\('\.\/assets\/js\/page-loader\.js\?v=20260831-football-v1'\)/);
+  assert.match(html, /page-loader\.css\?v=20260920-adaptive/);
+  assert.match(html, /import\('\.\/assets\/js\/page-loader\.js\?v=20260920-adaptive'\)/);
   assert.match(html, /powerPageLoaderApi\?\.setPageLoaderProgress/);
   assert.match(html, /powerPageLoaderApi\?\.finishPageLoader/);
 });
@@ -58,11 +58,14 @@ test('loader rolls a football into a revealed goal and always has a safety compl
 });
 
 test('PWA cache includes the complete shared loader release', () => {
-  assert.match(worker, /prem-predics-pwa-v76/);
-  assert.match(worker, /page-loader\.css\?v=20260831-football-v2/);
-  assert.match(worker, /page-loader\.js\?v=20260831-football-v1/);
-  for (const [, scriptFile, version] of pages) {
-    assert.match(worker, new RegExp(`${scriptFile.replace('.', '\\.')}\\?v=${version}`));
+  assert.match(worker, /prem-predics-pwa-v90/);
+  assert.match(worker, /page-loader\.css\?v=20260920-adaptive/);
+  assert.match(worker, /page-loader\.js\?v=20260920-adaptive/);
+  for (const [htmlFile, scriptFile] of pages) {
+    const html = read(`../${htmlFile}`);
+    const scriptUrl = html.match(new RegExp(`assets/js/${scriptFile.replace('.', '\\.')}\\?v=[^"']+`))?.[0];
+    assert.ok(scriptUrl, `${htmlFile} references its versioned script`);
+    assert.ok(worker.includes(scriptUrl), `${scriptUrl} is cached`);
   }
   assert.match(worker, /\.\/power-cards\.html/);
 });

@@ -305,3 +305,15 @@ body.slick-game-card .message { margin-top: 7px; font-size: .75rem; }
 @media (prefers-reduced-motion: reduce) {
   body.slick-game-card * { transition: none !important; }
 }
+/* Five readable results at a time, including long labels on narrow phones. */
+.season-results { margin: 12px 0; padding: 10px 12px; border: 1px solid rgba(255,255,255,.65); border-radius: 12px; background: linear-gradient(120deg,rgba(255,255,255,.07),rgba(19,8,45,.2)); }
+.season-results-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 12px; margin-bottom:7px; }
+.season-results-heading strong { color:#fff; font-size:.9rem; }
+.season-results-heading span { color:#d4c7ef; font-size:.72rem; }
+.season-results-scroll { max-height:150px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#c7a7ff transparent; border-radius:7px; }
+.season-results-scroll:focus-visible { outline:2px solid #fff; outline-offset:3px; }
+.season-result { box-sizing:border-box; height:30px; display:flex; align-items:center; justify-content:center; gap:8px; white-space:nowrap; color:#e7dcff; font-size:.88rem; font-variant-numeric:tabular-nums; }
+.season-result:nth-child(odd) { background:rgba(255,255,255,.055); }
+.season-result strong { color:#ffe79b; text-shadow:none; min-width:4ch; text-align:left; }
+.season-result span { min-width:5ch; text-align:right; }
+.season-results-empty { margin:8px 0 2px; color:#d4c7ef; font-size:.85rem; }

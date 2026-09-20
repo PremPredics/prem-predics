@@ -2,7 +2,7 @@ import { supabase } from './supabase-client.js';
 import { loadActiveGameweek } from './gameweek-context.js';
 import { escapeHtml, leagueUrl, loadLeagueContext, normaliseNested } from './league-context.js';
 import { currentLiveCurseEffects, isVetoedCurse } from './live-curses-model.js?v=20260901-vetoed-v1';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 
 const board = document.querySelector('[data-curse-board]');
 const leagueLink = document.querySelector('[data-league-link]');

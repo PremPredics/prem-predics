@@ -1,8 +1,8 @@
-body.pp-page-loading {
+body.pp-loader-visible {
   overflow: hidden;
 }
 
-body.pp-page-loading::before {
+body.pp-loader-visible::before {
   content: '';
   position: fixed;
   inset: 0;

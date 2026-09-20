@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v89';
+const CACHE_VERSION = 'prem-predics-pwa-v90';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -43,10 +43,10 @@ const APP_SHELL = [
   './assets/css/legal-pages.css',
   './assets/css/pwa-install.css',
   './assets/css/password-reset.css',
-  './assets/css/page-loader.css?v=20260831-football-v2',
+  './assets/css/page-loader.css?v=20260920-adaptive',
   './assets/css/slick-pages.css?v=20260901-slick-v3',
   './assets/css/hub-return-button.css?v=20260901-v1',
-  './assets/css/game-card-slick.css?v=20260901-v3',
+  './assets/css/game-card-slick.css?v=20260920-history',
   './assets/css/leagues-slick.css?v=20260901-v1',
   './assets/css/correct-scores-slick.css?v=20260901-v1',
   './assets/js/all-predictions.js?v=20260908-player-labels',
@@ -77,7 +77,7 @@ const APP_SHELL = [
   './assets/js/legal-footer.js',
   './assets/js/login.js?v=20260820-username-28',
   './assets/js/medals.js?v=20260831-football-loader-v1',
-  './assets/js/page-loader.js?v=20260831-football-v1',
+  './assets/js/page-loader.js?v=20260920-adaptive',
   './assets/js/prediction-hub.js',
   './assets/js/predictions.js?v=20260831-football-loader-v1',
   './assets/js/profile.js?v=20260826-account-profile-cache',

@@ -4,7 +4,7 @@ import {
   leagueUrl,
   loadLeagueContext,
 } from './league-context.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 
 const body = document.querySelector('[data-leaderboard-body]');
 const leagueLink = document.querySelector('[data-league-link]');

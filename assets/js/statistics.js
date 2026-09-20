@@ -4,7 +4,7 @@ import {
   leagueUrl,
   loadLeagueContext,
 } from './league-context.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 
 const grid = document.querySelector('[data-stats-grid]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -63,25 +63,13 @@ function stat(key, label, value) {
   `;
 }
 
-function sortRows(rows, currentUserId) {
-  return [...rows].sort((a, b) => {
-    if (a.user_id === currentUserId) {
-      return -1;
-    }
-    if (b.user_id === currentUserId) {
-      return 1;
-    }
-    return String(a.display_name || 'Player').localeCompare(String(b.display_name || 'Player'));
-  });
-}
-
 function render(rows, profilesById, medalsByUser, spentByUser, gameCardsWonByUser, currentUserId) {
   if (!rows.length) {
     grid.innerHTML = '<p class="empty">No statistics available yet.</p>';
     return;
   }
 
-  grid.innerHTML = sortRows(rows, currentUserId).map((row) => {
+  grid.innerHTML = rows.map((row) => {
     const displayName = row.display_name || 'Player';
     const profile = profilesById.get(row.user_id);
     const isCurrentUser = row.user_id === currentUserId;
@@ -144,7 +132,7 @@ async function loadStatistics() {
   }
   setPageLoaderProgress(48);
 
-  const [{ data: rows, error }, { data: tokens }, { data: gameCardWins }] = await Promise.all([
+  const [{ data: rows, error }, { data: tokens }, { data: gameCardWins }, membersResponse] = await Promise.all([
     supabase
       .from('leaderboard')
       .select('competition_id, user_id, display_name, ultimate_champion_points, correct_scores, correct_results, star_man_points, star_man_goals, star_man_assists, star_man_yellows, star_man_reds')
@@ -159,11 +147,16 @@ async function loadStatistics() {
       .eq('competition_id', context.league.id)
       .eq('earns_super_medal', true)
       .gte('completed_gameweeks', 5),
+    supabase.from('competition_members')
+      .select('user_id, joined_at')
+      .eq('competition_id', context.league.id)
+      .order('joined_at', { ascending: true })
+      .order('user_id', { ascending: true }),
   ]);
   setPageLoaderProgress(72);
 
-  if (error) {
-    grid.innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
+  if (error || membersResponse.error) {
+    grid.innerHTML = `<p class="empty">${escapeHtml((error || membersResponse.error).message)}</p>`;
     return;
   }
 
@@ -198,7 +191,9 @@ async function loadStatistics() {
     gameCardsWonByUser.set(win.user_id, (gameCardsWonByUser.get(win.user_id) || 0) + 1);
   });
 
-  render(rows || [], profilesById, medalsByUser, spentByUser, gameCardsWonByUser, context.user.id);
+  const rowsByUser = new Map((rows || []).map(row => [row.user_id, row]));
+  const orderedRows = (membersResponse.data || []).map(member => rowsByUser.get(member.user_id)).filter(Boolean);
+  render(orderedRows, profilesById, medalsByUser, spentByUser, gameCardsWonByUser, context.user.id);
   setPageLoaderProgress(96);
 }
 

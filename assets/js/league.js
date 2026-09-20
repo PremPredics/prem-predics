@@ -10,7 +10,7 @@ import {
   STAR_MAN_GOAL_MEDAL_THRESHOLDS,
   UC_POINT_MEDAL_THRESHOLDS,
 } from './medal-progress.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import { supabase } from './supabase-client.js';
 
 const leagueName = document.querySelector('[data-league-name]');

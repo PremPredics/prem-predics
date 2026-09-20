@@ -6366,7 +6366,7 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
-<link rel="stylesheet" href="assets/css/page-loader.css?v=20260831-football-v2">
+<link rel="stylesheet" href="assets/css/page-loader.css?v=20260920-adaptive">
 <link rel="stylesheet" href="assets/css/league-pages-polish.css?v=20260909-centered">
 </head>
 <body class="pp-page-loading" data-page-loader-title="Loading Power Cards Page..." data-require-auth="true" data-require-league="true">
@@ -10597,7 +10597,7 @@ function setPowerPageLoadProgress(value) {
 }
 
 async function startPowerPageLoading() {
-  powerPageLoaderApi = await import('./assets/js/page-loader.js?v=20260831-football-v1');
+  powerPageLoaderApi = await import('./assets/js/page-loader.js?v=20260920-adaptive');
   setPowerPageLoadProgress(8);
 }
 
@@ -10722,7 +10722,7 @@ async function syncMedals() {
         .from('competition_members')
         .select('user_id, role, joined_at, profiles(id, display_name, profile_image_url, favorite_color)')
         .eq('competition_id', context.league.id)
-        .order('joined_at', { ascending: true });
+        .order('joined_at', { ascending: true }).order('user_id', { ascending: true });
 
       if (memberError) {
         throw memberError;
@@ -11442,7 +11442,7 @@ async function syncMedals() {
         .from('competition_members')
         .select('user_id, profiles(display_name, profile_image_url)')
         .eq('competition_id', context.league.id)
-        .order('joined_at', { ascending: true });
+        .order('joined_at', { ascending: true }).order('user_id', { ascending: true });
 
       if (error) throw error;
       return (data || []).map((member) => {

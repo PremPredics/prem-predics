@@ -3,7 +3,7 @@ import { loadActiveGameweek } from './gameweek-context.js';
 import { supabase } from './supabase-client.js';
 import { getSessionUser, onSessionUserChange } from './session-user.js';
 import { boundedRead, readData } from './async-read.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 
 const panel = document.querySelector('[data-home-action-panel]');
 const list = document.querySelector('[data-home-action-list]');

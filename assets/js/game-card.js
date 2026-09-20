@@ -7,7 +7,7 @@ import {
   shortTeamName,
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import {
   gameCardLiveOrderedStandings,
   gameCardMainLeaguePositions,
@@ -376,7 +376,6 @@ async function loadPredictionsAndResults() {
     .from('game_card_actual_results')
     .select('season_id, gameweek_id, card_id, actual_value, updated_at')
     .eq('season_id', state.league.season_id)
-    .in('gameweek_id', gameweekIds)
     .in('card_id', cardIds);
 
   if (!globalResultError) {
@@ -601,6 +600,21 @@ function renderUnderdogMatches(round) {
   `;
 }
 
+function renderSeasonResults(round) {
+  const entries = state.gameweeks.map(week => ({
+    number: Number(week.gameweek_number),
+    value: state.results.get(resultKey(round.card_id, week.gameweek_id))?.actual_value,
+  })).filter(entry => entry.value !== null && entry.value !== undefined && entry.value !== ''
+    && Number.isFinite(Number(entry.value)))
+    .sort((a, b) => b.number - a.number);
+  return `<section class="season-results" aria-label="Season results for ${escapeHtml(normaliseNested(round.card_definitions)?.name || 'this Game Card')}">
+    <div class="season-results-heading"><strong>Season so far</strong><span>${entries.length > 5 ? 'Latest 5 · scroll for earlier results' : 'Recorded results · newest first'}</span></div>
+    ${entries.length ? `<div class="season-results-scroll" tabindex="0" role="region" aria-label="Gameweek results, newest first; scroll for older results">
+      ${entries.map(entry => `<div class="season-result"><span>GW${escapeHtml(entry.number)}:</span> <strong>${escapeHtml(formatActualValue(entry.value))}</strong></div>`).join('')}
+    </div>` : '<p class="season-results-empty">No results recorded yet this season.</p>'}
+  </section>`;
+}
+
 function renderRound(round) {
   const definition = normaliseNested(round.card_definitions);
   const cardName = definition?.name || 'Game Card';
@@ -621,6 +635,7 @@ function renderRound(round) {
         </div>
       </div>
       ${renderUnderdogMatches(round)}
+      ${renderSeasonResults(round)}
       ${renderRows(round)}
       ${status === 'active' ? renderActiveLeaderboard(round) : ''}
     </section>

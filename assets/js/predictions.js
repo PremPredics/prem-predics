@@ -1,5 +1,5 @@
 import { supabase } from './supabase-client.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260831-football-v1';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import {
   escapeHtml,
   formatDateTime,
