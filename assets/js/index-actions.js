@@ -3,7 +3,7 @@ import { loadActiveGameweek } from './gameweek-context.js';
 import { supabase } from './supabase-client.js';
 import { getSessionUser, onSessionUserChange } from './session-user.js';
 import { boundedRead, readData } from './async-read.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-reliable';
 
 const panel = document.querySelector('[data-home-action-panel]');
 const list = document.querySelector('[data-home-action-list]');
@@ -499,6 +499,7 @@ async function loadHomeActions(generation) {
   panel.hidden = false;
   homeMessage('');
   renderHomeRows();
+  if (homeRows.size) void finishPageLoader();
   const current = () => generation === homeGeneration && homeUserId === user.id;
   const memberships = await readData(() => supabase.from('competition_members')
     .select('competitions(id, name, season_id, starts_gameweek_id)')
@@ -514,6 +515,8 @@ async function loadHomeActions(generation) {
     return;
   }
   renderHomeRows(); // League links appear before any deadlines/picks/rounds finish.
+  // The page is usable now. Status requests paint independently below.
+  void finishPageLoader();
   setPageLoaderProgress(64);
   const contexts = new Map();
   const gameweeksBySeason = new Map();

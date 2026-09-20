@@ -5,6 +5,23 @@ import vm from 'node:vm';
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 const game = read('../assets/js/game-card.js');
 
+test('versioned assets from the installed release do not wait on the network', async () => {
+  let fetches=0;
+  const cached={ok:true};
+  const context={URL, self:{addEventListener:()=>{}}, caches:{open:async()=>({match:async()=>cached})}, fetch:()=>{fetches++;return new Promise(()=>{});}};
+  vm.createContext(context);
+  vm.runInContext(read('../service-worker.js'),context);
+  const response=await vm.runInContext('networkFirst({url:"https://prempredics.com/assets/js/league.js?v=20260920-reliable"})',context);
+  assert.equal(response,cached);
+  assert.equal(fetches,0);
+});
+
+test('League Hub navigation does not await secondary profile or completion checks', () => {
+  const league=read('../assets/js/league.js');
+  assert.doesNotMatch(league,/await Promise\.all\(\[memberCountTask, loadOwnProfile/);
+  assert.doesNotMatch(league,/await renderDeadlineStrip\(activeGameweek/);
+});
+
 test('season history uses numeric newest-first order, keeps zero, omits pending and other cards', () => {
   const fn = game.slice(game.indexOf('function renderSeasonResults'), game.indexOf('function renderRound'));
   const context = {

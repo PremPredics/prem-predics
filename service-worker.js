@@ -1,8 +1,11 @@
-const CACHE_VERSION = 'prem-predics-pwa-v90';
+const CACHE_VERSION = 'prem-predics-pwa-v91';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
+  './assets/js/page-loader.js?v=20260920-reliable',
+  './assets/js/index-actions.js?v=20260920-reliable',
+  './assets/js/league.js?v=20260920-reliable',
   './assets/css/league-pages-polish.css?v=20260912-readable-names',
   './assets/js/card-title.js?v=20260909-centered',
   './assets/css/league-pages-polish.css?v=20260909-centered',
@@ -162,6 +165,13 @@ async function sensitiveDocument(request) {
 }
 
 async function networkFirst(request) {
+  // Versioned, precached assets belong to this release: do not redownload
+  // every module before each navigation (especially expensive on mobile).
+  if (new URL(request.url).searchParams.has('v')) {
+    const releaseCache = await caches.open(APP_CACHE);
+    const releaseAsset = await releaseCache.match(request);
+    if (releaseAsset) return releaseAsset;
+  }
   try {
     // Local app assets can retain the same URL across a hotfix. Bypass the
     // browser HTTP cache so the service worker always checks the deployed file

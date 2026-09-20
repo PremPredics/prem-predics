@@ -7,13 +7,17 @@ let finishPromise = null;
 let revealTimer = null;
 let finished = false;
 const revealDelayMs = 450;
+// Module URLs may differ during a PWA update. All instances share one owner.
+const loaderOwner = window.__ppPageLoader || (window.__ppPageLoader = {});
+const ownsLoader = !loaderOwner.started;
+if (ownsLoader) loaderOwner.started = true;
 
 function labelText() {
   return document.body?.dataset.pageLoaderTitle || 'Loading Page...';
 }
 
 function ensureLoader() {
-  if (loader || finished || performance.now() - startedAt < revealDelayMs || !document.body?.classList.contains('pp-page-loading')) return loader;
+  if (loader || finished || loaderOwner.finished || performance.now() - startedAt < revealDelayMs || !document.body?.classList.contains('pp-page-loading')) return loader;
 
   loader = document.createElement('div');
   loader.className = 'pp-page-loader';
@@ -39,6 +43,7 @@ function ensureLoader() {
 }
 
 export function setPageLoaderProgress(value) {
+  if (!ownsLoader) return loaderOwner.progress?.(value);
   progress = Math.max(progress, Math.min(100, Math.round(Number(value) || 0)));
   const element = ensureLoader();
   if (!element) return;
@@ -52,6 +57,7 @@ export function setPageLoaderProgress(value) {
 }
 
 export function startPageLoader() {
+  if (!ownsLoader) return;
   if (finished || progressTimer || !document.body?.classList.contains('pp-page-loading')) return;
   startedAt = performance.now();
   revealTimer = window.setTimeout(() => setPageLoaderProgress(progress), revealDelayMs);
@@ -65,8 +71,10 @@ export function startPageLoader() {
 }
 
 export function finishPageLoader() {
+  if (!ownsLoader) return loaderOwner.finish?.() || Promise.resolve();
   if (finishPromise) return finishPromise;
   finished = true;
+  loaderOwner.finished = true;
   window.clearTimeout(revealTimer);
   window.clearInterval(progressTimer);
   window.clearTimeout(safetyTimer);
@@ -88,4 +96,8 @@ export function finishPageLoader() {
   return finishPromise;
 }
 
-startPageLoader();
+if (ownsLoader) {
+  loaderOwner.progress = setPageLoaderProgress;
+  loaderOwner.finish = finishPageLoader;
+  startPageLoader();
+}

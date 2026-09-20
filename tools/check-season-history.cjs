@@ -22,5 +22,20 @@ const assert = require('node:assert/strict');
   await page.evaluate(()=>finishPageLoader());
   assert.equal(await page.locator('body').evaluate(x=>x.classList.contains('pp-loader-visible')),false);
   console.log('PASS slow loader appears and releases page immediately on completion');
+  await page.goto('about:blank');
+  await page.setContent('<body class="pp-page-loading"></body>');
+  const loaderSource = fs.readFileSync('assets/js/page-loader.js','utf8');
+  await page.evaluate(async source => {
+    const url = URL.createObjectURL(new Blob([source], {type:'text/javascript'}));
+    window.loaderA = await import(url+'#first-version');
+    window.loaderB = await import(url+'#second-version');
+  }, loaderSource);
+  await page.waitForFunction(()=>document.querySelector('[data-page-loader]'));
+  assert.equal(await page.locator('[data-page-loader]').count(),1);
+  await page.evaluate(()=>window.loaderB.finishPageLoader());
+  await page.evaluate(()=>window.loaderA.setPageLoaderProgress(40));
+  assert.equal(await page.locator('body').evaluate(x=>x.classList.contains('pp-loader-visible')),false);
+  assert.equal(await page.locator('[data-page-loader]:not([hidden])').count(),0);
+  console.log('PASS mixed module URLs share one loader; neither can restart it');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -26,7 +26,7 @@ function homeFixture({ handler, cached = false, contextFailure = false } = {}) {
     supabase: client, escapeHtml, normaliseNested: (r) => r, leagueUrl: (page, id) => `${page}?competition_id=${id}`,
     getSessionUser: async () => user, onSessionUserChange: (callback) => { authCallback = callback; },
     boundedRead: (fn) => boundedRead(fn, 30), readData: (fn) => readData(fn, { attempts: 1, timeoutMs: 30 }),
-    setPageLoaderProgress: () => {}, finishPageLoader: async () => {},
+    setPageLoaderProgress: () => {}, finishPageLoader: async () => { dom.window.loaderFinished = true; },
     loadActiveGameweek: async () => {
       contextLoads += 1;
       if (contextFailure) throw new Error('Context unavailable');
@@ -53,6 +53,7 @@ test('cached navigation paints before membership requests finish, without showin
   try {
     await flush();
     assert.equal(dom.window.document.querySelectorAll('.home-action-open').length, 2);
+    assert.equal(dom.window.loaderFinished, true, 'cached links are usable without waiting for membership/status refresh');
     assert.match(dom.window.document.querySelector('[data-home-action-list]').textContent, /Checking/);
     release({ data: [], error: null });
     await api.pending;

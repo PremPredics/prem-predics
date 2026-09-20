@@ -10,7 +10,7 @@ import {
   STAR_MAN_GOAL_MEDAL_THRESHOLDS,
   UC_POINT_MEDAL_THRESHOLDS,
 } from './medal-progress.js';
-import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
+import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-reliable';
 import { supabase } from './supabase-client.js';
 
 const leagueName = document.querySelector('[data-league-name]');
@@ -892,13 +892,14 @@ async function renderLeague(league, user) {
       memberCount.textContent = error ? '' : `(${total} Active Players)`;
       if (joinCodePanel) joinCodePanel.hidden = !error && total >= 10;
     }) : Promise.resolve();
-  await Promise.all([memberCountTask, loadOwnProfile(user)]);
+  void Promise.all([memberCountTask, loadOwnProfile(user)]).catch(error => console.warn('League profile/count unavailable:', error));
   setLeaguePageLoadProgress(58);
   void renderMedalProgress(league, user);
 
   if (activeGameweek) {
     const activeFixtures = fixturesByGameweek.get(String(activeGameweek.gameweek_id)) || [];
-    await renderDeadlineStrip(activeGameweek, activeFixtures.filter((fixture) => fixture.status !== 'postponed'), league, user);
+    void renderDeadlineStrip(activeGameweek, activeFixtures.filter((fixture) => fixture.status !== 'postponed'), league, user)
+      .catch(() => { if (deadlineStrip) deadlineStrip.textContent = 'Deadlines temporarily unavailable. Refresh to retry.'; });
     setLeaguePageLoadProgress(82);
     gameweekCountdown.classList.remove('active-gameweek');
     if (isGameweekStarted(activeGameweek)) {

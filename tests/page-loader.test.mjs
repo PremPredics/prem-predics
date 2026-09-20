@@ -28,7 +28,7 @@ test('requested league pages use the shared football-to-goal loading experience'
     const script = read(`../assets/js/${scriptFile}`);
     assert.match(html, /body class="[^"]*pp-page-loading[^"]*" data-page-loader-title="Loading [^"]+ Page\.\.\."/);
     assert.match(html, /page-loader\.css\?v=20260920-adaptive/);
-    assert.match(html, /page-loader\.js\?v=20260920-adaptive/);
+    assert.match(html, /page-loader\.js\?v=20260920-(adaptive|reliable)/);
     assert.match(script, /finishPageLoader/);
     assert.match(script, /setPageLoaderProgress/);
   }
@@ -58,7 +58,7 @@ test('loader rolls a football into a revealed goal and always has a safety compl
 });
 
 test('PWA cache includes the complete shared loader release', () => {
-  assert.match(worker, /prem-predics-pwa-v90/);
+  assert.match(worker, /prem-predics-pwa-v91/);
   assert.match(worker, /page-loader\.css\?v=20260920-adaptive/);
   assert.match(worker, /page-loader\.js\?v=20260920-adaptive/);
   for (const [htmlFile, scriptFile] of pages) {
