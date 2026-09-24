@@ -63,10 +63,11 @@ export function startPageLoader() {
   revealTimer = window.setTimeout(() => setPageLoaderProgress(progress), revealDelayMs);
   setPageLoaderProgress(8);
   progressTimer = window.setInterval(() => {
-    if (progress < 44) setPageLoaderProgress(progress + 3);
-    else if (progress < 72) setPageLoaderProgress(progress + 2);
-    else if (progress < 92) setPageLoaderProgress(progress + 1);
-  }, 180);
+    // Percentages come from completed page stages, never a timer racing to 92%.
+    if (loader && performance.now() - startedAt > 4000) {
+      loader.querySelector('[data-page-loader-title]').textContent = 'Still waiting for page data…';
+    }
+  }, 1000);
   safetyTimer = window.setTimeout(() => finishPageLoader(), 25000);
 }
 

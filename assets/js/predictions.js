@@ -8,6 +8,7 @@ import {
   shortTeamName,
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
+import { formatDeadlineDuration } from './deadline-countdown.js';
 
 const leagueTitle = document.querySelector('[data-league-title]');
 const gameweekSummary = document.querySelector('[data-gameweek-summary]');
@@ -103,15 +104,7 @@ function countdownText(value) {
     return 'Locked';
   }
 
-  const totalMinutes = Math.floor(remainingMs / 60000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  const hourText = `${hours}${hours === 1 ? 'hr' : 'hrs'}`;
-  const isCompact = window.matchMedia?.('(max-width: 720px)').matches;
-  if (isCompact) {
-    return hours >= 1 ? hourText : `${Math.max(1, minutes)}m`;
-  }
-  return hours >= 1 ? `${hourText} ${minutes}m` : `${Math.max(1, minutes)}m`;
+  return formatDeadlineDuration(remainingMs);
 }
 
 function fixtureLockText(fixture) {

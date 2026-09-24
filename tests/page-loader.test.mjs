@@ -36,7 +36,7 @@ test('requested league pages use the shared football-to-goal loading experience'
 
 test('Power Cards uses the same shared football loader', () => {
   const html = read('../power-cards.html');
-  assert.match(html, /body class="pp-page-loading" data-page-loader-title="Loading Power Cards Page\.\.\."/);
+  assert.match(html, /body class="pp-page-loading pp-card-data-pending" data-page-loader-title="Loading Power Cards Page\.\.\."/);
   assert.match(html, /page-loader\.css\?v=20260920-adaptive/);
   assert.match(html, /import\('\.\/assets\/js\/page-loader\.js\?v=20260920-adaptive'\)/);
   assert.match(html, /powerPageLoaderApi\?\.setPageLoaderProgress/);
@@ -58,7 +58,7 @@ test('loader rolls a football into a revealed goal and always has a safety compl
 });
 
 test('PWA cache includes the complete shared loader release', () => {
-  assert.match(worker, /prem-predics-pwa-v91/);
+  assert.match(worker, /prem-predics-pwa-v92/);
   assert.match(worker, /page-loader\.css\?v=20260920-adaptive/);
   assert.match(worker, /page-loader\.js\?v=20260920-adaptive/);
   for (const [htmlFile, scriptFile] of pages) {

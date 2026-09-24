@@ -11,6 +11,7 @@ import {
   UC_POINT_MEDAL_THRESHOLDS,
 } from './medal-progress.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-reliable';
+import { formatDeadlineDuration } from './deadline-countdown.js';
 import { supabase } from './supabase-client.js';
 
 const leagueName = document.querySelector('[data-league-name]');
@@ -264,10 +265,7 @@ function compactCountdownText(value) {
     return 'Locked';
   }
 
-  const totalMinutes = Math.max(1, Math.ceil(remainingMs / 60000));
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return hours > 0 ? `${hours}hr ${minutes}m` : `${minutes}m`;
+  return formatDeadlineDuration(remainingMs);
 }
 
 function deadlineDisplay(value, options = {}) {

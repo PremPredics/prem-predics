@@ -4,6 +4,7 @@ import { supabase } from './supabase-client.js';
 import { getSessionUser, onSessionUserChange } from './session-user.js';
 import { boundedRead, readData } from './async-read.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-reliable';
+import { formatDeadlineDuration } from './deadline-countdown.js';
 
 const panel = document.querySelector('[data-home-action-panel]');
 const list = document.querySelector('[data-home-action-list]');
@@ -260,10 +261,7 @@ function actionCountdownText(value) {
     return '0m';
   }
 
-  const totalMinutes = Math.max(1, Math.ceil(remainingMs / 60000));
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return hours > 0 ? `${hours}hr ${minutes}m` : `${minutes}m`;
+  return formatDeadlineDuration(remainingMs);
 }
 
 function startActionCountdowns() {

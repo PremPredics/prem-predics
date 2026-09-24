@@ -1,4 +1,8 @@
 import { supabase } from './supabase-client.js';
+import { boundedRead } from './async-read.js';
+import { formatDeadlineDuration } from './deadline-countdown.js';
+
+const pendingGameweeks = new Map();
 
 export function countdownText(targetTime) {
   if (!targetTime) {
@@ -7,16 +11,10 @@ export function countdownText(targetTime) {
 
   const remainingMs = new Date(targetTime).getTime() - Date.now();
   if (remainingMs <= 0) {
-    return '00d 00h 00m 00s';
+    return '0h 0m';
   }
 
-  const totalSeconds = Math.floor(remainingMs / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  return `${String(days).padStart(2, '0')}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+  return formatDeadlineDuration(remainingMs);
 }
 
 export function isGameweekStarted(gameweek) {
@@ -25,11 +23,28 @@ export function isGameweekStarted(gameweek) {
 }
 
 export async function loadActiveGameweek(league) {
-  const { data: gameweeks, error: gameweekError } = await supabase
+  const key = `${league.season_id}:${league.starts_gameweek_id}`;
+  if (pendingGameweeks.has(key)) return pendingGameweeks.get(key);
+  const request = readActiveGameweek(league).finally(() => pendingGameweeks.delete(key));
+  pendingGameweeks.set(key, request);
+  return request;
+}
+
+async function readActiveGameweek(league) {
+  // Independent reads run together, and simultaneous callers share the work.
+  // No persisted cache: deadlines and final-result transitions remain fresh.
+  const [{ data: gameweeks, error: gameweekError }, { data: fixtures, error: fixtureError }] = await Promise.all([
+    boundedRead(signal => supabase
     .from('gameweek_deadlines')
     .select('gameweek_id, season_id, gameweek_number, first_fixture_kickoff_at, star_man_locks_at')
     .eq('season_id', league.season_id)
-    .order('gameweek_number', { ascending: true });
+    .order('gameweek_number', { ascending: true }).abortSignal(signal)),
+    boundedRead(signal => supabase.from('fixtures')
+      .select('id, gameweek_id, status, kickoff_at, prediction_locks_at')
+      .eq('season_id', league.season_id)
+      .gte('gameweek_id', league.starts_gameweek_id)
+      .abortSignal(signal)),
+  ]);
 
   if (gameweekError) {
     throw gameweekError;
@@ -41,13 +56,6 @@ export async function loadActiveGameweek(league) {
   if (!eligibleGameweeks.length) {
     return { activeGameweek: null, fixturesByGameweek: new Map() };
   }
-
-  const gameweekIds = eligibleGameweeks.map((gameweek) => gameweek.gameweek_id);
-  const { data: fixtures, error: fixtureError } = await supabase
-    .from('fixtures')
-    .select('id, gameweek_id, status, kickoff_at, prediction_locks_at')
-    .eq('season_id', league.season_id)
-    .in('gameweek_id', gameweekIds);
 
   if (fixtureError) {
     throw fixtureError;
@@ -61,7 +69,11 @@ export async function loadActiveGameweek(league) {
     fixturesByGameweek.set(key, group);
   });
 
-  const activeGameweek = eligibleGameweeks.find((gameweek) => {
+  return { activeGameweek: selectActiveGameweek(eligibleGameweeks, fixturesByGameweek), fixturesByGameweek };
+}
+
+export function selectActiveGameweek(eligibleGameweeks, fixturesByGameweek) {
+  return eligibleGameweeks.find((gameweek) => {
     const gameweekFixtures = fixturesByGameweek.get(String(gameweek.gameweek_id)) || [];
     const playableFixtures = gameweekFixtures.filter((fixture) => fixture.status !== 'postponed');
 
@@ -70,9 +82,7 @@ export async function loadActiveGameweek(league) {
     }
 
     return playableFixtures.some((fixture) => fixture.status !== 'final');
-  }) || eligibleGameweeks[eligibleGameweeks.length - 1];
-
-  return { activeGameweek, fixturesByGameweek };
+  }) || eligibleGameweeks[eligibleGameweeks.length - 1] || null;
 }
 
 export function startCountdown(element, gameweek) {

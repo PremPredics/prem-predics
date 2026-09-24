@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { testDependency } from './support/dependencies.mjs';
 import { fakeSupabase } from './support/fake-supabase.mjs';
 import { boundedRead, readData } from '../assets/js/async-read.js';
+import { formatDeadlineDuration } from '../assets/js/deadline-countdown.js';
 const { JSDOM } = testDependency('jsdom');
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 const escapeHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -23,7 +24,7 @@ function homeFixture({ handler, cached = false, contextFailure = false } = {}) {
   let authCallback;
   let contextLoads = 0;
   Object.assign(dom.window, {
-    supabase: client, escapeHtml, normaliseNested: (r) => r, leagueUrl: (page, id) => `${page}?competition_id=${id}`,
+    supabase: client, escapeHtml, formatDeadlineDuration, normaliseNested: (r) => r, leagueUrl: (page, id) => `${page}?competition_id=${id}`,
     getSessionUser: async () => user, onSessionUserChange: (callback) => { authCallback = callback; },
     boundedRead: (fn) => boundedRead(fn, 30), readData: (fn) => readData(fn, { attempts: 1, timeoutMs: 30 }),
     setPageLoaderProgress: () => {}, finishPageLoader: async () => { dom.window.loaderFinished = true; },

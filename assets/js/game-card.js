@@ -7,6 +7,7 @@ import {
   shortTeamName,
 } from './league-context.js';
 import { loadActiveGameweek } from './gameweek-context.js';
+import { formatDeadlineDuration } from './deadline-countdown.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import {
   gameCardLiveOrderedStandings,
@@ -70,10 +71,7 @@ function countdownText(targetTime) {
     return 'Locked';
   }
 
-  const totalMinutes = Math.floor(remainingMs / 60000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return `${hours}h ${minutes}m Remaining`;
+  return `${formatDeadlineDuration(remainingMs)} Remaining`;
 }
 
 function cardInstruction(cardName) {

@@ -5,7 +5,8 @@ import {
   normaliseNested,
   shortTeamName,
 } from './league-context.js';
-import { loadActiveGameweek } from './gameweek-context.js';
+import { selectActiveGameweek } from './gameweek-context.js?v=20260924-fast';
+import { boundedRead } from './async-read.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import { supabase } from './supabase-client.js';
 
@@ -345,18 +346,19 @@ async function loadPredictionEffects(gameweek) {
     ));
 
   const playedByUserIds = [...new Set(effects.map((effect) => effect.played_by_user_id).filter(Boolean))];
-  state.effectProfiles = new Map();
-  if (playedByUserIds.length) {
+  state.effectProfiles = new Map(state.members.map(member => [member.user_id, { ...member, id: member.user_id }]));
+  const missingProfileIds = playedByUserIds.filter(id => !state.effectProfiles.has(id));
+  if (missingProfileIds.length) {
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('id, display_name, profile_image_url')
-      .in('id', playedByUserIds);
+      .in('id', missingProfileIds);
 
     if (profilesError) {
       throw profilesError;
     }
 
-    state.effectProfiles = new Map((profiles || []).map((profile) => [profile.id, profile]));
+    (profiles || []).forEach(profile => state.effectProfiles.set(profile.id, profile));
   }
 
   return effects;
@@ -641,14 +643,16 @@ async function renderPredictionRows(gameweek) {
     return;
   }
 
-  const [predictions, results, fixtureScores, curseOverrideRows, predictionEffects] = await Promise.all([
+  const requestedUserId = state.selectedUserId;
+  const [predictions, results, fixtureScores, curseOverrideRows, predictionEffects] = await boundedRead(() => Promise.all([
     loadPredictions(gameweek, fixtures),
     loadResults(fixtures),
     loadFixtureScores(gameweek, fixtures),
     loadCurseOverrides(gameweek, fixtures),
     loadPredictionEffects(gameweek),
     loadFixtureGameStats(fixtures),
-  ]);
+  ]));
+  if (state.selectedUserId !== requestedUserId || selectedGameweek()?.gameweek_id !== gameweek.gameweek_id) return;
   state.visibleEffectsByFixture = new Map();
   const visibleEffectIds = new Set(predictionEffects.map((effect) => String(effect.id)));
   const curseOverrides = buildLatestCurseOverrideMap(curseOverrideRows, predictionEffects);
@@ -810,8 +814,8 @@ async function render() {
   }
 }
 
-async function loadData(activeGameweek) {
-  const [teamsResponse, deadlinesResponse, fixturesResponse, membersResponse] = await Promise.all([
+async function loadData() {
+  const [teamsResponse, deadlinesResponse, fixturesResponse, membersResponse] = await boundedRead(() => Promise.all([
     supabase.from('teams').select('id, name').order('name', { ascending: true }),
     supabase
       .from('gameweek_deadlines')
@@ -828,7 +832,7 @@ async function loadData(activeGameweek) {
       .select('user_id, joined_at, profiles(display_name, profile_image_url, favorite_color)')
       .eq('competition_id', state.league.id)
       .order('joined_at', { ascending: true }).order('user_id', { ascending: true }),
-  ]);
+  ]));
 
   for (const response of [teamsResponse, deadlinesResponse, fixturesResponse, membersResponse]) {
     if (response.error) {
@@ -857,7 +861,7 @@ async function loadData(activeGameweek) {
   });
 
   state.selectedUserId = state.user.id;
-  state.selectedGameweekIndex = initialGameweekIndex(activeGameweek);
+  state.selectedGameweekIndex = initialGameweekIndex(selectActiveGameweek(state.gameweeks, state.fixturesByGameweek));
 }
 
 function scheduleCurseRefresh() {
@@ -913,9 +917,8 @@ async function initializeAllPredictions() {
     state.league = context.league;
     leagueBackLink.href = leagueUrl('league.html', state.league.id);
     leagueBackLink.removeAttribute('aria-disabled');
-    const { activeGameweek } = await loadActiveGameweek(state.league);
     setPageLoaderProgress(52);
-    await loadData(activeGameweek);
+    await loadData();
     setPageLoaderProgress(78);
     await render();
     setPageLoaderProgress(94);

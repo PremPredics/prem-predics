@@ -1,4 +1,6 @@
 import { supabase } from './supabase-client.js';
+import { getSessionUser } from './session-user.js';
+import { boundedRead } from './async-read.js';
 
 export function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({
@@ -59,8 +61,10 @@ export function normaliseNested(value) {
 }
 
 export async function getSignedInUser(redirectPage = 'login.html') {
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
+  // Session identity is only for presentation/query filters. Server JWT/RLS
+  // still authorizes the membership read and every data request.
+  const user = await getSessionUser();
+  if (!user) {
     if (!navigator.onLine) {
       window.location.href = 'offline.html';
       return null;
@@ -71,7 +75,7 @@ export async function getSignedInUser(redirectPage = 'login.html') {
     return null;
   }
 
-  return data.user;
+  return user;
 }
 
 export async function loadLeagueContext() {
@@ -86,12 +90,12 @@ export async function loadLeagueContext() {
     return { user, error: 'Choose a private league first.' };
   }
 
-  let { data, error } = await supabase
+  let { data, error } = await boundedRead(signal => supabase
     .from('competition_members')
     .select('role, joined_at, competitions(id, name, slug, join_code, season_id, starts_gameweek_id, starts_at, member_lock_at, started_at, deck_variant_id, locked_member_count, locked_deck_variant_id)')
     .eq('user_id', user.id)
     .eq('competition_id', competitionId)
-    .maybeSingle();
+    .maybeSingle().abortSignal(signal));
 
   if (error) {
     return { user, error: error.message };

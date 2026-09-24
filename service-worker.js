@@ -1,11 +1,11 @@
-const CACHE_VERSION = 'prem-predics-pwa-v91';
+const CACHE_VERSION = 'prem-predics-pwa-v92';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
+  './assets/js/gameweek-context.js?v=20260924-fast',
+  './assets/js/deadline-countdown.js',
   './assets/js/page-loader.js?v=20260920-reliable',
-  './assets/js/index-actions.js?v=20260920-reliable',
-  './assets/js/league.js?v=20260920-reliable',
   './assets/css/league-pages-polish.css?v=20260912-readable-names',
   './assets/js/card-title.js?v=20260909-centered',
   './assets/css/league-pages-polish.css?v=20260909-centered',
@@ -52,7 +52,7 @@ const APP_SHELL = [
   './assets/css/game-card-slick.css?v=20260920-history',
   './assets/css/leagues-slick.css?v=20260901-v1',
   './assets/css/correct-scores-slick.css?v=20260901-v1',
-  './assets/js/all-predictions.js?v=20260908-player-labels',
+  './assets/js/all-predictions.js?v=20260924-fast',
   './assets/js/all-star-men.js?v=20260908-player-labels',
   './assets/js/capacitor-app.js',
   './assets/js/correct-scores.js?v=20260908-player-labels',
@@ -60,11 +60,11 @@ const APP_SHELL = [
   './assets/js/desktop-polish.js',
   './assets/js/desktop-prediction-final-polish.js',
   './assets/js/desktop-summary-polish.js',
-  './assets/js/game-card.js?v=20260901-awards-v4',
+  './assets/js/game-card.js?v=20260924-fast',
   './assets/js/game-card-awards.js?v=20260901-v3',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js?v=20260828-player-pool',
-  './assets/js/index-actions.js?v=20260901-home-loader-v1',
+  './assets/js/index-actions.js?v=20260924-fast',
   './assets/js/index-admin.js?v=20260828-startup-reliability',
   './assets/js/async-read.js',
   './assets/js/load-all-rows.js',
@@ -72,7 +72,7 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260903-tiebreak-v2',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260901-live-curses-copy-v1',
+  './assets/js/league.js?v=20260924-fast',
   './assets/js/live-curses.js?v=20260901-vetoed-v1',
   './assets/js/live-curses-model.js?v=20260901-vetoed-v1',
   './assets/js/medal-progress.js',
@@ -82,7 +82,7 @@ const APP_SHELL = [
   './assets/js/medals.js?v=20260831-football-loader-v1',
   './assets/js/page-loader.js?v=20260920-adaptive',
   './assets/js/prediction-hub.js',
-  './assets/js/predictions.js?v=20260831-football-loader-v1',
+  './assets/js/predictions.js?v=20260924-fast',
   './assets/js/profile.js?v=20260826-account-profile-cache',
   './assets/js/pwa.js',
   './assets/js/reset-password.js',
@@ -165,9 +165,9 @@ async function sensitiveDocument(request) {
 }
 
 async function networkFirst(request) {
-  // Versioned, precached assets belong to this release: do not redownload
+  // All precached assets belong to this release: do not redownload
   // every module before each navigation (especially expensive on mobile).
-  if (new URL(request.url).searchParams.has('v')) {
+  {
     const releaseCache = await caches.open(APP_CACHE);
     const releaseAsset = await releaseCache.match(request);
     if (releaseAsset) return releaseAsset;
@@ -201,7 +201,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(APP_CACHE)
       .then((cache) => Promise.all([
-        cache.addAll(APP_SHELL),
+        cache.addAll(APP_SHELL.map(url => new Request(url, { cache: 'reload' }))),
         cache.addAll(OPTIONAL_STATIC_ASSETS).catch(() => null)
       ]))
       .then(() => self.skipWaiting())

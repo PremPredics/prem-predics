@@ -6368,8 +6368,13 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
 <link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
 <link rel="stylesheet" href="assets/css/page-loader.css?v=20260920-adaptive">
 <link rel="stylesheet" href="assets/css/league-pages-polish.css?v=20260909-centered">
+<style>body.pp-card-data-pending #mainGameLayout { visibility: hidden; pointer-events: none; }
+body.pp-card-load-failed #mainGameLayout { display:none !important; }
+.card-load-error { margin:20px auto; padding:20px; max-width:600px; border:1px solid white; border-radius:12px; text-align:center; color:white; background:#321164; }
+.card-load-error button { margin:12px; padding:10px 24px; border:1px solid white; border-radius:8px; color:white; background:#6033a0; }
+</style>
 </head>
-<body class="pp-page-loading" data-page-loader-title="Loading Power Cards Page..." data-require-auth="true" data-require-league="true">
+<body class="pp-page-loading pp-card-data-pending" data-page-loader-title="Loading Power Cards Page..." data-require-auth="true" data-require-league="true">
 
 <button class="back-home-btn" onclick="window.location.href='league.html' + window.location.search">Back To League Hub</button>
 
@@ -10602,6 +10607,7 @@ async function startPowerPageLoading() {
 }
 
 function finishPowerPageLoading() {
+  document.body.classList.remove('pp-card-data-pending');
   powerPageLoaderApi?.finishPageLoader();
 }
 
@@ -10617,10 +10623,11 @@ async function initializeCardPage() {
   setActiveGameCardPanel('Loading...', 'Checking active gameweek...', '');
 
   try {
-    const [{ supabase }, leagueModule, gameweekModule] = await Promise.all([
+    const [{ supabase }, leagueModule, gameweekModule, { boundedRead }] = await Promise.all([
       import('./assets/js/supabase-client.js'),
       import('./assets/js/league-context.js'),
       import('./assets/js/gameweek-context.js'),
+      import('./assets/js/async-read.js'),
     ]);
     setPowerPageLoadProgress(28);
 
@@ -13094,25 +13101,29 @@ async function syncMedals() {
     };
 
     setPowerPageLoadProgress(54);
-    try {
-      await supabase.rpc('ensure_competition_starter_cards', {
+    {
+      const starterResponse = await boundedRead(() => supabase.rpc('ensure_competition_starter_cards', {
         target_competition_id: context.league.id,
-      });
-    } catch (error) {
-      setActiveGameCardPanel('Starter cards pending', 'Run the updated card-medals-and-draws.sql, then refresh.', error.message || '');
+      }), 8000);
+      if (starterResponse.error) throw starterResponse.error;
     }
     setPowerPageLoadProgress(61);
 
     let completedPowerPageLoads = 0;
-    const trackedPowerPageLoad = (task) => Promise.resolve(task).finally(() => {
+    const trackedPowerPageLoad = (task) => boundedRead(() => task, 8000).finally(() => {
       completedPowerPageLoads += 1;
       setPowerPageLoadProgress(61 + (completedPowerPageLoads * 9));
     });
-    await Promise.allSettled([
+    const initialLoads = await Promise.allSettled([
       trackedPowerPageLoad(syncMedals()),
       trackedPowerPageLoad(refreshHands({ force: true })),
       trackedPowerPageLoad(loadActiveGameCard()),
     ]);
+    const failedLoad = initialLoads.find(result => result.status === 'rejected');
+    if (failedLoad) throw failedLoad.reason;
+    // Interactive recovery flows must not hold the page loader open.
+    applyCardPageVisibility();
+    finishPowerPageLoading();
     await resumePendingRandomCurse();
     setPowerPageLoadProgress(92);
     if (gameState.pendingSuperSub || gameState.pendingSuperDuo) {
@@ -13144,6 +13155,17 @@ async function syncMedals() {
     setPowerPageLoadProgress(97);
   } catch (error) {
     setActiveGameCardPanel('Cards unavailable', error.message || 'Could not load league cards.', '');
+    document.body.classList.add('pp-card-load-failed');
+    const notice = document.createElement('section');
+    notice.className = 'card-load-error';
+    notice.setAttribute('role', 'alert');
+    const text = document.createElement('p');
+    text.textContent = 'Card data could not finish loading. Refresh to reconnect before using your cards.';
+    const retry = document.createElement('button');
+    retry.textContent = 'Retry loading cards';
+    retry.onclick = () => window.location.reload();
+    notice.append(text, retry);
+    document.getElementById('mainGameLayout').before(notice);
   }
 
   applyCardPageVisibility();
