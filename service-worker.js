@@ -1,11 +1,11 @@
-const CACHE_VERSION = 'prem-predics-pwa-v98';
+const CACHE_VERSION = 'prem-predics-pwa-v99';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
   './awards.html',
-  './assets/css/awards.css?v=20261005-polish',
-  './assets/js/awards.js?v=20261005-polish',
+  './assets/css/awards.css?v=20261005-emblem-final',
+  './assets/js/awards.js?v=20261005-emblem-final',
   './assets/js/awards-model.js?v=20261005-polish',
   './assets/js/gameweek-context.js?v=20260924-fast',
   './assets/js/deadline-countdown.js',
