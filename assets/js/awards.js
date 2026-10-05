@@ -10,7 +10,7 @@ let league;
 let pending;
 let lastLoaded = 0;
 
-const awardEmblem = '<svg class="award-emblem" viewBox="0 0 48 48" focusable="false" aria-hidden="true"><path class="award-star" transform="translate(24 24) scale(1.2) translate(-24 -24)" d="M24 3.5 29.9 15.4 43 17.3l-9.5 9.3 2.2 13.1L24 33.5l-11.7 6.2 2.2-13.1L5 17.3l13.1-1.9Z"/><path class="award-trophy" d="M17 18h14v7.3a7 7 0 0 1-14 0V18Z"/><path class="award-trophy" d="M17 20h-3.5a4.5 4.5 0 0 0 4.5 5M31 20h3.5a4.5 4.5 0 0 1-4.5 5M24 32v6M18.5 39.5h11"/></svg>';
+const awardEmblem = '<svg class="award-emblem" viewBox="0 0 48 48" focusable="false" aria-hidden="true"><path class="award-star" transform="translate(24 24) scale(1.22) translate(-24 -24)" d="M24 3.5 29.9 15.4 43 17.3l-9.5 9.3 2.2 13.1L24 33.5l-11.7 6.2 2.2-13.1L5 17.3l13.1-1.9Z"/><g class="award-trophy" transform="translate(2.88 -1) scale(.88)"><path d="M17 18h14v7.3a7 7 0 0 1-14 0V18Z"/><path d="M17 20h-3.5a4.5 4.5 0 0 0 4.5 5M31 20h3.5a4.5 4.5 0 0 1-4.5 5M24 32v6M18.5 39.5h11"/></g></svg>';
 
 function avatar(member) {
   const url = String(member.profile_image_url || '');
