@@ -58,7 +58,7 @@ test('loader rolls a football into a revealed goal and always has a safety compl
 });
 
 test('PWA cache includes the complete shared loader release', () => {
-  assert.match(worker, /prem-predics-pwa-v95/);
+  assert.match(worker, /prem-predics-pwa-v96/);
   assert.match(worker, /page-loader\.css\?v=20260920-adaptive/);
   assert.match(worker, /page-loader\.js\?v=20260920-adaptive/);
   for (const [htmlFile, scriptFile] of pages) {
