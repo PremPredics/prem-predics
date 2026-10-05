@@ -50,16 +50,13 @@ h1 { font: 500 clamp(2.7rem,6vw,4rem)/1.1 Georgia, serif; margin: 0; color: var(
 .champions-corner-right { right: 13px; }
 .champions-section h2 { font: 500 1.9rem/1.15 Georgia,serif; color: #ffe5a4; margin: 0 0 7px; }
 .champions-copy { color: #b6a9bf; font-size: .73rem; margin: 0 0 20px; line-height: 1.5; }
-.champions-podium { display: grid; grid-template-columns: repeat(var(--podium-columns,3),minmax(0,1fr)); gap: 10px; align-items: start; }
-.podium-place { --metal: #ebc571; --metal-dim: #aa864d; border-radius: 11px; padding: 13px 9px 15px; border: 1px solid color-mix(in srgb,var(--metal) 40%,transparent); background: linear-gradient(150deg,color-mix(in srgb,var(--metal) 12%,#151019),#131015); min-width: 0; }
-.podium-place.silver { --metal: #e0e5f3; --metal-dim: #9fa8bb; }
-.podium-place.bronze { --metal: #dda179; --metal-dim: #ac755a; }
-.podium-holders { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(90px,100%),1fr)); gap: 8px; }
-.podium-place .award-person { flex-direction: column; gap: 6px; margin-top: 10px; }
-.podium-place .award-person-name { font-size: .79rem; }
-.podium-place .award-avatar { width: 42px; height: 42px; flex-basis: 42px; border-color: var(--metal); }
-.podium-count { color: var(--metal); font-size: 1.4rem; font-weight: 700; margin-top: 13px; }
-.podium-count small { display: block; font-size: .6rem; font-weight: 500; margin-top: 2px; color: #c7becb; }
+.champions-winners { display: grid; grid-template-columns: minmax(0,1fr) minmax(96px,140px); align-items: center; gap: 16px; width: min(720px,100%); margin: 0 auto 16px; padding: 15px 14px; border: 1px solid #d9b45d80; border-radius: 12px; background: linear-gradient(145deg,#261d22,#121016 70%); box-shadow: inset 0 0 0 1px #fff1,0 5px 18px #0004; }
+.champions-winner-list { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 20px; min-width: 0; }
+.champions-winner-list .award-person { flex-direction: column; justify-content: center; gap: 6px; min-width: 86px; text-align: center; }
+.champions-winner-list .award-person-name { font-size: .78rem; text-align: center; overflow-wrap: anywhere; }
+.champions-winner-list .award-avatar { width: 44px; height: 44px; flex-basis: 44px; border-color: #e8c873; }
+.champions-winner-count { padding-left: 16px; border-left: 1px solid #d9b45d40; color: var(--gold); font-size: 1.5rem; font-weight: 750; text-align: center; }
+.champions-winner-count small { display: block; margin-top: 3px; color: #c7becb; font-size: .6rem; font-weight: 500; line-height: 1.35; }
 .champions-all { margin-top: 16px; border-top: 1px solid #b48c422e; }
 summary { cursor: pointer; font-size: .74rem; color: #d2bd91; padding: 12px 0; }
 .champions-row { display: grid; grid-template-columns: minmax(0,1fr) 58px; gap: 9px; padding: 9px 0; align-items: center; text-align: left; border-top: 1px solid #fff1; font-size: .76rem; }
@@ -87,6 +84,7 @@ summary { cursor: pointer; font-size: .74rem; color: #d2bd91; padding: 12px 0; }
  .award-person-name { font-size: .82rem; } .award-avatar { flex-basis: 31px; width: 31px; height: 31px; }
  .champions-section { padding: 24px 10px 10px; } .champions-section h2 { font-size: 1.65rem; }
  .champions-corner { top: 8px; width: 30px; height: 30px; } .champions-corner-left { left: 9px; } .champions-corner-right { right: 9px; }
- .champions-podium { gap: 7px; } .podium-place { padding: 11px 5px; } .podium-place .award-person-name { font-size: .71rem; }
+ .champions-winners { grid-template-columns: 1fr; gap: 8px; padding: 12px 9px; }
+ .champions-winner-count { padding: 8px 0 0; border-left: 0; border-top: 1px solid #d9b45d40; }
  .awards-footer { font-size: .55rem; }
 }
