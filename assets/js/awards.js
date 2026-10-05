@@ -58,8 +58,7 @@ function render(data) {
       <div class="champions-podium" style="--podium-columns:${ranks.length}">${ranks.map(rank => {
         const holders = standings.filter(row => row.rank === rank);
         const metal = rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'gold';
-        const label = metal === 'gold' ? 'GOLD' : metal === 'silver' ? 'SILVER' : 'BRONZE';
-        return `<div class="podium-place ${metal}"><div class="podium-label">${label}</div><div class="podium-holders">${holders.map(person).join('')}</div><div class="podium-count">${Number(holders[0].wins)}<small>Gameweek${Number(holders[0].wins) === 1 ? '' : 's'} won${holders.length > 1 ? ' · shared place' : ''}</small></div></div>`;
+        return `<div class="podium-place ${metal}"><div class="podium-holders">${holders.map(person).join('')}</div><div class="podium-count">${Number(holders[0].wins)}<small>Gameweek${Number(holders[0].wins) === 1 ? '' : 's'} won${holders.length > 1 ? ' · shared place' : ''}</small></div></div>`;
       }).join('')}</div>
       <details class="champions-all" open><summary>All ${members.length} members</summary>${standings.map(row => `<div class="champions-row">${person(row)}<strong>${Number(row.wins)} <span class="award-note">wins</span></strong></div>`).join('')}</details>`;
   }
