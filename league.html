@@ -542,6 +542,15 @@ main {
   transform: translateY(-50%);
 }
 
+.play-card.awards-card {
+  background: linear-gradient(125deg,#27221c,#0e0b12 60%) padding-box,
+    linear-gradient(125deg,#9e7434,#fff1b4 35%,#aa7b36 65%,#f1d391) border-box;
+  border: 1px solid transparent;
+  box-shadow: inset 0 1px 0 #fff1,0 0 18px #9653e322;
+}
+.play-card.awards-card::before { background: linear-gradient(180deg,#a67730,#fff2b7 38%,#c99641 72%,#f8df93); box-shadow: 0 0 12px #e5bd5960; }
+.play-card.awards-card strong { color: #ffe5a0; text-shadow: 0 1px 1px #000; }
+.play-card.awards-card span { color: #d0bea1; }
 .play-card:hover {
   transform: translateY(-2px);
   border-color: var(--accent);
@@ -1106,7 +1115,7 @@ footer {
 
 <script type="module" src="assets/js/page-loader.js?v=20260920-reliable"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20260924-fast"></script>
+<script type="module" src="assets/js/league.js?v=20261005-awards"></script>
 <script src="assets/js/pwa.js" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

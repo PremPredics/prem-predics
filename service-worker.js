@@ -1,8 +1,12 @@
-const CACHE_VERSION = 'prem-predics-pwa-v92';
+const CACHE_VERSION = 'prem-predics-pwa-v93';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
+  './awards.html',
+  './assets/css/awards.css?v=20261005',
+  './assets/js/awards.js?v=20261005',
+  './assets/js/awards-model.js?v=20261005',
   './assets/js/gameweek-context.js?v=20260924-fast',
   './assets/js/deadline-countdown.js',
   './assets/js/page-loader.js?v=20260920-reliable',
@@ -72,7 +76,7 @@ const APP_SHELL = [
   './assets/js/session-user.js',
   './assets/js/leaderboard.js?v=20260903-tiebreak-v2',
   './assets/js/league-context.js',
-  './assets/js/league.js?v=20260924-fast',
+  './assets/js/league.js?v=20261005-awards',
   './assets/js/live-curses.js?v=20260901-vetoed-v1',
   './assets/js/live-curses-model.js?v=20260901-vetoed-v1',
   './assets/js/medal-progress.js',

@@ -864,6 +864,14 @@ async function renderLeague(league, user) {
       tier: 'reference',
       className: 'live-curses-card',
     },
+    {
+      page: 'awards.html',
+      title: 'Awards',
+      detail: 'Your league. Its legends. The honours.',
+      accent: '#e7c77d',
+      tier: 'reference',
+      className: 'awards-card',
+    },
   ];
 
   choiceMenus = new Map(pages

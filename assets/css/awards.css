@@ -1,0 +1,86 @@
+:root { color-scheme: dark; --gold: #ffe398; --gold-light: #fff3c4; --gold-muted: #bd9451; --ink: #100d16; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 280px; min-height: 100vh; color: #f4eee1; background: radial-gradient(ellipse at 0 20%, #52227844, transparent 50%), radial-gradient(ellipse at 100% 60%, #6a2f7d30, transparent 48%), #0b0910; font-family: 'Segoe UI', Arial, sans-serif; }
+body::before { content: ''; position: fixed; inset: 0; pointer-events: none; box-shadow: inset 0 0 100px #6e33a016; }
+a, button, summary { -webkit-tap-highlight-color: transparent; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 4px; }
+[hidden] { display: none !important; }
+.awards-shell { width: min(1120px, 100%); padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); margin: auto; }
+.awards-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.awards-back { display: inline-flex; gap: 8px; align-items: center; min-height: 38px; border: 1px solid #cfac6580; border-radius: 9px; background: linear-gradient(135deg,#302a20,#131016 65%); padding: 7px 14px; color: var(--gold-light); text-decoration: none; font-size: .8rem; font-weight: 650; }
+.awards-back > span { font-size: 1.4rem; line-height: .8; }
+.brand-wordmark { font-size: .64rem; letter-spacing: .18em; color: #d6c4a0; }
+.brand-wordmark span { padding: 0 8px; color: #746145; }
+.awards-hero { text-align: center; padding: 22px 0 21px; }
+.hero-crest { width: 42px; height: 42px; display: grid; place-items: center; margin: 0 auto 12px; border: 1px solid #d0a95780; border-radius: 50%; color: var(--gold-light); background: linear-gradient(130deg,#8a682433,#181019); box-shadow: 0 0 30px #ad68ff20; font-size: 1.6rem; }
+.awards-eyebrow { color: #ccb887; letter-spacing: .19em; font-size: .65rem; margin: 0 0 8px; overflow-wrap: anywhere; }
+h1 { font: 500 clamp(2.7rem,6vw,4rem)/1.1 Georgia, serif; margin: 0; color: var(--gold-light); background: linear-gradient(115deg,#c69b4c 10%,#fff7d1 38%,#e8bb64 62%,#fff0bf 84%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-subtitle { font-size: .8rem; color: #c3baca; margin: 10px 0 12px; }
+.hero-divider { display: flex; align-items: center; gap: 12px; width: min(340px,85%); margin: auto; color: #d1ab60; }
+.hero-divider::before,.hero-divider::after { content: ''; height: 1px; flex: 1; background: linear-gradient(90deg,transparent,#bc96545e); }
+.hero-divider::after { transform: rotate(180deg); }
+.awards-season { margin: 8px 0 0; color: #a99cba; font-size: .68rem; }
+.awards-grid { columns: 3; column-gap: 12px; }
+.award-card { position: relative; min-width: 0; break-inside: avoid; margin-bottom: 12px; border: 1px solid transparent; border-radius: 14px; background: linear-gradient(145deg,#201925,#111014 65%) padding-box, linear-gradient(130deg,#dbb96e9c,#75592c52 44%,#d9b96a67) border-box; box-shadow: 0 8px 25px #0004,0 0 20px #7427ae0c; padding: 16px; overflow: hidden; }
+.award-card::before { content: ''; position: absolute; width: 110px; height: 110px; top: -60px; right: -35px; border-radius: 50%; background: #d9ad5412; filter: blur(15px); pointer-events: none; }
+.award-top { display: flex; align-items: center; justify-content: space-between; color: #b79860; margin-bottom: 8px; }
+.award-number { font-size: .58rem; letter-spacing: .2em; }
+.award-icon { display: inline-flex; color: #efd08b; }
+.award-icon svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
+.award-card h2 { font: 500 1.4rem/1.15 Georgia,serif; color: var(--gold-light); margin: 0 0 6px; }
+.award-description { min-height: 2.6em; margin: 0 0 12px; font-size: .72rem; line-height: 1.4; color: #bdb2c6; }
+.award-holders { display: grid; gap: 8px; padding-top: 11px; border-top: 1px solid #c79e5133; }
+.award-person { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.award-avatar { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; overflow: hidden; border-radius: 50%; border: 1px solid #efce858c; background: linear-gradient(135deg,#66502a,#22152e); color: #fff0c0; font-weight: 700; }
+.award-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.award-person-name { min-width: 0; color: #ffe18b; font-size: .83rem; font-weight: 700; overflow-wrap: anywhere; }
+.award-value { color: var(--gold-light); font-variant-numeric: tabular-nums; font-size: 1.18rem; font-weight: 750; margin: 12px 0 0; }
+.award-value small { font-size: .66rem; font-weight: 500; color: #baaa8c; margin-left: 5px; }
+.award-note { display: block; font-size: .64rem; line-height: 1.4; margin: 4px 0 0; color: #afa0b9; }
+.award-pair { display: grid; gap: 7px; }
+.award-pair + .award-pair { padding-top: 8px; border-top: 1px solid #a6824726; }
+.awards-status { text-align: center; padding: 26px 16px; margin-bottom: 12px; color: #cfbfda; border: 1px solid #b997543d; border-radius: 12px; font-size: .83rem; line-height: 1.5; }
+.awards-status button { display: block; margin: 12px auto 0; border: 1px solid #d4ad68; border-radius: 8px; background: #241c27; color: #ffe8b1; padding: 9px 20px; cursor: pointer; }
+.champions-section { margin-top: 20px; padding: 22px 18px 16px; border: 1px solid #c9a15a73; border-radius: 16px; background: radial-gradient(ellipse at 50% 0,#9c6e2519,transparent 65%),#100e14; box-shadow: 0 0 45px #742b9d17; text-align: center; }
+.champions-section h2 { font: 500 1.9rem/1.15 Georgia,serif; color: #ffe5a4; margin: 0 0 7px; }
+.champions-copy { color: #b6a9bf; font-size: .73rem; margin: 0 0 20px; line-height: 1.5; }
+.champions-podium { display: grid; grid-template-columns: repeat(var(--podium-columns,3),minmax(0,1fr)); gap: 10px; align-items: start; }
+.podium-place { --metal: #ebc571; --metal-dim: #aa864d; border-radius: 11px; padding: 13px 9px 15px; border: 1px solid color-mix(in srgb,var(--metal) 40%,transparent); background: linear-gradient(150deg,color-mix(in srgb,var(--metal) 12%,#151019),#131015); min-width: 0; }
+.podium-place.silver { --metal: #e0e5f3; --metal-dim: #9fa8bb; }
+.podium-place.bronze { --metal: #dda179; --metal-dim: #ac755a; }
+.podium-holders { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(90px,100%),1fr)); gap: 8px; }
+.podium-medal { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--metal); background: linear-gradient(135deg,var(--metal),var(--metal-dim)); color: #251b14; box-shadow: inset 0 0 0 3px #fff3,0 3px 15px #0004; margin: 0 auto 12px; font: bold 1rem Georgia,serif; }
+.podium-place .award-person { flex-direction: column; gap: 6px; margin-top: 10px; }
+.podium-place .award-person-name { font-size: .79rem; }
+.podium-place .award-avatar { width: 42px; height: 42px; flex-basis: 42px; border-color: var(--metal); }
+.podium-count { color: var(--metal); font-size: 1.4rem; font-weight: 700; margin-top: 13px; }
+.podium-count small { display: block; font-size: .6rem; font-weight: 500; margin-top: 2px; color: #c7becb; }
+.champions-all { margin-top: 16px; border-top: 1px solid #b48c422e; }
+summary { cursor: pointer; font-size: .74rem; color: #d2bd91; padding: 12px 0; }
+.champions-row { display: grid; grid-template-columns: 25px minmax(0,1fr) 48px; gap: 9px; padding: 9px 0; align-items: center; text-align: left; border-top: 1px solid #fff1; font-size: .76rem; }
+.champions-row > strong { color: var(--gold); text-align: right; }
+.awards-rules { color: #afa3b9; font-size: .73rem; margin: 15px 0; border-bottom: 1px solid #b38e4333; }
+.awards-rules summary { display: flex; justify-content: space-between; list-style: none; }
+.awards-rules p { line-height: 1.6; max-width: 850px; }
+.awards-footer { display: flex; justify-content: space-between; gap: 12px; font-size: .6rem; color: #887990; padding: 6px 0; }
+.awards-footer > span:first-child { color: #b09a72; letter-spacing: .1em; }
+@media(max-width:900px) { .awards-grid { columns: 2; } }
+@media(max-width:540px) {
+ .awards-shell { padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+ .brand-wordmark { font-size: .52rem; letter-spacing: .07em; } .brand-wordmark span { padding: 0 3px; }
+ .awards-back { font-size: .72rem; padding: 7px 10px; }
+ .awards-hero { padding: 18px 0; } .hero-crest { width: 34px; height: 34px; font-size: 1.25rem; margin-bottom: 10px; }
+ .awards-grid { columns: auto; display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; }
+ .award-card { margin-bottom: 0; padding: 13px 15px; display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 12px; }
+ .award-top { grid-column: 1/-1; margin-bottom: 6px; }
+ .award-card h2 { grid-column: 1/-1; font-size: 1.36rem; }
+ .award-description { grid-column: 1/-1; min-height: 0; margin-bottom: 9px; }
+ .award-holders { min-width: 0; border-top: 0; padding-top: 0; align-self: center; }
+ .award-value { align-self: center; text-align: right; margin: 0; font-size: 1.2rem; max-width: 105px; }
+ .award-value small { display: block; margin: 2px 0 0; }
+ .award-note { grid-column: 1/-1; }
+ .award-person-name { font-size: .82rem; } .award-avatar { flex-basis: 31px; width: 31px; height: 31px; }
+ .champions-section { padding: 18px 10px 10px; } .champions-section h2 { font-size: 1.65rem; }
+ .champions-podium { gap: 7px; } .podium-place { padding: 11px 5px; } .podium-place .award-person-name { font-size: .71rem; }
+ .awards-footer { font-size: .55rem; }
+}

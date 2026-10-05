@@ -21,6 +21,7 @@ const itemsToCopy = [
   'league.html',
   'leagues.html',
   'statistics.html',
+  'awards.html',
   'medals.html',
   'power-cards.html',
   'game-card.html',
