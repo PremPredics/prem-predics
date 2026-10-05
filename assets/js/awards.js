@@ -50,16 +50,12 @@ function render(data) {
   champions.hidden = !completed || !members.length;
   if (!champions.hidden) {
     const standings = championStandings(members);
-    const limit = members.length === 2 ? 2 : 3;
-    const ranks = [...new Set(standings.filter(row => row.rank <= limit).map(row => row.rank))];
+    const topWins = Number(standings[0]?.wins || 0);
+    const leaders = standings.filter(row => Number(row.wins || 0) === topWins);
     champions.innerHTML = `<div class="champions-corner champions-corner-left">${awardEmblem}</div><div class="champions-corner champions-corner-right">${awardEmblem}</div>
       <p class="awards-eyebrow">THE WEEKLY CROWN</p><h2 id="champions-title">Gameweek Champion</h2>
       <p class="champions-copy">Tied GW Winners all win the GW</p>
-      <div class="champions-podium" style="--podium-columns:${ranks.length}">${ranks.map(rank => {
-        const holders = standings.filter(row => row.rank === rank);
-        const metal = rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'gold';
-        return `<div class="podium-place ${metal}"><div class="podium-holders">${holders.map(person).join('')}</div><div class="podium-count">${Number(holders[0].wins)}<small>Gameweek${Number(holders[0].wins) === 1 ? '' : 's'} won${holders.length > 1 ? ' · shared place' : ''}</small></div></div>`;
-      }).join('')}</div>
+      <div class="champions-winners"><div class="champions-winner-list">${leaders.map(person).join('')}</div><div class="champions-winner-count">${topWins}<small>Gameweek${topWins === 1 ? '' : 's'} won${leaders.length > 1 ? ' · shared by all leaders' : ''}</small></div></div>
       <details class="champions-all" open><summary>All ${members.length} members</summary>${standings.map(row => `<div class="champions-row">${person(row)}<strong>${Number(row.wins)} <span class="award-note">wins</span></strong></div>`).join('')}</details>`;
   }
 }
