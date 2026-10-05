@@ -12,7 +12,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .brand-wordmark { font-size: .64rem; letter-spacing: .18em; color: #d6c4a0; }
 .brand-wordmark span { padding: 0 8px; color: #746145; }
 .awards-hero { text-align: center; padding: 22px 0 21px; }
-.hero-crest { width: 48px; height: 48px; display: grid; place-items: center; margin: 0 auto 12px; border: 2px solid #f0c661b8; border-radius: 50%; background: linear-gradient(130deg,#8a682433,#181019); box-shadow: 0 0 30px #ad68ff20, inset 0 0 0 1px #fff3; }
+.hero-crest { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 12px; border: 2px solid #f0c661b8; border-radius: 50%; background: linear-gradient(130deg,#8a682433,#181019); box-shadow: 0 0 30px #ad68ff20, inset 0 0 0 1px #fff3; }
 .award-emblem { display: block; width: 100%; height: 100%; overflow: visible; }
 .award-star { fill: #fff; stroke: #fff; stroke-width: 1; stroke-linejoin: round; filter: drop-shadow(0 1px 2px #0008); }
 .award-trophy { fill: #ffd45f; stroke: #6f4a12; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 1px #0008); }
@@ -26,11 +26,11 @@ h1 { font: 500 clamp(2.7rem,6vw,4rem)/1.1 Georgia, serif; margin: 0; color: var(
 .awards-grid { columns: 3; column-gap: 12px; }
 .award-card { position: relative; min-width: 0; break-inside: avoid; margin-bottom: 12px; border: 2px solid transparent; border-radius: 14px; background: linear-gradient(145deg,#201925,#111014 65%) padding-box, linear-gradient(130deg,#ffe28b,#b8792d 44%,#ffe08a) border-box; box-shadow: 0 8px 25px #0004,0 0 24px #d8a94d18; padding: 14px 16px 16px; overflow: hidden; }
 .award-card::before { content: ''; position: absolute; width: 110px; height: 110px; top: -60px; right: -35px; border-radius: 50%; background: #d9ad5412; filter: blur(15px); pointer-events: none; }
-.award-top { position: relative; height: 25px; margin-bottom: 0; }
-.award-corner { position: absolute; top: -2px; width: 30px; height: 30px; }
+.award-top { position: relative; height: 0; margin: 0; }
+.award-corner { position: absolute; top: -1px; width: 34px; height: 34px; z-index: 2; }
 .award-corner-left { left: -2px; }
 .award-corner-right { right: -2px; }
-.award-card h2 { font: 750 1.42rem/1.15 Georgia,serif; text-align: center; color: var(--gold-bright); text-shadow: 0 1px 0 #fff3,0 2px 12px #d39b3b3c; margin: 0 0 7px; }
+.award-card h2 { position: relative; z-index: 1; font: 750 1.42rem/1.15 Georgia,serif; text-align: center; color: var(--gold-bright); text-shadow: 0 1px 0 #fff3,0 2px 12px #d39b3b3c; margin: 0 0 7px; padding: 0 30px; }
 .award-description { min-height: 2.6em; margin: 0 0 12px; font-size: .72rem; line-height: 1.4; text-align: center; color: #bdb2c6; }
 .award-holders { display: grid; gap: 8px; padding-top: 11px; border-top: 1px solid #c79e5133; }
 .award-person { display: flex; align-items: center; gap: 9px; min-width: 0; }
@@ -45,7 +45,7 @@ h1 { font: 500 clamp(2.7rem,6vw,4rem)/1.1 Georgia, serif; margin: 0; color: var(
 .awards-status { text-align: center; padding: 26px 16px; margin-bottom: 12px; color: #cfbfda; border: 1px solid #b997543d; border-radius: 12px; font-size: .83rem; line-height: 1.5; }
 .awards-status button { display: block; margin: 12px auto 0; border: 1px solid #d4ad68; border-radius: 8px; background: #241c27; color: #ffe8b1; padding: 9px 20px; cursor: pointer; }
 .champions-section { position: relative; margin-top: 20px; padding: 27px 18px 16px; border: 2px solid #f0c661b8; border-radius: 16px; background: radial-gradient(ellipse at 50% 0,#9c6e2519,transparent 65%),#100e14; box-shadow: 0 0 45px #742b9d17,0 0 22px #d8a94d12; text-align: center; overflow: hidden; }
-.champions-corner { position: absolute; top: 10px; width: 31px; height: 31px; }
+.champions-corner { position: absolute; top: 10px; width: 34px; height: 34px; }
 .champions-corner-left { left: 13px; }
 .champions-corner-right { right: 13px; }
 .champions-section h2 { font: 500 1.9rem/1.15 Georgia,serif; color: #ffe5a4; margin: 0 0 7px; }
@@ -74,11 +74,11 @@ summary { cursor: pointer; font-size: .74rem; color: #d2bd91; padding: 12px 0; }
  .awards-shell { padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
  .brand-wordmark { font-size: .52rem; letter-spacing: .07em; } .brand-wordmark span { padding: 0 3px; }
  .awards-back { font-size: .72rem; padding: 7px 10px; }
- .awards-hero { padding: 18px 0; } .hero-crest { width: 40px; height: 40px; margin-bottom: 10px; }
+ .awards-hero { padding: 18px 0; } .hero-crest { width: 44px; height: 44px; margin-bottom: 10px; }
  .awards-grid { columns: auto; display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; }
  .award-card { margin-bottom: 0; padding: 12px 15px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 12px; }
- .award-top { grid-column: 1/-1; margin-bottom: 4px; }
- .award-card h2 { grid-column: 1/-1; font-size: 1.36rem; }
+ .award-top { grid-column: 1/-1; margin-bottom: 0; }
+ .award-card h2 { grid-column: 1/-1; font-size: 1.36rem; padding: 0 28px; }
  .award-description { grid-column: 1/-1; min-height: 0; margin-bottom: 9px; }
  .award-holders { min-width: 0; border-top: 0; padding-top: 0; align-self: center; }
  .award-value { align-self: center; text-align: right; margin: 0; font-size: 1.2rem; max-width: 105px; }
@@ -86,7 +86,7 @@ summary { cursor: pointer; font-size: .74rem; color: #d2bd91; padding: 12px 0; }
  .award-note { grid-column: 1/-1; }
  .award-person-name { font-size: .82rem; } .award-avatar { flex-basis: 31px; width: 31px; height: 31px; }
  .champions-section { padding: 24px 10px 10px; } .champions-section h2 { font-size: 1.65rem; }
- .champions-corner { top: 8px; width: 27px; height: 27px; } .champions-corner-left { left: 9px; } .champions-corner-right { right: 9px; }
+ .champions-corner { top: 8px; width: 30px; height: 30px; } .champions-corner-left { left: 9px; } .champions-corner-right { right: 9px; }
  .champions-podium { gap: 7px; } .podium-place { padding: 11px 5px; } .podium-place .award-person-name { font-size: .71rem; }
  .awards-footer { font-size: .55rem; }
 }
