@@ -1,7 +1,7 @@
 import { supabase } from './supabase-client.js';
 import { escapeHtml, leagueUrl, loadLeagueContext } from './league-context.js';
 import { boundedRead } from './async-read.js';
-import { buildAwards, championStandings } from './awards-model.js?v=20261005';
+import { buildAwards, championStandings } from './awards-model.js?v=20261005-polish';
 
 const grid = document.querySelector('[data-awards-grid]');
 const status = document.querySelector('[data-status]');
@@ -10,19 +10,7 @@ let league;
 let pending;
 let lastLoaded = 0;
 
-const paths = {
-  eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
-  copy: '<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 5V3H3v13h2"/>',
-  bolt: '<path d="m14 2-9 12h6l-1 8 9-12h-6Z"/>',
-  shield: '<path d="m12 2 8 4v6c0 5-8 10-8 10S4 17 4 12V6Z"/><path d="m9 9 6 6m0-6-6 6"/>',
-  target: '<path d="M3 20V5h18v15M7 5v15M3 9h18M3 15h18"/><circle cx="16" cy="18" r="3"/>',
-  ball: '<circle cx="12" cy="12" r="9"/><path d="m12 7 5 4-2 6H9l-2-6Zm0 0V3m5 8 4-2m-6 8 3 3m-9-3-3 3m1-9L3 9"/>',
-  moon: '<path d="M19 15A8 8 0 0 1 9 5a8 8 0 1 0 10 10Z"/><path d="m18 2 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/>',
-  diamond: '<path d="m3 8 4-5h10l4 5-9 13Zm0 0h18M7 3l5 18 5-18"/>',
-  flag: '<path d="M5 22V3m0 1c5-4 9 4 15 0v10c-6 4-10-4-15 0"/>',
-  globe: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/>',
-  star: '<path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1Z"/>',
-};
+const awardEmblem = '<svg class="award-emblem" viewBox="0 0 48 48" focusable="false" aria-hidden="true"><path class="award-star" d="M24 3.5 29.9 15.4 43 17.3l-9.5 9.3 2.2 13.1L24 33.5l-11.7 6.2 2.2-13.1L5 17.3l13.1-1.9Z"/><path class="award-trophy" d="M17 18h14v7.3a7 7 0 0 1-14 0V18Z"/><path class="award-trophy" d="M17 20h-3.5a4.5 4.5 0 0 0 4.5 5M31 20h3.5a4.5 4.5 0 0 1-4.5 5M24 32v6M18.5 39.5h11"/></svg>';
 
 function avatar(member) {
   const url = String(member.profile_image_url || '');
@@ -48,28 +36,32 @@ function render(data) {
       return match ? `<span class="award-note">${escapeHtml(holder.display_name)} · GW${Number(match.gameweek_number)} · ${escapeHtml(match.home_team)} ${Number(match.home_goals)}–${Number(match.away_goals)} ${escapeHtml(match.away_team)}</span>` : '';
     }).join('') : '';
     return `<article class="award-card">
-      <div class="award-top"><span class="award-number">HONOUR ${String(award.number).padStart(2, '0')}</span><span class="award-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${paths[award.icon]}</svg></span></div>
+      <div class="award-top"><span class="award-corner award-corner-left">${awardEmblem}</span><span class="award-corner award-corner-right">${awardEmblem}</span></div>
       <h2>${award.title}</h2><p class="award-description">${award.description}</p>
       <div class="award-holders">${holders}</div>
       <p class="award-value">${award.key === 'entertainer' ? award.value.toFixed(2) : award.value}<small>${award.unit}</small></p>${notes}
     </article>`;
   }).join('');
   status.hidden = Boolean(awards.length);
-  status.textContent = 'The honours are waiting to be claimed. Awards will appear as your league makes its mark.';
+  status.textContent = 'The awards are waiting to be claimed. They will appear as your league makes its mark.';
   const completed = Number(data.completed_gameweeks || 0);
-  document.querySelector('[data-season-summary]').textContent = `${awards.length + (completed && members.length ? 1 : 0)} honours claimed · ${completed} completed Gameweek${completed === 1 ? '' : 's'}`;
+  const remaining = Math.max(0, 38 - completed);
+  document.querySelector('[data-season-summary]').textContent = `${remaining} Gameweek${remaining === 1 ? '' : 's'} to go...`;
   champions.hidden = !completed || !members.length;
   if (!champions.hidden) {
     const standings = championStandings(members);
     const limit = members.length === 2 ? 2 : 3;
     const ranks = [...new Set(standings.filter(row => row.rank <= limit).map(row => row.rank))];
-    champions.innerHTML = `<p class="awards-eyebrow">THE WEEKLY CROWN</p><h2 id="champions-title">Gameweek Champion</h2>
-      <p class="champions-copy">Most Gameweeks won · Highest weekly UC points<br>Tied weekly leaders each earn a win.</p>
+    champions.innerHTML = `<div class="champions-corner champions-corner-left">${awardEmblem}</div><div class="champions-corner champions-corner-right">${awardEmblem}</div>
+      <p class="awards-eyebrow">THE WEEKLY CROWN</p><h2 id="champions-title">Gameweek Champion</h2>
+      <p class="champions-copy">Tied GW Winners all win the GW</p>
       <div class="champions-podium" style="--podium-columns:${ranks.length}">${ranks.map(rank => {
         const holders = standings.filter(row => row.rank === rank);
-        return `<div class="podium-place ${rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'gold'}"><div class="podium-medal" aria-label="Rank ${rank}">${rank}</div><div class="podium-holders">${holders.map(person).join('')}</div><div class="podium-count">${Number(holders[0].wins)}<small>Gameweek${Number(holders[0].wins) === 1 ? '' : 's'} won${holders.length > 1 ? ' · shared place' : ''}</small></div></div>`;
+        const metal = rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'gold';
+        const label = metal === 'gold' ? 'GOLD' : metal === 'silver' ? 'SILVER' : 'BRONZE';
+        return `<div class="podium-place ${metal}"><div class="podium-label">${label}</div><div class="podium-holders">${holders.map(person).join('')}</div><div class="podium-count">${Number(holders[0].wins)}<small>Gameweek${Number(holders[0].wins) === 1 ? '' : 's'} won${holders.length > 1 ? ' · shared place' : ''}</small></div></div>`;
       }).join('')}</div>
-      <details class="champions-all"><summary>View all ${members.length} members</summary>${standings.map(row => `<div class="champions-row"><span>${row.rank}</span>${person(row)}<strong>${Number(row.wins)} <span class="award-note">wins</span></strong></div>`).join('')}</details>`;
+      <details class="champions-all" open><summary>All ${members.length} members</summary>${standings.map(row => `<div class="champions-row">${person(row)}<strong>${Number(row.wins)} <span class="award-note">wins</span></strong></div>`).join('')}</details>`;
   }
 }
 
