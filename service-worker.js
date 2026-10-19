@@ -1,8 +1,12 @@
-const CACHE_VERSION = 'prem-predics-pwa-v100';
+const CACHE_VERSION = 'prem-predics-pwa-v101';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
+  './assets/js/notifications.js?v=20261018',
+  './assets/css/notifications.css?v=20261018',
+  './assets/js/prediction-kickoff.js',
+  './assets/css/predictions-slick.css?v=20261018',
   './awards.html',
   './assets/css/awards.css?v=20261005-champion-final',
   './assets/js/awards.js?v=20261005-champion-final',
@@ -86,9 +90,10 @@ const APP_SHELL = [
   './assets/js/medals.js?v=20260831-football-loader-v1',
   './assets/js/page-loader.js?v=20260920-adaptive',
   './assets/js/prediction-hub.js',
-  './assets/js/predictions.js?v=20260924-fast',
+  './assets/js/predictions.js?v=20261018-kickoff',
   './assets/js/profile.js?v=20260826-account-profile-cache',
   './assets/js/pwa.js',
+  './assets/js/pwa.js?v=20261018-notifications',
   './assets/js/reset-password.js',
   './assets/js/site-auth.js?v=20260828-startup-reliability',
   './assets/js/star-man-hub.js',
@@ -222,6 +227,29 @@ self.addEventListener('activate', (event) => {
       ))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener('push', event => {
+  let payload = {};
+  try { payload = event.data?.json() || {}; } catch { /* safe generic fallback */ }
+  event.waitUntil(self.registration.showNotification('Prem Predics', {
+    body: typeof payload.body === 'string' ? payload.body.slice(0,250) : 'Open Prem Predics for your gameweek update.',
+    icon: new URL('assets/pwa/icon-192.png',self.registration.scope).href,
+    badge: new URL('assets/pwa/favicon-32.png',self.registration.scope).href,
+    tag: typeof payload.tag === 'string' ? payload.tag : 'prem-predics-gameweek',
+    renotify: false,
+    data: {url: new URL('index.html',self.registration.scope).href},
+  }));
+});
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target=new URL('index.html',self.registration.scope).href;
+  event.waitUntil((async () => {
+    const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    const existing=windows.find(client=>client.url===target);
+    if (existing) return existing.focus();
+    return self.clients.openWindow(target);
+  })());
 });
 
 self.addEventListener('fetch', (event) => {

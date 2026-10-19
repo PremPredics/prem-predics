@@ -1,4 +1,5 @@
 (function () {
+  import('./notifications.js?v=20261018').catch(error => console.warn('Notification settings unavailable:', error));
   const isOfflinePage = /(^|\/)offline\.html$/i.test(window.location.pathname);
   const installButtons = Array.from(document.querySelectorAll('[data-pwa-install]'));
   let deferredInstallPrompt = null;
@@ -188,7 +189,7 @@
     window.addEventListener('load', () => {
       if (isCapacitorNativeApp()) return;
 
-      navigator.serviceWorker.register('service-worker.js', { scope: './' })
+      navigator.serviceWorker.register('service-worker.js', { scope: './', updateViaCache: 'none' })
         .catch((error) => {
           console.warn('Prem Predics PWA registration failed:', error);
         });

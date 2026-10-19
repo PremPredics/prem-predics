@@ -1,0 +1,33 @@
+.pp-bell-host { position:relative; padding-right:60px!important; }
+header.pp-bell-host { min-height:52px; }
+.pp-card-titlebar.pp-bell-host { display:flex; align-items:center; gap:12px; margin:0 0 12px; padding:8px 56px 8px 4px!important; background:transparent; box-shadow:none; }
+.pp-card-titlebar.pp-bell-host h1 { flex:1; margin:0!important; padding:0!important; min-width:0; font-size:clamp(18px,3.5vw,32px)!important; line-height:1.2!important; text-align:left!important; white-space:normal!important; }
+.pp-card-titlebar.pp-bell-host .back-home-btn { position:static!important; transform:none!important; margin:0!important; }
+@media(max-width:600px) {
+  .pp-card-titlebar.pp-bell-host { flex-wrap:wrap; padding:6px 0!important; }
+  .pp-card-titlebar.pp-bell-host h1 { flex-basis:100%; padding:4px 48px 4px 4px!important; min-height:40px; }
+  .pp-card-titlebar.pp-bell-host .back-home-btn { margin-inline:auto!important; }
+  .pp-card-titlebar.pp-bell-host .pp-notification-bell { top:6px; right:0; transform:none; }
+}
+.pp-bell-host .pp-notification-bell { position:absolute; right:10px; top:50%; transform:translateY(-50%); display:grid; place-items:center; width:40px; height:40px; min-width:40px; padding:0; margin:0; border:1px solid #ffffffbf; border-radius:12px; background:linear-gradient(135deg,#4c3279,#281741); color:#fff; box-shadow:0 3px 12px #16082830; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.pp-notification-bell svg { width:21px; height:21px; stroke:currentColor; fill:none; stroke-width:1.7; }
+.pp-notification-bell:focus-visible { outline:3px solid #ffe08a; outline-offset:3px; }
+.pp-notification-dialog { width:min(420px,calc(100% - 28px)); max-height:calc(100dvh - 40px); overflow:auto; padding:23px; border:1px solid #f0e5ffbf; border-radius:19px; background:linear-gradient(145deg,#48306f,#27143f); color:#fff; box-shadow:0 18px 80px #11032090; font:14px/1.5 'Segoe UI',Arial,sans-serif; text-align:left; }
+.pp-notification-dialog::backdrop { background:#10051eb0; backdrop-filter:blur(7px); }
+.pp-notification-dialog h2 { margin:0 0 3px; color:#fff; font-size:23px; font-weight:750; text-shadow:none; -webkit-text-stroke:0; text-align:left; }
+.pp-notification-dialog p { color:#dfd2f3; margin:5px 0 15px; font-size:13px; text-shadow:none; }
+.pp-notification-dialog label { display:flex; align-items:center; gap:12px; margin:10px 0; padding:13px; border:1px solid #ffffff3d; border-radius:12px; background:#ffffff08; cursor:pointer; }
+.pp-notification-dialog label span { flex:1; min-width:0; }
+.pp-notification-dialog label b { display:block; font-size:14px; font-weight:700; text-shadow:none; }
+.pp-notification-dialog label small { display:block; color:#dccced; font-size:12px; margin-top:4px; font-weight:400; }
+.pp-notification-dialog input { appearance:none; width:38px; min-width:38px; height:22px; border-radius:20px; background:#190f2a; border:1px solid #ab94cd; position:relative; cursor:pointer; }
+.pp-notification-dialog input::after { content:''; position:absolute; width:14px; height:14px; left:3px; top:3px; background:#d6c7ed; border-radius:50%; transition:transform .15s; }
+.pp-notification-dialog input:checked { background:#18a66b; border-color:#97f3cd; }
+.pp-notification-dialog input:checked::after { transform:translateX(16px); background:white; }
+.pp-notification-dialog input:focus-visible { outline:2px solid #ffe08a; outline-offset:3px; }
+.pp-notification-dialog .pp-notification-actions { display:flex; gap:9px; margin-top:16px; }
+.pp-notification-actions button { flex:1; min-height:42px; padding:8px 12px; border:1px solid #ffffffa3; border-radius:10px; font:700 14px 'Segoe UI',sans-serif; color:#fff; background:#ffffff10; cursor:pointer; text-shadow:none; }
+.pp-notification-actions button[type=submit] { background:linear-gradient(135deg,#12834f,#126747); }
+.pp-notification-dialog button:disabled,.pp-notification-dialog input:disabled { opacity:.5; cursor:wait; }
+.pp-notification-dialog [data-notification-status] { margin:12px 0 0; font-size:12px; }
+@media(prefers-reduced-motion:reduce) { .pp-notification-dialog input::after { transition:none; } }
