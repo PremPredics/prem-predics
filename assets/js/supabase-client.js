@@ -17,6 +17,10 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 });
 
 window.premPredicsSupabase = supabase;
+// Auth listeners must not call Supabase while its internal auth lock is held.
+supabase.auth.onAuthStateChange((event, session) => {
+  setTimeout(() => window.dispatchEvent(new CustomEvent('pp-auth-state', {detail:{event,userId:session?.user?.id || null}})),0);
+});
 
 import('./ui-polish.js').catch((error) => {
   console.warn('Prem Predics UI polish failed to load:', error);

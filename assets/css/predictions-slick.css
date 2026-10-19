@@ -1,0 +1,49 @@
+/* Shared column geometry in edit and saved mode; no per-fixture GW pills. */
+body.pp-predictions { --fixture-columns:92px minmax(0,1fr) 100px; }
+body.pp-predictions main { padding:10px 12px 16px; }
+body.pp-predictions .panel { border:1px solid #ffffff80; border-radius:16px; padding:12px; background:linear-gradient(135deg,#4e3187f2,#35205ce8); box-shadow:0 12px 30px #26144728; }
+body.pp-predictions .page-head { margin-bottom:9px; }
+body.pp-predictions .page-head h2 { font-size:clamp(18px,3vw,25px); text-shadow:none; -webkit-text-stroke:0; letter-spacing:-.025em; }
+body.pp-predictions .page-head .state-text { margin-top:4px; font-size:11px; color:#e0d4fa; text-shadow:none; }
+body.pp-predictions .prediction-summary-list { display:grid; gap:4px; }
+body.pp-predictions .fixtures { gap:4px; }
+body.pp-predictions .prediction-column-headings,
+body.pp-predictions .prediction-row-frame { display:grid; grid-template-columns:var(--fixture-columns); gap:6px; align-items:center; padding:4px 7px; }
+body.pp-predictions .prediction-column-headings { color:#ded3f4; font-size:11px; font-weight:650; text-align:center; padding-block:4px 6px; }
+body.pp-predictions .prediction-row-frame { min-height:40px; border:1px solid #ffffff30; border-radius:8px; background:linear-gradient(100deg,#ffffff0c,#ffffff03); box-shadow:inset 0 1px #ffffff08; }
+body.pp-predictions .prediction-row-frame:focus-within { border-color:#cbb4ff; background:#ffffff16; }
+body.pp-predictions .prediction-kickoff { font-size:12px; line-height:1.2; font-weight:700; color:#eee9ff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:none; }
+body.pp-predictions .prediction-score-axis { grid-template-columns:minmax(0,1fr) 32px 8px 32px minmax(0,1fr); gap:5px; }
+body.pp-predictions .prediction-team { font-size:13px; font-weight:650; line-height:1.1; text-shadow:none; -webkit-text-stroke:0; }
+body.pp-predictions .prediction-score-input { width:32px; height:30px; font-size:16px; font-weight:700; border:1px solid #e3d8ff77; border-radius:6px; background:#24143c; text-shadow:none; }
+body.pp-predictions .prediction-goal { font-size:16px; text-shadow:none; }
+body.pp-predictions .prediction-row-meta { display:flex; flex-wrap:wrap; justify-content:center; gap:1px 4px; }
+body.pp-predictions .prediction-effects { width:auto; min-width:0; min-height:0; }
+body.pp-predictions .prediction-effects:empty { display:none; }
+body.pp-predictions .prediction-lock { width:auto; min-width:0; max-width:none; font-size:11px; font-weight:650; text-align:center; font-variant-numeric:tabular-nums; text-shadow:none; }
+body.pp-predictions .prediction-lock.remaining { color:#a3f3c3; }
+body.pp-predictions .prediction-lock.locked { color:#ffb0bb; font-size:13px; }
+body.pp-predictions .actions { margin-top:9px; }
+body.pp-predictions .actions button { min-height:36px; padding:7px 18px; border:1px solid #ffffffb0; border-radius:9px; text-shadow:none; font-size:13px; }
+body.pp-predictions .message { min-height:0; margin-top:5px; font-size:11px; }
+body.pp-predictions .message:empty { display:none; }
+body.pp-predictions .curse-override-row { border-color:#ff849c90; background:#72213b55; }
+body.pp-predictions .prediction-hedge-row { border-color:#7dd3fc80; }
+@media(max-width:720px) {
+  body.pp-predictions { --fixture-columns:66px minmax(0,1fr) 58px; }
+  body.pp-predictions header { padding:10px 8px; }
+  body.pp-predictions header h1 { font-size:20px; line-height:1.2; }
+  body.pp-predictions main { padding:7px 7px 12px; }
+  body.pp-predictions .toolbar { margin-bottom:7px; }
+  body.pp-predictions .panel { padding:8px 6px; border-radius:12px; }
+  body.pp-predictions .prediction-column-headings,
+  body.pp-predictions .prediction-row-frame { padding-inline:3px; gap:3px; }
+  body.pp-predictions .prediction-column-headings { font-size:9px; white-space:nowrap; }
+  body.pp-predictions .prediction-row-frame { min-height:35px; padding-block:2px; }
+  body.pp-predictions .prediction-kickoff { font-size:10px; }
+  body.pp-predictions .prediction-score-axis { grid-template-columns:minmax(0,1fr) 24px 5px 24px minmax(0,1fr); gap:2px; }
+  body.pp-predictions .prediction-score-axis .prediction-team { font-size:clamp(9px,2.5vw,11px); white-space:normal; overflow:visible; overflow-wrap:normal; }
+  body.pp-predictions .prediction-score-axis .prediction-score-input { width:24px; height:29px; font-size:16px; padding:0; }
+  body.pp-predictions .prediction-lock { font-size:10px; }
+  body.pp-predictions .prediction-effects :is(.power-marker,.curse-marker,.super-marker) { width:17px; height:17px; min-width:17px; min-height:17px; }
+}
