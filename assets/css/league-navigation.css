@@ -1,0 +1,21 @@
+header.league-menu-header { position:relative; min-height:60px; padding:14px 60px!important; }
+header.league-menu-header h1 { font-size:clamp(16px,3.6vw,28px); line-height:1.2; margin:0; text-wrap:balance; }
+.league-menu-header .league-menu-toggle { position:absolute; left:10px; top:50%; transform:translateY(-50%); display:grid; place-items:center; width:40px; height:40px; min-width:40px; padding:0; margin:0; border:1px solid #ffffffbf; border-radius:12px; background:linear-gradient(135deg,#4c3279,#281741); color:#fff; box-shadow:0 3px 12px #16082830; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.league-menu-toggle svg { width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; }
+.league-menu-toggle[aria-expanded=true] { background:linear-gradient(135deg,#7954ae,#402565); border-color:#fff; }
+.league-menu-header + .league-menu-shade { position:fixed; inset:var(--league-menu-top,60px) 0 0; z-index:1190; background:#10051e66; backdrop-filter:blur(4px); opacity:0; visibility:hidden; transition:opacity .2s,visibility .2s; }
+.league-navigation { position:fixed; top:calc(var(--league-menu-top,60px) + 8px); left:10px; z-index:1200; width:min(300px,calc(100vw - 20px)); max-height:calc(100dvh - var(--league-menu-top,60px) - 20px); overflow-y:auto; overscroll-behavior:contain; padding:16px; display:grid; gap:8px; border:1px solid #ffffffb3; border-radius:16px; background:linear-gradient(145deg,#402567f7,#211333fa); box-shadow:0 18px 48px #13052466,inset 0 1px #ffffff12; transform:translateX(calc(-100% - 24px)); opacity:0; visibility:hidden; transition:transform .22s ease,opacity .18s,visibility .22s; }
+.league-navigation .league-navigation-label { margin:0 0 3px; padding:0 3px; color:#cbb7e9; font-size:10px; font-weight:700; letter-spacing:.14em; text-shadow:none; }
+.league-navigation :is(a,button) { display:flex; align-items:center; justify-content:flex-start; gap:12px; width:100%; min-height:46px; padding:10px 12px; margin:0; border:1px solid #ffffff80; border-radius:10px; background:linear-gradient(120deg,#68449a55,#ffffff06); color:#fff; font:650 15px/1.25 'Segoe UI',Arial,sans-serif; text-align:left; text-decoration:none; text-shadow:none; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background .15s,border-color .15s; }
+.league-navigation :is(a,button):hover { background-color:#ffffff18; border-color:white; }
+.league-navigation svg { width:21px; height:21px; flex:0 0 21px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.league-navigation .league-navigation-profile { background:linear-gradient(120deg,#075b81,#169acc55); }
+.league-navigation .league-navigation-logout { background:linear-gradient(120deg,#8e1728,#d52e4255); }
+.league-navigation-avatar { width:23px; height:23px; flex:0 0 23px; border:1px solid #ffffff99; border-radius:50%; display:grid; place-items:center; overflow:hidden; font-size:12px; background:#ffffff20; }
+.league-navigation-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.league-navigation :is(a,button):focus-visible,.league-menu-toggle:focus-visible { outline:2px solid #ffe08a; outline-offset:3px; }
+body.league-menu-open { overflow:hidden; }
+.league-menu-open .league-menu-shade { opacity:1; visibility:visible; }
+.league-menu-open .league-navigation { transform:translateX(0); opacity:1; visibility:visible; }
+body.pp-refined:has(.league-menu-header) > main { padding-top:10px; }
+@media(prefers-reduced-motion:reduce) { .league-navigation,.league-menu-shade { transition:none!important; } }
