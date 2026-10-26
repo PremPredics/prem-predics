@@ -15,7 +15,8 @@
     toggle.setAttribute('aria-label', value ? 'Close navigation menu' : 'Open navigation menu');
     menu.inert = !value;
     document.body.classList.toggle('league-menu-open', value);
-    if (restoreFocus) toggle.focus();
+    if (value) menu.querySelector('a,button')?.focus({ preventScroll:true });
+    else if (restoreFocus) toggle.focus();
   }
   toggle.addEventListener('click', () => setOpen(!opened));
   shade.addEventListener('click', () => setOpen(false, true));
