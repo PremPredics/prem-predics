@@ -1,14 +1,44 @@
 /* Opt-in cosmetic layer: no gameplay dimensions or card colours are changed. */
+/* Full document gradient, rather than an orange strip fixed to the viewport. */
+html.pp-halloween { background-color:#ffb54a; }
 html.pp-halloween body {
-  background-color:#271335!important;
-  background-image:radial-gradient(ellipse at 8% 0%,#e67b252b,transparent 42%),radial-gradient(ellipse at 100% 40%,#9d53dd38,transparent 55%),linear-gradient(160deg,#321741,#180f29)!important;
-  background-attachment:fixed;
+  min-height:100vh;
+  background-color:#ffb54a!important;
+  background-image:
+    radial-gradient(ellipse at 10% 5%,rgba(214,116,255,.20),transparent 32%),
+    linear-gradient(180deg,#271335 0%,#3f204d 30%,#713049 42%,#d65920 51%,#ed7316 65%,#fa9824 82%,#ffb54a 100%)!important;
+  background-size:100% 100%!important;
+  background-position:center top!important;
+  background-repeat:no-repeat!important;
+  background-attachment:scroll!important;
 }
 .pp-halloween body > header,.pp-halloween .awards-header {
   background:linear-gradient(115deg,#462048,#261731)!important;
   border-bottom:1px solid #f8b2558c!important;
 }
-.pp-halloween body > footer { color:#f2d3b1; }
+/* Readable dark-ink legal links over a luminous orange footer on every page. */
+html.pp-halloween body > footer {
+  color:#31163b!important;
+  background:linear-gradient(120deg,rgba(255,198,103,.96),rgba(255,161,43,.97))!important;
+  border-top:1px solid rgba(83,34,61,.48)!important;
+}
+html.pp-halloween body > footer :is(.prem-legal-footer-brand,.prem-legal-footer-disclaimer,.prem-legal-footer-links a) {
+  color:#31163b!important;
+  text-shadow:none!important;
+}
+html.pp-halloween body > footer .prem-legal-footer-links a {
+  background:rgba(255,246,223,.52);
+  border-color:rgba(83,34,61,.32);
+}
+html.pp-halloween body > footer .prem-legal-footer-links a:is(:hover,:focus-visible) {
+  color:#fff!important;
+  background:linear-gradient(135deg,#4c1d95,#7c3aed);
+}
+html.pp-halloween .awards-footer,
+html.pp-halloween .awards-footer > span:first-child {
+  color:#31163b!important;
+  text-shadow:0 1px 0 rgba(255,228,171,.45);
+}
 .pp-halloween .pp-autumn-panel { position:relative; outline:1px solid #ed9a4a75; outline-offset:-1px; }
 .pp-pumpkin { position:absolute; right:5px; top:-10px; width:25px; height:25px; z-index:1; pointer-events:none; user-select:none; transform:rotate(9deg); filter:drop-shadow(0 2px 3px #1b091b99); }
 .pp-pumpkin svg { display:block; width:100%; height:100%; }

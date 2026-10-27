@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v107';
+const CACHE_VERSION = 'prem-predics-pwa-v108';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -11,7 +11,7 @@ const APP_SHELL = [
   './assets/js/notifications.js?v=20261027-clear',
   './assets/css/notifications.css?v=20261027-clear',
   './assets/js/seasonal-theme.js?v=20261027',
-  './assets/css/seasonal-theme.css?v=20261027',
+  './assets/css/seasonal-theme.css?v=20261027-orange',
   './assets/js/admin-theme.js?v=20261027',
   './assets/js/prediction-kickoff.js',
   './assets/css/predictions-slick.css?v=20261018',
