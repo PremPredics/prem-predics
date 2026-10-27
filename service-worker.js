@@ -1,9 +1,12 @@
-const CACHE_VERSION = 'prem-predics-pwa-v104';
+const CACHE_VERSION = 'prem-predics-pwa-v105';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
-  './assets/css/league-navigation.css?v=20261026-v2',
+  './assets/css/league-navigation.css?v=20261027',
+  './assets/css/league-return.css?v=20261027',
+  './assets/js/league-return.js?v=20261027',
+  './assets/js/league.js?v=20261027-compact',
   './assets/js/league-navigation.js?v=20261026-v2',
   './assets/js/notifications.js?v=20261018',
   './assets/css/notifications.css?v=20261018',

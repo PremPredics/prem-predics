@@ -22,3 +22,38 @@ body.league-menu-open { overflow:hidden; }
 .league-menu-open .league-navigation { transform:translateX(0); opacity:1; visibility:visible; }
 body.pp-refined:has(.league-menu-header) > main { padding-top:10px; }
 @media(prefers-reduced-motion:reduce) { .league-navigation,.league-menu-shade { transition:none!important; } }
+
+/* Native details keep these controls usable without JavaScript. */
+body .league-panel .league-summary { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px 12px; align-items:center; margin-bottom:12px; }
+body .league-panel .league-summary h2 { margin:0; }
+body .league-panel .league-summary > * { order:0; }
+body .league-panel .league-summary > div:first-child { text-align:left; min-width:0; }
+body .league-panel .league-members-count { margin:4px 0 0; }
+body .league-panel .gameweek-card { grid-column:1/-1; grid-row:2; padding:9px 12px; min-height:0; border-width:1px; border-radius:10px; }
+body .league-panel details.join-code { display:block; min-width:0; width:auto; padding:0; margin:0; border:1px solid #ffffff80; border-radius:10px; align-self:start; }
+.join-code summary { padding:10px; font:600 12px/1.25 'Segoe UI',sans-serif; color:#eee3ff; cursor:pointer; white-space:nowrap; }
+body .join-code summary span { display:inline; margin-left:6px; }
+.join-code-content { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:8px; padding:0 10px 10px; max-width:180px; }
+body .join-code-content strong { font-size:16px; }
+body .join-code-content .copy-code-btn { margin:0; padding:6px 10px; min-height:32px; }
+.hub-deadlines { margin:0 0 12px; border:1px solid #ffffffb3; border-radius:12px; background:linear-gradient(120deg,#34204e,#432563); overflow:hidden; }
+.hub-deadlines summary { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:13px 14px; color:white; font:650 14px/1.3 'Segoe UI',sans-serif; cursor:pointer; }
+.hub-deadline-hint { color:#d3c0eb; font-size:11px; font-weight:500; }
+.hub-deadlines[open] .hub-deadline-hint { font-size:0; }
+.hub-deadlines[open] .hub-deadline-hint::after { content:'Close ⌃'; font-size:11px; }
+:is(.hub-deadlines,.join-code) summary { list-style:none; -webkit-tap-highlight-color:transparent; }
+:is(.hub-deadlines,.join-code) summary::-webkit-details-marker { display:none; }
+:is(.hub-deadlines,.join-code) summary:focus-visible { outline:2px solid #ffe08a; outline-offset:-3px; }
+body .hub-deadlines .deadline-strip { display:grid; grid-template-columns:1fr; gap:0; margin:0; padding:0 14px 4px; background:none; border:0; box-shadow:none; }
+body .hub-deadlines .deadline-card { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px; padding:12px 0; min-height:0; background:none; border:0; border-top:1px solid #ffffff24; border-radius:0; box-shadow:none; }
+body .hub-deadlines .deadline-title { color:#e9dff7; font-size:12px; line-height:1.45; font-weight:600; text-shadow:none; text-align:left; }
+body .hub-deadlines .deadline-body { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:0; min-height:0; max-width:145px; }
+body .hub-deadlines .deadline-countdown { font-size:15px; line-height:1.3; font-weight:700; font-variant-numeric:tabular-nums; text-shadow:none; white-space:nowrap; }
+body .hub-deadlines .deadline-action { font-size:12px; line-height:1.4; text-shadow:none; text-align:right; }
+body .hub-deadlines .deadline-light { display:none; }
+@media(min-width:900px) {
+  body .hub-deadlines .deadline-strip { grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+  body .hub-deadlines .deadline-card { grid-template-columns:1fr; align-content:start; }
+  body .hub-deadlines .deadline-body { justify-content:flex-start; max-width:none; }
+  body .hub-deadlines .deadline-action { text-align:left; }
+}

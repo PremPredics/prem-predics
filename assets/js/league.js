@@ -703,7 +703,6 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
   const predictionDeadlineMs = firstKickoffMs ? firstKickoffMs - (90 * 60 * 1000) : earliestTime(fixtures.map((fixture) => fixture.prediction_locks_at));
   const curseDeadlineMs = firstKickoffMs ? firstKickoffMs - (24 * 60 * 60 * 1000) : null;
   const starDeadline = activeGameweek?.star_man_locks_at || isoFromMs(predictionDeadlineMs);
-  const gameweekLabelText = `GW${activeGameweek?.gameweek_number || 'X'}`;
   const cardsBeginAfterGameweekOne = Number(activeGameweek?.gameweek_number || 0) <= 1;
   const cardDeadlineOptions = cardsBeginAfterGameweekOne
     ? {
@@ -712,26 +711,16 @@ async function renderDeadlineStrip(activeGameweek, fixtures, league, user) {
         messageClassName: 'bad locked message',
       }
     : { windowOnly: true };
-  const [predictionsCompleted, starManCompleted, gameCardCompletion] = await Promise.all([
-    loadPredictionCompletion(league, user, fixtures),
-    loadStarManCompletion(league, user, activeGameweek),
-    loadGameCardCompletion(league, user, activeGameweek),
-  ]);
-
   function update() {
-    const { lockedCount, totalCount } = predictionLockProgress(fixtures);
-    const predictionDeadlineOptions = lockedCount > 0
-      ? {
-          message: `${gameweekLabelText} ${lockedCount}/${totalCount} Predictions Locked`,
-          messageClassName: 'bad locked message prediction-lock-progress',
-        }
-      : { completed: predictionsCompleted };
+    const eligibleFixtures = fixtures.filter(fixture => fixture.status !== 'postponed' && fixture.status !== 'cancelled');
+    const nextLock = earliestTime(eligibleFixtures.map(fixturePredictionLockTime).filter(time => time !== null && time > Date.now()));
+    const predictionDeadlineOptions = nextLock
+      ? { windowOnly: true }
+      : { message: eligibleFixtures.length ? 'All predictions locked' : 'No scheduled fixtures', messageClassName: 'locked message' };
 
     deadlineStrip.innerHTML = [
-      renderDeadlineCard(`${gameweekLabelText} Predictions Deadline`, isoFromMs(predictionDeadlineMs), predictionDeadlineOptions),
-      renderDeadlineCard(`${gameweekLabelText} Star Man Deadline`, starDeadline, { completed: starManCompleted }),
-      renderDeadlineCard(`${gameweekLabelText} Game Card Deadline`, starDeadline, { completed: gameCardCompletion.completed, enabled: gameCardCompletion.enabled }),
-      renderDeadlineCard('Play Power Card Deadline', isoFromMs(predictionDeadlineMs), cardDeadlineOptions),
+      renderDeadlineCard('Next Prediction Deadline', isoFromMs(nextLock), predictionDeadlineOptions),
+      renderDeadlineCard('Star Man, Game Card & Play Power Card Deadline', starDeadline, { windowOnly: true }),
       renderDeadlineCard('Play Curse Card Deadline', isoFromMs(curseDeadlineMs), cardDeadlineOptions),
     ].join('');
   }
@@ -928,7 +917,7 @@ async function renderLeague(league, user) {
     gameweekLabel.textContent = 'No active gameweek found';
     gameweekCountdown.textContent = '--d --h --m --s';
     if (deadlineStrip) {
-      deadlineStrip.innerHTML = '';
+      deadlineStrip.textContent = 'No active Gameweek deadlines.';
     }
     if (liveCurseAlert) {
       liveCurseAlert.classList.remove('show');
