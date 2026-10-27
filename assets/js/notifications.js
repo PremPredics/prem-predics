@@ -134,7 +134,8 @@ window.addEventListener('pp-auth-state', ({detail}) => syncAccount(detail.userId
 if (window.premPredicsSupabase) {
   window.premPredicsSupabase.auth.getSession().then(({data}) => syncAccount(data.session?.user?.id || null));
 }
-if (host) {
+// Homepage keeps the logo alone at the exact centre; other pages retain the bell.
+if (host && !document.body.classList.contains('slick-home')) {
   const css = document.createElement('link');
   css.rel='stylesheet'; css.href='assets/css/notifications.css?v=20261027-clear'; document.head.append(css);
   host.classList.add('pp-bell-host');

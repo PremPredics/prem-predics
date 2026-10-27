@@ -32,9 +32,9 @@ body {
 
 /* ===== HEADER ===== */
 header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  width: 100%;
   padding: 18px 20px 4px;
   background:
     radial-gradient(circle at 50% 10%, rgba(255,255,255,0.16), transparent 34%),
@@ -47,6 +47,8 @@ header {
   position: relative;
   display: grid;
   place-items: center;
+  justify-self: center;
+  margin-inline: auto;
   padding: 12px 18px;
   isolation: isolate;
 }
@@ -910,7 +912,7 @@ footer {
 <script type="module" src="assets/js/index-admin.js?v=20260828-startup-reliability"></script>
 <script type="module" src="assets/js/index-actions.js?v=20260924-fast"></script>
 
-<script src="assets/js/pwa.js?v=20261027-theme" defer></script>
+<script src="assets/js/pwa.js?v=20261027-home-centred" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
 </body>

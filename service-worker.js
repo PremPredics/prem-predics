@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v108';
+const CACHE_VERSION = 'prem-predics-pwa-v109';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -8,7 +8,7 @@ const APP_SHELL = [
   './assets/js/league-return.js?v=20261027-release',
   './assets/js/league.js?v=20261027-compact',
   './assets/js/league-navigation.js?v=20261026-v2',
-  './assets/js/notifications.js?v=20261027-clear',
+  './assets/js/notifications.js?v=20261027-no-home-bell',
   './assets/css/notifications.css?v=20261027-clear',
   './assets/js/seasonal-theme.js?v=20261027',
   './assets/css/seasonal-theme.css?v=20261027-orange',
@@ -102,6 +102,7 @@ const APP_SHELL = [
   './assets/js/profile.js?v=20260826-account-profile-cache',
   './assets/js/pwa.js',
   './assets/js/pwa.js?v=20261027-theme',
+  './assets/js/pwa.js?v=20261027-home-centred',
   './assets/js/reset-password.js',
   './assets/js/site-auth.js?v=20260828-startup-reliability',
   './assets/js/star-man-hub.js',
