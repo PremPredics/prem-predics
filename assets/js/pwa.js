@@ -1,5 +1,5 @@
 (function () {
-  import('./notifications.js?v=20261018').catch(error => console.warn('Notification settings unavailable:', error));
+  import('./notifications.js?v=20261027-clear').catch(error => console.warn('Notification settings unavailable:', error));
   const isOfflinePage = /(^|\/)offline\.html$/i.test(window.location.pathname);
   const installButtons = Array.from(document.querySelectorAll('[data-pwa-install]'));
   let deferredInstallPrompt = null;

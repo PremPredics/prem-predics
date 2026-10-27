@@ -34,8 +34,8 @@ function makeDialog() {
   el.innerHTML = `<form>
     <h2 id="pp-notification-title">Your notifications</h2>
     <p>Choose your reminders on this device. Both are off until you switch them on.</p>
-    <label><span><b>Gameweek finished</b><small>Gameweek X has ended! Check out results and do your Prem Predics for next week!</small></span><input type="checkbox" name="gameweek_ended" aria-label="Gameweek finished notifications"></label>
-    <label><span><b>Two-hour deadline reminder</b><small>Gameweek Y deadlines will lock in 2 hours, make sure you've submitted everything!</small></span><input type="checkbox" name="deadline_reminder" aria-label="Two-hour deadline notifications"></label>
+    <label><span><b>Gameweek results are ready</b><small>Get notified when the Gameweek has ended so you can check your results.</small></span><input type="checkbox" name="gameweek_ended" aria-label="Gameweek results notifications"></label>
+    <label><span><b>2 hours until deadlines lock</b><small>A reminder to submit your opening-match predictions, Star Man and Game Card picks, and play any Power Cards before the Gameweek's opening deadlines.</small></span><input type="checkbox" name="deadline_reminder" aria-label="Two-hour deadline reminder"></label>
     <p data-notification-status role="status" aria-live="polite"></p>
     <div class="pp-notification-actions"><button type="button" data-notification-close>Back</button><button type="submit">Save settings</button></div>
   </form>`;
@@ -72,7 +72,7 @@ async function open() {
     publicKey = key;
     setStatus(Notification.permission === 'denied'
       ? 'Notifications are blocked in browser settings. You can turn reminders off here; to enable them, first allow notifications for Prem Predics in your browser.'
-      : 'For your leagues, once per gameweek. Reminders arrive two hours before the first deadline. Delivery depends on your device and network.');
+      : '');
     setBusy(false);
   } catch(error) {
     setStatus(error.message || 'Could not load notification settings.');
@@ -136,7 +136,7 @@ if (window.premPredicsSupabase) {
 }
 if (host) {
   const css = document.createElement('link');
-  css.rel='stylesheet'; css.href='assets/css/notifications.css?v=20261018'; document.head.append(css);
+  css.rel='stylesheet'; css.href='assets/css/notifications.css?v=20261027-clear'; document.head.append(css);
   host.classList.add('pp-bell-host');
   const button=document.createElement('button');
   button.type='button'; button.className='pp-notification-bell';

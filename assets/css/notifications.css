@@ -30,4 +30,5 @@ header.pp-bell-host { min-height:52px; }
 .pp-notification-actions button[type=submit] { background:linear-gradient(135deg,#12834f,#126747); }
 .pp-notification-dialog button:disabled,.pp-notification-dialog input:disabled { opacity:.5; cursor:wait; }
 .pp-notification-dialog [data-notification-status] { margin:12px 0 0; font-size:12px; }
+.pp-notification-dialog [data-notification-status]:empty { display:none; }
 @media(prefers-reduced-motion:reduce) { .pp-notification-dialog input::after { transition:none; } }

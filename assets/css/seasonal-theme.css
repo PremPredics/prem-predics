@@ -1,0 +1,25 @@
+/* Opt-in cosmetic layer: no gameplay dimensions or card colours are changed. */
+html.pp-halloween body {
+  background-color:#271335!important;
+  background-image:radial-gradient(ellipse at 8% 0%,#e67b252b,transparent 42%),radial-gradient(ellipse at 100% 40%,#9d53dd38,transparent 55%),linear-gradient(160deg,#321741,#180f29)!important;
+  background-attachment:fixed;
+}
+.pp-halloween body > header,.pp-halloween .awards-header {
+  background:linear-gradient(115deg,#462048,#261731)!important;
+  border-bottom:1px solid #f8b2558c!important;
+}
+.pp-halloween body > footer { color:#f2d3b1; }
+.pp-halloween .pp-autumn-panel { position:relative; outline:1px solid #ed9a4a75; outline-offset:-1px; }
+.pp-pumpkin { position:absolute; right:5px; top:-10px; width:25px; height:25px; z-index:1; pointer-events:none; user-select:none; transform:rotate(9deg); filter:drop-shadow(0 2px 3px #1b091b99); }
+.pp-pumpkin svg { display:block; width:100%; height:100%; }
+.pp-halloween :is(.avatar,.mini-avatar,.account-avatar,.award-avatar,.admin-avatar,.history-avatar,.player-pill-avatar,.played-by-avatar,.profile-edit-avatar,.league-navigation-avatar,.profile-photo-preview,.member-avatar,.user-avatar,.stat-avatar,.card-preview-played-by-avatar,.opponent-target-avatar):not(.history-actual-spacer) {
+  outline:2px dashed #ffbf68!important; outline-offset:2px!important;
+  box-shadow:0 0 0 2px #51203e,0 0 0 5px #d66b2870,0 0 12px #f9973930!important;
+  border-color:#f8943b!important;
+}
+.site-theme-panel { margin:0 0 16px; padding:16px; border:1px solid #ffc078aa; border-radius:12px; background:linear-gradient(110deg,#412542,#302040); color:#fff; }
+.site-theme-panel label { display:flex; align-items:center; justify-content:space-between; gap:14px; font-weight:700; }
+.site-theme-panel input { width:22px; height:22px; flex:0 0 22px; accent-color:#f3973c; cursor:pointer; }
+.site-theme-panel p { margin:8px 0 0; color:#e4d2ee; font-size:13px; line-height:1.4; }
+.site-theme-panel [role=status]:empty { display:none; }
+@media(max-width:480px) { .pp-pumpkin { width:22px; height:22px; top:-8px; right:4px; } }

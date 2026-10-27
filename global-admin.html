@@ -559,6 +559,8 @@ footer {
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
+<link rel="stylesheet" href="assets/css/seasonal-theme.css?v=20261027">
+<script src="assets/js/seasonal-theme.js?v=20261027" defer></script>
 </head>
 <body data-require-auth="true">
 <header>
@@ -579,6 +581,11 @@ footer {
   </section>
 
   <section class="admin-content" data-admin-content hidden>
+    <section class="site-theme-panel" aria-label="Global appearance">
+      <label><span>🎃 Halloween theme</span><input type="checkbox" role="switch" data-halloween-toggle disabled></label>
+      <p>Pumpkin accents and decorative profile rings across the site. Switch on or off for everyone.</p>
+      <p role="status" data-theme-status></p>
+    </section>
     <nav class="admin-nav" aria-label="Global admin sections">
       <button type="button" data-admin-tab="actual-results" class="active">Actual Results</button>
       <button type="button" data-admin-tab="schedule">Change Date/Time</button>
@@ -726,9 +733,10 @@ footer {
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
 <script type="module" src="assets/js/global-admin.js?v=20260828-player-pool"></script>
-<script src="assets/js/pwa.js?v=20261018-notifications" defer></script>
+<script src="assets/js/pwa.js?v=20261027-theme" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
+<script type="module" src="assets/js/admin-theme.js?v=20261027"></script>
 </body>
 </html>
 
