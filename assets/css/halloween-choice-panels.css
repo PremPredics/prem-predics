@@ -1,0 +1,61 @@
+/*
+ * Halloween-only accents for the League Hub's Predictions and Star Man
+ * choice buttons, their click-through dialogs, and the legacy choice pages.
+ * Normal styling and functionality are untouched when the theme is disabled.
+ */
+
+/* Two primary League Hub segments. */
+html.pp-halloween body .play-card[data-choice-menu="predictions"],
+html.pp-halloween body .play-card[data-choice-menu="star-man"] {
+  background:
+    linear-gradient(105deg,rgba(255,220,135,.09),transparent 40%),
+    linear-gradient(180deg,#2b153c 0%,#4f264c 38%,#943b3b 62%,#e26a17 100%) !important;
+  border-color:rgba(255,185,86,.74);
+  box-shadow:0 10px 22px rgba(31,9,36,.32),inset 0 1px 0 rgba(255,236,190,.18);
+}
+
+/* The two-option popup shown when either segment is clicked. */
+html.pp-halloween body .hub-choice-dialog {
+  background:
+    radial-gradient(circle at 90% 90%,rgba(255,193,78,.24),transparent 32%),
+    linear-gradient(180deg,#281435 0%,#4a2248 34%,#98403d 61%,#e6751a 86%,#f39327 100%) !important;
+  border-color:rgba(255,195,108,.9);
+  box-shadow:inset 0 1px 0 rgba(255,231,188,.2),0 24px 58px rgba(24,8,28,.55),0 0 23px rgba(247,136,40,.22);
+}
+html.pp-halloween body .hub-choice-option {
+  background:
+    linear-gradient(105deg,color-mix(in srgb,var(--option-accent) 10%,transparent),transparent 50%),
+    linear-gradient(180deg,#2c173a 0%,#54264c 43%,#8a393e 68%,#bd531e 100%) !important;
+  border-color:color-mix(in srgb,var(--option-accent) 40%,rgba(255,192,100,.65));
+}
+html.pp-halloween body .hub-choice-heading p,
+html.pp-halloween body .hub-choice-option span {
+  color:#fff1d9;
+  text-shadow:0 1px 3px rgba(21,6,31,.9);
+}
+html.pp-halloween body .hub-choice-option strong {
+  text-shadow:0 1px 3px rgba(21,6,31,.94);
+}
+html.pp-halloween body .hub-choice-back {
+  background:rgba(38,16,44,.84);
+  border-color:rgba(255,215,151,.65);
+  color:#fff4df;
+}
+
+/* Dedicated Predictions / Star Man selection pages, if reached directly. */
+html.pp-halloween body.pp-selection-hub main > .panel {
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,232,171,.11),transparent 33%),
+    linear-gradient(180deg,#2b163a 0%,#4d2550 34%,#9c443f 61%,#e5741c 85%,#f39224 100%) !important;
+  border-color:rgba(255,195,104,.94);
+}
+html.pp-halloween body.pp-selection-hub .choice-card {
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,245,209,.11),transparent 35%),
+    linear-gradient(180deg,#281536 0%,#4e2449 42%,#84383e 67%,#be511d 100%) !important;
+  border-color:rgba(255,198,117,.68);
+}
+html.pp-halloween body.pp-selection-hub .choice-card span {
+  color:#fff0d6;
+  text-shadow:0 1px 4px rgba(20,8,30,.85);
+}
