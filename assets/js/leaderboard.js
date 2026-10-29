@@ -5,6 +5,10 @@ import {
   loadLeagueContext,
 } from './league-context.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
+import { compareRankingCriteria } from './leaderboard-history-model.js?v=20261028';
+import { createLeaderboardHistory } from './leaderboard-history.js?v=20261028';
+
+const historyController = createLeaderboardHistory();
 
 const body = document.querySelector('[data-leaderboard-body]');
 const leagueLink = document.querySelector('[data-league-link]');
@@ -55,20 +59,6 @@ function bindLeaderboardHeaderLinks() {
     });
   });
 }
-function compareRankingCriteria(a, b) {
-  return (
-    numberValue(b.ultimate_champion_points) - numberValue(a.ultimate_champion_points)
-    || numberValue(b.correct_scores) - numberValue(a.correct_scores)
-    || numberValue(b.correct_results) - numberValue(a.correct_results)
-    || numberValue(b.prediction_points) - numberValue(a.prediction_points)
-    || numberValue(b.star_man_points) - numberValue(a.star_man_points)
-    || numberValue(b.star_man_goals) - numberValue(a.star_man_goals)
-    || numberValue(b.star_man_assists) - numberValue(a.star_man_assists)
-    || numberValue(a.star_man_yellows) - numberValue(b.star_man_yellows)
-    || numberValue(a.star_man_reds) - numberValue(b.star_man_reds)
-  );
-}
-
 function compareRows(a, b) {
   return compareRankingCriteria(a, b)
     || String(a.display_name || 'Player').localeCompare(
@@ -103,7 +93,7 @@ function render(rows, profilesById) {
 
     return `
       <tr>
-        <td class="rank">${displayedRank}</td>
+        <td class="rank"><span>${displayedRank}</span><span class="rank-movement is-level" data-rank-movement="${escapeHtml(row.user_id)}" aria-label="Weekly movement loading">—</span></td>
         <td>
           <div class="player-cell">
             ${avatarMarkup(profile, displayName)}
@@ -166,6 +156,8 @@ async function loadLeaderboard() {
 
   currentProfilesById = profilesById;
   render(rows || [], profilesById);
+  // History is an independent enhancement: never hold up the live table/loader.
+  historyController.update(context, rows || [], profilesById);
   setPageLoaderProgress(94);
 }
 

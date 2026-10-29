@@ -576,6 +576,7 @@ footer {
 <script src="assets/js/league-return.js?v=20261027-release" defer></script>
 <link rel="stylesheet" href="assets/css/seasonal-theme.css?v=20261027-orange">
 <script src="assets/js/seasonal-theme.js?v=20261027" defer></script>
+<link rel="stylesheet" href="assets/css/leaderboard-history.css?v=20261028">
 </head>
 <body class="pp-refined pp-page-loading" data-page-loader-title="Loading Leaderboard Page..." data-require-auth="true" data-require-league="true">
 <header>
@@ -612,10 +613,17 @@ footer {
     </div>
   </section>
 
+  <p class="leaderboard-movement-note" data-movement-note>Weekly position changes appear here.</p>
+  <details class="leaderboard-history" data-leaderboard-history>
+    <summary><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M7 15l4-5 4 3 5-7"/></svg>Season Progress</span><span class="history-expand" aria-hidden="true">⌄</span></summary>
+    <div class="history-content" data-history-content><p class="history-empty">Loading completed Gameweeks…</p></div>
+  </details>
   <div class="leaderboard-hints" aria-label="Leaderboard navigation tips">
-    <p class="swipe-more-hint">Swipe to see more stats</p>
-    <p class="swipe-more-hint">Click 'CS' to view Correct Scores</p>
-    <p class="swipe-more-hint">Click 'SMP' to view Star Man History</p>
+    <p class="leaderboard-scroll-cue"><span aria-hidden="true">↔</span> Swipe the table for more stats</p>
+    <div class="leaderboard-shortcuts">
+      <button type="button" data-leaderboard-nav="correct-scores"><b>CS</b> Correct Scores <span aria-hidden="true">›</span></button>
+      <button type="button" data-leaderboard-nav="star-men"><b>SMP</b> Star Man History <span aria-hidden="true">›</span></button>
+    </div>
   </div>
 
   <div class="legend-action-row">
@@ -653,7 +661,7 @@ footer {
 
 <script type="module" src="assets/js/page-loader.js?v=20260920-adaptive"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/leaderboard.js?v=20260903-tiebreak-v2"></script>
+<script type="module" src="assets/js/leaderboard.js?v=20261028-history"></script>
 <script src="assets/js/pwa.js?v=20261027-theme" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
