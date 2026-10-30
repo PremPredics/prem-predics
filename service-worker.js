@@ -1,8 +1,11 @@
-const CACHE_VERSION = 'prem-predics-pwa-v112';
+const CACHE_VERSION = 'prem-predics-pwa-v113';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
+  './assets/js/league.js?v=20261030-studio',
+  './assets/js/league-hub-view.js?v=20261030',
+  './assets/css/league-hub-studio.css?v=20261030',
   './assets/js/leaderboard.js?v=20261028-history',
   './assets/js/leaderboard-history.js?v=20261028',
   './assets/js/leaderboard-history-model.js?v=20261028',

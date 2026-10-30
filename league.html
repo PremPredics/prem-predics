@@ -1057,11 +1057,12 @@ footer {
 <link rel="stylesheet" href="assets/css/seasonal-theme.css?v=20261027-orange">
 <link rel="stylesheet" href="assets/css/halloween-choice-panels.css?v=20261027-v2">
 <script src="assets/js/seasonal-theme.js?v=20261027" defer></script>
+<link rel="stylesheet" href="assets/css/league-hub-studio.css?v=20261030">
 </head>
-<body class="pp-refined pp-page-loading" data-page-loader-title="Loading League Hub Page..." data-require-auth="true" data-require-league="true">
+<body class="pp-refined hub-studio pp-page-loading" data-page-loader-title="Loading League Hub Page..." data-require-auth="true" data-require-league="true">
 <header class="league-menu-header">
   <button class="league-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="league-navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  <h1>Prem Predics - League Hub</h1>
+  <h1>PREM PREDICS <span class="hub-brand-divider">/</span> <span class="hub-brand-place">LEAGUE HUB</span></h1>
 </header>
 <div class="league-menu-shade" aria-hidden="true"></div>
   <nav id="league-navigation" class="league-navigation" aria-label="League navigation and account" inert>
@@ -1076,6 +1077,7 @@ footer {
   <section class="league-panel">
     <div class="league-summary">
       <div>
+        <p class="hub-eyebrow">YOUR LEAGUE. YOUR STORY.</p>
         <h2 data-league-name>Loading league...</h2>
         <p class="league-members-count" data-member-count></p>
       </div>
@@ -1107,25 +1109,11 @@ footer {
   </section>
 </main>
 
-<div class="hub-choice-overlay" data-hub-choice-overlay hidden aria-hidden="true">
-  <button class="hub-choice-backdrop" type="button" data-hub-choice-dismiss tabindex="-1" aria-label="Close menu"></button>
-  <section class="hub-choice-dialog" data-hub-choice-dialog role="dialog" aria-modal="true" aria-labelledby="hub-choice-title" tabindex="-1">
-    <div class="hub-choice-topbar">
-      <div class="hub-choice-heading">
-        <h2 id="hub-choice-title" data-hub-choice-title></h2>
-        <p data-hub-choice-copy></p>
-      </div>
-    </div>
-    <nav class="hub-choice-options" data-hub-choice-options aria-label="Available actions"></nav>
-    <button class="hub-choice-back" type="button" data-hub-choice-dismiss><span class="back-chevron" aria-hidden="true"></span><span>Back</span></button>
-  </section>
-</div>
-
 <footer>2026 Prem Predics | Private League</footer>
 
 <script type="module" src="assets/js/page-loader.js?v=20260920-reliable"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20261027-compact"></script>
+<script type="module" src="assets/js/league.js?v=20261030-studio"></script>
 <script src="assets/js/pwa.js?v=20261027-theme" defer></script>
 <script src="assets/js/league-navigation.js?v=20261026-v2" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>

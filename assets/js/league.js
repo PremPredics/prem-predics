@@ -13,6 +13,7 @@ import {
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-reliable';
 import { formatDeadlineDuration } from './deadline-countdown.js';
 import { supabase } from './supabase-client.js';
+import { renderHubNavigation } from './league-hub-view.js?v=20261030';
 
 const leagueName = document.querySelector('[data-league-name]');
 const memberCount = document.querySelector('[data-member-count]');
@@ -28,16 +29,9 @@ const profileLink = document.querySelector('[data-profile-link]');
 const profileAvatar = document.querySelector('[data-profile-avatar]');
 const liveCurseAlert = document.querySelector('[data-live-curse-alert]');
 const medalProgressPanel = document.querySelector('[data-medal-progress]');
-const choiceOverlay = document.querySelector('[data-hub-choice-overlay]');
-const choiceDialog = document.querySelector('[data-hub-choice-dialog]');
-const choiceTitle = document.querySelector('[data-hub-choice-title]');
-const choiceCopy = document.querySelector('[data-hub-choice-copy]');
-const choiceOptions = document.querySelector('[data-hub-choice-options]');
 let deadlineTimer = null;
 let liveCurseChannel = null;
 let liveCursePollTimer = null;
-let choiceMenus = new Map();
-let lastChoiceTrigger = null;
 function setLeaguePageLoadProgress(value) {
   setPageLoaderProgress(value);
 }
@@ -746,34 +740,6 @@ async function copyJoinCode() {
   }
 }
 
-function closeHubChoicePanel() {
-  if (!choiceOverlay || choiceOverlay.hidden) return;
-  choiceOverlay.hidden = true;
-  choiceOverlay.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('choice-panel-open');
-  lastChoiceTrigger?.focus();
-  lastChoiceTrigger = null;
-}
-
-function openHubChoicePanel(menuKey, trigger) {
-  const menu = choiceMenus.get(menuKey);
-  if (!menu || !choiceOverlay || !choiceDialog || !choiceTitle || !choiceCopy || !choiceOptions) return;
-  lastChoiceTrigger = trigger || document.activeElement;
-  choiceTitle.textContent = menu.title;
-  choiceCopy.textContent = menu.copy;
-  choiceDialog.style.setProperty('--choice-accent', menu.accent);
-  choiceOptions.innerHTML = menu.options.map((option) => `
-    <a class="hub-choice-option" href="${leagueUrl(option.page, menu.leagueId)}" style="--option-accent: ${option.accent}">
-      <strong>${escapeHtml(option.title)}</strong>
-      <span>${escapeHtml(option.detail)}</span>
-    </a>
-  `).join('');
-  choiceOverlay.hidden = false;
-  choiceOverlay.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('choice-panel-open');
-  choiceDialog.focus();
-}
-
 async function renderLeague(league, user) {
   const { activeGameweek, fixturesByGameweek } = await loadActiveGameweek(league);
   setLeaguePageLoadProgress(38);
@@ -863,16 +829,6 @@ async function renderLeague(league, user) {
     },
   ];
 
-  choiceMenus = new Map(pages
-    .filter((item) => item.menu)
-    .map((item) => [item.menu, {
-      title: item.title,
-      copy: item.copy,
-      accent: item.accent,
-      options: item.options,
-      leagueId: league.id,
-    }]));
-
   leagueName.textContent = league.name;
   joinCode.textContent = league.join_code;
   if (profileLink) {
@@ -884,7 +840,7 @@ async function renderLeague(league, user) {
     .eq('competition_id', league.id)
     .then(({ count, error }) => {
       const total = Number(count || 0);
-      memberCount.textContent = error ? '' : `(${total} Active Players)`;
+      memberCount.textContent = error ? '' : `${total} players · Private league`;
       if (joinCodePanel) joinCodePanel.hidden = !error && total >= 10;
     }) : Promise.resolve();
   void Promise.all([memberCountTask, loadOwnProfile(user)]).catch(error => console.warn('League profile/count unavailable:', error));
@@ -925,17 +881,7 @@ async function renderLeague(league, user) {
     }
   }
 
-  playGrid.innerHTML = pages.map((item) => item.menu ? `
-    <button class="play-card ${escapeHtml(item.className || '')}" type="button" data-choice-menu="${escapeHtml(item.menu)}" aria-haspopup="dialog" style="--accent: ${item.accent}">
-      <strong>${escapeHtml(item.title)}</strong>
-      <span>${escapeHtml(item.detail)}</span>
-    </button>
-  ` : `
-    <a class="play-card ${escapeHtml(item.className || '')}" href="${leagueUrl(item.page, league.id)}" style="--accent: ${item.accent}">
-      <strong>${escapeHtml(item.title)}</strong>
-      <span>${escapeHtml(item.detail)}</span>
-    </a>
-  `).join('');
+  playGrid.innerHTML = renderHubNavigation(pages, league.id, gameweekNumber, leagueUrl, escapeHtml);
   setLeaguePageLoadProgress(96);
 }
 
@@ -959,16 +905,6 @@ async function initializeLeaguePage() {
 initializeLeaguePage();
 
 copyJoinCodeButton?.addEventListener('click', copyJoinCode);
-playGrid?.addEventListener('click', (event) => {
-  const trigger = event.target.closest('[data-choice-menu]');
-  if (trigger) openHubChoicePanel(trigger.dataset.choiceMenu, trigger);
-});
-choiceOverlay?.addEventListener('click', (event) => {
-  if (event.target.closest('[data-hub-choice-dismiss]')) closeHubChoicePanel();
-});
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && !choiceOverlay?.hidden) closeHubChoicePanel();
-});
 window.addEventListener('beforeunload', () => {
   if (liveCurseChannel) supabase.removeChannel(liveCurseChannel);
   window.clearInterval(liveCursePollTimer);
