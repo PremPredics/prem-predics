@@ -1051,12 +1051,27 @@ footer {
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/pwa/favicon-32.png">
-<link rel="stylesheet" href="assets/css/page-loader.css?v=20260920-adaptive">
-<link rel="stylesheet" href="assets/css/league-pages-polish.css?v=20260908-v2">
-<link rel="stylesheet" href="assets/css/league-navigation.css?v=20261027-crisp">
+<link rel="stylesheet" href="assets/css/page-loader.css?v=20261030-restore">
+<link rel="stylesheet" href="assets/css/league-pages-polish.css?v=20261030-restore">
+<link rel="stylesheet" href="assets/css/league-navigation.css?v=20261030-restore">
 <link rel="stylesheet" href="assets/css/seasonal-theme.css?v=20261027-orange">
-<link rel="stylesheet" href="assets/css/halloween-choice-panels.css?v=20261027-v2">
+<link rel="stylesheet" href="assets/css/halloween-choice-panels.css?v=20261030-restore">
 <script src="assets/js/seasonal-theme.js?v=20261027" defer></script>
+<script>
+  // A previously installed studio build can leave a loaded tab using mismatched assets.
+  // Once the restored PWA service worker takes control, refresh this page just once.
+  (() => {
+    if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+    const version = 'pp-hub-restored-v115';
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      try {
+        if (sessionStorage.getItem(version) === 'done') return;
+        sessionStorage.setItem(version, 'done');
+      } catch { /* Private browsing: still reload when a new worker takes control. */ }
+      location.reload();
+    }, { once: true });
+  })();
+</script>
 </head>
 <body class="pp-refined pp-page-loading" data-page-loader-title="Loading League Hub Page..." data-require-auth="true" data-require-league="true">
 <header class="league-menu-header">
@@ -1125,9 +1140,9 @@ footer {
 
 <script type="module" src="assets/js/page-loader.js?v=20260920-reliable"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20261027-compact"></script>
-<script src="assets/js/pwa.js?v=20261027-theme" defer></script>
-<script src="assets/js/league-navigation.js?v=20261026-v2" defer></script>
+<script type="module" src="assets/js/league.js?v=20261030-restore"></script>
+<script src="assets/js/pwa.js?v=20261030-restore" defer></script>
+<script src="assets/js/league-navigation.js?v=20261030-restore" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
 </body>
