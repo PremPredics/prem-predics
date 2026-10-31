@@ -593,6 +593,61 @@ footer {
   }
 }
 </style>
+<style>
+/* Mobile leaderboard: fit Pos, Player, UC PTS, CS and CR in the visible
+   viewport; other statistics retain normal horizontal scrolling. */
+@media (max-width:650px) {
+  body.pp-refined .leaderboard-panel {
+    --lb-player-width:clamp(114px, calc(100vw - 209px), 210px);
+  }
+  body.pp-refined .leaderboard-panel .table-wrap {
+    scrollbar-gutter:auto;
+    overflow-x:auto;
+    overscroll-behavior-inline:contain;
+  }
+  body.pp-refined .leaderboard-panel .table-wrap table {
+    width:calc(477px + var(--lb-player-width));
+    min-width:0;
+    max-width:none;
+    table-layout:fixed;
+  }
+  body.pp-refined .leaderboard-panel th,
+  body.pp-refined .leaderboard-panel td {
+    padding-inline:2px;
+  }
+  body.pp-refined .leaderboard-panel :is(th,td):nth-child(1) {width:28px;}
+  body.pp-refined .leaderboard-panel :is(th,td):nth-child(2) {width:var(--lb-player-width);}
+  body.pp-refined .leaderboard-panel :is(th,td):nth-child(3) {width:53px;}
+  body.pp-refined .leaderboard-panel :is(th,td):nth-child(4),
+  body.pp-refined .leaderboard-panel :is(th,td):nth-child(5) {width:42px;}
+  body.pp-refined .leaderboard-panel :is(th,td):nth-child(n+6) {width:52px;}
+  body.pp-refined .leaderboard-panel .player-cell {
+    width:100%;
+    min-width:0;
+    gap:4px;
+  }
+  body.pp-refined .leaderboard-panel .player-copy {
+    flex:1 1 0;
+    min-width:0;
+  }
+  body.pp-refined .leaderboard-panel .avatar {
+    width:24px;height:24px;
+    font-size:11px;
+  }
+  body.pp-refined .leaderboard-panel .username {
+    max-width:100%;
+    font-size:clamp(10px,2.9vw,12px);
+  }
+  body.pp-refined .leaderboard-panel .player-cell .rank-movement {
+    flex:0 0 25px;
+    width:25px;
+    font-size:10px;
+    margin-left:auto;
+  }
+  body.pp-refined .leaderboard-panel .uc-head {font-size:11px;}
+  body.pp-refined .leaderboard-panel .uc-cell {font-size:14px;}
+}
+</style>
 </head>
 <body class="pp-refined pp-page-loading" data-page-loader-title="Loading Leaderboard Page..." data-require-auth="true" data-require-league="true">
 <header>
