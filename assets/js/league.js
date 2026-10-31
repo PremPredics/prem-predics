@@ -3,7 +3,7 @@ import {
   leagueUrl,
   loadLeagueContext,
 } from './league-context.js';
-import { isGameweekStarted, loadActiveGameweek, startCountdown } from './gameweek-context.js';
+import { isGameweekStarted, loadActiveGameweek } from './gameweek-context.js';
 import { currentLiveCurseEffects } from './live-curses-model.js?v=20260901-vetoed-v1';
 import {
   nextMedalProgress,
@@ -19,7 +19,6 @@ const memberCount = document.querySelector('[data-member-count]');
 const joinCode = document.querySelector('[data-join-code]');
 const joinCodePanel = document.querySelector('[data-join-code-panel]');
 const copyJoinCodeButton = document.querySelector('[data-copy-join-code]');
-const gameweekLabel = document.querySelector('[data-gameweek-label]');
 const gameweekCountdown = document.querySelector('[data-gameweek-countdown]');
 const gameweekCard = document.querySelector('[data-gameweek-card]');
 const deadlineStrip = document.querySelector('[data-deadline-strip]');
@@ -52,8 +51,7 @@ function finishLeaguePageLoading() {
 
 function renderError(error) {
   leagueName.textContent = 'Private league unavailable';
-  gameweekLabel.textContent = error;
-  gameweekCountdown.textContent = '--d --h --m --s';
+  gameweekCountdown.textContent = error;
   gameweekCard?.classList.remove('is-active', 'is-countdown');
   joinCode.textContent = '-';
   if (memberCount) {
@@ -858,26 +856,17 @@ async function renderLeague(league, user) {
     void renderDeadlineStrip(activeGameweek, activeFixtures.filter((fixture) => fixture.status !== 'postponed'), league, user)
       .catch(() => { if (deadlineStrip) deadlineStrip.textContent = 'Deadlines temporarily unavailable. Refresh to retry.'; });
     setLeaguePageLoadProgress(82);
-    gameweekCountdown.classList.remove('active-gameweek');
-    if (isGameweekStarted(activeGameweek)) {
-      gameweekLabel.textContent = 'Current Gameweek:';
-      gameweekCountdown.textContent = `Gameweek ${activeGameweek.gameweek_number} Is Active`;
-      gameweekCountdown.classList.add('active-gameweek');
-      gameweekCard?.classList.add('is-active');
-      gameweekCard?.classList.remove('is-countdown');
-    } else {
-      gameweekLabel.textContent = `Next Gameweek ${activeGameweek.gameweek_number}`;
-      gameweekCard?.classList.add('is-countdown');
-      gameweekCard?.classList.remove('is-active');
-      startCountdown(gameweekCountdown, activeGameweek);
-    }
+    const started = isGameweekStarted(activeGameweek);
+    gameweekCountdown.textContent = `Gameweek ${activeGameweek.gameweek_number}`;
+    gameweekCountdown.classList.toggle('active-gameweek', started);
+    gameweekCard?.classList.toggle('is-active', started);
+    gameweekCard?.classList.toggle('is-countdown', !started);
     renderOwnLiveCurseAlert(league, user, activeGameweek);
     subscribeToOwnLiveCurses(league, user, activeGameweek);
   } else {
     gameweekCountdown.classList.remove('active-gameweek');
     gameweekCard?.classList.remove('is-active', 'is-countdown');
-    gameweekLabel.textContent = 'No active gameweek found';
-    gameweekCountdown.textContent = '--d --h --m --s';
+    gameweekCountdown.textContent = 'No active gameweek found';
     if (deadlineStrip) {
       deadlineStrip.textContent = 'No active Gameweek deadlines.';
     }
