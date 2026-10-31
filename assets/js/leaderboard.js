@@ -74,7 +74,7 @@ function sortRows(rows) {
 
 function render(rows, profilesById) {
   if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="12" class="empty">No leaderboard data yet.</td></tr>';
+    body.innerHTML = '<tr><td colspan="11" class="empty">No leaderboard data yet.</td></tr>';
     return;
   }
 
@@ -101,9 +101,9 @@ function render(rows, profilesById) {
               <button class="username" type="button" data-profile-user-id="${escapeHtml(row.user_id)}">${escapeHtml(displayName)}</button>
               <span class="first-name-inline">First name: ${escapeHtml(firstName)}</span>
             </span>
+            <span class="rank-movement is-hidden" data-rank-movement="${escapeHtml(row.user_id)}" aria-hidden="true"></span>
           </div>
         </td>
-        <td class="form-cell"><span class="rank-movement is-hidden" data-rank-movement="${escapeHtml(row.user_id)}" aria-hidden="true"></span></td>
         <td class="uc-cell">${numberValue(row.ultimate_champion_points)}</td>
         <td class="green-stat-cell">${numberValue(row.correct_scores)}</td>
         <td>${numberValue(row.correct_results)}</td>
@@ -122,7 +122,7 @@ async function loadLeaderboard() {
   const context = await loadLeagueContext();
   setPageLoaderProgress(36);
   if (context.error) {
-    body.innerHTML = `<tr><td colspan="12" class="empty">${escapeHtml(context.error)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(context.error)}</td></tr>`;
     return;
   }
 
@@ -136,7 +136,7 @@ async function loadLeaderboard() {
     .eq('competition_id', context.league.id);
 
   if (error) {
-    body.innerHTML = `<tr><td colspan="12" class="empty">${escapeHtml(error.message)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(error.message)}</td></tr>`;
     return;
   }
   setPageLoaderProgress(72);

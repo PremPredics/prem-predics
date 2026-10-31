@@ -493,23 +493,19 @@ footer {
   }
   th:nth-child(2),
   td:nth-child(2) {
-    width: 156px;
+    width: 185px;
   }
   th:nth-child(3),
   td:nth-child(3) {
-    width: 50px;
-  }
-  th:nth-child(4),
-  td:nth-child(4) {
     width: 62px;
   }
-  th:nth-child(n+5),
-  td:nth-child(n+5) {
+  th:nth-child(n+4),
+  td:nth-child(n+4) {
     width: 58px;
   }
   .player-cell {
     min-width: 0;
-    width: 146px;
+    width: 100%;
     gap: 6px;
   }
   .avatar {
@@ -518,7 +514,7 @@ footer {
     font-size: 12px;
   }
   .username {
-    max-width: 104px;
+    max-width: 100%;
     display: block;
     font-size: 12px;
   }
@@ -580,25 +576,20 @@ footer {
 <script src="assets/js/league-return.js?v=20261027-release" defer></script>
 <link rel="stylesheet" href="assets/css/seasonal-theme.css?v=20261027-orange">
 <script src="assets/js/seasonal-theme.js?v=20261027" defer></script>
-<link rel="stylesheet" href="assets/css/leaderboard-history.css?v=20261031-form">
+<link rel="stylesheet" href="assets/css/leaderboard-history.css?v=20261031-inline-form">
 <link rel="stylesheet" href="assets/css/premium-navigation.css?v=20261031-nav5">
 <style>
-/* Fixed Form column between player names and UC points; aligned for every row. */
-.leaderboard-panel th.form-head,
-.leaderboard-panel td.form-cell {
-  box-sizing:border-box;
-  width:56px;min-width:56px;max-width:56px;
-  padding-inline:4px;text-align:center;vertical-align:middle;
+/* The form arrow is a trailing part of Player, not an additional table column. */
+.leaderboard-panel .player-cell {width:100%;min-width:210px;display:flex;align-items:center;}
+.leaderboard-panel .player-copy {min-width:0;flex:1 1 auto;}
+.leaderboard-panel .player-cell .rank-movement {
+  flex:0 0 35px;width:35px;margin-left:auto;align-self:center;
 }
-.leaderboard-panel th.form-head {
-  color:#e7c9ff;font-size:11px;letter-spacing:.02em;
-}
-.leaderboard-panel td.form-cell { font-weight:800; }
+.leaderboard-panel .player-cell .rank-movement.is-hidden {display:none;}
 @media(max-width:650px) {
-  .leaderboard-panel th.form-head,
-  .leaderboard-panel td.form-cell {
-    width:50px;min-width:50px;max-width:50px;
-    padding-inline:2px;
+  .leaderboard-panel .player-cell {min-width:0;width:100%;}
+  .leaderboard-panel .player-cell .rank-movement {
+    flex-basis:31px;width:31px;
   }
 }
 </style>
@@ -620,7 +611,6 @@ footer {
           <tr>
             <th>Pos</th>
             <th>Player</th>
-            <th class="form-head" scope="col" title="Position change between completed Gameweeks">Form</th>
             <th class="uc-head">UC PTS</th>
             <th><button class="leaderboard-header-link stat-glow" type="button" data-leaderboard-nav="correct-scores" aria-label="Open Correct Scores page"><span class="stat-head green-stat"><span class="stat-icons"><span class="symbol tick-green">&#10003;</span></span><span>CS</span></span></button></th>
             <th><span class="stat-head"><span class="stat-icons"><span class="symbol tick-amber">&#10003;</span></span><span>CR</span></span></th>
@@ -633,7 +623,7 @@ footer {
           </tr>
         </thead>
         <tbody data-leaderboard-body>
-          <tr><td colspan="12">Loading leaderboard...</td></tr>
+          <tr><td colspan="11">Loading leaderboard...</td></tr>
         </tbody>
       </table>
     </div>
@@ -687,7 +677,7 @@ footer {
 
 <script type="module" src="assets/js/page-loader.js?v=20260920-adaptive"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/leaderboard.js?v=20261031-form"></script>
+<script type="module" src="assets/js/leaderboard.js?v=20261031-inline-form"></script>
 <script src="assets/js/pwa.js?v=20261027-theme" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

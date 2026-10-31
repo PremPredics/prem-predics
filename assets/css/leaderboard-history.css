@@ -1,6 +1,6 @@
 /* Compact, readable history; isolated from the live leaderboard layout. */
-body td.form-cell .rank-movement { display:inline-flex; align-items:center; justify-content:center; width:100%; min-height:18px; margin:0; font:800 11px/1.2 'Segoe UI',sans-serif; white-space:nowrap; text-shadow:none; font-variant-numeric:tabular-nums; }
-body td.form-cell .rank-movement.is-hidden { visibility:hidden; }
+body .player-cell .rank-movement { display:inline-flex; align-items:center; justify-content:center; min-height:18px; font:800 11px/1.2 'Segoe UI',sans-serif; white-space:nowrap; text-shadow:none; font-variant-numeric:tabular-nums; }
+body .player-cell .rank-movement.is-hidden { display:none; }
 .rank-movement.is-up { color:#73f5a7!important; }
 .rank-movement.is-down { color:#ff8696!important; }
 .rank-movement.is-level { color:#c4b1dc!important; }
