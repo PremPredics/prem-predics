@@ -5,8 +5,8 @@ import {
   loadLeagueContext,
 } from './league-context.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
-import { compareRankingCriteria } from './leaderboard-history-model.js?v=20261028';
-import { createLeaderboardHistory } from './leaderboard-history.js?v=20261028';
+import { compareRankingCriteria } from './leaderboard-history-model.js?v=20261031-form';
+import { createLeaderboardHistory } from './leaderboard-history.js?v=20261031-form';
 
 const historyController = createLeaderboardHistory();
 
@@ -74,7 +74,7 @@ function sortRows(rows) {
 
 function render(rows, profilesById) {
   if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="11" class="empty">No leaderboard data yet.</td></tr>';
+    body.innerHTML = '<tr><td colspan="12" class="empty">No leaderboard data yet.</td></tr>';
     return;
   }
 
@@ -93,7 +93,7 @@ function render(rows, profilesById) {
 
     return `
       <tr>
-        <td class="rank"><span>${displayedRank}</span><span class="rank-movement is-level" data-rank-movement="${escapeHtml(row.user_id)}" aria-label="Weekly movement loading">—</span></td>
+        <td class="rank"><span>${displayedRank}</span></td>
         <td>
           <div class="player-cell">
             ${avatarMarkup(profile, displayName)}
@@ -103,6 +103,7 @@ function render(rows, profilesById) {
             </span>
           </div>
         </td>
+        <td class="form-cell"><span class="rank-movement is-hidden" data-rank-movement="${escapeHtml(row.user_id)}" aria-hidden="true"></span></td>
         <td class="uc-cell">${numberValue(row.ultimate_champion_points)}</td>
         <td class="green-stat-cell">${numberValue(row.correct_scores)}</td>
         <td>${numberValue(row.correct_results)}</td>
@@ -121,7 +122,7 @@ async function loadLeaderboard() {
   const context = await loadLeagueContext();
   setPageLoaderProgress(36);
   if (context.error) {
-    body.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(context.error)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="12" class="empty">${escapeHtml(context.error)}</td></tr>`;
     return;
   }
 
@@ -135,7 +136,7 @@ async function loadLeaderboard() {
     .eq('competition_id', context.league.id);
 
   if (error) {
-    body.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(error.message)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="12" class="empty">${escapeHtml(error.message)}</td></tr>`;
     return;
   }
   setPageLoaderProgress(72);

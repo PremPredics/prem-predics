@@ -2,7 +2,7 @@ import {supabase} from './supabase-client.js';
 import {escapeHtml} from './league-context.js';
 import {boundedRead} from './async-read.js';
 import {loadAllRows} from './load-all-rows.js';
-import {rankingFields,buildLeaderboardHistory} from './leaderboard-history-model.js?v=20261028';
+import {rankingFields,buildLeaderboardHistory} from './leaderboard-history-model.js?v=20261031-form';
 
 const palette=['#8ce5ff','#ffc86e','#ea9dff','#80ecac','#ff899d','#c1b1ff','#e8ec81','#64ddd3','#ffb58d','#c8ddff'];
 export function createLeaderboardHistory() {
@@ -15,7 +15,17 @@ export function createLeaderboardHistory() {
     return 'Arrows: end of GW'+history.weeks.at(-1).number+' compared with end of GW'+history.weeks.at(-2).number+'.';
   }
   function updateArrows(history) {
+    const betweenGameweeks=history.liveGameweekNumber===null && history.weeks.length>=2;
     document.querySelectorAll('[data-rank-movement]').forEach(el=>{
+      if(!betweenGameweeks){
+        el.className='rank-movement is-hidden';
+        el.textContent='';
+        el.setAttribute('aria-hidden','true');
+        el.removeAttribute('aria-label');
+        el.removeAttribute('title');
+        return;
+      }
+      el.removeAttribute('aria-hidden');
       const change=history.movements.get(el.dataset.rankMovement);
       el.className='rank-movement'+(change>0?' is-up':change<0?' is-down':' is-level');
       const description=change===undefined?'Not enough completed Gameweeks to compare':
@@ -25,7 +35,9 @@ export function createLeaderboardHistory() {
       el.innerHTML=change===undefined || change===0 ? '<span aria-hidden="true">—</span>' :
         '<span aria-hidden="true">'+(change>0?'▲':'▼')+' '+Math.abs(change)+'</span>';
     });
-    note.textContent=movementText(history)+' The table itself shows live standings.';
+    note.textContent=history.liveGameweekNumber!==null
+      ? 'Form arrows are hidden during Gameweek '+history.liveGameweekNumber+'. The table itself shows live standings.'
+      : movementText(history)+' The table itself shows live standings.';
   }
   function profile(member) {
     const url=member.profile_image_url;

@@ -24,11 +24,18 @@ export function buildLeaderboardHistory({gameweeks, fixtures, weeklyStats, membe
   if (!start) throw new Error('League starting Gameweek is unavailable.');
   const ordered = gameweeks.filter(gw => Number(gw.number) >= Number(start.number)).sort((a,b)=>a.number-b.number);
   const completed = [];
+  let liveGameweekNumber = null;
   for (const gw of ordered) {
     const matches = fixtures.filter(f=>String(f.gameweek_id)===String(gw.id) && !['postponed','cancelled'].includes(f.status));
     if (!matches.length) continue;
     if (!matches.every(f=>f.status==='final' && new Date(f.kickoff_at).getTime()<=now &&
-      (Array.isArray(f.match_results) ? f.match_results.length>0 : Boolean(f.match_results)))) break;
+      (Array.isArray(f.match_results) ? f.match_results.length>0 : Boolean(f.match_results)))) {
+      // The next unfinished Gameweek is already live once any playable match kicks off.
+      // Keep computing history from completed weeks, but hide movement arrows until it finishes.
+      if (matches.some(f=>Number.isFinite(new Date(f.kickoff_at).getTime()) &&
+          new Date(f.kickoff_at).getTime()<=now)) liveGameweekNumber=Number(gw.number);
+      break;
+    }
     completed.push(gw);
   }
   const byWeekUser = new Map(weeklyStats.map(row=>[String(row.gameweek_id)+':'+row.user_id,row]));
@@ -50,5 +57,5 @@ export function buildLeaderboardHistory({gameweeks, fixtures, weeklyStats, membe
     const previous=new Map(weeks.at(-2).rows.map(row=>[row.user_id,row.rank]));
     weeks.at(-1).rows.forEach(row=>movements.set(row.user_id,previous.get(row.user_id)-row.rank));
   }
-  return {weeks,movements};
+  return {weeks,movements,liveGameweekNumber};
 }
