@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v120';
+const CACHE_VERSION = 'prem-predics-pwa-v121';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -75,7 +75,7 @@ const APP_SHELL = [
   './assets/css/game-card-slick.css?v=20260920-history',
   './assets/css/leagues-slick.css?v=20260901-v1',
   './assets/css/correct-scores-slick.css?v=20260901-v1',
-  './assets/js/all-predictions.js?v=20261031-kickoff',
+  './assets/js/all-predictions.js?v=20261031-kickoff-right',
   './assets/js/all-star-men.js?v=20260908-player-labels',
   './assets/js/capacitor-app.js',
   './assets/js/correct-scores.js?v=20260908-player-labels',

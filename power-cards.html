@@ -6357,6 +6357,10 @@ html.capacitor-android .veto-carousel-list .veto-curse-btn {
 .god-score-inputs { display:flex; align-items:center; justify-content:center; gap:12px; }
 .god-fixture-picker button { min-width:44px; }
 .god-score-inputs input { width:74px; padding:12px 8px; border:2px solid #d8b4fe; border-radius:8px; background:#fff; color:#2e1065; text-align:center; font:inherit; font-weight:900; }
+
+/* The Active Game Card belongs to Cards, never the Shop view. */
+body.pp-cards-shop-view [data-active-game-panel],
+body:has(#cardsShopPanel:not([hidden])) [data-active-game-panel] { display:none!important; }
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#7b61d8">
