@@ -85,3 +85,83 @@ html.pp-nav-enabled body { padding-bottom:calc(var(--pp-nav-original-bottom,0px)
 .cards-shop-panel .shop-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px}
 .cards-shop-panel .shop-actions button{min-height:48px;padding:9px;font-size:clamp(.75rem,2.3vw,1rem)}
 body.pp-cards-shop-view #mainGameLayout,body.pp-cards-shop-view #introWrapper{display:none!important}
+
+/* v3 — active-section clarity, three-colour Predictions, balanced centre. */
+/* Inactive groups retain their identity while the current section takes focus. */
+.pp-nav-dock > :is(a,button) {
+  border:1px solid transparent;
+  isolation:isolate;
+}
+.pp-nav-dock > button[data-nav-tone=predictions] {
+  color:#f1f1f8;
+  border-color:#c0b8d36e;
+  background:linear-gradient(90deg,#125271 0% 33.333%,#775a20 33.333% 66.667%,#145c46 66.667% 100%);
+  box-shadow:inset 0 1px 0 #ffffff2c;
+}
+.pp-nav-dock > button[data-nav-tone=predictions].is-active {
+  color:#fff;
+  border-color:#dff7ff;
+  background:linear-gradient(90deg,#0d8ac6 0% 33.333%,#e3ad28 33.333% 66.667%,#12aa72 66.667% 100%);
+  box-shadow:inset 0 1px 0 #ffffffa3,0 0 13px #6fdad86a,0 4px 9px #150c2c4d;
+}
+.pp-nav-dock > button[data-nav-tone=cards] {
+  color:#eee8f2;
+  border:1px solid #c5b3d466;
+  background:linear-gradient(90deg,#124b76 0% 50%,#85263e 50% 100%);
+  box-shadow:inset 0 1px 0 #ffffff28;
+}
+.pp-nav-dock > button[data-nav-tone=cards].is-active {
+  color:#fff;
+  border-color:#fae9ff;
+  background:linear-gradient(90deg,#1a82cd 0% 50%,#db3655 50% 100%);
+  box-shadow:inset 0 1px 0 #ffffff9a,0 0 13px #c76ac76e,0 4px 9px #150c2c4d;
+}
+/* Opening a different group only outlines it; it does not steal the active-page look. */
+.pp-nav-dock > button[data-nav-group]:not(.is-active)[aria-expanded=true] {
+  color:#fff;
+  border-color:#e8d3f6b8;
+  box-shadow:inset 0 1px 0 #ffffff44,0 0 0 1px #bb98ce60;
+}
+.pp-nav-dock > .pp-nav-home {
+  height:52px;
+  transform:none;
+  z-index:auto;
+  color:#ddcbe9;
+  border:1px solid #b48ccc70;
+  background:linear-gradient(160deg,#5b3776,#432458 65%,#321b48);
+  box-shadow:inset 0 1px 0 #ffffff22,0 2px 5px #1b09294a;
+}
+.pp-nav-dock > .pp-nav-home.is-active {
+  height:52px;
+  transform:translateY(-1px);
+  color:#fff;
+  border:1px solid #ffe6ff;
+  background:radial-gradient(ellipse at 50% 0%,#ffffff60,transparent 68%),linear-gradient(155deg,#c991ef,#a45fdf 35%,#7c33bc 72%,#581a88);
+  box-shadow:inset 0 1px 0 #ffffffbf,inset 0 -2px 6px #33104e55,0 0 12px #b57ffb8a,0 4px 10px #220b3973;
+}
+.pp-nav-dock > .pp-nav-home:not(.is-active)::after { content:none; }
+.pp-nav-dock > .pp-nav-home:active { transform:scale(.97); }
+.pp-nav-dock > .pp-nav-home.is-active:active { transform:translateY(-1px) scale(.97); }
+.pp-nav-dock > .is-active::after {
+  width:21px;
+  height:2px;
+  bottom:1px;
+  background:#fff;
+  box-shadow:0 0 7px #ffffffbd;
+}
+/* The Cards half of the top pill is equally split blue/red. Shop stays gradienty. */
+.pp-nav-primary a[data-nav-tone=cards][aria-current] {
+  background:linear-gradient(90deg,#1577bb 0% 50%,#d03957 50% 100%);
+  border:1px solid #ffffff61;
+  box-shadow:inset 0 1px 0 #ffffff66,0 1px 8px #47254b45;
+}
+.pp-nav-primary[data-current-tone=cards]::before {
+  background:linear-gradient(90deg,#1577bb 0% 50%,#d03957 50% 100%);
+}
+/* Both contextual options share a single thin, equal-width lilac pill. */
+.pp-nav-secondary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.pp-nav-secondary::before { left:3px; width:calc(50% - 3px); }
+.pp-nav-secondary[style*="--pp-nav-index:1"]::before { left:50%; width:calc(50% - 3px); }
+@media(max-height:500px) and (orientation:landscape) {
+  .pp-nav-dock > .pp-nav-home,.pp-nav-dock > .pp-nav-home.is-active { height:46px;transform:none; }
+}

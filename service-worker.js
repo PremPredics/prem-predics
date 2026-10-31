@@ -1,10 +1,10 @@
-const CACHE_VERSION = 'prem-predics-pwa-v117';
+const CACHE_VERSION = 'prem-predics-pwa-v118';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
-  './assets/js/premium-navigation.js?v=20261031-nav2',
-  './assets/css/premium-navigation.css?v=20261031-nav2',
+  './assets/js/premium-navigation.js?v=20261031-nav3',
+  './assets/css/premium-navigation.css?v=20261031-nav3',
   './assets/js/leaderboard.js?v=20261028-history',
   './assets/js/leaderboard-history.js?v=20261028',
   './assets/js/leaderboard-history-model.js?v=20261028',

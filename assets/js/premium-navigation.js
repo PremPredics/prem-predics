@@ -108,7 +108,7 @@ function mount() {
   document.documentElement.style.setProperty('--pp-nav-original-bottom',getComputedStyle(document.body).paddingBottom);
   document.documentElement.classList.add('pp-nav-enabled');
   shell=document.createElement('div');shell.className='pp-nav-shell';shell.dataset.premiumNav='';
-  shell.innerHTML=`<nav class="pp-nav-flyout" id="pp-nav-flyout" hidden></nav><nav class="pp-nav-dock" aria-label="Private league navigation">
+  shell.innerHTML=`<nav class="pp-nav-flyout" id="pp-nav-flyout" hidden></nav><nav class="pp-nav-dock" data-current-section="${category}" aria-label="Private league navigation">
     <button type="button" data-nav-group="predictions" data-nav-tone="predictions" aria-expanded="false" aria-controls="pp-nav-flyout" class="${category==='predictions'?'is-active':''}"${category==='predictions'?' aria-current="true"':''}>${icon('predictions')}<span>Predictions</span></button>
     <a class="pp-nav-home ${category==='hub'?'is-active':''}" data-nav-tone="hub" href="${escapeHtml(leagueUrl('league.html',competitionId))}"${category==='hub'?' aria-current="page"':''}>${icon('hub')}<span>League Hub</span></a>
     <button type="button" data-nav-group="cards" data-nav-tone="cards" aria-expanded="false" aria-controls="pp-nav-flyout" class="${category==='cards'?'is-active':''}"${category==='cards'?' aria-current="true"':''}>${icon('cards')}<span>Cards</span></button></nav>`;
