@@ -719,7 +719,7 @@ async function renderPredictionRows(gameweek) {
       : '-';
     return `
       <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${forcedCurseVisible ? 'curse-forced' : ''} ${primaryUnused ? 'unused-hedged' : ''} ${locked && !prediction ? 'missed' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
-        <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
+        ${renderFixtureKickoff(fixture)}
         <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
         <strong>${escapeHtml(score)}</strong>
         <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
@@ -728,13 +728,11 @@ async function renderPredictionRows(gameweek) {
           ${renderCurseMarker(fixture, curses)}
           ${!primaryUnused && points ? `<span class="uc-point-badge" aria-label="${points} UC points">${points}</span>` : ''}
         </span>
-        ${renderFixtureKickoff(fixture)}
         <span class="actual-result-row" aria-hidden="true">
           <span class="actual-result-label">FT</span>
           <span class="actual-result-home">${escapeHtml(teamName(fixture.home_team_id))}</span>
           <strong class="actual-result-score">${escapeHtml(actualScore)}</strong>
           <span class="actual-result-away">${escapeHtml(teamName(fixture.away_team_id))}</span>
-          <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </span>
       </div>
@@ -775,7 +773,7 @@ async function renderPredictionRows(gameweek) {
       const actualScore = result ? `${result.home_goals}-${result.away_goals}` : '-';
       return `
         <div class="prediction-row hedge-row ${locked ? 'locked' : 'unlocked'} ${hedgeUnused ? 'unused-hedged' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
-          <span class="gw-stack"><span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span><span class="hedge-badge">Hedge</span></span>
+          <span class="kickoff-slot">${renderFixtureKickoff(fixture)}<span class="hedge-badge">Hedge</span></span>
           <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
           <strong>${escapeHtml(`${prediction.home_goals}-${prediction.away_goals}`)}</strong>
           <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
@@ -783,13 +781,11 @@ async function renderPredictionRows(gameweek) {
             ${renderPowerMarker(fixture, powers)}
             ${!hedgeUnused && Number(scored?.points || 0) ? `<span class="uc-point-badge" aria-label="${Number(scored.points)} UC points">${Number(scored.points)}</span>` : ''}
           </span>
-          ${renderFixtureKickoff(fixture)}
           <span class="actual-result-row" aria-hidden="true">
             <span class="actual-result-label">FT</span>
             <span class="actual-result-home">${escapeHtml(teamName(fixture.home_team_id))}</span>
             <strong class="actual-result-score">${escapeHtml(actualScore)}</strong>
             <span class="actual-result-away">${escapeHtml(teamName(fixture.away_team_id))}</span>
-            <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
           </span>
         </div>

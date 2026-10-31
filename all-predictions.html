@@ -220,7 +220,7 @@ main {
 .prediction-row {
   min-height: 30px;
   display: grid;
-  grid-template-columns: 46px minmax(82px, 1fr) 54px minmax(82px, 1fr) 88px 63px;
+  grid-template-columns: 66px minmax(90px, 1fr) 54px minmax(90px, 1fr) 88px;
   gap: 6px;
   align-items: center;
   padding: 5px 7px;
@@ -311,7 +311,7 @@ main {
 .actual-result-row {
   grid-column: 1 / -1;
   display: none;
-  grid-template-columns: 46px minmax(82px, 1fr) 54px minmax(82px, 1fr) 88px 63px;
+  grid-template-columns: 66px minmax(90px, 1fr) 54px minmax(90px, 1fr) 88px;
   gap: 6px;
   align-items: center;
   padding: 2px 0 1px;
@@ -780,14 +780,14 @@ footer {
   .player-pill { width: 40px; height: 40px; }
   .prediction-row {
     min-height: 28px;
-    grid-template-columns: 36px minmax(0, 1fr) 42px minmax(0, 1fr) 68px 54px;
+    grid-template-columns: 55px minmax(0, 1fr) 42px minmax(0, 1fr) 68px;
     gap: 4px;
     padding: 4px 5px;
   }
   .prediction-row span { font-size: 12px; }
   .prediction-row strong { font-size: 14px; }
   .actual-result-row {
-    grid-template-columns: 36px minmax(0, 1fr) 42px minmax(0, 1fr) 68px 54px;
+    grid-template-columns: 55px minmax(0, 1fr) 42px minmax(0, 1fr) 68px;
     gap: 4px;
   }
   .actual-result-row span,
@@ -917,35 +917,7 @@ footer {
 
 
 
-/* Kick-off day and time in a dedicated far-right column: one line, no taller rows. */
-.prediction-row > .fixture-kickoff {
-  display:inline-flex;align-items:center;justify-content:flex-end;
-  flex-direction:row;gap:3px;min-width:0;max-width:100%;
-  white-space:nowrap;line-height:1.05;font-variant-numeric:tabular-nums;
-  font-size:9px;text-align:right;justify-self:end;
-}
-.prediction-row > .fixture-kickoff .kickoff-day {
-  color:#d6c2ed;font-size:9px;font-weight:750;line-height:1.05;
-}
-.prediction-row > .fixture-kickoff .kickoff-clock {
-  color:#fff;font-size:10px;font-weight:850;line-height:1.05;
-}
-.prediction-row > .fixture-kickoff.is-tbc {color:#dfd1ea}
-.prediction-row > .gw-badge {align-self:center}
-@media(max-width:650px) {
-  .prediction-row > .fixture-kickoff {gap:2px}
-  .prediction-row > .fixture-kickoff .kickoff-day {font-size:8px}
-  .prediction-row > .fixture-kickoff .kickoff-clock {font-size:9px}
-}
-@media(max-width:370px) {
-  .prediction-row,.actual-result-row {
-    grid-template-columns:31px minmax(0,1fr) 38px minmax(0,1fr) 58px 50px;
-    gap:3px;
-  }
-  .prediction-row {padding-inline:4px}
-  .prediction-row .row-actions {gap:2px}
-  .prediction-row > .fixture-kickoff .kickoff-clock {font-size:8.5px}
-}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#7b61d8">
@@ -963,6 +935,70 @@ footer {
 <link rel="stylesheet" href="assets/css/seasonal-theme.css?v=20261027-orange">
 <script src="assets/js/seasonal-theme.js?v=20261027" defer></script>
 <link rel="stylesheet" href="assets/css/premium-navigation.css?v=20261031-nav5">
+
+<style>
+/* UK kick-off replaces redundant GW badges. Retain the original five-column
+   fixture layout so both teams get their space back. */
+body.pp-history .prediction-row,
+body.pp-history .actual-result-row {
+  grid-template-columns:66px minmax(90px,1fr) 54px minmax(90px,1fr) 88px;
+}
+body.pp-history .prediction-row > .fixture-kickoff,
+body.pp-history .prediction-row > .kickoff-slot,
+body.pp-history .prediction-row .kickoff-slot > .fixture-kickoff {
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  line-height:1.05;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+  text-align:center;
+}
+body.pp-history .prediction-row > .fixture-kickoff,
+body.pp-history .prediction-row .kickoff-slot > .fixture-kickoff { flex-direction:row; }
+body.pp-history .prediction-row > .kickoff-slot { flex-direction:column; gap:1px; }
+body.pp-history .fixture-kickoff .kickoff-day { font-size:9px;color:#d8c6ef;font-weight:750; }
+body.pp-history .fixture-kickoff .kickoff-clock { font-size:10px;color:#fff;font-weight:850; }
+body.pp-history .fixture-kickoff.is-tbc {font-size:10px;color:#d8c6ef;}
+body.pp-history .kickoff-slot .hedge-badge {font-size:8px;line-height:1;font-weight:850;}
+body.pp-history .prediction-row > span:nth-child(2),
+body.pp-history .prediction-row > span:nth-child(4) {
+  min-width:0;
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  overflow-wrap:break-word;
+}
+@media(max-width:650px){
+  body.pp-history .prediction-row,
+  body.pp-history .actual-result-row {
+    grid-template-columns:55px minmax(0,1fr) 42px minmax(0,1fr) 68px;
+  }
+  body.pp-history .fixture-kickoff .kickoff-day { font-size:8px; }
+  body.pp-history .fixture-kickoff .kickoff-clock { font-size:9px; }
+  body.pp-history .prediction-row > span:nth-child(2),
+  body.pp-history .prediction-row > span:nth-child(4) {
+    font-size:clamp(10px,2.9vw,12px);
+    line-height:1.13;
+  }
+}
+@media(max-width:370px){
+  body.pp-history .prediction-row,
+  body.pp-history .actual-result-row {
+    grid-template-columns:48px minmax(0,1fr) 38px minmax(0,1fr) 66px;
+    gap:3px;
+  }
+  body.pp-history .prediction-row {padding-inline:4px;}
+  body.pp-history .prediction-row > span:nth-child(2),
+  body.pp-history .prediction-row > span:nth-child(4) {
+    font-size:10px;
+  }
+  body.pp-history .fixture-kickoff .kickoff-day {font-size:8px;}
+  body.pp-history .fixture-kickoff .kickoff-clock {font-size:8.5px;}
+}
+</style>
 </head>
 <body class="pp-refined pp-history pp-page-loading" data-page-loader-title="Loading Player Predictions Page..." data-require-auth="true" data-require-league="true">
 <header>
@@ -1012,7 +1048,7 @@ footer {
 <footer>2026 Prem Predics | Player Predictions</footer>
 <script type="module" src="assets/js/page-loader.js?v=20260920-adaptive"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/all-predictions.js?v=20261031-kickoff-right"></script>
+<script type="module" src="assets/js/all-predictions.js?v=20261031-kickoff-left"></script>
 <script src="assets/js/pwa.js?v=20261027-theme" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
