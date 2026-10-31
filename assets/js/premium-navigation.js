@@ -19,27 +19,42 @@ const icons = {
 };
 const icon = name => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${icons[name]}"/></svg>`;
 const groups = {
-  predictions:[['Predictions','predictions.html','predictions'],['Star Man','star-man.html','star'],['Game Card','game-card.html','game']],
-  cards:[['Power Cards','power-cards.html','cards'],['Draw Cards','power-cards.html','draw','#primarySideActions']],
+  predictions:[['Predictions','predictions.html','predictions','','predictions'],['Star Man','star-man.html','star','','star'],['Game Card','game-card.html','game','','game']],
+  cards:[['Cards','power-cards.html','cards','','cards'],['Shop','power-cards.html','draw','#shop','shop']],
 };
 let shell, top, openGroup=null, observer, scheduled=false;
 const eligibleDocument=()=>document.body.matches('[data-require-auth="true"][data-require-league="true"]') || page==='awards.html'&&Boolean(document.querySelector('.awards-shell'));
 const overlaySelector='dialog,[role="dialog"],[aria-modal="true"],[class*="modal"],.hub-choice-overlay,.league-menu-shade,.fullscreen-card-reveal,.premium-pack-reveal,.super-draw-reveal,.countdown-overlay,.cards-shuffle-display,.sign-out-dialog,.pp-page-loader';
 let viewportHeight=window.visualViewport?.height||innerHeight;
-function link(label,destination,hash='',current=false) {
-  return `<a href="${escapeHtml(leagueUrl(destination,competitionId)+hash)}"${current?` aria-current="${hash?'location':destination===page?'page':'true'}"`:''}>${escapeHtml(label)}</a>`;
+const isShopView=()=>page==='power-cards.html'&&['#shop','#primarySideActions'].includes(location.hash);
+function syncCardsView() {
+  if(page!=='power-cards.html')return;
+  const panel=document.getElementById('cardsShopPanel');
+  if(!panel)return;
+  const show=isShopView();
+  panel.hidden=!show;
+  document.body.classList.toggle('pp-cards-shop-view',show);
+}
+function link(label,destination,hash='',current=false,tone='') {
+  return `<a href="${escapeHtml(leagueUrl(destination,competitionId)+hash)}"${tone?` data-nav-tone="${tone}"`:''}${current?` aria-current="${hash?'location':destination===page?'page':'true'}"`:''}>${escapeHtml(label)}</a>`;
 }
 function renderTop() {
   if(!top)return;
-  const isCards=page==='power-cards.html';
-  const draw=isCards&&location.hash==='#primarySideActions';
-  const index=isCards?(draw?1:0):starMan.includes(page)?1:page==='game-card.html'?2:0;
+  const isCards=page==='power-cards.html',shop=isShopView();
+  const index=isCards?(shop?1:0):starMan.includes(page)?1:page==='game-card.html'?2:0;
   const items=isCards?groups.cards:groups.predictions;
-  let secondary='';
-  if(['predictions.html','all-predictions.html'].includes(page)) secondary=link('Make Predictions','predictions.html','',page==='predictions.html')+link('View All Player Predictions','all-predictions.html','',page==='all-predictions.html');
-  if(['star-man.html','all-star-men.html'].includes(page)) secondary=link('Pick Star Man','star-man.html','',page==='star-man.html')+link('View All Player Star Men','all-star-men.html','',page==='all-star-men.html');
-  top.innerHTML=`<nav class="pp-nav-primary" aria-label="${isCards?'Power Cards':'Predictions'}" style="--pp-nav-count:${items.length};--pp-nav-index:${index}">${items.map(([label,dest,,hash],i)=>link(label,dest,hash||'',i===index)).join('')}</nav>`+
-    (secondary?`<nav class="pp-nav-secondary" aria-label="${starMan.includes(page)?'Star Man':'Predictions'}">${secondary}</nav>`:'');
+  let secondary='',secondaryIndex=0;
+  if(['predictions.html','all-predictions.html'].includes(page)) {
+    secondaryIndex=page==='all-predictions.html'?1:0;
+    secondary=link('Make Predictions','predictions.html','',page==='predictions.html','sub')+link('View All Player Predictions','all-predictions.html','',page==='all-predictions.html','sub');
+  }
+  if(['star-man.html','all-star-men.html'].includes(page)) {
+    secondaryIndex=page==='all-star-men.html'?1:0;
+    secondary=link('Pick Star Man','star-man.html','',page==='star-man.html','sub')+link('View All Player Star Men','all-star-men.html','',page==='all-star-men.html','sub');
+  }
+  top.innerHTML=`<nav class="pp-nav-primary" aria-label="${isCards?'Cards':'Predictions'}" data-current-tone="${items[index][4]}" style="--pp-nav-count:${items.length};--pp-nav-index:${index}">${items.map(([label,dest,,hash,tone],i)=>link(label,dest,hash||'',i===index,tone)).join('')}</nav>`+
+    (secondary?`<nav class="pp-nav-secondary" aria-label="${starMan.includes(page)?'Star Man':'Predictions'}" style="--pp-nav-index:${secondaryIndex}">${secondary}</nav>`:'');
+  syncCardsView();
 }
 function closeGroup(restore=false) {
   if(!shell)return;
@@ -52,9 +67,11 @@ function toggleGroup(group) {
   if(openGroup===group){closeGroup(true);return;}
   openGroup=group;
   const flyout=shell.querySelector('.pp-nav-flyout');
-  flyout.innerHTML=groups[group].map(([label,dest,svg,hash])=>
-    `<a href="${escapeHtml(leagueUrl(dest,competitionId)+(hash||''))}">${icon(svg)}<span>${label}</span><svg class="pp-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>`).join('');
-  flyout.setAttribute('aria-label',group==='cards'?'Power Cards':'Predictions');
+  flyout.innerHTML=groups[group].map(([label,dest,svg,hash,tone])=>{
+    const current=dest===page&&(hash?isShopView():!isShopView());
+    return `<a href="${escapeHtml(leagueUrl(dest,competitionId)+(hash||''))}" data-nav-tone="${tone}"${current?' aria-current="location"':''}>${icon(svg)}<span>${label}</span><svg class="pp-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>`;
+  }).join('');
+  flyout.setAttribute('aria-label',group==='cards'?'Cards':'Predictions');
   shell.querySelectorAll('[data-nav-group]').forEach(button=>button.setAttribute('aria-expanded',String(button.dataset.navGroup===group)));
   flyout.hidden=false;
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&flyout.animate)flyout.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'translateY(0)'}],{duration:160,easing:'cubic-bezier(.2,.8,.2,1)'});
@@ -92,13 +109,13 @@ function mount() {
   document.documentElement.classList.add('pp-nav-enabled');
   shell=document.createElement('div');shell.className='pp-nav-shell';shell.dataset.premiumNav='';
   shell.innerHTML=`<nav class="pp-nav-flyout" id="pp-nav-flyout" hidden></nav><nav class="pp-nav-dock" aria-label="Private league navigation">
-    <button type="button" data-nav-group="predictions" aria-expanded="false" aria-controls="pp-nav-flyout" class="${category==='predictions'?'is-active':''}">${icon('predictions')}<span>Predictions</span></button>
-    <a class="pp-nav-home ${category==='hub'?'is-active':''}" href="${escapeHtml(leagueUrl('league.html',competitionId))}"${page==='league.html'?' aria-current="page"':''}>${icon('hub')}<span>League Hub</span></a>
-    <button type="button" data-nav-group="cards" aria-expanded="false" aria-controls="pp-nav-flyout" class="${category==='cards'?'is-active':''}">${icon('cards')}<span>Power Cards</span></button></nav>`;
+    <button type="button" data-nav-group="predictions" data-nav-tone="predictions" aria-expanded="false" aria-controls="pp-nav-flyout" class="${category==='predictions'?'is-active':''}"${category==='predictions'?' aria-current="true"':''}>${icon('predictions')}<span>Predictions</span></button>
+    <a class="pp-nav-home ${category==='hub'?'is-active':''}" data-nav-tone="hub" href="${escapeHtml(leagueUrl('league.html',competitionId))}"${category==='hub'?' aria-current="page"':''}>${icon('hub')}<span>League Hub</span></a>
+    <button type="button" data-nav-group="cards" data-nav-tone="cards" aria-expanded="false" aria-controls="pp-nav-flyout" class="${category==='cards'?'is-active':''}"${category==='cards'?' aria-current="true"':''}>${icon('cards')}<span>Cards</span></button></nav>`;
   document.body.append(shell);
   shell.addEventListener('click',event=>{const button=event.target.closest('[data-nav-group]');if(button)toggleGroup(button.dataset.navGroup);else if(event.target.closest('a'))closeGroup();});
   if(gameplay.includes(page)||page==='power-cards.html') {
-    const header=document.querySelector('body > header, .awards-header');
+    const header=document.querySelector('body > header, .awards-header, body > h1');
     if(header){top=document.createElement('div');top.className='pp-nav-top';top.dataset.premiumNav='';header.after(top);renderTop();}
   }
   observer=new MutationObserver(records=>{

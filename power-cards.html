@@ -4,7 +4,7 @@
 <script src="assets/js/card-title.js?v=20260909-centered"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prem Predics - Power Cards</title>
+<title>Prem Predics - Cards</title>
 <script>
 if (
   window.Capacitor?.isNativePlatform?.()
@@ -6377,18 +6377,15 @@ body.pp-card-load-failed #mainGameLayout { display:none !important; }
 <script src="assets/js/league-return.js?v=20261027-release" defer></script>
 <link rel="stylesheet" href="assets/css/seasonal-theme.css?v=20261027-orange">
 <script src="assets/js/seasonal-theme.js?v=20261027" defer></script>
-<link rel="stylesheet" href="assets/css/premium-navigation.css?v=20261030-nav1">
+<link rel="stylesheet" href="assets/css/premium-navigation.css?v=20261031-nav2">
 </head>
-<body class="pp-page-loading pp-card-data-pending" data-page-loader-title="Loading Power Cards Page..." data-require-auth="true" data-require-league="true">
+<body class="pp-page-loading pp-card-data-pending" data-page-loader-title="Loading Cards Page..." data-require-auth="true" data-require-league="true">
 
 <button class="back-home-btn" onclick="window.location.href='league.html' + window.location.search">Back To League Hub</button>
 
 <h1>Prem Predics - Cards</h1>
 
-<div class="mobile-fixed-actions" id="mobileFixedActions">
-  <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()">View All Decks</button>
-  <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()">Draw Card</button>
-</div>
+<div class="mobile-fixed-actions" id="mobileFixedActions"></div>
 
 <div class="container">
   <!-- Card Preview Modal -->
@@ -6675,6 +6672,15 @@ body.pp-card-load-failed #mainGameLayout { display:none !important; }
     </div>
   </div>
 
+  <!-- Shop: original draw/deck actions relocated here, handlers unchanged. -->
+  <section class="cards-shop-panel" id="cardsShopPanel" aria-label="Shop" hidden>
+    <h2>Shop</h2>
+    <div class="side-actions shop-actions" id="shopActionArea">
+      <button class="side-action-btn deck-action-btn" type="button" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">View All Decks</span></button>
+      <button class="side-action-btn draw-card-btn" type="button" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Cards</span></button>
+    </div>
+  </section>
+
   <!-- Main Game Layout -->
   <div class="main-game-layout show" id="mainGameLayout">
     <!-- LEFT PANEL - CONTROLS / PENDING / DISCARD -->
@@ -6692,10 +6698,7 @@ body.pp-card-load-failed #mainGameLayout { display:none !important; }
 
       <!-- Pending Swap / Steal -->
       <div class="card-section show" id="swapSection">
-        <div class="side-actions" id="primarySideActions">
-          <button class="side-action-btn deck-action-btn" onclick="openDeckOverview()"><span class="desktop-label">View All Decks</span><span class="mobile-label">View All Decks</span></button>
-          <button class="side-action-btn draw-card-btn" onclick="openDeckChoice()"><span class="desktop-label">Draw Card</span><span class="mobile-label">Draw Cards</span></button>
-        </div>
+        <div class="side-actions" id="primarySideActions" hidden></div>
         <h2>Pending Swap/Steal</h2>
         <div id="pendingSwap" class="pending-swap"></div>
         <div class="action-buttons">
@@ -13183,7 +13186,7 @@ initializeCardPage();
 <script src="assets/js/pwa.js?v=20261027-theme" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
-<script type="module" src="assets/js/premium-navigation.js?v=20261030-nav1"></script>
+<script type="module" src="assets/js/premium-navigation.js?v=20261031-nav2"></script>
 </body>
 </html>
 

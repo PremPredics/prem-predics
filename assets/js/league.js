@@ -780,44 +780,6 @@ async function renderLeague(league, user) {
   const gameweekNumber = activeGameweek?.gameweek_number || 'X';
   const pages = [
     {
-      menu: 'predictions',
-      title: 'Predictions',
-      detail: `Submit Predictions for GW${gameweekNumber}`,
-      accent: '#00e5ff',
-      tier: 'primary',
-      copy: `Gameweek ${gameweekNumber} predictions`,
-      options: [
-        { page: 'predictions.html', title: 'Make Predictions', detail: `Submit or Edit your GW${gameweekNumber} Predictions`, accent: '#22d3ee' },
-        { page: 'all-predictions.html', title: 'View All Player Predictions', detail: 'View history of all user predictions for all Gameweeks.', accent: '#facc15' },
-      ],
-    },
-    {
-      menu: 'star-man',
-      title: 'Star Man',
-      detail: `Submit your Star Man for Gameweek ${gameweekNumber}.`,
-      accent: '#facc15',
-      tier: 'primary',
-      copy: `Gameweek ${gameweekNumber} Star Man`,
-      options: [
-        { page: 'star-man.html', title: 'Pick Star Man', detail: `Submit or Edit your GW${gameweekNumber} Star Man`, accent: '#22d3ee' },
-        { page: 'all-star-men.html', title: 'View All Player Star Men', detail: 'View history of all user Star Man picks for all Gameweeks.', accent: '#facc15' },
-      ],
-    },
-    {
-      page: 'power-cards.html',
-      title: 'Power Cards',
-      detail: 'Play/View/Draw Cards against Opponents.',
-      accent: '#fb7185',
-      tier: 'game',
-    },
-    {
-      page: 'game-card.html',
-      title: 'Game Cards',
-      detail: 'View active Game Card.',
-      accent: '#34d399',
-      tier: 'game',
-    },
-    {
       page: 'medals.html',
       title: 'Medals',
       detail: 'View medals earned this season.',

@@ -40,3 +40,48 @@ html.pp-nav-enabled body { padding-bottom:calc(var(--pp-nav-original-bottom,0px)
 /* Keep native document navigation: cross-document snapshots proved unreliable
    during Back navigation. Local controls retain lightweight native motion. */
 @media(prefers-reduced-motion:reduce) { [data-premium-nav] * { transition:none!important; animation:none!important; } }
+
+/* Premium navigation v2: compact connected pills and category palettes */
+.pp-nav-top{gap:5px;margin-top:7px}
+.pp-nav-primary,.pp-nav-secondary{overflow:hidden;border-radius:999px;padding:3px;border:1px solid #e4caff94;background:linear-gradient(140deg,#4e2a6fed,#2e1545f5);box-shadow:inset 0 1px #fff4,0 4px 13px #16082955}
+.pp-nav-primary::before{border-radius:999px;border-color:#fff8;background:var(--pp-current-gradient,linear-gradient(135deg,#986ac3,#6d399b));box-shadow:inset 0 1px #fff8,0 2px 13px var(--pp-current-glow,#ab77f466)}
+.pp-nav-primary a{position:relative;z-index:1;min-height:36px;padding:5px 4px;border-radius:999px;font-size:clamp(10px,2.65vw,12px);font-weight:760;color:#e6d6f5}
+.pp-nav-primary a[aria-current]{color:white;text-shadow:0 1px 3px #16082daa!important}
+.pp-nav-primary a[data-nav-tone=predictions]:not([aria-current]){color:#8decff}
+.pp-nav-primary a[data-nav-tone=star]:not([aria-current]){color:#ffda76}
+.pp-nav-primary a[data-nav-tone=game]:not([aria-current]){color:#95ffd3}
+.pp-nav-primary a[data-nav-tone=shop]:not([aria-current]){color:#ffdcaf}
+.pp-nav-primary[data-current-tone=predictions]{--pp-current-gradient:linear-gradient(120deg,#08627c,#09b6df 57%,#81f0ff);--pp-current-glow:#11cceb66}
+.pp-nav-primary[data-current-tone=star]{--pp-current-gradient:linear-gradient(120deg,#a26609,#d99c16 57%,#ffdc74);--pp-current-glow:#f6cd5877}
+.pp-nav-primary[data-current-tone=game]{--pp-current-gradient:linear-gradient(120deg,#076b46,#13a474 57%,#79edb5);--pp-current-glow:#2ada9a55}
+.pp-nav-primary[data-current-tone=cards]{--pp-current-gradient:linear-gradient(90deg,#1562a5 0%,#31a4e9 49%,#d64760 51%,#b52447 100%);--pp-current-glow:#ac63e766}
+.pp-nav-primary[data-current-tone=shop]{--pp-current-gradient:linear-gradient(120deg,#593078,#9c5bb1 50%,#d5a051);--pp-current-glow:#d9a8eb66}
+.pp-nav-secondary{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr);gap:0;margin:0;background:linear-gradient(120deg,#49316bee,#321f51ed)}
+.pp-nav-secondary::before{content:'';position:absolute;z-index:-1;left:3px;top:3px;bottom:3px;width:calc((100% - 6px)*.85/2.25);border:1px solid #fff9;border-radius:999px;background:linear-gradient(135deg,#ebdeff,#c8a8fc 64%,#b99aed);box-shadow:inset 0 1px #fff9,0 2px 8px #ad7adf70;transition:left .22s cubic-bezier(.2,.8,.2,1),width .22s cubic-bezier(.2,.8,.2,1)}
+.pp-nav-secondary[style*="--pp-nav-index:1"]::before{left:calc(3px + (100% - 6px)*.85/2.25);width:calc((100% - 6px)*1.4/2.25)}
+.pp-nav-secondary a{position:relative;display:flex;align-items:center;justify-content:center;min-height:36px;padding:4px 5px;border:0;border-radius:999px;background:transparent;box-shadow:none;color:#e5d2fa;font-size:clamp(9px,2.5vw,11px);line-height:1.15;font-weight:720;text-align:center}
+.pp-nav-secondary a[aria-current]{background:transparent;border:0;box-shadow:none;color:#351a53;font-weight:850}
+.pp-nav-dock>button[data-nav-tone=predictions]{color:#92eaff}
+.pp-nav-dock>button[data-nav-tone=predictions].is-active,.pp-nav-dock>button[data-nav-tone=predictions][aria-expanded=true]{color:white;background:linear-gradient(145deg,#086b8e,#0aa0cb 67%,#3cdaf8);box-shadow:inset 0 1px #fff6,0 0 13px #22c4e778}
+.pp-nav-dock>button[data-nav-tone=cards]{color:white;background:linear-gradient(90deg,#145d98bb 0%,#3289c9bb 49%,#b63657c9 51%,#a72244dd 100%)}
+.pp-nav-dock>button[data-nav-tone=cards].is-active,.pp-nav-dock>button[data-nav-tone=cards][aria-expanded=true]{background:linear-gradient(90deg,#1469b5 0%,#3ba4ef 49%,#e14461 51%,#b21b43 100%);box-shadow:inset 0 1px #fff8,0 0 16px #d16eb37d}
+.pp-nav-dock>.pp-nav-home{color:#fff;background:radial-gradient(ellipse at 50% 0,#fff6,transparent 70%),linear-gradient(160deg,#be85e9,#9651d1 40%,#67239f 78%,#471569);border-color:#f3d4ffd9;border-top-color:#fff8;box-shadow:inset 0 1px #fff8,inset 0 -2px 8px #310e4a80,0 4px 16px #1d093e80,0 0 16px #bc7bff8c}
+.pp-nav-dock>.pp-nav-home.is-active{background:linear-gradient(155deg,#e7c2ff,#b362f0 33%,#822db8 70%,#501379);border-color:white;box-shadow:inset 0 1px white,0 0 23px #bf83ffa8,0 5px 16px #1d093f9a}
+.pp-nav-dock>.is-active::after{background:currentColor;box-shadow:0 0 7px currentColor}
+.pp-nav-flyout{border-color:#cda9f1b7;background:linear-gradient(140deg,#462365fa,#27153efb)}
+.pp-nav-flyout a{border:1px solid transparent;border-radius:10px}
+.pp-nav-flyout a[data-nav-tone=predictions]{background:linear-gradient(110deg,#076988c3,#098fbba4);border-color:#69eaff80}
+.pp-nav-flyout a[data-nav-tone=star]{background:linear-gradient(110deg,#8f6016c7,#c99b28aa);border-color:#ffdd8a91}
+.pp-nav-flyout a[data-nav-tone=game]{background:linear-gradient(110deg,#0c6d4dc3,#109d68ac);border-color:#80f3bd88}
+.pp-nav-flyout a[data-nav-tone=cards]{background:linear-gradient(90deg,#165e9ed6 0%,#2997cfcd 49%,#d44761c8 51%,#aa2a4dcc 100%);border-color:#daa7ff8c}
+.pp-nav-flyout a[data-nav-tone=shop]{background:linear-gradient(110deg,#663586c9,#a05daaab 53%,#d0a058b0);border-color:#efbcff8c}
+.pp-nav-flyout a[aria-current]{border-color:#fff;box-shadow:inset 0 1px #fff6,0 0 14px #e3b3ff55}
+@media(max-width:400px){.pp-nav-primary a{font-size:10px}.pp-nav-secondary a{font-size:9.5px;padding-inline:4px}}
+/* Cards and Shop share existing gameplay logic, but separate the visible views. */
+#primarySideActions{display:none!important}
+.cards-shop-panel[hidden]{display:none!important}
+.cards-shop-panel{width:min(650px,100%);margin:10px auto 15px;padding:15px;border:1px solid #d5b0f0cf;border-radius:18px;background:radial-gradient(ellipse at 10% 0,#bb96ec38,transparent 55%),linear-gradient(145deg,#4f3279ed,#30194eea);box-shadow:inset 0 1px #fff5,0 12px 25px #1a092d5a}
+.cards-shop-panel>h2{margin:0 0 12px;text-align:center;color:#ffe9ff;font-size:1.25rem}
+.cards-shop-panel .shop-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px}
+.cards-shop-panel .shop-actions button{min-height:48px;padding:9px;font-size:clamp(.75rem,2.3vw,1rem)}
+body.pp-cards-shop-view #mainGameLayout,body.pp-cards-shop-view #introWrapper{display:none!important}
