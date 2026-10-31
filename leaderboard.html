@@ -598,7 +598,10 @@ footer {
    viewport; other statistics retain normal horizontal scrolling. */
 @media (max-width:650px) {
   body.pp-refined .leaderboard-panel {
-    --lb-player-width:clamp(114px, calc(100vw - 209px), 210px);
+    /* Reserve the full visible width through CR. The previous 209px
+       deduction left part of the PP column visible; with 186px,
+       the start of PP falls just outside the panel's right edge. */
+    --lb-player-width:calc(100vw - 186px);
   }
   body.pp-refined .leaderboard-panel .table-wrap {
     scrollbar-gutter:auto;
