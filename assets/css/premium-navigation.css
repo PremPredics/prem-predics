@@ -184,3 +184,48 @@ body.pp-cards-shop-view #mainGameLayout,body.pp-cards-shop-view #introWrapper{di
 .pp-nav-shell:has(button[data-nav-group][aria-expanded="true"]) .pp-nav-home.is-active{color:#e6d2f5;background:linear-gradient(155deg,#61427f,#46275f 70%,#331b4c);border-color:#b58dc89a;box-shadow:inset 0 1px 0 #ffffff22}
 .pp-nav-dock > .is-active::after{width:18px;bottom:1px}
 @media(max-height:500px) and (orientation:landscape){:root{--pp-nav-clearance:calc(66px + env(safe-area-inset-bottom,0px))}.pp-nav-dock{height:49px;padding:3px}.pp-nav-dock > :is(a,button),.pp-nav-dock > .pp-nav-home,.pp-nav-dock > .pp-nav-home.is-active{height:43px;min-height:40px}.pp-nav-dock svg,.pp-nav-home svg{width:17px;height:17px}}
+
+/* Direct-entry Predictions flyout: 2x2 plus full-width Game Card. */
+.pp-nav-flyout[data-nav-open=predictions]{
+ grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px;
+ border-color:#d6bbfae8;
+ background:linear-gradient(90deg,#098fd233 0% 33.333%,#eeb32b30 33.333% 66.667%,#11b57930 66.667% 100%),linear-gradient(145deg,#422661fa,#28153ffb);
+}
+.pp-nav-flyout[data-nav-open=predictions] a{
+ min-width:0;min-height:65px;padding:8px 6px;gap:6px;
+ justify-content:center;text-align:center;border-radius:12px;
+ box-shadow:inset 0 1px 0 #ffffff43,0 3px 9px #10072139;
+ font-size:clamp(11px,2.8vw,13px);font-weight:800;line-height:1.15;
+}
+.pp-nav-flyout[data-nav-open=predictions] a > span{min-width:0}
+.pp-nav-flyout[data-nav-open=predictions] a svg:first-child{flex:0 0 19px;width:19px;height:19px}
+.pp-nav-flyout[data-nav-open=predictions] .pp-nav-chevron{display:none}
+.pp-nav-flyout[data-nav-open=predictions] a:last-child{grid-column:1/-1;min-height:48px}
+.pp-nav-flyout[data-nav-open=predictions] a[data-nav-tone=predictions]{
+ color:#fff;border-color:#9eeaffef;background:linear-gradient(135deg,#087aaa,#098fd2 60%,#29b9e5)
+}
+.pp-nav-flyout[data-nav-open=predictions] a[data-nav-tone=star]{
+ color:#24132d;border-color:#ffebadef;background:linear-gradient(135deg,#d29722,#eeb32b 55%,#ffce69)
+}
+.pp-nav-flyout[data-nav-open=predictions] a[data-nav-tone=game]{
+ color:#fff;border-color:#aeffd9eb;background:linear-gradient(135deg,#087c53,#11b579 55%,#32cf98)
+}
+.pp-nav-flyout[data-nav-open=predictions] a[data-nav-tone=star] svg{stroke:#352038}
+.pp-nav-flyout[data-nav-open=predictions] a[data-nav-tone=predictions] svg,
+.pp-nav-flyout[data-nav-open=predictions] a[data-nav-tone=game] svg{stroke:#fff}
+.pp-nav-flyout[data-nav-open=cards]{
+ border-color:#d3acedeb;
+ background:linear-gradient(90deg,#1789d938 0% 50%,#e23b5938 50% 100%),linear-gradient(145deg,#432862f8,#27143dfb)
+}
+.pp-nav-flyout[data-nav-open=cards] a[data-nav-tone=cards]{
+ color:#fff;border-color:#ffebffeb;background:linear-gradient(90deg,#1789d9 0% 50%,#e23b59 50% 100%)
+}
+.pp-nav-flyout[data-nav-open=cards] a[data-nav-tone=shop]{
+ color:#fff;border-color:#fad3ffeb;background:linear-gradient(115deg,#8547ab,#b46acc 55%,#dea655)
+}
+.pp-nav-flyout[data-nav-open=cards] svg{stroke:#fff}
+.pp-nav-flyout a[aria-current=location]{outline:2px solid #fff;outline-offset:-3px}
+@media(max-width:365px){
+ .pp-nav-flyout[data-nav-open=predictions] a{gap:4px;padding-inline:4px;font-size:10.5px}
+ .pp-nav-flyout[data-nav-open=predictions] a svg:first-child{width:17px;height:17px;flex-basis:17px}
+}

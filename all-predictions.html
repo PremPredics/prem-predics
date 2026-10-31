@@ -220,7 +220,7 @@ main {
 .prediction-row {
   min-height: 30px;
   display: grid;
-  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 88px;
+  grid-template-columns: 70px minmax(90px, 1fr) 54px minmax(90px, 1fr) 88px;
   gap: 6px;
   align-items: center;
   padding: 5px 7px;
@@ -311,7 +311,7 @@ main {
 .actual-result-row {
   grid-column: 1 / -1;
   display: none;
-  grid-template-columns: 46px minmax(90px, 1fr) 54px minmax(90px, 1fr) 88px;
+  grid-template-columns: 70px minmax(90px, 1fr) 54px minmax(90px, 1fr) 88px;
   gap: 6px;
   align-items: center;
   padding: 2px 0 1px;
@@ -780,14 +780,14 @@ footer {
   .player-pill { width: 40px; height: 40px; }
   .prediction-row {
     min-height: 28px;
-    grid-template-columns: 36px minmax(54px, 1fr) 42px minmax(54px, 1fr) 72px;
+    grid-template-columns: 62px minmax(0, 1fr) 42px minmax(0, 1fr) 68px;
     gap: 4px;
     padding: 4px 5px;
   }
   .prediction-row span { font-size: 12px; }
   .prediction-row strong { font-size: 14px; }
   .actual-result-row {
-    grid-template-columns: 36px minmax(54px, 1fr) 42px minmax(54px, 1fr) 72px;
+    grid-template-columns: 62px minmax(0, 1fr) 42px minmax(0, 1fr) 68px;
     gap: 4px;
   }
   .actual-result-row span,
@@ -914,6 +914,22 @@ footer {
     justify-self: center;
   }
 }
+
+/* Compact, consistently aligned UK kick-off information on main and Hedge rows. */
+.prediction-row .gw-stack {align-content:center;min-width:0}
+.prediction-row .fixture-kickoff {
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ min-width:0;width:100%;color:#e8dafa;font-size:10px;font-weight:750;
+ line-height:1.15;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.prediction-row .fixture-kickoff .kickoff-day {color:#c8b7df;font-size:9px;line-height:1.1;letter-spacing:.025em}
+.prediction-row .fixture-kickoff .kickoff-clock {color:#fff;font-size:11px;line-height:1.2;font-weight:850}
+.prediction-row .fixture-kickoff.is-tbc {color:#dfd1ea}
+.prediction-row .gw-badge {line-height:1.1}
+@media(max-width:650px){
+ .prediction-row .fixture-kickoff .kickoff-day {font-size:8px}
+ .prediction-row .fixture-kickoff .kickoff-clock {font-size:10px}
+}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#7b61d8">
@@ -930,7 +946,7 @@ footer {
 <script src="assets/js/league-return.js?v=20261027-release" defer></script>
 <link rel="stylesheet" href="assets/css/seasonal-theme.css?v=20261027-orange">
 <script src="assets/js/seasonal-theme.js?v=20261027" defer></script>
-<link rel="stylesheet" href="assets/css/premium-navigation.css?v=20261031-nav4">
+<link rel="stylesheet" href="assets/css/premium-navigation.css?v=20261031-nav5">
 </head>
 <body class="pp-refined pp-history pp-page-loading" data-page-loader-title="Loading Player Predictions Page..." data-require-auth="true" data-require-league="true">
 <header>
@@ -980,11 +996,11 @@ footer {
 <footer>2026 Prem Predics | Player Predictions</footer>
 <script type="module" src="assets/js/page-loader.js?v=20260920-adaptive"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/all-predictions.js?v=20260924-fast"></script>
+<script type="module" src="assets/js/all-predictions.js?v=20261031-kickoff"></script>
 <script src="assets/js/pwa.js?v=20261027-theme" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>
-<script type="module" src="assets/js/premium-navigation.js?v=20261031-nav3"></script>
+<script type="module" src="assets/js/premium-navigation.js?v=20261031-nav5"></script>
 </body>
 </html>
 

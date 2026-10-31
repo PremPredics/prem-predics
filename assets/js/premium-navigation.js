@@ -22,6 +22,17 @@ const groups = {
   predictions:[['Predictions','predictions.html','predictions','','predictions'],['Star Man','star-man.html','star','','star'],['Game Card','game-card.html','game','','game']],
   cards:[['Cards','power-cards.html','cards','','cards'],['Shop','power-cards.html','draw','#shop','shop']],
 };
+// The flyout goes straight to the four player views, while the top tabs stay unchanged.
+const flyoutGroups={
+ predictions:[
+  ['My Predictions','predictions.html','predictions','','predictions'],
+  ["Everyone's Predictions",'all-predictions.html','predictions','','predictions'],
+  ['My Star Man','star-man.html','star','','star'],
+  ["Everyone's Star Man",'all-star-men.html','star','','star'],
+  ['Game Card','game-card.html','game','','game']
+ ],
+ cards:groups.cards
+};
 let shell, top, openGroup=null, observer, scheduled=false;
 const eligibleDocument=()=>document.body.matches('[data-require-auth="true"][data-require-league="true"]') || page==='awards.html'&&Boolean(document.querySelector('.awards-shell'));
 const overlaySelector='dialog,[role="dialog"],[aria-modal="true"],[class*="modal"],.hub-choice-overlay,.league-menu-shade,.fullscreen-card-reveal,.premium-pack-reveal,.super-draw-reveal,.countdown-overlay,.cards-shuffle-display,.sign-out-dialog,.pp-page-loader';
@@ -59,7 +70,9 @@ function renderTop() {
 function closeGroup(restore=false) {
   if(!shell)return;
   const previous=openGroup; openGroup=null;
-  shell.querySelector('.pp-nav-flyout').hidden=true;
+  const flyout=shell.querySelector('.pp-nav-flyout');
+  flyout.hidden=true;
+  delete flyout.dataset.navOpen;
   shell.querySelectorAll('[data-nav-group]').forEach(button=>button.setAttribute('aria-expanded','false'));
   if(restore&&previous)shell.querySelector(`[data-nav-group="${previous}"]`)?.focus({preventScroll:true});
 }
@@ -67,7 +80,8 @@ function toggleGroup(group) {
   if(openGroup===group){closeGroup(true);return;}
   openGroup=group;
   const flyout=shell.querySelector('.pp-nav-flyout');
-  flyout.innerHTML=groups[group].map(([label,dest,svg,hash,tone])=>{
+  flyout.dataset.navOpen=group;
+  flyout.innerHTML=flyoutGroups[group].map(([label,dest,svg,hash,tone])=>{
     const current=dest===page&&(hash?isShopView():!isShopView());
     return `<a href="${escapeHtml(leagueUrl(dest,competitionId)+(hash||''))}" data-nav-tone="${tone}"${current?' aria-current="location"':''}>${icon(svg)}<span>${label}</span><svg class="pp-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>`;
   }).join('');

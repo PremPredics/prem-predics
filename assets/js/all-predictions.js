@@ -6,6 +6,7 @@ import {
   shortTeamName,
 } from './league-context.js';
 import { selectActiveGameweek } from './gameweek-context.js?v=20260924-fast';
+import { kickoffLabel } from './prediction-kickoff.js';
 import { boundedRead } from './async-read.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import { supabase } from './supabase-client.js';
@@ -633,6 +634,12 @@ function wireResultRows() {
   });
 }
 
+function renderFixtureKickoff(fixture) {
+  const label = kickoffLabel(fixture.kickoff_at);
+  if(label === 'TBC') return '<span class="fixture-kickoff is-tbc">TBC</span>';
+  const [weekday, time] = label.split(' ');
+  return `<time class="fixture-kickoff" datetime="${escapeHtml(fixture.kickoff_at)}" title="${escapeHtml(label)} UK kick-off"><span class="kickoff-day">${escapeHtml(weekday)}</span><span class="kickoff-clock">${escapeHtml(time)}</span></time>`;
+}
 async function renderPredictionRows(gameweek) {
   const fixtures = fixturesForGameweek(gameweek.gameweek_id)
     .filter((fixture) => fixture.status !== 'postponed')
@@ -712,7 +719,7 @@ async function renderPredictionRows(gameweek) {
       : '-';
     return `
       <div class="prediction-row ${locked ? 'locked' : 'unlocked'} ${forcedCurseVisible ? 'curse-forced' : ''} ${primaryUnused ? 'unused-hedged' : ''} ${locked && !prediction ? 'missed' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
-        <span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>
+        <span class="gw-stack"><span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>${renderFixtureKickoff(fixture)}</span>
         <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
         <strong>${escapeHtml(score)}</strong>
         <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
@@ -766,7 +773,7 @@ async function renderPredictionRows(gameweek) {
       const actualScore = result ? `${result.home_goals}-${result.away_goals}` : '-';
       return `
         <div class="prediction-row hedge-row ${locked ? 'locked' : 'unlocked'} ${hedgeUnused ? 'unused-hedged' : ''} ${resultClass}" data-result-toggle role="button" tabindex="0" aria-expanded="false">
-          <span class="gw-stack"><span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span><span class="hedge-badge">Hedge</span></span>
+          <span class="gw-stack"><span class="gw-badge">GW${escapeHtml(gameweek.gameweek_number)}</span>${renderFixtureKickoff(fixture)}<span class="hedge-badge">Hedge</span></span>
           <span>${escapeHtml(teamName(fixture.home_team_id))}</span>
           <strong>${escapeHtml(`${prediction.home_goals}-${prediction.away_goals}`)}</strong>
           <span>${escapeHtml(teamName(fixture.away_team_id))}</span>
