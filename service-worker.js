@@ -1,16 +1,16 @@
-const CACHE_VERSION = 'prem-predics-pwa-v134';
+const CACHE_VERSION = 'prem-predics-pwa-v135';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
-  './assets/js/premium-navigation.js?v=20261031-nav5',
-  './assets/css/premium-navigation.css?v=20261101-nav6',
+  './assets/js/premium-navigation.js?v=20261101-audience',
+  './assets/css/premium-navigation.css?v=20261101-audience',
   './assets/js/leaderboard.js?v=20261031-inline-form',
   './assets/js/leaderboard-history.js?v=20261031-form',
   './assets/js/leaderboard-history-model.js?v=20261031-form',
   './assets/css/leaderboard-history.css?v=20261031-inline-form',
   './assets/css/league-navigation.css?v=20261030-restore',
-  './assets/css/league-hub-actions.css?v=20261101-centred-name',
+  './assets/css/league-hub-actions.css?v=20261101-reminders',
   './assets/css/required-action-alerts.css?v=20261101',
   './assets/css/league-return.css?v=20261027',
   './assets/js/league-return.js?v=20261027-release',

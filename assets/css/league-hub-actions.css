@@ -279,3 +279,18 @@ body .league-panel .league-summary h2 {
   body .league-panel .league-summary > .league-summary-name,
   body .league-panel .league-summary h2 {text-align:center}
 }
+
+/* Short double pulse every 7.5 seconds; quiet between bursts. */
+@keyframes ppLeagueHubAttentionBurst {
+  0%,5%,13%,24%,100% {transform:scale(1);filter:drop-shadow(0 0 0 transparent)}
+  9%,18% {transform:scale(1.035);filter:drop-shadow(0 0 13px rgba(255,144,0,.95))}
+}
+body.pp-refined .league-panel .hub-action-tile[data-action-state="required"]{
+  transform-origin:center center;
+  animation:ppLeagueHubAttentionBurst 7.5s ease-in-out infinite;
+}
+@media(prefers-reduced-motion:reduce) {
+ body.pp-refined .league-panel .hub-action-tile[data-action-state="required"]{
+   animation:none;transform:none;filter:none;
+ }
+}

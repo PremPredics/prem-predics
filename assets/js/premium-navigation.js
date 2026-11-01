@@ -83,7 +83,9 @@ function toggleGroup(group) {
   flyout.dataset.navOpen=group;
   flyout.innerHTML=flyoutGroups[group].map(([label,dest,svg,hash,tone])=>{
     const current=dest===page&&(hash?isShopView():!isShopView());
-    return `<a href="${escapeHtml(leagueUrl(dest,competitionId)+(hash||''))}" data-nav-tone="${tone}"${current?' aria-current="location"':''}>${icon(svg)}<span>${label}</span><svg class="pp-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>`;
+    const everyone=dest==='all-predictions.html'||dest==='all-star-men.html';
+    const leading=everyone?'<span class="pp-nav-people" aria-hidden="true">👥</span>':icon(svg);
+    return `<a href="${escapeHtml(leagueUrl(dest,competitionId)+(hash||''))}" data-nav-tone="${tone}"${everyone?' data-nav-audience="everyone"':''}${current?' aria-current="location"':''}>${leading}<span>${escapeHtml(label)}</span><svg class="pp-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>`;
   }).join('');
   flyout.setAttribute('aria-label',group==='cards'?'Cards':'Predictions');
   shell.querySelectorAll('[data-nav-group]').forEach(button=>button.setAttribute('aria-expanded',String(button.dataset.navGroup===group)));

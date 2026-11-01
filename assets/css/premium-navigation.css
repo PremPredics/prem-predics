@@ -255,3 +255,26 @@ body.pp-cards-shop-view #mainGameLayout,body.pp-cards-shop-view #introWrapper{di
  .pp-nav-shell{bottom:calc(3px + env(safe-area-inset-bottom,0px));}
  .pp-nav-shell::before{bottom:calc(-3px - env(safe-area-inset-bottom,0px));height:calc(25px + env(safe-area-inset-bottom,0px));}
 }
+
+/* Softer blue and gold distinguish the read-only Everyone's views from My. */
+.pp-nav-flyout[data-nav-open=predictions] a[data-nav-audience=everyone][data-nav-tone=predictions]{
+  color:#092d44;
+  border-color:#d4f4ff;
+  background:linear-gradient(135deg,#31addb,#64c7e9 57%,#9ee3f7);
+  box-shadow:inset 0 1px 0 #ffffffa8,0 3px 9px #10072139;
+}
+.pp-nav-flyout[data-nav-open=predictions] a[data-nav-audience=everyone][data-nav-tone=star]{
+  color:#392613;
+  border-color:#fff0b7;
+  background:linear-gradient(135deg,#eabd50,#ffdc82 55%,#ffedb3);
+  box-shadow:inset 0 1px 0 #ffffffa8,0 3px 9px #10072139;
+}
+.pp-nav-flyout[data-nav-open=predictions] .pp-nav-people{
+  flex:0 0 21px;display:inline-grid;place-items:center;
+  width:21px;height:21px;font-size:19px;line-height:1;white-space:nowrap;
+}
+@media(max-width:365px){
+ .pp-nav-flyout[data-nav-open=predictions] .pp-nav-people{
+   flex-basis:18px;width:18px;height:18px;font-size:17px;
+ }
+}
