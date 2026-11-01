@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v127';
+const CACHE_VERSION = 'prem-predics-pwa-v128';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -87,7 +87,8 @@ const APP_SHELL = [
   './assets/js/game-card-awards.js?v=20260901-v3',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js?v=20260828-player-pool',
-  './assets/js/index-actions.js?v=20260924-fast',
+  './assets/js/index-actions.js?v=20261101-status',
+  './assets/js/prediction-action-status.js',
   './assets/js/index-admin.js?v=20260828-startup-reliability',
   './assets/js/async-read.js',
   './assets/js/load-all-rows.js',

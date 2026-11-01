@@ -5,6 +5,7 @@ import { getSessionUser, onSessionUserChange } from './session-user.js';
 import { boundedRead, readData } from './async-read.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-reliable';
 import { formatDeadlineDuration } from './deadline-countdown.js';
+import { predictionActionStatus } from './prediction-action-status.js';
 
 const panel = document.querySelector('[data-home-action-panel]');
 const list = document.querySelector('[data-home-action-list]');
@@ -315,6 +316,7 @@ function normaliseActionState(state) {
 function statusMarkup(result) {
   const state = result && typeof result === 'object' ? result.state : result;
   const deadline = result && typeof result === 'object' ? result.deadline : null;
+  const remaining = result && typeof result === 'object' ? Number(result.remaining) : NaN;
   const actionState = normaliseActionState(state);
   const labels = {
     complete: 'Completed',
@@ -331,7 +333,9 @@ function statusMarkup(result) {
     ? `<small class="home-action-countdown" data-home-action-deadline="${escapeHtml(deadline)}">${escapeHtml(actionCountdownText(deadline))}</small>`
     : '';
 
-  return `<span class="home-action-status ${actionState}">${labels[actionState]}</span>${countdownMarkup}`;
+  const count = actionState === 'required' && Number.isInteger(remaining) && remaining > 0
+    ? ` (${remaining})` : '';
+  return `<span class="home-action-status ${actionState}">${labels[actionState]}${count}</span>${countdownMarkup}`;
 }
 
 function actionStatus(label, result) {
@@ -358,17 +362,7 @@ function memberCountsByLeague(memberRows) {
 }
 
 async function predictionStatus(userId, league, activeGameweek, fixtures) {
-  const openFixtures = fixtures.filter((fixture) => fixture.status !== 'postponed'
-    && fixture.status !== 'final' && !isPast(fixture.prediction_locks_at));
-  if (!openFixtures.length) return { state: 'complete', deadline: null };
-  const data = await readData(() => supabase.from('predictions').select('fixture_id')
-    .eq('competition_id', league.id).eq('user_id', userId).eq('prediction_slot', 'primary')
-    .in('fixture_id', openFixtures.map((fixture) => fixture.id)));
-  const saved = new Set((data || []).map((row) => String(row.fixture_id)));
-  const missing = openFixtures.filter((fixture) => !saved.has(String(fixture.id)));
-  return missing.length
-    ? { state: 'required', deadline: earliestDeadline(missing) }
-    : { state: 'complete', deadline: null };
+  return predictionActionStatus({supabase, readData, userId, league, fixtures});
 }
 
 async function starManStatus(userId, league, activeGameweek) {
