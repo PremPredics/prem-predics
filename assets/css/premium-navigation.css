@@ -229,3 +229,29 @@ body.pp-cards-shop-view #mainGameLayout,body.pp-cards-shop-view #introWrapper{di
  .pp-nav-flyout[data-nav-open=predictions] a{gap:4px;padding-inline:4px;font-size:10.5px}
  .pp-nav-flyout[data-nav-open=predictions] a svg:first-child{width:17px;height:17px;flex-basis:17px}
 }
+
+/* v6 — edge-to-edge PWA dock foundation; the capsule keeps its original colours,
+   while an opaque purple plinth masks all content beneath its rounded edge. */
+.pp-nav-shell{
+ bottom:calc(7px + env(safe-area-inset-bottom,0px));
+}
+.pp-nav-shell::before{
+ content:"";
+ position:absolute;
+ left:50%;
+ transform:translateX(-50%);
+ bottom:calc(-7px - env(safe-area-inset-bottom,0px));
+ width:100vw;
+ height:calc(36px + env(safe-area-inset-bottom,0px));
+ background:linear-gradient(180deg,rgba(41,19,65,.9) 0%,#301748 46%,#27123e 100%);
+ pointer-events:none;
+ z-index:-1;
+ box-shadow:0 -5px 18px #240a3855;
+}
+.pp-nav-dock{
+ box-shadow:inset 0 1px 0 #ffffff65,0 2px 12px #0f051975,0 0 22px #a96df033;
+}
+@media(max-height:500px) and (orientation:landscape){
+ .pp-nav-shell{bottom:calc(3px + env(safe-area-inset-bottom,0px));}
+ .pp-nav-shell::before{bottom:calc(-3px - env(safe-area-inset-bottom,0px));height:calc(25px + env(safe-area-inset-bottom,0px));}
+}
