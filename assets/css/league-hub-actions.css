@@ -176,3 +176,90 @@ body.pp-refined .league-panel .league-quick-meta .gameweek-card {
   body .league-panel .league-summary h2 {font-size:clamp(1.28rem,5.9vw,1.45rem)}
   body .league-panel .league-meta-pair {gap:6px}
 }
+
+/* v9: restore the requested two-column League Hub hero.
+   League name uses all remaining width on the LEFT; the compact right-hand
+   stack stays in order: player count + Join Code ABOVE centred Gameweek. */
+body .league-panel .league-summary {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) max-content;
+  grid-template-areas:"name controls";
+  align-items:center;
+  justify-items:stretch;
+  column-gap:clamp(8px,2.5vw,20px);
+  row-gap:0;
+  margin-bottom:10px;
+  padding-bottom:9px;
+}
+body .league-panel .league-summary > .league-summary-name {
+  grid-area:name;
+  align-self:center;
+  width:100%;
+  min-width:0;
+  text-align:left;
+}
+body .league-panel .league-summary h2 {
+  display:block;
+  width:100%;
+  max-width:100%;
+  margin:0;
+  font-size:clamp(1.2rem,5.1vw,2.65rem);
+  font-weight:950;
+  line-height:1.07;
+  letter-spacing:-.025em;
+  text-align:left;
+  text-wrap:balance;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+body .league-panel .league-quick-meta {
+  grid-area:controls;
+  align-items:center;
+  justify-self:end;
+  align-self:center;
+  gap:7px;
+  width:max-content;
+  min-width:0;
+  max-width:100%;
+}
+body .league-panel .league-meta-pair {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  width:max-content;
+  max-width:100%;
+}
+body.pp-refined .league-panel .league-quick-meta .gameweek-card {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  align-self:center;
+  justify-self:center;
+  width:max-content;
+  max-width:100%;
+  margin:0;
+  min-height:32px;
+  padding:7px 13px;
+}
+@media(max-width:650px) {
+  body .league-panel .league-summary {
+    grid-template-columns:minmax(0,1fr) max-content;
+    grid-template-areas:"name controls";
+    column-gap:8px;
+  }
+  body .league-panel .league-summary h2 {
+    font-size:clamp(1.08rem,5.2vw,1.85rem);
+    text-align:left;
+  }
+  body .league-panel .league-quick-meta {gap:5px}
+  body .league-panel .league-meta-pair {gap:5px}
+  body.pp-refined .league-panel .league-quick-meta .gameweek-card {
+    min-height:30px;padding:6px 11px;
+  }
+}
+@media(max-width:350px) {
+  body .league-panel .league-summary {column-gap:6px}
+  body .league-panel .league-meta-pair {gap:4px}
+  body .league-panel .league-summary h2 {font-size:1.04rem}
+}

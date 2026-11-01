@@ -811,6 +811,30 @@ async function renderHubActions(league,user,activeGameweek,fixtures) {
   }));
 }
 
+// Choose the largest readable title that fits in the LEFT column, at most two
+// balanced lines, so a 20-character name never crowds the right-hand badges.
+function fitLeagueHeading() {
+  if (!leagueName) return;
+  const availableWidth = leagueName.clientWidth;
+  if (!availableWidth) return;
+  const maximum = Math.min(44, Math.max(26, window.innerWidth * 0.07));
+  const minimum = 15;
+  let low = minimum;
+  let high = maximum;
+  let chosen = minimum;
+  for (let i = 0; i < 9; i += 1) {
+    const size = (low + high) / 2;
+    leagueName.style.fontSize = size.toFixed(2) + 'px';
+    const lineHeight = parseFloat(getComputedStyle(leagueName).lineHeight) || size * 1.07;
+    const fits = leagueName.scrollHeight <= lineHeight * 2.16
+      && leagueName.scrollWidth <= availableWidth + 2;
+    if (fits) { chosen = size; low = size; }
+    else high = size;
+  }
+  leagueName.style.fontSize = chosen.toFixed(2) + 'px';
+}
+window.addEventListener('resize', () => requestAnimationFrame(fitLeagueHeading));
+
 async function renderLeague(league, user) {
   const { activeGameweek, fixturesByGameweek } = await loadActiveGameweek(league);
   setLeaguePageLoadProgress(38);
@@ -873,6 +897,7 @@ async function renderLeague(league, user) {
     }]));
 
   leagueName.textContent = league.name;
+  requestAnimationFrame(fitLeagueHeading);
   joinCode.textContent = league.join_code;
   if (profileLink) {
     profileLink.href = leagueUrl('profile.html', league.id);
