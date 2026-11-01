@@ -815,6 +815,8 @@ async function renderHubActions(league,user,activeGameweek,fixtures) {
 // balanced lines, so a 20-character name never crowds the right-hand badges.
 function fitLeagueHeading() {
   if (!leagueName) return;
+  // Clear any previous centring offset before measuring again on a resize.
+  leagueName.style.transform = 'none';
   const availableWidth = leagueName.clientWidth;
   if (!availableWidth) return;
   const maximum = Math.min(44, Math.max(26, window.innerWidth * 0.07));
@@ -832,6 +834,20 @@ function fitLeagueHeading() {
     else high = size;
   }
   leagueName.style.fontSize = chosen.toFixed(2) + 'px';
+
+  // Centre on the precise midpoint between the OUTER left border of the
+  // league segment and the leftmost edge of the badges on the right.
+  // This is consistent for short names and the full 20-character allowance.
+  const panel = leagueName.closest('.league-panel');
+  const controls = panel?.querySelector('.league-quick-meta');
+  if (panel && controls) {
+    const panelLeft = panel.getBoundingClientRect().left;
+    const controlsLeft = controls.getBoundingClientRect().left;
+    const titleRect = leagueName.getBoundingClientRect();
+    const targetCentre = (panelLeft + controlsLeft) / 2;
+    const currentCentre = titleRect.left + titleRect.width / 2;
+    leagueName.style.transform = 'translateX(' + (targetCentre - currentCentre).toFixed(2) + 'px)';
+  }
 }
 window.addEventListener('resize', () => requestAnimationFrame(fitLeagueHeading));
 

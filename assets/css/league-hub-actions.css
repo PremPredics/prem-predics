@@ -263,3 +263,19 @@ body.pp-refined .league-panel .league-quick-meta .gameweek-card {
   body .league-panel .league-meta-pair {gap:4px}
   body .league-panel .league-summary h2 {font-size:1.04rem}
 }
+
+/* v10: geometrically centred league title between the panel's left border
+   and the first (leftmost) edge of the three controls on the right.
+   Keep both columns and the existing max-size two-line title fitting. */
+body .league-panel .league-summary > .league-summary-name {
+  text-align:center;
+}
+body .league-panel .league-summary h2 {
+  text-align:center;
+  transform-origin:center center;
+  will-change:auto;
+}
+@media(max-width:650px){
+  body .league-panel .league-summary > .league-summary-name,
+  body .league-panel .league-summary h2 {text-align:center}
+}
