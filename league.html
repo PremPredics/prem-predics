@@ -1073,6 +1073,7 @@ footer {
   })();
 </script>
 <link rel="stylesheet" href="assets/css/premium-navigation.css?v=20261031-nav5">
+<link rel="stylesheet" href="assets/css/league-hub-actions.css?v=20261101">
 <style>
 /* Slim Gameweek chip replaces the full-width next-kickoff countdown. */
 body.pp-refined .league-panel .gameweek-card{justify-self:center;width:max-content;max-width:100%;min-height:34px;padding:7px 17px;margin:0;flex-wrap:nowrap;border:1px solid rgba(233,205,255,.73);border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 12px rgba(24,8,37,.22)}
@@ -1097,8 +1098,7 @@ body.pp-refined .league-panel .gameweek-card strong{font-size:clamp(.8rem,2.9vw,
   <section class="league-panel">
     <div class="league-summary">
       <div>
-        <h2 data-league-name>Loading league...</h2>
-        <p class="league-members-count" data-member-count></p>
+        <div class="league-title-line"><h2 data-league-name>Loading league...</h2><span class="league-members-count" data-member-count></span></div>
       </div>
       <div class="gameweek-card" data-gameweek-card>
         <strong data-gameweek-countdown aria-live="polite">Checking gameweek...</strong>
@@ -1112,14 +1112,19 @@ body.pp-refined .league-panel .gameweek-card strong{font-size:clamp(.8rem,2.9vw,
       </details>
     </div>
 
+    <nav class="hub-action-grid" data-hub-action-grid aria-label="Gameweek actions"><span class="hub-action-loading">Checking Gameweek actions…</span></nav>
+
     <details class="hub-deadlines">
       <summary><span class="hub-deadline-label"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg><span>Gameweek Deadlines</span></span><span class="hub-deadline-toggle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></summary>
       <div class="deadline-strip" data-deadline-strip></div>
     </details>
 
-    <section class="medal-progress-panel" data-medal-progress aria-live="polite">
-      <span class="medal-progress-loading">Loading medal progress...</span>
-    </section>
+    <details class="medal-progress-panel">
+      <summary><span>🏅 Next Medal Progress</span><span class="medal-chevron" aria-hidden="true">⌄</span></summary>
+      <div class="medal-progress-inner" data-medal-progress aria-live="polite">
+        <span class="medal-progress-loading">Loading medal progress...</span>
+      </div>
+    </details>
 
     <div class="live-curse-alert" data-live-curse-alert aria-live="polite"></div>
 
@@ -1145,7 +1150,7 @@ body.pp-refined .league-panel .gameweek-card strong{font-size:clamp(.8rem,2.9vw,
 
 <script type="module" src="assets/js/page-loader.js?v=20260920-reliable"></script>
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/league.js?v=20261031-gameweek-chip"></script>
+<script type="module" src="assets/js/league.js?v=20261101-actions"></script>
 <script src="assets/js/pwa.js?v=20261030-restore" defer></script>
 <script src="assets/js/league-navigation.js?v=20261030-restore" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>

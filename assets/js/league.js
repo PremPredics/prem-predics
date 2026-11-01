@@ -13,6 +13,8 @@ import {
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-reliable';
 import { formatDeadlineDuration } from './deadline-countdown.js';
 import { supabase } from './supabase-client.js';
+import { readData } from './async-read.js';
+import { predictionActionStatus } from './prediction-action-status.js';
 
 const leagueName = document.querySelector('[data-league-name]');
 const memberCount = document.querySelector('[data-member-count]');
@@ -27,6 +29,7 @@ const profileLink = document.querySelector('[data-profile-link]');
 const profileAvatar = document.querySelector('[data-profile-avatar]');
 const liveCurseAlert = document.querySelector('[data-live-curse-alert]');
 const medalProgressPanel = document.querySelector('[data-medal-progress]');
+const hubActionGrid = document.querySelector('[data-hub-action-grid]');
 const choiceOverlay = document.querySelector('[data-hub-choice-overlay]');
 const choiceDialog = document.querySelector('[data-hub-choice-dialog]');
 const choiceTitle = document.querySelector('[data-hub-choice-title]');
@@ -147,7 +150,7 @@ async function renderMedalProgress(league, user) {
   const ucProgress = nextMedalProgress(ranking.ultimate_champion_points, UC_POINT_MEDAL_THRESHOLDS, sourceKeys, 'uc_points_');
   const goalsProgress = nextMedalProgress(ranking.star_man_goals, STAR_MAN_GOAL_MEDAL_THRESHOLDS, sourceKeys, 'star_man_goals_');
   medalProgressPanel.innerHTML = `
-    <div class="medal-progress-heading"><strong>Next Medal Progress</strong><a href="${leagueUrl('medals.html', league.id)}">View Medals</a></div>
+    <div class="medal-progress-heading"><a href="${leagueUrl('medals.html', league.id)}">View All Medals</a></div>
     <div class="medal-progress-grid">
       ${medalProgressCardMarkup({ label: 'UC Points', icon: '&#9733;', unit: 'UC pts', progress: ucProgress, className: 'uc-progress' })}
       ${medalProgressCardMarkup({ label: 'Star Man Goals', icon: '&#9917;', unit: 'goals', progress: goalsProgress, className: 'goal-progress' })}
@@ -772,6 +775,42 @@ function openHubChoicePanel(menuKey, trigger) {
   choiceDialog.focus();
 }
 
+
+function updateHubAction(tile, info) {
+  if(!tile)return;
+  const state=info?.state||'na';
+  const remaining=state==='required'&&Number(info.remaining)>0?' ('+Number(info.remaining)+')':'';
+  const names={required:'Action Required',complete:'Completed',na:'N/A',pending:'Checking…',error:'Unavailable'};
+  const label=tile.querySelector('[data-action-state]');
+  if(label){label.className='hub-action-state '+state;label.textContent=(names[state]||names.na)+remaining;}
+  tile.dataset.actionState=state;
+}
+async function renderHubActions(league,user,activeGameweek,fixtures) {
+  if(!hubActionGrid)return;
+  const tiles=[['Predictions','predictions','predictions.html'],['Star Man','star','star-man.html'],['Game Card','game','game-card.html']];
+  hubActionGrid.innerHTML=tiles.map(([title,tone,page])=>
+    `<a class="hub-action-tile" data-hub-action="${tone}" data-tone="${tone}" href="${leagueUrl(page,league.id)}">
+       <strong>${title}</strong><span class="hub-action-state pending" data-action-state>Checking…</span></a>`).join('');
+  if(!activeGameweek){
+    hubActionGrid.querySelectorAll('.hub-action-tile').forEach(el=>updateHubAction(el,{state:'na'}));
+    return;
+  }
+  const locked=Boolean(activeGameweek.star_man_locks_at &&
+    new Date(activeGameweek.star_man_locks_at).getTime()<=Date.now());
+  const checks=[
+    ['predictions',predictionActionStatus({supabase,readData,userId:user.id,league,fixtures})],
+    ['star',locked?Promise.resolve({state:'complete'}):
+      loadStarManCompletion(league,user,activeGameweek).then(done=>({state:done?'complete':'required'}))],
+    ['game',loadGameCardCompletion(league,user,activeGameweek).then(r=>
+      ({state:!r.enabled||locked&&!r.completed?'na':r.completed?'complete':'required'}))]
+  ];
+  await Promise.allSettled(checks.map(async ([tone,promise])=>{
+    let status;
+    try{status=await promise;}catch(err){console.warn('League action check unavailable:',tone,err);status={state:'error'};}
+    updateHubAction(hubActionGrid.querySelector(`[data-hub-action="${tone}"]`),status);
+  }));
+}
+
 async function renderLeague(league, user) {
   const { activeGameweek, fixturesByGameweek } = await loadActiveGameweek(league);
   setLeaguePageLoadProgress(38);
@@ -844,12 +883,14 @@ async function renderLeague(league, user) {
     .eq('competition_id', league.id)
     .then(({ count, error }) => {
       const total = Number(count || 0);
-      memberCount.textContent = error ? '' : `(${total} Active Players)`;
-      if (joinCodePanel) joinCodePanel.hidden = !error && total >= 10;
+      memberCount.textContent = error ? '' : `👤${total}`;
+      if (!error) memberCount.setAttribute('aria-label', `${total} active players`);
     }) : Promise.resolve();
   void Promise.all([memberCountTask, loadOwnProfile(user)]).catch(error => console.warn('League profile/count unavailable:', error));
   setLeaguePageLoadProgress(58);
   void renderMedalProgress(league, user);
+  void renderHubActions(league,user,activeGameweek,
+    activeGameweek?(fixturesByGameweek.get(String(activeGameweek.gameweek_id))||[]):[]);
 
   if (activeGameweek) {
     const activeFixtures = fixturesByGameweek.get(String(activeGameweek.gameweek_id)) || [];
