@@ -340,7 +340,7 @@ function statusMarkup(result) {
 
 function actionStatus(label, result) {
   return `
-    <span class="home-action-status-line">
+    <span class="home-action-status-line${normaliseActionState(result && typeof result === 'object' ? result.state : result) === 'required' ? ' is-required' : ''}">
       <strong>${escapeHtml(label)}:</strong>
       ${statusMarkup(result)}
     </span>

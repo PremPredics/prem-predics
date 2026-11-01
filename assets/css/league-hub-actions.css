@@ -45,3 +45,69 @@ body .league-panel details.join-code summary{min-height:25px;padding:4px 9px}
 .hub-action-grid{gap:5px}
 .hub-action-tile{min-height:61px;padding:7px 3px}
 }
+/* Right-hand stack: both mini controls share one intrinsic-width row.
+   The Gameweek badge is centred relative to that row's TOTAL width. */
+body .league-panel .league-summary {
+  grid-template-columns:minmax(0,1fr) max-content;
+  grid-template-areas:"name controls";
+  align-items:center;
+  gap:8px;
+}
+body .league-panel .league-summary > .league-summary-name {
+  grid-area:name;min-width:0;grid-column:auto;grid-row:auto;text-align:left;
+}
+body .league-panel .league-quick-meta {
+  grid-area:controls;
+  display:flex;flex-direction:column;
+  align-items:center;justify-self:end;
+  gap:5px;width:max-content;max-width:100%;min-width:0;
+}
+body .league-panel .league-meta-pair {
+  display:flex;align-items:center;justify-content:center;
+  gap:6px;width:max-content;max-width:100%;min-width:0;
+}
+body.pp-refined .league-panel .league-quick-meta .gameweek-card {
+  grid-area:auto;grid-row:auto;grid-column:auto;
+  align-self:center;justify-self:center;
+  display:flex;width:max-content;max-width:100%;
+  min-height:32px;margin:0;padding:7px 12px;
+  border:1px solid rgba(233,205,255,.73);border-radius:999px;
+  box-shadow:inset 0 1px #ffffff35,0 4px 12px #18082542;
+}
+body .league-panel .league-meta-pair .league-members-count {
+  flex:none;min-height:26px;padding:4px 8px;line-height:1.1;
+}
+body .league-panel .league-meta-pair details.join-code {
+  position:relative;grid-area:auto;grid-row:auto;grid-column:auto;
+  display:block;flex:none;width:max-content;max-width:100%;
+  justify-self:auto;align-self:center;border-radius:999px;
+}
+body .league-panel .league-meta-pair details.join-code summary {
+  display:flex;align-items:center;justify-content:center;
+  gap:4px;min-height:26px;padding:4px 9px;margin:0;
+  font-size:11px;line-height:1.1;white-space:nowrap;
+}
+body .league-panel .league-meta-pair .join-code-content {
+  position:absolute;z-index:25;top:calc(100% + 7px);left:50%;
+  transform:translateX(-50%);width:max-content;
+  max-width:min(260px,calc(100vw - 28px));
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px;border:1px solid #d4b2ef;border-radius:12px;
+  background:linear-gradient(145deg,#4b2869,#29163e);
+  box-shadow:0 10px 24px #16082299,inset 0 1px #ffffff29;
+}
+@media(max-width:650px){
+  body .league-panel .league-summary {gap:7px}
+  body .league-panel .league-quick-meta {gap:5px}
+  body .league-panel .league-meta-pair {gap:5px}
+  body .league-panel .league-meta-pair .league-members-count {min-height:25px;padding:4px 7px}
+  body.pp-refined .league-panel .league-quick-meta .gameweek-card {min-height:30px;padding:6px 10px}
+  body .league-panel .league-meta-pair details.join-code summary {min-height:25px;padding:4px 8px}
+}
+@media(max-width:350px){
+  body .league-panel .league-summary {gap:5px}
+  body .league-panel .league-summary h2 {font-size:.96rem}
+  body .league-panel .league-meta-pair {gap:4px}
+  body .league-panel .league-meta-pair .league-members-count {padding-inline:5px}
+  body .league-panel .league-meta-pair details.join-code summary {padding-inline:6px}
+}

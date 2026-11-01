@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v130';
+const CACHE_VERSION = 'prem-predics-pwa-v131';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -10,7 +10,8 @@ const APP_SHELL = [
   './assets/js/leaderboard-history-model.js?v=20261031-form',
   './assets/css/leaderboard-history.css?v=20261031-inline-form',
   './assets/css/league-navigation.css?v=20261030-restore',
-  './assets/css/league-hub-actions.css?v=20261101',
+  './assets/css/league-hub-actions.css?v=20261101-centred',
+  './assets/css/required-action-alerts.css?v=20261101',
   './assets/css/league-return.css?v=20261027',
   './assets/js/league-return.js?v=20261027-release',
   './assets/js/league.js?v=20261101-actions',
@@ -88,7 +89,7 @@ const APP_SHELL = [
   './assets/js/game-card-awards.js?v=20260901-v3',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js?v=20260828-player-pool',
-  './assets/js/index-actions.js?v=20261101-status',
+  './assets/js/index-actions.js?v=20261101-alert',
   './assets/js/prediction-action-status.js',
   './assets/js/index-admin.js?v=20260828-startup-reliability',
   './assets/js/async-read.js',
