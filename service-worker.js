@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'prem-predics-pwa-v131';
+const CACHE_VERSION = 'prem-predics-pwa-v132';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -10,7 +10,7 @@ const APP_SHELL = [
   './assets/js/leaderboard-history-model.js?v=20261031-form',
   './assets/css/leaderboard-history.css?v=20261031-inline-form',
   './assets/css/league-navigation.css?v=20261030-restore',
-  './assets/css/league-hub-actions.css?v=20261101-centred',
+  './assets/css/league-hub-actions.css?v=20261101-name20',
   './assets/css/required-action-alerts.css?v=20261101',
   './assets/css/league-return.css?v=20261027',
   './assets/js/league-return.js?v=20261027-release',
@@ -101,7 +101,7 @@ const APP_SHELL = [
   './assets/js/live-curses.js?v=20260901-vetoed-v1',
   './assets/js/live-curses-model.js?v=20260901-vetoed-v1',
   './assets/js/medal-progress.js',
-  './assets/js/leagues.js',
+  './assets/js/leagues.js?v=20261101-name20',
   './assets/js/legal-footer.js',
   './assets/js/login.js?v=20260820-username-28',
   './assets/js/medals.js?v=20260831-football-loader-v1',

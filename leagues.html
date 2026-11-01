@@ -665,7 +665,8 @@ footer {
         <form data-create-league>
           <label>
             League name
-            <input name="name" required maxlength="80" placeholder="">
+            <input name="name" required minlength="1" maxlength="20" placeholder="Up to 20 characters" aria-describedby="league-name-limit">
+            <small id="league-name-limit" class="state-text">Maximum 20 characters.</small>
           </label>
           <p class="state-text">League size and deck are locked from the number of members when the first gameweek begins.</p>
           <button type="submit">Create League</button>
@@ -691,7 +692,7 @@ footer {
 <footer>2026 Prem Predics | Leagues</footer>
 
 <script type="module" src="assets/js/site-auth.js?v=20260828-startup-reliability"></script>
-<script type="module" src="assets/js/leagues.js"></script>
+<script type="module" src="assets/js/leagues.js?v=20261101-name20"></script>
 <script src="assets/js/pwa.js?v=20261027-theme" defer></script>
 <script src="assets/js/wider-polish.js" defer></script>
 <script src="assets/js/legal-footer.js" defer></script>

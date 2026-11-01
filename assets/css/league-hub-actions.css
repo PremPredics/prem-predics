@@ -111,3 +111,68 @@ body .league-panel .league-meta-pair .join-code-content {
   body .league-panel .league-meta-pair .league-members-count {padding-inline:5px}
   body .league-panel .league-meta-pair details.join-code summary {padding-inline:6px}
 }
+
+/* v8: the full-width title gets priority for all 20 characters. */
+body .league-panel .league-summary {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"name" "controls";
+  justify-items:center;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+  padding-bottom:9px;
+}
+body .league-panel .league-summary > .league-summary-name {
+  grid-area:name;
+  width:100%;
+  min-width:0;
+  text-align:center;
+}
+body .league-panel .league-summary h2 {
+  width:100%;
+  max-width:100%;
+  margin:0;
+  font-size:clamp(1.45rem,5.1vw,2.5rem);
+  font-weight:950;
+  letter-spacing:-.025em;
+  line-height:1.13;
+  text-align:center;
+  text-wrap:balance;
+  overflow-wrap:anywhere;
+}
+body .league-panel .league-quick-meta {
+  grid-area:controls;
+  justify-self:center;
+  align-items:center;
+  gap:7px;
+  width:max-content;
+  max-width:100%;
+}
+body .league-panel .league-meta-pair {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:9px;
+  width:max-content;
+  max-width:100%;
+}
+body.pp-refined .league-panel .league-quick-meta .gameweek-card {
+  align-self:center;
+  justify-self:center;
+  margin:0;
+  padding:7px 15px;
+  min-height:34px;
+  max-width:100%;
+}
+@media(max-width:650px){
+  body .league-panel .league-summary {gap:8px;margin-bottom:9px;padding-bottom:9px}
+  body .league-panel .league-summary h2 {font-size:clamp(1.4rem,5.9vw,1.9rem)}
+  body .league-panel .league-quick-meta {gap:6px}
+  body .league-panel .league-meta-pair {gap:8px}
+  body.pp-refined .league-panel .league-quick-meta .gameweek-card {min-height:32px;padding:7px 12px}
+}
+@media(max-width:350px){
+  body .league-panel .league-summary h2 {font-size:clamp(1.28rem,5.9vw,1.45rem)}
+  body .league-panel .league-meta-pair {gap:6px}
+}

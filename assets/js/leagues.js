@@ -262,6 +262,11 @@ createForm.addEventListener('submit', async (event) => {
 
   const formData = new FormData(createForm);
   const name = String(formData.get('name') || '').trim();
+  const nameLength = Array.from(name).length;
+  if (nameLength < 1 || nameLength > 20) {
+    setMessage('League names must be between 1 and 20 characters.', 'error');
+    return;
+  }
 
   if (!(await confirmAction(`Create "${name}"?`, 'Create'))) {
     setMessage('', 'info');
@@ -309,6 +314,10 @@ createForm.addEventListener('submit', async (event) => {
   } catch (error) {
     if (error.code === '23505') {
       setMessage('That league name already exists.', 'error');
+      return;
+    }
+    if (error.code === '23514') {
+      setMessage('League names must be between 1 and 20 characters.', 'error');
       return;
     }
 
