@@ -13,8 +13,10 @@ body .league-panel .join-code-content{max-width:220px;justify-content:flex-start
 .hub-action-loading{grid-column:1/-1;text-align:center;padding:10px;color:#ebdfff;font-size:12px}
 .hub-action-tile{display:flex;flex-direction:column;justify-content:center;align-items:center;min-width:0;min-height:65px;gap:4px;padding:8px 4px;border:1px solid #ffffffab;border-radius:13px;box-shadow:inset 0 1px #ffffff7a,0 5px 14px #16072e45;text-align:center;text-decoration:none!important;transition:filter .15s,transform .15s}
 .hub-action-tile:focus-visible{outline:2px solid white;outline-offset:2px}
-.hub-action-tile:hover{filter:brightness(1.12)}
-.hub-action-tile:active{transform:scale(.97)}
+.hub-action-tile{position:relative;isolation:isolate;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .14s cubic-bezier(.2,.8,.2,1),filter .14s,border-color .14s}
+@media(hover:hover) and (pointer:fine){.hub-action-tile:hover{filter:brightness(1.07);transform:translateY(-1px)}}
+.hub-action-tile:active{transform:translateY(1px) scale(.985);filter:brightness(.96)}
+.hub-action-tile strong,.hub-action-tile .hub-action-state{-webkit-text-stroke:0;text-shadow:none}
 .hub-action-tile[data-tone=predictions]{background:linear-gradient(145deg,#079fd8,#0b6395)}
 .hub-action-tile[data-tone=star]{background:linear-gradient(145deg,#f0b93f,#99601a)}
 .hub-action-tile[data-tone=game]{background:linear-gradient(145deg,#0db77a,#076644)}
@@ -280,17 +282,22 @@ body .league-panel .league-summary h2 {
   body .league-panel .league-summary h2 {text-align:center}
 }
 
-/* Short double pulse every 7.5 seconds; quiet between bursts. */
+/* The reminder halo pulses independently, so it never fights press feedback. */
 @keyframes ppLeagueHubAttentionBurst {
-  0%,5%,13%,24%,100% {transform:scale(1);filter:drop-shadow(0 0 0 transparent)}
-  9%,18% {transform:scale(1.035);filter:drop-shadow(0 0 13px rgba(255,144,0,.95))}
+  0%,5%,13%,24%,100% {opacity:0}
+  9%,18% {opacity:1}
 }
 body.pp-refined .league-panel .hub-action-tile[data-action-state="required"]{
-  transform-origin:center center;
+  animation:none;
+}
+body.pp-refined .league-panel .hub-action-tile[data-action-state="required"]::before{
+  content:"";position:absolute;inset:-3px;border-radius:inherit;
+  pointer-events:none;z-index:-1;opacity:0;
+  box-shadow:0 0 14px 3px #ff9000b3;
   animation:ppLeagueHubAttentionBurst 7.5s ease-in-out infinite;
 }
 @media(prefers-reduced-motion:reduce) {
- body.pp-refined .league-panel .hub-action-tile[data-action-state="required"]{
-   animation:none;transform:none;filter:none;
- }
+ .hub-action-tile{transition:none}
+ .hub-action-tile:hover,.hub-action-tile:active{transform:none}
+ body.pp-refined .league-panel .hub-action-tile[data-action-state="required"]::before{animation:none;opacity:0}
 }
