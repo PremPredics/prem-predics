@@ -1,3 +1,4 @@
+import './haptics.js?v=20261102';
 import { supabase } from './supabase-client.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import {
@@ -1234,6 +1235,7 @@ async function saveAllPredictions() {
     return;
   }
 
+  window.ppHaptics?.success();
   rows.forEach((prediction) => state.predictions.set(prediction.fixture_id, prediction));
   deleteFixtureIds.forEach((fixtureId) => state.predictions.delete(fixtureId));
   state.mode = 'summary';
@@ -1349,6 +1351,7 @@ async function saveHedgePrediction(effectId) {
     )),
     row,
   ];
+  window.ppHaptics?.success();
   setMessage('Hedge prediction saved.', 'success');
   render();
   restoreDraftPredictionInputs(draftPredictions);
@@ -1390,6 +1393,7 @@ async function saveSuperScorePick() {
   }
 
   state.superScorePick = row;
+  window.ppHaptics?.success();
   setMessage('Super Score saved.', 'success');
   render();
 }

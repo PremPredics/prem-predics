@@ -1,8 +1,9 @@
-const CACHE_VERSION = 'prem-predics-pwa-v136';
+const CACHE_VERSION = 'prem-predics-pwa-v137';
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const APP_SHELL = [
+  './assets/js/haptics.js?v=20261102',
   './assets/js/premium-navigation.js?v=20261101-audience',
   './assets/css/premium-navigation.css?v=20261101-audience',
   './assets/js/leaderboard.js?v=20261031-inline-form',
@@ -85,7 +86,7 @@ const APP_SHELL = [
   './assets/js/desktop-polish.js',
   './assets/js/desktop-prediction-final-polish.js',
   './assets/js/desktop-summary-polish.js',
-  './assets/js/game-card.js?v=20260924-fast',
+  './assets/js/game-card.js?v=20261102-haptics',
   './assets/js/game-card-awards.js?v=20260901-v3',
   './assets/js/gameweek-context.js',
   './assets/js/global-admin.js?v=20260828-player-pool',
@@ -107,7 +108,7 @@ const APP_SHELL = [
   './assets/js/medals.js?v=20260831-football-loader-v1',
   './assets/js/page-loader.js?v=20260920-adaptive',
   './assets/js/prediction-hub.js',
-  './assets/js/predictions.js?v=20261018-kickoff',
+  './assets/js/predictions.js?v=20261102-haptics',
   './assets/js/profile.js?v=20260826-account-profile-cache',
   './assets/js/pwa.js',
   './assets/js/pwa.js?v=20261030-restore',
@@ -115,7 +116,7 @@ const APP_SHELL = [
   './assets/js/reset-password.js',
   './assets/js/site-auth.js?v=20260828-startup-reliability',
   './assets/js/star-man-hub.js',
-  './assets/js/star-man.js?v=20260908-browse-75',
+  './assets/js/star-man.js?v=20261102-haptics',
   './assets/js/statistics.js?v=20260831-slick-v1',
   './assets/js/supabase-client.js',
   './assets/js/ui-polish.js',

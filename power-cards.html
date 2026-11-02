@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <script src="assets/js/card-title.js?v=20260909-centered"></script>
+<script src="assets/js/haptics.js?v=20261102" defer></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prem Predics - Cards</title>
@@ -8016,6 +8017,7 @@ async function startCardReveal(deckType) {
       await syncHandFromDatabase({ force: true });
       throw new Error('The draw completed, but the card details were not returned cleanly. Your hand has been refreshed.');
     }
+    window.ppHaptics?.success();
     if (deckType === 'premium') {
       for (const drawn of drawnCards) {
         sequenceInProgress = true;
@@ -8141,9 +8143,11 @@ function drawAndRevealCard(deckType, player, forcedCard = null) {
   reveal.classList.add('show');
   fitPreviewText(nameEl, descEl);
   
+  const stopHaptics = deckType === 'premium' ? window.ppHaptics?.reveal(reveal) : null;
   // Auto-close after 4 seconds and send to hand
   return new Promise((resolve) => {
     setTimeout(() => {
+      stopHaptics?.();
       reveal.classList.remove('show');
       setTimeout(() => {
         animateCardToHand(card, cardType, player, async () => {
@@ -8374,6 +8378,7 @@ async function showSuperDrawReveal(drawnCards, expectedCount = 0) {
   reveal.classList.add('show');
   reveal.setAttribute('aria-hidden', 'false');
   countdownTimer = window.setInterval(updateCountdown, 250);
+  window.ppHaptics?.reveal(reveal);
 
   await wait(introDelay);
   subtitle.textContent = `Drawing ${expectedCount || cards.length} Regular Deck ${cards.length === 1 ? 'card' : 'cards'}...`;
@@ -8441,6 +8446,7 @@ async function showSuperTimedGoldReveal({
   updateCountdown();
   document.body.classList.add('card-preview-open');
   document.body.appendChild(reveal);
+  window.ppHaptics?.reveal(reveal);
   countdownTimer = window.setInterval(updateCountdown, 250);
   await wait(durationMs);
   if (countdownTimer) {
@@ -8526,6 +8532,7 @@ async function showSuperStarManReveal(player) {
   reveal.classList.add('show');
   reveal.setAttribute('aria-hidden', 'false');
   countdownTimer = window.setInterval(updateCountdown, 250);
+  window.ppHaptics?.reveal(reveal);
 
   await wait(totalDuration);
   if (countdownTimer) {
@@ -8907,6 +8914,7 @@ async function confirmSuperSubSelection() {
   let completed = false;
   try {
     const result = await confirmFn(pending, superSubUiState.selectedPlayer.id);
+    window.ppHaptics?.success();
     const oldPlayerName = result?.oldPlayerName || 'N/A';
     const newPlayerName = result?.newPlayerName || 'N/A';
     if (isDuo) {
@@ -9075,6 +9083,7 @@ async function confirmCardPlay() {
     }
   }
 
+  if (activation) window.ppHaptics?.success();
   const keepPlayedCardInHand = !activation?.__cardConsumedAtomically
     && (isSwapCard || shouldKeepPlayedCardInHand(activation));
   let discardPlayedCardPromise = Promise.resolve();
@@ -9389,6 +9398,7 @@ async function confirmSwap() {
       showSiteNotice(error.message || 'Could not activate Power of the Swap.', 'Power of the Swap');
       return;
     }
+    if (activation) window.ppHaptics?.success();
     swap.effectId = activation?.id || swap.effectId;
     swap.gameweekNumber = activation?.gameweek_number || swap.gameweekNumber || null;
   }

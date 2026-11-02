@@ -1,3 +1,4 @@
+import './haptics.js?v=20261102';
 import { supabase } from './supabase-client.js';
 import {
   escapeHtml,
@@ -1251,6 +1252,7 @@ async function savePrediction(row) {
     return;
   }
 
+  window.ppHaptics?.success();
   const savedPrediction = {
     round_id: roundId,
     gameweek_id: gameweekId,

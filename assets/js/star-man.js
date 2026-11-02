@@ -1,3 +1,4 @@
+import './haptics.js?v=20261102';
 import { supabase } from './supabase-client.js';
 import { finishPageLoader, setPageLoaderProgress } from './page-loader.js?v=20260920-adaptive';
 import {
@@ -1594,6 +1595,7 @@ async function savePick(slot) {
     return;
   }
 
+  window.ppHaptics?.success();
   state.existingPicks.set(slot, player.id);
   state.existingPickSources.set(slot, check.sourceCardEffectId || null);
   const savedPick = {
