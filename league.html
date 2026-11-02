@@ -1073,7 +1073,8 @@ footer {
   })();
 </script>
 <link rel="stylesheet" href="assets/css/premium-navigation.css?v=20261101-audience">
-<link rel="stylesheet" href="assets/css/league-hub-actions.css?v=20261102-touch">
+<link rel="stylesheet" href="assets/css/league-hub-actions.css?v=20261102-disclosures">
+<script src="assets/js/hub-disclosures.js?v=20261102" defer></script>
 <link rel="stylesheet" href="assets/css/required-action-alerts.css?v=20261101">
 <style>
 /* Slim Gameweek chip replaces the full-width next-kickoff countdown. */
@@ -1120,13 +1121,13 @@ body.pp-refined .league-panel .gameweek-card strong{font-size:clamp(.8rem,2.9vw,
 
     <nav class="hub-action-grid" data-hub-action-grid aria-label="Gameweek actions"><span class="hub-action-loading">Checking Gameweek actions…</span></nav>
 
-    <details class="hub-deadlines">
+    <details class="hub-deadlines" data-hub-disclosure>
       <summary><span class="hub-deadline-label"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg><span>Gameweek Deadlines</span></span><span class="hub-deadline-toggle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></summary>
       <div class="deadline-strip" data-deadline-strip></div>
     </details>
 
-    <details class="medal-progress-panel">
-      <summary><span>🏅 Next Medal Progress</span><span class="medal-chevron" aria-hidden="true">⌄</span></summary>
+    <details class="medal-progress-panel" data-hub-disclosure>
+      <summary><span class="hub-deadline-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 3 5 7 5-7M4 3h5m6 0h5"/><circle cx="12" cy="15" r="6"/><path d="m12 12 1 2 2 .3-1.5 1.5.4 2.2-1.9-1-1.9 1 .4-2.2L9 14.3l2-.3Z"/></svg><span>Next Medal Progress</span></span><span class="hub-deadline-toggle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></summary>
       <div class="medal-progress-inner" data-medal-progress aria-live="polite">
         <span class="medal-progress-loading">Loading medal progress...</span>
       </div>
