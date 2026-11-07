@@ -359,7 +359,7 @@ async function loadCorrectScores() {
       .from('correct_scores')
       .select('competition_id, user_id, fixture_id, gameweek_id, gameweek_number, home_team, away_team, predicted_home_goals, predicted_away_goals, actual_home_goals, actual_away_goals')
       .eq('competition_id', context.league.id)
-      .order('gameweek_number', { ascending: true }),
+      .order('gameweek_number', { ascending: false }),
     supabase
       .from('prediction_score_details')
       .select('competition_id, user_id, fixture_id, source_card_effect_id, is_correct_score')
