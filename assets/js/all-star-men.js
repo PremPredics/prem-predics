@@ -525,7 +525,7 @@ async function loadData() {
       .from('gameweek_deadlines')
       .select('gameweek_id, season_id, gameweek_number, star_man_locks_at')
       .eq('season_id', state.league.season_id)
-      .order('gameweek_number', { ascending: true }),
+      .order('gameweek_number', { ascending: false }),
     supabase
       .from('competition_members')
       .select('user_id, joined_at, profiles(display_name, profile_image_url, favorite_color)')
