@@ -7098,6 +7098,13 @@ cardDescriptions["Curse of the Gambler"] = cardDescriptions["Curse of the Random
 cardDescriptions["Curse of the Random Roulette"] = cardDescriptions["Curse Of The Microstate"];
 cardDescriptions["Power of the Rocket Man"] = cardDescriptions["Power Of The Clean Sweep"];
 cardDescriptions["Curse of the Bench Warmer"] = cardDescriptions["Curse of the Furious"];
+cardDescriptions["Super Pen"] += "\\n\\nPlay before the first match of the Gameweek kicks off.";
+cardDescriptions["Super Golden Gameweek"] += "\\n\\nPlay before the first match of the Gameweek kicks off.";
+cardDescriptions["Super Score"] += "\\n\\nBoth the card and scoreline must be saved before the first Gameweek kick-off.";
+cardDescriptions["Super Star Man"] += "\\n\\nPlay before your saved Star Man's match kicks off.";
+cardDescriptions["Super Duo"] += "\\n\\nMay be played after the normal 90-minute Star Man deadline. Only players with unstarted matches can be selected. After your chosen Duo's match kicks off, that pick cannot be changed. If no Duo is chosen by Gameweek end, the card returns unused.";
+cardDescriptions["Super Sub"] += "\\n\\nYou can play this even after your original Star Man's match has ended, but before the final Gameweek match kicks off.";
+cardDescriptions["Super Draw"] += "\\n\\nCan be played at any time once league cards unlock.";
 cardDescriptions["Power Of The Foreigners"] = "Power Of The Foreigners\n\nValid for 1 Gameweek. Non-English Star Men score DOUBLE points. Yellow Cards and Red Cards are not doubled. Must be played at least 90 minutes before the gameweek's first KO time.";
 cardDescriptions["Power Of The Early Bath"] = "Power Of The Early Bath\n\nValid for 1 Gameweek. Predictions for fixtures marked as having a red card in the first 15 minutes score DOUBLE points. Must be played at least 90 minutes before the gameweek's first KO time.";
 cardDescriptions["Power of God"] = "Power of God\n\nChange one current-Gameweek match prediction from kick-off until 60 minutes after kick-off.";
@@ -10812,6 +10819,17 @@ async function syncMedals() {
         throw playedEffectsError;
       }
 
+      // The database returns an unselected Super Duo to hand when the Gameweek ends.
+      // Clear stale local selection flow so the refunded card is usable again.
+      if (gameState.pendingSuperDuo?.effectId
+        && !(playedEffects || []).some((effect) => (
+          String(effect.id) === String(gameState.pendingSuperDuo.effectId)
+          && effect.status === 'active'
+        ))) {
+        gameState.pendingSuperDuo = null;
+        save();
+      }
+
       const { data: seasonGameweeks, error: gameweekError } = await supabase
         .from('gameweek_deadlines')
         .select('gameweek_id, gameweek_number, first_fixture_kickoff_at')
@@ -11124,7 +11142,7 @@ async function syncMedals() {
       'Curse of the Thief': { cardId: 'curse_thief', effectKey: 'curse_thief', duration: 1, target: 'self' },
       'Curse of the Even Number': { cardId: 'curse_even_number', effectKey: 'curse_even_number', duration: 1, target: 'opponent' },
       'Curse of the Odd Number': { cardId: 'curse_odd_number', effectKey: 'curse_odd_number', duration: 1, target: 'opponent' },
-      'Super Star Man': { cardId: 'super_star_man', effectKey: 'super_star_man', duration: 1, target: 'self' },
+      'Super Star Man': { cardId: 'super_star_man', effectKey: 'super_star_man', duration: 1, target: 'self', deadlineExempt: true },
       'Super Golden Gameweek': { cardId: 'super_golden_gameweek', effectKey: 'super_golden_gameweek', duration: 1, target: 'self', deadlineExempt: true },
       'Super Sub': { cardId: 'super_sub', effectKey: 'super_sub', duration: 1, target: 'self', deadlineExempt: true },
       'Super Score': { cardId: 'super_score', effectKey: 'super_score', duration: 1, target: 'self', deadlineExempt: true },
@@ -12662,7 +12680,8 @@ async function syncMedals() {
             return { player, allowed: false, reason: 'Already selected as Star Man' };
           }
           return { player, ...status };
-        });
+        })
+        .filter((candidate) => candidate.allowed);
 
       return {
         currentPlayer,
@@ -12964,14 +12983,27 @@ async function syncMedals() {
         const firstKickoffAt = activeGameweek.first_fixture_kickoff_at || fixtures.find((fixture) => fixture.kickoff_at)?.kickoff_at || null;
         if (rule.effectKey === 'power_late_scout') {
           await assertLateScoutCanBePlayed(activeGameweek, fixtures, context, supabase);
-        } else if (rule.effectKey === 'super_score' && firstKickoffAt && new Date(firstKickoffAt).getTime() <= Date.now()) {
-          throw new Error('Super Score must be played before the Gameweek starts.');
+        } else if (['super_pen', 'super_golden_gameweek', 'super_score'].includes(rule.effectKey)) {
+          if (!firstKickoffAt || new Date(firstKickoffAt).getTime() <= Date.now()) {
+            throw new Error(`${cardDisplayName} must be played before the first Gameweek kick-off.`);
+          }
+        } else if (rule.effectKey === 'super_star_man') {
+          const savedStar = await loadCurrentStarManForSuperStarRuntime();
+          const match = savedStar?.player ? firstFixtureForPlayer(savedStar.player, fixtures) : null;
+          if (!match || new Date(match.kickoff_at).getTime() <= Date.now()) {
+            throw new Error("Super Star Man requires a saved Star Man whose match has not kicked off.");
+          }
+        } else if (rule.effectKey === 'super_sub') {
+          if (!fixtures.some((fixture) => fixture.status !== 'postponed'
+            && fixture.kickoff_at && new Date(fixture.kickoff_at).getTime() > Date.now())) {
+            throw new Error('Super Sub must be played before the final Gameweek match kicks off.');
+          }
         } else if (rule.effectKey === 'super_duo' && !fixtures.some((fixture) => {
           return String(fixture.status || '').toLowerCase() !== 'postponed'
             && fixture.kickoff_at
             && new Date(fixture.kickoff_at).getTime() > Date.now();
         })) {
-          throw new Error('Super Duo cannot be played if all matches in the gameweek have Kicked-Off');
+          throw new Error('Super Duo cannot be played if all matches in the gameweek have kicked off.');
         } else if (!rule.deadlineExempt) {
           assertCardPlayDeadline(rule, activeGameweek);
         }
