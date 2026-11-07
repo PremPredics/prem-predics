@@ -1470,6 +1470,7 @@ function renderSearch(slot) {
     .filter((player) => playerMatchesQuery(player, query))
     .filter((player) => String(player.id) !== String(selectedPlayer?.id || ''))
     .map((player) => ({ player, check: evaluatePlayer(player, slot) }))
+    .filter(({ check }) => slot !== 'super_duo' || check.allowed)
     .sort((left, right) => (
       Number(right.check.allowed) - Number(left.check.allowed)
       || String(left.player.display_name || '').localeCompare(String(right.player.display_name || ''))
