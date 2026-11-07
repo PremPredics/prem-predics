@@ -747,6 +747,12 @@ function deadlineCheck(player, slot) {
       return { allowed: false, reason: 'Super Duo is not active.', sourceCardEffectId: null };
     }
 
+    const savedDuoId = state.existingPicks.get('super_duo')?.player_id;
+    const savedDuo = state.players.find((candidate) => String(candidate.id) === String(savedDuoId || ''));
+    if (savedDuo && isPast(playerFixture(savedDuo)?.kickoff_at)) {
+      return { allowed: false, reason: 'Your saved Super Duo is locked after their match kick-off.', sourceCardEffectId: superDuo.id };
+    }
+
     if (isPast(fixture.kickoff_at)) {
       return { allowed: false, reason: "this player's team has already kicked off", sourceCardEffectId: superDuo.id };
     }
@@ -1621,6 +1627,15 @@ async function savePick(slot) {
 }
 
 async function clearPick(slot) {
+  if (slot === 'super_duo') {
+    const savedDuoId = state.existingPicks.get('super_duo')?.player_id;
+    const savedDuo = state.players.find((candidate) => String(candidate.id) === String(savedDuoId || ''));
+    if (savedDuo && isPast(playerFixture(savedDuo)?.kickoff_at)) {
+      setMessage(slot, 'Your saved Super Duo is locked because their match has kicked off.', 'error');
+      return;
+    }
+  }
+
   if (slot === 'primary' && ownEffect('super_star_man')) {
     renderSearch(slot);
     return;
