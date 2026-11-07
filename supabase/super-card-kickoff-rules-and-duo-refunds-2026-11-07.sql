@@ -664,9 +664,9 @@ case id
  when 'super_pen' then 'Gain 1 Medal whenever a penalty is scored this Gameweek. Must be played before the first match kicks off. Valid for 1 Gameweek.'
  when 'super_golden_gameweek' then 'Double your prediction points for the Gameweek. Must be played before the first match kicks off. Valid for 1 Gameweek.'
  when 'super_score' then 'Choose an exact home-away scoreline before the first Gameweek kick-off. Both playing the card and saving the scoreline must be completed before kick-off.'
- when 'super_star_man' then 'Triple the points from your saved Star Man, with no yellow/red-card penalties. Must be played before the selected Star Man\'s match kicks off.'
+ when 'super_star_man' then 'Triple the points from your saved Star Man, with no yellow/red-card penalties. Must be played before the selected Star Man''s match kicks off.'
  when 'super_duo' then 'Choose a second Star Man, including after the normal Star Man deadline, but only before the chosen player kicks off. Once saved and kicked off, the Duo cannot be changed. If no Duo is chosen by the end of the Gameweek, the card returns unused.'
- when 'super_sub' then 'Swap your Star Man, including after the original Star Man\'s match finishes, before the final Gameweek match kicks off. The replacement player must not have kicked off.'
+ when 'super_sub' then 'Swap your Star Man, including after the original Star Man''s match finishes, before the final Gameweek match kicks off. The replacement player must not have kicked off.'
  when 'super_draw' then 'Draw 5 Regular Cards from the Regular Deck. Can be played at any time once league cards are unlocked.'
  else description
 end
