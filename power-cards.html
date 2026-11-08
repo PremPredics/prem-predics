@@ -7349,6 +7349,16 @@ function load() {
       gameState.pendingSwap = null;
     }
     gameState.currentPlayerKey = gameState.currentPlayerKey || 'p1';
+    // Purge previously cached opponent card names and instance IDs.
+    Object.keys(gameState.players || {}).forEach((playerKey) => {
+      if (playerKey === 'p1') return;
+      const oldHand = gameState.players[playerKey]?.hand || [];
+      gameState.players[playerKey].hand = oldHand.map(() => 'Hidden Card');
+      gameState.handCardInstancesByPlayer[playerKey] = oldHand.map(() => ({
+        id: null, name: 'Hidden Card', canSteal: false,
+      }));
+      gameState.cardInstanceIdsByPlayer[playerKey] = {};
+    });
     save();
   }
 }
@@ -9239,7 +9249,11 @@ async function confirmCardPlay() {
     render();
     return;
   }
-  else if (isThiefCard) startStealMode(player, activation);
+  else if (isThiefCard) {
+    // Refresh after activation so only then are eligible face-down IDs available.
+    await syncHandFromDatabase({ force: true });
+    if (!gameState.stealMode) startStealMode(player, activation);
+  }
 
   if (isThiefCard) {
     const releasePage = freezePageForStealCallout(cardPlayViewport);
@@ -9610,9 +9624,8 @@ function opponentCardIsStealable(playerKey, index) {
   const usedMeta = card?.id ? gameState.usedCardEffectsByInstance?.[card.id] : null;
   return stealOpponentIsEligible(playerKey)
     && Boolean(card?.id)
-    && !usedMeta
-    && card?.deckType !== 'premium'
-    && card?.category !== 'super';
+    && card?.canSteal === true
+    && !usedMeta;
 }
 
 function selectSteal(opponent, index) {
@@ -10364,9 +10377,9 @@ function render() {
       const usedMeta = cardInstance?.id ? gameState.usedCardEffectsByInstance?.[cardInstance.id] : null;
       const canStealThisCard = Boolean(gameState.stealMode && gameState.stealMode !== p)
         && opponentCardIsStealable(p, i);
-      const revealOpponentCard = isOpponentHand && canStealThisCard;
-      div.className = isOpponentHand && !revealOpponentCard
-        ? `card-tile masked-card ${getMaskedCardClass(c)}`
+      // Thief choices are always face-down: never render an opponent's card name.
+      div.className = isOpponentHand
+        ? 'card-tile masked-card masked-regular'
         : `card-tile ${cardType}`;
       if (usedMeta) {
         div.classList.add('used-card');
@@ -10376,15 +10389,15 @@ function render() {
         }
         div.dataset.usedWeek = `GW${usedMeta.gameweekNumber || '?'}`;
         div.innerHTML = `
-          <span class="used-card-name">${window.ppCardTitle(isOpponentHand && !revealOpponentCard ? getMaskedCardLabel(c) : c)}</span>
+          <span class="used-card-name">${window.ppCardTitle(isOpponentHand ? 'Face-down Card' : c)}</span>
           <span class="used-card-label">Used GW${escapeHtml(usedMeta.gameweekNumber || '?')}</span>
         `;
       } else {
-        div.innerHTML = window.ppCardTitle(isOpponentHand && !revealOpponentCard ? getMaskedCardLabel(c) : c);
+        div.innerHTML = window.ppCardTitle(isOpponentHand ? 'Face-down Card' : c);
       }
       div.dataset.player = p;
       div.dataset.index = i;
-      div.dataset.card = c;
+      div.dataset.card = isOpponentHand ? 'Face-down Card' : c;
 
       if ((!usedMeta && (!isOpponentHand || canStealThisCard)) || (usedMeta && !isOpponentHand)) {
         div.setAttribute('role', 'button');
@@ -10891,6 +10904,19 @@ async function syncMedals() {
         throw cardError;
       }
 
+      const pendingThiefForBacks = (playedEffects || []).find((effect) => (
+        effect.played_by_user_id === context.user.id
+        && effect.status === 'active'
+        && !effect.target_user_id
+        && getNestedRecord(effect.card_definitions)?.effect_key === 'curse_thief'
+      ));
+      const { data: maskedOpponentCards, error: maskedError } = await supabase
+        .rpc('list_masked_league_hand_cards', {
+          target_competition_id: context.league.id,
+          target_pending_thief_effect_id: pendingThiefForBacks?.id || null,
+        });
+      if (maskedError) throw maskedError;
+
       const userIdToPlayerKey = new Map(
         Object.entries(gameState.playerUserIds).map(([playerKey, userId]) => [userId, playerKey])
       );
@@ -10952,6 +10978,19 @@ async function syncMedals() {
           }
           dbDiscardPile.push(discardItem);
         }
+      });
+
+      // Only these opaque card backs, never full opponent card records, reach the browser.
+      (maskedOpponentCards || []).forEach((back) => {
+        const playerKey = userIdToPlayerKey.get(back.owner_user_id);
+        if (!playerKey || !gameState.players[playerKey] || playerKey === 'p1') return;
+        gameState.players[playerKey].hand.push('Hidden Card');
+        gameState.handCardInstancesByPlayer[playerKey].push({
+          id: back.card_instance_id || null,
+          name: 'Hidden Card',
+          canSteal: Boolean(back.can_steal),
+          isUsed: Boolean(back.is_used),
+        });
       });
 
       const ownPlayerKey = userIdToPlayerKey.get(context.user.id);
@@ -11578,59 +11617,9 @@ async function syncMedals() {
     }
 
     async function assertCanStealFromOpponent(opponentUserId) {
-      if (!opponentUserId) {
-        return;
-      }
-
-      const { data: swapEffects, error: swapError } = await supabase
-        .from('active_card_effects')
-        .select('id, card_instance_id, card_definitions!inner(effect_key)')
-        .eq('competition_id', context.league.id)
-        .eq('season_id', context.league.season_id)
-        .eq('played_by_user_id', opponentUserId)
-        .eq('status', 'active')
-        .eq('card_definitions.effect_key', 'power_swap')
-        .limit(1);
-
-      if (swapError) {
-        throw swapError;
-      }
-
-      const pendingSwap = (swapEffects || [])[0];
-      if (!pendingSwap) {
-        return;
-      }
-
-      const { data: drawEvents, error: drawError } = await supabase
-        .from('card_draw_events')
-        .select('id')
-        .eq('competition_id', context.league.id)
-        .eq('user_id', opponentUserId)
-        .eq('source_card_effect_id', pendingSwap.id)
-        .limit(1);
-
-      if (drawError) {
-        throw drawError;
-      }
-
-      if ((drawEvents || []).length) {
-        return;
-      }
-
-      const { data: handCards, error: handError } = await supabase
-        .from('league_cards')
-        .select('id')
-        .eq('competition_id', context.league.id)
-        .eq('owner_user_id', opponentUserId)
-        .eq('zone', 'hand');
-
-      if (handError) {
-        throw handError;
-      }
-
-      const otherCards = (handCards || []).filter((card) => card.id !== pendingSwap.card_instance_id);
-      if (otherCards.length <= 1) {
-        throw new Error(`${playerNameForUserId(opponentUserId)} is locked into Power of the Swap and must keep one card available to discard.`);
+      // Backend gives only eligibility, not opponents' private draw records.
+      if (opponentUserId && stealableHandCardCountForUser(opponentUserId) < 1) {
+        throw new Error(`${playerNameForUserId(opponentUserId)} has no eligible Regular Cards to steal.`);
       }
     }
 
@@ -11639,10 +11628,7 @@ async function syncMedals() {
         .find(([, currentUserId]) => String(currentUserId || '') === String(userId || ''))?.[0];
       if (!playerKey) return 0;
       return (gameState.handCardInstancesByPlayer?.[playerKey] || []).filter((card) => (
-        Boolean(card?.id)
-        && !gameState.usedCardEffectsByInstance?.[card.id]
-        && card?.deckType !== 'premium'
-        && card?.category !== 'super'
+        card?.canSteal === true
       )).length;
     }
 
