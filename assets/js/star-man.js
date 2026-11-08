@@ -79,7 +79,6 @@ const starPowerKeys = new Set([
   'super_duo',
 ]);
 const starManPickDependentPowerKeys = new Set([
-  'power_goal',
   'power_assist_king',
   'power_lanky_crouch',
   'power_small_and_mighty',
