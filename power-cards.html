@@ -10895,6 +10895,8 @@ async function syncMedals() {
         .from('league_cards')
         .select('id, card_id, owner_user_id, zone, sort_order, created_at, updated_at, card_definitions(name, category, deck_type)')
         .eq('competition_id', context.league.id)
+        // Even a global admin's game screen must not fetch opponents' hidden cards.
+        .or(`zone.neq.hand,owner_user_id.eq.${context.user.id}`)
         .in('zone', ['regular_deck', 'premium_deck', 'game_deck', 'hand', 'active', 'discard'])
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: true })
