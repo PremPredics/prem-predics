@@ -971,6 +971,14 @@ async function loadEffects() {
 }
 
 async function cancelStarManPickDependentPowers() {
+  // Clearing the primary Star Man refunds Power of the Goal atomically
+  // through the database DELETE trigger. Reflect that cancellation locally;
+  // direct Star Man changes use UPDATE and retain their Power of the Goal.
+  state.activeEffects = state.activeEffects.filter((effect) => !(
+    String(effect.played_by_user_id || '') === String(state.user?.id || '')
+    && effectKey(effect) === 'power_goal'
+  ));
+
   const effectIds = (state.activeEffects || [])
     .filter((effect) => String(effect.played_by_user_id || '') === String(state.user?.id || ''))
     .filter((effect) => starManPickDependentPowerKeys.has(effectKey(effect)))
