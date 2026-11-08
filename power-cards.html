@@ -10925,6 +10925,9 @@ async function syncMedals() {
       gameState.premiumDeck = [];
 
       (cardRows || []).forEach((row) => {
+        // Admins may have broader database visibility, but in the game
+        // never expose another player's hand or its hidden card names.
+        if (row.zone === 'hand' && row.owner_user_id !== context.user.id) return;
         const cardDefinition = getNestedRecord(row.card_definitions);
         const cardName = normalizeCardName(cardDefinition?.name || row.card_id);
         const usedMeta = gameState.usedCardEffectsByInstance[row.id];
