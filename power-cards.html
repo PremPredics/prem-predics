@@ -9613,6 +9613,19 @@ async function resumeThiefFromUsedCard(playerKey, usedMeta) {
   }
 }
 
+async function resumePendingThiefFromPanel() {
+  const pending = gameState.pendingThiefResume;
+  if (!pending?.effectId) return;
+  await resumeThiefFromUsedCard(getCurrentPlayerKey(), {
+    effectId: pending.effectId,
+    deadlineAt: pending.deadlineAt,
+    gameweekId: pending.gameweekId,
+    gameweekNumber: pending.gameweekNumber,
+  });
+  await syncHandFromDatabase({ force: true });
+  render();
+}
+
 function stealOpponentIsEligible(playerKey) {
   const userId = gameState.playerUserIds?.[playerKey];
   return Boolean(userId) && (gameState.stealEligibleOpponentUserIds || [])
@@ -9625,6 +9638,7 @@ function opponentCardIsStealable(playerKey, index) {
   return stealOpponentIsEligible(playerKey)
     && Boolean(card?.id)
     && card?.canSteal === true
+    && !card?.isUsed
     && !usedMeta;
 }
 
@@ -10375,29 +10389,32 @@ function render() {
       const isOpponentHand = p !== currentPlayerKey;
       const cardInstance = gameState.handCardInstancesByPlayer?.[p]?.[i];
       const usedMeta = cardInstance?.id ? gameState.usedCardEffectsByInstance?.[cardInstance.id] : null;
+      const visibleUsedMeta = usedMeta || (isOpponentHand && cardInstance?.isUsed
+        ? { gameweekNumber: cardInstance.usedWeek || '?' }
+        : null);
       const canStealThisCard = Boolean(gameState.stealMode && gameState.stealMode !== p)
         && opponentCardIsStealable(p, i);
-      // Thief choices are always face-down: never render an opponent's card name.
+      const maskedLabel = cardInstance?.deckType === 'premium' ? 'Premium Card' : 'Regular Card';
       div.className = isOpponentHand
-        ? 'card-tile masked-card masked-regular'
+        ? `card-tile masked-card ${cardInstance?.deckType === 'premium' ? 'masked-premium' : 'masked-regular'}`
         : `card-tile ${cardType}`;
-      if (usedMeta) {
+      if (visibleUsedMeta) {
         div.classList.add('used-card');
         if (!isOpponentHand) {
           div.classList.add('used-details-enabled');
           div.setAttribute('aria-label', `View ${c} card details`);
         }
-        div.dataset.usedWeek = `GW${usedMeta.gameweekNumber || '?'}`;
+        div.dataset.usedWeek = `GW${visibleUsedMeta.gameweekNumber || '?'}`;
         div.innerHTML = `
-          <span class="used-card-name">${window.ppCardTitle(isOpponentHand ? 'Face-down Card' : c)}</span>
-          <span class="used-card-label">Used GW${escapeHtml(usedMeta.gameweekNumber || '?')}</span>
+          <span class="used-card-name">${window.ppCardTitle(isOpponentHand ? maskedLabel : c)}</span>
+          <span class="used-card-label">Used GW${escapeHtml(visibleUsedMeta.gameweekNumber || '?')}</span>
         `;
       } else {
-        div.innerHTML = window.ppCardTitle(isOpponentHand ? 'Face-down Card' : c);
+        div.innerHTML = window.ppCardTitle(isOpponentHand ? maskedLabel : c);
       }
       div.dataset.player = p;
       div.dataset.index = i;
-      div.dataset.card = isOpponentHand ? 'Face-down Card' : c;
+      div.dataset.card = isOpponentHand ? maskedLabel : c;
 
       if ((!usedMeta && (!isOpponentHand || canStealThisCard)) || (usedMeta && !isOpponentHand)) {
         div.setAttribute('role', 'button');
@@ -10570,6 +10587,14 @@ function render() {
     confirmStealButton.style.display = "block";
     confirmStealButton.disabled = gameState.stealConfirming || !gameState.selectedSteal;
     confirmStealButton.textContent = gameState.stealConfirming ? 'Stealing...' : 'Confirm Steal';
+  } else if (gameState.pendingThiefResume) {
+    swapDiv.style.display = "block";
+    swapDiv.innerHTML = `<strong>Curse of the Thief — Steal Pending!</strong>
+      <p>Your card is still active. Choose an opponent's face-down Regular Card to complete the steal before the deadline.</p>
+      <div class="random-curse-actions"><button class="random-curse-resume" type="button" onclick="resumePendingThiefFromPanel()">Continue Steal</button></div>`;
+    confirmStealButton.style.display = "none";
+    document.getElementById("confirmSwapBtn").style.display = "none";
+    document.getElementById("confirmPickBtn").style.display = "none";
   } else {
     swapDiv.style.display = "block";
     swapDiv.innerHTML = "<strong>No Pending Swap/Steal</strong><p>Played Swap and Steal effects will appear here.</p>";
@@ -10823,7 +10848,7 @@ async function syncMedals() {
 
       const { data: playedEffects, error: playedEffectsError } = await supabase
         .from('active_card_effects')
-        .select('id, card_instance_id, gameweek_id, start_gameweek_id, deadline_at, played_at, played_by_user_id, target_user_id, status, card_definitions(effect_key)')
+        .select('id, card_instance_id, gameweek_id, start_gameweek_id, deadline_at, played_at, played_by_user_id, target_user_id, status, card_definitions(effect_key, name)')
         .eq('competition_id', context.league.id)
         .not('card_instance_id', 'is', null)
         .in('status', ['active', 'resolved', 'vetoed']);
@@ -10913,7 +10938,7 @@ async function syncMedals() {
         && getNestedRecord(effect.card_definitions)?.effect_key === 'curse_thief'
       ));
       const { data: maskedOpponentCards, error: maskedError } = await supabase
-        .rpc('list_masked_league_hand_cards', {
+        .rpc('list_masked_league_hand_cards_v2', {
           target_competition_id: context.league.id,
           target_pending_thief_effect_id: pendingThiefForBacks?.id || null,
         });
@@ -10989,12 +11014,17 @@ async function syncMedals() {
       (maskedOpponentCards || []).forEach((back) => {
         const playerKey = userIdToPlayerKey.get(back.owner_user_id);
         if (!playerKey || !gameState.players[playerKey] || playerKey === 'p1') return;
-        gameState.players[playerKey].hand.push('Hidden Card');
+        const isPremium = back.card_back_type === 'premium';
+        const backName = isPremium ? 'Premium Card' : 'Regular Card';
+        gameState.players[playerKey].hand.push(backName);
         gameState.handCardInstancesByPlayer[playerKey].push({
           id: back.card_instance_id || null,
-          name: 'Hidden Card',
+          name: backName,
+          deckType: isPremium ? 'premium' : 'regular',
+          category: isPremium ? 'super' : 'regular',
           canSteal: Boolean(back.can_steal),
           isUsed: Boolean(back.is_used),
+          usedWeek: back.used_gameweek_number || null,
         });
       });
 
@@ -11071,6 +11101,13 @@ async function syncMedals() {
           && definition?.effect_key === 'curse_thief';
       });
 
+      gameState.pendingThiefResume = pendingThiefEffect ? {
+        effectId: pendingThiefEffect.id,
+        deadlineAt: pendingThiefEffect.deadline_at,
+        gameweekId: pendingThiefEffect.start_gameweek_id || pendingThiefEffect.gameweek_id,
+        gameweekNumber: gameweeksById.get(String(pendingThiefEffect.start_gameweek_id || pendingThiefEffect.gameweek_id))?.gameweek_number || null,
+      } : null;
+
       if (gameState.stealModeEffectId && gameState.stealModeEffectId !== pendingThiefEffect?.id) {
         clearStealMode();
       }
@@ -11091,6 +11128,26 @@ async function syncMedals() {
         });
       }
 
+      // Previously-used cards can still be stored in zone='hand'.
+      // Rebuild public used-card history, but never expose a hidden unused card.
+      const visibleInstanceIds = new Set((cardRows || []).map((row) => String(row.id)));
+      const seenHiddenPlayedInstances = new Set();
+      (playedEffects || []).forEach((effect) => {
+        if (!effect.card_instance_id || effect.played_by_user_id === context.user.id) return;
+        const instanceId = String(effect.card_instance_id);
+        if (visibleInstanceIds.has(instanceId) || seenHiddenPlayedInstances.has(instanceId)) return;
+        const gw = gameweeksById.get(String(effect.start_gameweek_id || effect.gameweek_id));
+        if (!gameweekHasStartedFromTime(gw?.first_fixture_kickoff_at) && effect.status !== 'vetoed') return;
+        const def = getNestedRecord(effect.card_definitions);
+        if (!def?.name) return;
+        seenHiddenPlayedInstances.add(instanceId);
+        dbDiscardPile.push({
+          name: normalizeCardName(def.name),
+          playedByUserId: effect.played_by_user_id || null,
+          action: effect.status === 'vetoed' ? 'vetoed' : 'used',
+          gameweekNumber: gw?.gameweek_number || null,
+        });
+      });
       gameState.discardPile = dbDiscardPile;
 
       render();
