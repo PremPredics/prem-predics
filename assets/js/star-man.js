@@ -1610,6 +1610,24 @@ async function savePick(slot) {
   }
 
   window.ppHaptics?.success();
+
+  // The database returns incompatible height Power Cards to Unused as part
+  // of the primary Star Man change. Reflect that immediately on this page.
+  let refundedHeightPowers = [];
+  if (slot === 'primary') {
+    const height = player.height_cm == null ? null : Number(player.height_cm);
+    refundedHeightPowers = (state.activeEffects || []).filter((effect) => {
+      if (String(effect.played_by_user_id || '') !== String(state.user.id)) return false;
+      const key = effectKey(effect);
+      return (key === 'power_small_and_mighty' && !(height > 0 && height <= 175))
+        || (key === 'power_lanky_crouch' && !(height >= 185));
+    });
+    const refundedIds = new Set(refundedHeightPowers.map((effect) => String(effect.id)));
+    if (refundedIds.size) {
+      state.activeEffects = state.activeEffects.filter((effect) => !refundedIds.has(String(effect.id)));
+    }
+  }
+
   state.existingPicks.set(slot, player.id);
   state.existingPickSources.set(slot, check.sourceCardEffectId || null);
   const savedPick = {
@@ -1631,7 +1649,13 @@ async function savePick(slot) {
   renderStarManHistory();
   updateStarPickStatusLight();
   updateAvailablePlayerCounter();
-  setTemporarySavedMessage(slot, slot === 'super_duo' ? 'Super Duo Saved.' : 'Star Man Saved.');
+  if (refundedHeightPowers.length) {
+    renderRestrictionSummary();
+  }
+  const savedNotice = refundedHeightPowers.length
+    ? `Star Man Saved. ${refundedHeightPowers.map(effectName).join(' and ')} returned to Unused.`
+    : slot === 'super_duo' ? 'Super Duo Saved.' : 'Star Man Saved.';
+  setTemporarySavedMessage(slot, savedNotice);
 }
 
 async function clearPick(slot) {
